@@ -1,0 +1,26 @@
+# Dependencias y compilación
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+.vercel/
+
+# Variables de entorno y credenciales locales
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Pruebas y registros generados
+coverage/
+playwright-report/
+test-results/
+*.log
+
+# Archivos locales del sistema
+.DS_Store
+Thumbs.db
+Desktop.ini
