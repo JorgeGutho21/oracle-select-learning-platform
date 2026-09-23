@@ -15,7 +15,15 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'edge', use: { ...devices['Desktop Edge'], channel: 'msedge' } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    {
+      name: 'webkit',
+      use: {
+        ...devices['Desktop Safari'],
+        // El screencast de la traza en WebKit/Windows duplica la duración de cada prueba.
+        // Se conservan los snapshots DOM de la traza y la captura final del fallo.
+        trace: { mode: 'retain-on-failure', screenshots: false },
+      },
+    },
   ],
   webServer: {
     command: 'npm run dev -- --hostname 127.0.0.1 --port 3100',

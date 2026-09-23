@@ -24,16 +24,17 @@ La experiencia incluye Home, Exposición, Estudio, búsqueda Ctrl+K/Cmd+K, víde
 
 ## Estado comprobado
 
-| Elemento                   | Estado                                                                                                                                                     |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R0: once especificaciones  | Completas y subidas a GitHub.                                                                                                                              |
-| Estructura por capas       | Next.js App Router y presentación por módulos; límites ESLint; núcleo reservado sin lógica ficticia.                                                       |
-| README, AGENTS, .gitignore | Creados y versionados.                                                                                                                                     |
-| R1: Oracle real            | Pendiente; instancia, credenciales y conectividad no verificadas.                                                                                          |
-| R2                         | Cimientos técnicos, rutas vacías y showcase `/dev/design-system` implementados; verificación final en curso. No incluye contenido ni buscador de producto. |
-| R3–R8                      | Pendientes; no hay funcionalidades de negocio ni despliegue.                                                                                               |
-| Pruebas                    | Batería de componentes, arquitectura y navegación implementada; no acredita Oracle, juego, salas ni producto completo.                                     |
-| Continuidad y prompt       | Esta entrega añade este archivo y `CODEX_PROMPT.md`.                                                                                                       |
+| Elemento                   | Estado                                                                                                                                                                        |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R0: once especificaciones  | Completas y subidas a GitHub.                                                                                                                                                 |
+| Estructura por capas       | Next.js App Router y presentación por módulos; límites ESLint; núcleo reservado sin lógica ficticia.                                                                          |
+| README, AGENTS, .gitignore | Creados y versionados.                                                                                                                                                        |
+| R1: Oracle real            | Pendiente; instancia, credenciales y conectividad no verificadas.                                                                                                             |
+| R2                         | Cimientos técnicos, rutas vacías y showcase `/dev/design-system` implementados; verificación final en curso. No incluye contenido ni buscador de producto.                    |
+| R3–R8                      | Pendientes; no hay funcionalidades de negocio ni despliegue.                                                                                                                  |
+| Pruebas                    | Batería de componentes, arquitectura y navegación en verde: lint, typecheck, formato, 22 unitarias, build y 75/75 E2E. No acredita Oracle, juego, salas ni producto completo. |
+| Estado auditado            | `docs/PROJECT_STATUS.md` y `docs/CHALLENGE_STATUS.md`: el Challenge y el resto de módulos de negocio siguen sin iniciar.                                                      |
+| Continuidad y prompt       | Esta entrega añade este archivo y `CODEX_PROMPT.md`.                                                                                                                          |
 
 Commit inicial documental: `dda7d2b892207d226c78d3f3252827290ccf93dd`. Es una referencia histórica; consultar Git para conocer el último commit y la rama actuales.
 
@@ -68,7 +69,7 @@ La última captura muestra una carpeta `Presentacion_SELECT_JorgeGutierrez/Juego
 
 ## Siguiente trabajo
 
-Cerrar la verificación del alcance actual y registrar resultados en `docs/IMPLEMENTATION_NOTES.md`. En el siguiente encargo, revisar primero este showcase y el estado de Git. El contenido y las funcionalidades completas requieren su fase posterior; R1 (Oracle) sigue pendiente y no está simulado.
+La Fase 1 (estabilización técnica) está cerrada. La rama de trabajo autorizada es `claude-finish-20260923`; no trabajar en `main` ni hacer push a `main`. Siguiente paso: esperar la instrucción del usuario sobre la siguiente fase. El orden recomendado está en `docs/PROJECT_STATUS.md` y `docs/CHALLENGE_STATUS.md`. El contenido y las funcionalidades completas requieren su fase posterior; R1 (Oracle) sigue pendiente y no está simulado.
 
 Pendientes externos concretos: instancia Oracle, servicio y conectividad; configuración de Supabase; vídeos definitivos; logotipo oficial; nombre exacto de asignatura y ortografía del docente; tiempo final asignado a la exposición. Documentar qué bloquea cada pendiente y continuar el trabajo independiente.
 
@@ -91,3 +92,5 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
 - 2026-09-23: especificaciones y estructura inicial verificadas y publicadas en `main`, commit inicial arriba indicado. Sin código de aplicación.
 - 2026-09-23: preparación de continuidad y prompt reutilizable por petición del usuario. Verificación documental: conservación de los once documentos académicos, enlaces locales y formato de cambios; sin pruebas de aplicación aplicables.
 - 2026-09-23: implementación local de cimientos y diseño sobre `main`, partiendo de `e1c6c2b`. Stack fijado, ocho rutas base, trece componentes, tokens Sass/CSS y showcase. Decisiones en `docs/IMPLEMENTATION_NOTES.md`. Validación final en curso; cambios todavía no sincronizados con GitHub.
+- 2026-09-23: auditoría de estado sin cambios de código. Se crearon `docs/PROJECT_STATUS.md` y `docs/CHALLENGE_STATUS.md`: las misiones M01–M10 están en MISSING. Se detectó una E2E intermitente en WebKit (diálogo, timeout de 30 s).
+- 2026-09-23: Fase 1, estabilización técnica, en `claude-finish-20260923`. Causa: el screencast de la traza `retain-on-failure` en WebKit/Windows duplicaba la duración de las pruebas. Solución: el proyecto `webkit` de `playwright.config.ts` graba la traza sin screenshots. Sin cambios de timeouts, pruebas ni componentes. Verificado: lint, typecheck, format:check, 22/22 unitarias, build, 75/75 E2E y 11 repeticiones de la prueba del diálogo en WebKit. Commit `fix: stabilize base test suite`, subido a `origin/claude-finish-20260923`.

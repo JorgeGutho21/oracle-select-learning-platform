@@ -4,6 +4,8 @@ Fecha: 23 de septiembre de 2026. Rama auditada: `claude-finish`, commit `fe6b8ea
 
 Esta auditoría no modifica código. Solo añade este archivo y [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).
 
+**Actualización (Fase 1, estabilización técnica):** rama de trabajo `claude-finish-20260923`. La prueba E2E inestable de WebKit quedó corregida en `playwright.config.ts`; causa, solución y evidencia en [Estabilización de la suite E2E](#estabilización-de-la-suite-e2e). Toda la batería base está en verde. No se añadieron funcionalidades.
+
 ## Resumen
 
 El proyecto está en la fase **R2 parcial: cimientos técnicos y sistema de diseño**. Existen la estructura por capas, ocho rutas navegables con estados vacíos, trece componentes de interfaz accesibles, tokens Sass, un showcase interno y una batería de pruebas de componentes, arquitectura y navegación.
@@ -48,7 +50,7 @@ No existe ninguna funcionalidad de negocio: no hay contenido académico, leccion
 | Arquitectura por capas          | DONE (base) | Regla ESLint local `scripts/architecture-boundaries.mjs` y pruebas en `tests/unit/architecture.test.ts`. Las capas de negocio están vacías.                                                                          |
 | Responsive                      | PARTIAL     | Verificado solo sobre rutas vacías y showcase: 360–1920 px y reflow a 180/720 px sin scroll global. No aplica todavía a lecciones, tablas reales, editor ni misiones. Sin dispositivos físicos ni proyector.         |
 
-## Verificaciones ejecutadas en esta auditoría
+## Verificaciones de la auditoría inicial (antes de la Fase 1)
 
 Entorno: Windows 11, Node 24.20.0, npm 11.19.0.
 
@@ -69,7 +71,54 @@ Entorno: Windows 11, Node 24.20.0, npm 11.19.0.
 - Síntoma: `Test timeout of 30000ms exceeded`. Al repetirla tres veces fallaron dos; en otra repetición la pasada correcta tardó **29,9 s**, a 0,1 s del límite.
 - Diagnóstico: no se observó un fallo de aserción ni de comportamiento; la prueba es lenta en WebKit sobre Windows con el servidor `next dev` (compilación bajo demanda) y un análisis axe completo dentro de la misma prueba. Pasa en Chromium y Edge.
 - Clasificación: prueba inestable (flaky) por tiempo, no defecto funcional demostrado. Bloquea que `npm test` salga en verde.
-- Corrección posible (no aplicada): ampliar el timeout de esa prueba o del proyecto WebKit, o ejecutar E2E contra `next build && next start` en lugar de `next dev`.
+- Estado: **corregido en la Fase 1**. Ver la sección siguiente.
+
+## Estabilización de la suite E2E
+
+### Causa real
+
+La grabación de trazas de Playwright (`trace: 'retain-on-failure'`) registra la traza de **todas** las pruebas y solo la descarta si pasan. En WebKit sobre Windows, la parte de screencast de esa traza consume mucha CPU y duplica la duración de cada acción; con dos workers de WebKit en paralelo sobre `next dev` el renderizador queda saturado. En la traza del fallo, cada pulsación de tecla tardaba ≈0,5 s y cada comprobación de estabilidad de un clic 1–1,7 s. La prueba del diálogo es la más larga del archivo (dos ciclos de apertura, axe con una página auxiliar y la hidratación previa del activador), por eso era la que superaba los 30 s.
+
+Mediciones de la prueba del diálogo en WebKit (servidor de producción, 2 workers, 4 repeticiones):
+
+| Configuración de traza                    | Duración por prueba |
+| ----------------------------------------- | ------------------- |
+| Por defecto (screencast + snapshots DOM)  | 14,1–15,8 s         |
+| Solo screencast                           | 14,0–14,7 s         |
+| Solo snapshots DOM                        | 8,0–9,2 s           |
+| Sin traza                                 | 5,8–7,2 s           |
+| Por defecto con `reducedMotion: 'reduce'` | 12,5–15,1 s         |
+
+Hipótesis descartadas con evidencia:
+
+- **Spinner y animaciones CSS del showcase:** detenerlos con movimiento reducido apenas cambia la duración, y la página mantiene 60 fps en WebKit fuera de la traza.
+- **Diálogo y selectores:** no hubo errores de aserción. Todos los selectores resuelven al primer intento y el foco se comporta igual que en Chromium y Edge.
+- **Análisis axe:** tarda ≈1,2–1,4 s en WebKit. Aporta tiempo, pero no explica el exceso.
+- **Hidratación:** el primer clic espera correctamente a que `useHydrated` habilite el botón. Es una espera legítima y más lenta en `next dev`, pero no es la causa principal.
+- **Bucle de render:** el diálogo solo reacciona a cambios de `open`; no se observaron renders continuos.
+
+### Solución
+
+Cambio mínimo en `playwright.config.ts`, solo para el proyecto `webkit`: `trace: { mode: 'retain-on-failure', screenshots: false }`. La traza de un fallo conserva los snapshots DOM, la red y los pasos, y `screenshot: 'only-on-failure'` mantiene la captura final. No se modificaron timeouts, la prueba ni los componentes. Chromium y Edge conservan la traza completa, porque su screencast es barato.
+
+### Evidencia tras la corrección
+
+- Prueba del diálogo en WebKit con la configuración real (`next dev`, 2 workers): 6/6 aprobadas, 12,2–16,4 s. Antes: 20–30 s, con timeouts intermitentes.
+- La misma prueba con un worker: 5/5 aprobadas, 5,4–7,2 s.
+- Suite E2E completa: 75/75 aprobadas en 2,7 min (antes: 74/75 en 6,4 min). La prueba más lenta de WebKit tardó 15,7 s, la mitad del límite de 30 s.
+
+## Verificaciones tras la Fase 1
+
+| Comando                | Resultado                 |
+| ---------------------- | ------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias. |
+| `npm run typecheck`    | Correcto.                 |
+| `npm run format:check` | Correcto.                 |
+| `npm run test:unit`    | Correcto: 22/22.          |
+| `npm run build`        | Correcto: 11 páginas.     |
+| `npm run test:e2e`     | Correcto: 75/75.          |
+
+Observación: `reuseExistingServer` reutiliza fuera de CI cualquier servidor que ya escuche en el puerto 3100. Durante esta fase había un `next dev` de este mismo repositorio activo en ese puerto, y las pruebas lo reutilizaron.
 
 ## Riesgos
 
@@ -79,13 +128,13 @@ Entorno: Windows 11, Node 24.20.0, npm 11.19.0.
 | Expectativa de que el Challenge ya existe      | El juego de referencia vive en un Artifact externo; su código no está en este repositorio ni se ha auditado. Todo el Challenge está por construir. |
 | Corrección de misiones confiada al navegador   | ARCHITECTURE exige corrección en servidor y rúbricas privadas (G15). Una implementación solo cliente expondría soluciones.                         |
 | Dependencias nuevas sin fijar                  | CodeMirror, dnd-kit y Supabase deben instalarse con versión exacta (`.npmrc` lo exige) y validarse con Next 16 / React 19.                         |
-| Prueba E2E inestable                           | `npm test` falla de forma intermitente y puede ocultar regresiones reales.                                                                         |
-| Ramas divergentes respecto al remoto           | `main` local está un commit por delante de `origin/main`; el trabajo vive en `claude-finish`.                                                      |
+| Margen de tiempo en WebKit/Windows             | Corregido en la Fase 1. La prueba más lenta usa la mitad del límite; conviene vigilarlo al añadir pruebas más largas.                              |
+| Ramas divergentes respecto al remoto           | `main` local está un commit por delante de `origin/main`. La rama de trabajo autorizada es `claude-finish-20260923`.                               |
 | Pendientes externos                            | Vídeos, logotipo oficial, nombre del docente y asignatura, alojamiento y medición de capacidad.                                                    |
 
 ## Siguiente orden recomendado
 
-1. Estabilizar la prueba E2E de WebKit para dejar `npm test` en verde.
+1. ~~Estabilizar la prueba E2E de WebKit~~ (hecho en la Fase 1).
 2. Dominio compartido: dataset `empleados-select-v1` versionado en `src/domain` con pruebas de huella, más contenido L00–L08 (C01–C05).
 3. Tablas interactivas y explicaciones visuales (P06, P07), reutilizando `DataTable`.
 4. Modo Estudio (P03) y Modo Exposición (P02) sobre el mismo contenido.
