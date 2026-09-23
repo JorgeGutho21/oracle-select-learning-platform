@@ -1,0 +1,106 @@
+@use 'sass:map';
+
+// Fuente única de tokens. Los mapas se exportan como custom properties.
+$colors: (
+  page: #f5f8ff,
+  surface: #ffffff,
+  soft: #eaf1ff,
+  night: #0b1733,
+  editor: #091221,
+  ink: #132445,
+  muted: #4c5d78,
+  inverse: #f7faff,
+  primary: #1746b8,
+  primary-hover: #10368f,
+  'cyan': #20cce5,
+  success: #176b45,
+  warning: #855500,
+  danger: #b42332,
+  border-subtle: #d4deef,
+  border-control: #63738d,
+  focus: #1746b8,
+  code-string: #a8e6b8,
+  code-number: #ffd08a,
+  code-comment: #a2b1cb,
+);
+$spacing: (
+  1: 4px,
+  2: 8px,
+  3: 12px,
+  4: 16px,
+  5: 24px,
+  6: 32px,
+  7: 48px,
+  8: 64px,
+);
+$radii: (
+  control: 10px,
+  card: 20px,
+  section: 28px,
+);
+$shadows: (
+  elevated: 0 8px 24px rgb(11 23 51 / 10%),
+);
+$transitions: (
+  feedback: 150ms,
+  transition: 250ms,
+  slow: 350ms,
+);
+$layers: (
+  base: 0,
+  sticky: 100,
+  overlay: 200,
+  dialog: 300,
+);
+$containers: (
+  max: 1320px,
+  readable: 72ch,
+);
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+);
+$font-sans: (system-ui, -apple-system, 'Segoe UI', sans-serif);
+$font-mono: ('SFMono-Regular', Consolas, 'Liberation Mono', monospace);
+$typography: (
+  body: 18px,
+  control: 16px,
+  code: 17px,
+  heading-min: 32px,
+  heading-max: 56px,
+  projection-body: 28px,
+  projection-code: 26px,
+  projection-heading: 48px,
+  line-body: 1.65,
+  line-heading: 1.12,
+);
+
+@function color($name) {
+  @return map.get($colors, $name);
+}
+
+@mixin properties($prefix, $tokens) {
+  @each $name, $value in $tokens {
+    --#{$prefix}-#{$name}: #{$value};
+  }
+}
+
+@mixin emit {
+  :root {
+    @include properties('color', $colors);
+    @include properties('space', $spacing);
+    @include properties('radius', $radii);
+    @include properties('shadow', $shadows);
+    @include properties('duration', $transitions);
+    @include properties('z', $layers);
+    @include properties('container', $containers);
+    @include properties('text', $typography);
+    --font-sans: #{$font-sans};
+    --font-mono: #{$font-mono};
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  }
+}

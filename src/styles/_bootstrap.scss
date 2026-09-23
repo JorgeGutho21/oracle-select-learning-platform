@@ -1,0 +1,41 @@
+@use 'tokens';
+@use 'sass:map';
+
+// Bootstrap 5.3 usa @import internamente. Solo retícula y utilidades locales;
+// los componentes y su identidad pertenecen a SQL SELECT LAB.
+$primary: tokens.color(primary);
+$body-bg: tokens.color(page);
+$body-color: tokens.color(ink);
+$font-family-sans-serif: tokens.$font-sans;
+$font-family-monospace: tokens.$font-mono;
+$grid-breakpoints: tokens.$breakpoints;
+$spacers: tokens.$spacing;
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 1140px,
+  xxl: 1320px,
+);
+$enable-dark-mode: false;
+$enable-important-utilities: false;
+
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/utilities';
+
+// Evitar descargar toda la colección de utilidades que aún no utiliza la UI.
+$utilities: (
+  'display': map.get($utilities, 'display'),
+  'flex': map.get($utilities, 'flex'),
+  'flex-direction': map.get($utilities, 'flex-direction'),
+  'flex-wrap': map.get($utilities, 'flex-wrap'),
+  'justify-content': map.get($utilities, 'justify-content'),
+  'align-items': map.get($utilities, 'align-items'),
+  'gap': map.get($utilities, 'gap'),
+);
+@import 'bootstrap/scss/utilities/api';

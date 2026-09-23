@@ -24,19 +24,20 @@ La experiencia incluye Home, Exposición, Estudio, búsqueda Ctrl+K/Cmd+K, víde
 
 ## Estado comprobado
 
-| Elemento | Estado |
-|---|---|
-| R0: once especificaciones | Completas y subidas a GitHub. |
-| Estructura por capas | Carpetas iniciales con `.gitkeep`; sin aplicación. |
-| README, AGENTS, .gitignore | Creados y versionados. |
-| R1: Oracle real | Pendiente; instancia, credenciales y conectividad no verificadas. |
-| R2–R8 | Pendientes; no hay implementación ni despliegue. |
-| Pruebas del producto | Planificadas; ninguna se ha ejecutado sobre una aplicación. |
-| Continuidad y prompt | Esta entrega añade este archivo y `CODEX_PROMPT.md`. |
+| Elemento                   | Estado                                                                                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R0: once especificaciones  | Completas y subidas a GitHub.                                                                                                                              |
+| Estructura por capas       | Next.js App Router y presentación por módulos; límites ESLint; núcleo reservado sin lógica ficticia.                                                       |
+| README, AGENTS, .gitignore | Creados y versionados.                                                                                                                                     |
+| R1: Oracle real            | Pendiente; instancia, credenciales y conectividad no verificadas.                                                                                          |
+| R2                         | Cimientos técnicos, rutas vacías y showcase `/dev/design-system` implementados; verificación final en curso. No incluye contenido ni buscador de producto. |
+| R3–R8                      | Pendientes; no hay funcionalidades de negocio ni despliegue.                                                                                               |
+| Pruebas                    | Batería de componentes, arquitectura y navegación implementada; no acredita Oracle, juego, salas ni producto completo.                                     |
+| Continuidad y prompt       | Esta entrega añade este archivo y `CODEX_PROMPT.md`.                                                                                                       |
 
 Commit inicial documental: `dda7d2b892207d226c78d3f3252827290ccf93dd`. Es una referencia histórica; consultar Git para conocer el último commit y la rama actuales.
 
-La solicitud actual prepara el traspaso y conserva el contexto. El prompt de desarrollo es una plantilla para enviar como siguiente encargo; su presencia en el repositorio no inicia tareas por sí sola.
+La solicitud activa del usuario autoriza exclusivamente cimientos técnicos y DESIGN_SYSTEM: ocho rutas, layouts, componentes y showcase. Se conserva el límite de no implementar todavía contenido, juego ni Supabase. El prompt de desarrollo sigue siendo una plantilla, no amplía este encargo.
 
 ## Decisiones que deben conservarse
 
@@ -53,13 +54,13 @@ La solicitud actual prepara el traspaso y conserva el contexto. El prompt de des
 
 Las especificaciones sintetizan los materiales revisados y sus discrepancias. `PROJECT_SPEC.md` contiene el inventario F1–F7 y `CONTENT_MAP.md` la trazabilidad educativa.
 
-| Fuente | Disponibilidad y alcance revisado |
-|---|---|
-| `SentenciasSQL_GM.pptx` | 35 diapositivas revisadas; original adjunto en la conversación, no incluido en este repositorio. |
-| `Oracle_SQL_NTB.pptx` | 21 diapositivas de imágenes revisadas visualmente; original no incluido en este repositorio. |
+| Fuente                                                                 | Disponibilidad y alcance revisado                                                                                              |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `SentenciasSQL_GM.pptx`                                                | 35 diapositivas revisadas; original adjunto en la conversación, no incluido en este repositorio.                               |
+| `Oracle_SQL_NTB.pptx`                                                  | 21 diapositivas de imágenes revisadas visualmente; original no incluido en este repositorio.                                   |
 | [Juego del usuario](https://claude.ai/artifact/WN1sTa6YEJfuPysmX64qtv) | Se revisaron portada, mapa y primera misión. Código fuente no exportado ni auditado; los niveles bloqueados no se completaron. |
-| Capturas Bootstrap/Atera Energy/Spinoff | Referencias visuales descritas en DESIGN_SYSTEM; las capturas originales no están versionadas. |
-| [Sitio del compañero](https://select-basico-jpatino.vercel.app/) | Estructura educativa revisada; no copiar diseño, marca, contenido ni componentes. |
+| Capturas Bootstrap/Atera Energy/Spinoff                                | Referencias visuales descritas en DESIGN_SYSTEM; las capturas originales no están versionadas.                                 |
+| [Sitio del compañero](https://select-basico-jpatino.vercel.app/)       | Estructura educativa revisada; no copiar diseño, marca, contenido ni componentes.                                              |
 
 Conversaciones de origen: «Diseñar Documentación Plataforma SQL» (`6ab408e7-e70c-83e9-bb3f-986a1d4ecc0b`) y «Diseñar plataforma SELECT» (`6ab3fcaa-8e8c-83e9-bd47-488891234527`). Sus identificadores son referencias, no garantizan acceso desde otra IA. Este archivo es una síntesis, no una exportación literal del historial ni de sus adjuntos.
 
@@ -67,7 +68,7 @@ La última captura muestra una carpeta `Presentacion_SELECT_JorgeGutierrez/Juego
 
 ## Siguiente trabajo
 
-Al recibir el encargo de implementación, comprobar el estado del repositorio y empezar según ROADMAP: resolver R1 (viabilidad de Oracle) y avanzar R2 (base visual y navegación) en lo que no dependa de infraestructura externa. Continuar con los hitos dependientes cuando sus condiciones sean verificables.
+Cerrar la verificación del alcance actual y registrar resultados en `docs/IMPLEMENTATION_NOTES.md`. En el siguiente encargo, revisar primero este showcase y el estado de Git. El contenido y las funcionalidades completas requieren su fase posterior; R1 (Oracle) sigue pendiente y no está simulado.
 
 Pendientes externos concretos: instancia Oracle, servicio y conectividad; configuración de Supabase; vídeos definitivos; logotipo oficial; nombre exacto de asignatura y ortografía del docente; tiempo final asignado a la exposición. Documentar qué bloquea cada pendiente y continuar el trabajo independiente.
 
@@ -89,3 +90,4 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
 
 - 2026-09-23: especificaciones y estructura inicial verificadas y publicadas en `main`, commit inicial arriba indicado. Sin código de aplicación.
 - 2026-09-23: preparación de continuidad y prompt reutilizable por petición del usuario. Verificación documental: conservación de los once documentos académicos, enlaces locales y formato de cambios; sin pruebas de aplicación aplicables.
+- 2026-09-23: implementación local de cimientos y diseño sobre `main`, partiendo de `e1c6c2b`. Stack fijado, ocho rutas base, trece componentes, tokens Sass/CSS y showcase. Decisiones en `docs/IMPLEMENTATION_NOTES.md`. Validación final en curso; cambios todavía no sincronizados con GitHub.

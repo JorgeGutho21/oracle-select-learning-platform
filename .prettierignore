@@ -1,0 +1,26 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+.playwright-cli/
+output/playwright/
+package-lock.json
+next-env.d.ts
+# Las especificaciones originales se conservan sin cambios de formato.
+docs/ARCHITECTURE.md
+docs/CONTENT_MAP.md
+docs/DATABASE_SCHEMA.md
+docs/DESIGN_SYSTEM.md
+docs/GAME_SPEC.md
+docs/LAB_SPEC.md
+docs/PROJECT_SPEC.md
+docs/REALTIME_SPEC.md
+docs/ROADMAP.md
+docs/TEST_PLAN.md
+docs/UX_FLOWS.md
+AGENTS.md
+CODEX_PROMPT.md
