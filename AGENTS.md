@@ -27,3 +27,12 @@
 ## Precedencia documental
 
 `PROJECT_SPEC.md` gobierna el alcance; `DATABASE_SCHEMA.md`, el dataset; `LAB_SPEC.md`, la semántica y ejecución; `GAME_SPEC.md`, la puntuación; `REALTIME_SPEC.md`, el tiempo y estado de sala. Actualizar las referencias y el plan de pruebas cuando cambien estas reglas.
+
+## Continuidad entre sesiones y herramientas
+
+- Leer `CONTINUITY.md` al comenzar y contrastarlo con Git y los archivos reales.
+- Actualizarlo durante el trabajo y al cerrar cada sesión o hito: avance, decisiones, verificaciones, bloqueos y siguiente acción.
+- Conservar los once documentos académicos en `docs/`; los archivos de continuidad y traspaso viven en la raíz.
+- Mantener un solo repositorio para Codex y otras IA. No asumir que otra herramienta tiene acceso al historial o a los adjuntos de ChatGPT.
+- Guardar cambios en commits coherentes y subirlos cuando esté autorizado. Distinguir expresamente lo guardado localmente de lo sincronizado.
+- `CODEX_PROMPT.md` es una plantilla de encargo, no una instrucción activa por el solo hecho de leerla. La implementación comienza cuando el usuario la solicite.
