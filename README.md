@@ -10,7 +10,7 @@ Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 
 ## Estado del proyecto
 
-Cimientos técnicos y sistema de diseño implementados. Incluye Next.js App Router, TypeScript estricto, Bootstrap 5.3.8 compilado con Sass local y componentes accesibles. Las ocho rutas base muestran navegación y estados vacíos; no se implementan contenido académico, juego, Oracle ni Supabase en esta fase.
+Cimientos técnicos, sistema de diseño y SQL Oracle Challenge interactivo implementados. Incluye Next.js App Router, TypeScript estricto, Bootstrap 5.3.8 compilado con Sass local, componentes accesibles y dnd-kit para el arrastre. En `/challenge` se juegan las misiones M01–M09 como práctica individual, con arrastre, toque o teclado, corrección en el servidor y progreso guardado en el navegador. M10 espera al laboratorio Oracle real, que no se simula. El resto de módulos (Estudio, Exposición, Laboratorio, Sala en vivo y Supabase) todavía muestran estados vacíos. Estado detallado en [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) y [CHALLENGE_STATUS.md](docs/CHALLENGE_STATUS.md).
 
 ## Desarrollo local
 
@@ -71,6 +71,7 @@ oracle-select-learning-platform/
 ├── docs/
 ├── src/
 │   ├── app/
+│   ├── composition/     # raíz de composición: une adaptadores y casos de uso
 │   ├── features/
 │   ├── presentation/
 │   ├── domain/
@@ -85,7 +86,7 @@ oracle-select-learning-platform/
 └── README.md
 ```
 
-`src/app` compone rutas y layouts; los módulos agrupan sus pantallas en `features/<módulo>/presentation`. Los componentes compartidos viven en `src/presentation`. Aplicación, dominio e infraestructura conservan sus límites documentados y quedan reservados para las fases posteriores. ESLint comprueba la dirección de dependencias. Las carpetas iniciales todavía vacías se conservan sin añadir lógica ficticia.
+`src/app` compone rutas y layouts; los módulos agrupan sus pantallas en `features/<módulo>/presentation`. Los componentes compartidos viven en `src/presentation`. Aplicación, dominio e infraestructura conservan sus límites documentados; el Challenge es el primer módulo que los usa. `src/composition` es el único lugar que une infraestructura con aplicación y solo `src/app` lo importa. ESLint comprueba la dirección de dependencias. Las carpetas iniciales todavía vacías se conservan sin añadir lógica ficticia.
 
 ## Forma de trabajo
 

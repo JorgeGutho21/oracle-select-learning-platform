@@ -76,3 +76,11 @@ La batería cubre contratos UI y arquitectura con Vitest; rutas, navegación, te
 Los proyectos de aceptación son Chromium, Edge y WebKit, alineados con los motores de TEST_PLAN. El intento adicional de Firefox no pudo arrancar en este Windows: `spawn UNKNOWN`, con evento SideBySide que no resuelve el ensamblado `mozglue`. Se reprodujo con reinstalación forzada y una versión anterior; no fue un fallo de la web. Se conserva Playwright 1.63.0 y se documenta Firefox como no verificado, sin modificar el sistema ni parchear binarios. WebKit en Windows no sustituye la comprobación pendiente en iPhone físico.
 
 No se declara completado R2 completo ni D01–D08 para flujos aún inexistentes. Faltan revisión con lector de pantalla, dispositivos físicos y proyector; Oracle real, contenido, vídeos, juego, Supabase, seguridad de salas y pruebas de carga pertenecen a fases posteriores. No se ha publicado ni desplegado la aplicación.
+
+## Fases 2 y 3 — SQL Oracle Challenge
+
+- **Contenido.** El responsable del proyecto adoptó en la Fase 3 una versión 2 de M01–M09. GAME_SPEC.md 2.0 y TEST_PLAN.md reflejan el cambio y el catálogo se versiona como `select-challenge-v2`. Estado detallado en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).
+- **Raíz de composición.** `src/composition` es la única capa que puede importar infraestructura junto con aplicación, y solo `src/app` puede importarla. La regla ESLint `architecture/dependencies` y sus pruebas incluyen esta capa. Las Server Functions de corrección (`src/composition/challenge/actions.ts`) validan cada entrada porque son accesibles por POST directo.
+- **Arrastre.** dnd-kit `@dnd-kit/core` 6.3.1, `@dnd-kit/sortable` 10.0.0 y `@dnd-kit/utilities` 3.2.2, con versiones exactas y paquetes oficiales. Se usan `MouseSensor` y `TouchSensor`. El teclado y el toque sin arrastre usan controles explícitos del `SequenceBuilder` en lugar de `KeyboardSensor`.
+- **Corrección por resultado.** `src/domain/sql/projection-query.ts` analiza la estructura de las piezas y calcula el resultado lógico sobre el dataset canónico para compararlo. Es una referencia didáctica, no una ejecución en Oracle, y no sustituye al laboratorio (P08).
+- **Corrección base.** `.ds-table-scroll` pasa a ser el bloque contenedor de sus textos ocultos absolutos, que desbordaban la página en WebKit móvil al resaltar columnas.

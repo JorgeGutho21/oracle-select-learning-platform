@@ -8,6 +8,8 @@ Esta auditoría no modifica código. Solo añade este archivo y [CHALLENGE_STATU
 
 **Actualización (Fase 2, núcleo del SQL Challenge):** se implementaron el dataset único, la comparación de resultados, el dominio de las diez misiones con rúbricas privadas, la puntuación, el estado y el motor de la partida individual, y la persistencia local mediante infraestructura. No hay pantallas nuevas. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md). Verificaciones en [Verificaciones tras la Fase 2](#verificaciones-tras-la-fase-2).
 
+**Actualización (Fase 3, Challenge interactivo):** M01–M09 del Challenge v2 son jugables en `/challenge` con arrastre (dnd-kit), toque y teclado. M10 queda bloqueada sin Oracle. La corrección se ejecuta en el servidor mediante Server Functions en una nueva raíz de composición (`src/composition`). Se corrigió un desbordamiento móvil del `DataTable` base. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md) y [Verificaciones tras la Fase 3](#verificaciones-tras-la-fase-3).
+
 ## Resumen
 
 El proyecto está en la fase **R2 parcial: cimientos técnicos y sistema de diseño**. Existen la estructura por capas, ocho rutas navegables con estados vacíos, trece componentes de interfaz accesibles, tokens Sass, un showcase interno y una batería de pruebas de componentes, arquitectura y navegación.
@@ -16,19 +18,19 @@ No existe ninguna funcionalidad de negocio: no hay contenido académico, leccion
 
 ## Stack instalado
 
-| Elemento                 | Versión fijada | Estado                                                |
-| ------------------------ | -------------- | ----------------------------------------------------- |
-| Next.js (App Router)     | 16.3.6         | Instalado y en uso.                                   |
-| React / React DOM        | 19.3.0         | Instalado y en uso.                                   |
-| TypeScript estricto      | 6.0.3          | Instalado y en uso.                                   |
-| Bootstrap + Sass         | 5.3.8 / 1.105  | Instalado; compilado localmente.                      |
-| Vitest / Testing Library | 5.0.1          | Instalado y en uso.                                   |
-| Playwright + axe         | 1.63.0         | Instalado; Chromium, Edge y WebKit.                   |
-| CodeMirror 6             | —              | **No instalado.** Previsto en ARCHITECTURE.           |
-| dnd-kit                  | —              | **No instalado.** Previsto en ARCHITECTURE.           |
-| Cliente Supabase         | —              | **No instalado.** Sin configuración ni variables.     |
-| node-oracledb            | —              | **No instalado.** Sin servicio Oracle (R1 pendiente). |
-| Generador de QR          | —              | **No instalado.**                                     |
+| Elemento                 | Versión fijada                               | Estado                                                |
+| ------------------------ | -------------------------------------------- | ----------------------------------------------------- |
+| Next.js (App Router)     | 16.3.6                                       | Instalado y en uso.                                   |
+| React / React DOM        | 19.3.0                                       | Instalado y en uso.                                   |
+| TypeScript estricto      | 6.0.3                                        | Instalado y en uso.                                   |
+| Bootstrap + Sass         | 5.3.8 / 1.105                                | Instalado; compilado localmente.                      |
+| Vitest / Testing Library | 5.0.1                                        | Instalado y en uso.                                   |
+| Playwright + axe         | 1.63.0                                       | Instalado; Chromium, Edge y WebKit.                   |
+| CodeMirror 6             | —                                            | **No instalado.** Previsto en ARCHITECTURE.           |
+| dnd-kit                  | core 6.3.1, sortable 10.0.0, utilities 3.2.2 | Instalado en la Fase 3; usado por `SequenceBuilder`.  |
+| Cliente Supabase         | —                                            | **No instalado.** Sin configuración ni variables.     |
+| node-oracledb            | —                                            | **No instalado.** Sin servicio Oracle (R1 pendiente). |
+| Generador de QR          | —                                            | **No instalado.**                                     |
 
 ## Estado por módulo
 
@@ -41,16 +43,16 @@ No existe ninguna funcionalidad de negocio: no hay contenido académico, leccion
 | Vídeos (P05, P18)               | MISSING     | Sin reproductor ni recursos. Los vídeos V01/V02 son un pendiente externo.                                                                                                                                            |
 | Explicaciones y tablas (P06/7)  | MISSING     | `DataTable` existe como componente genérico. El dataset `empleados-select-v1` ya está en `src/domain/dataset/empleados.ts` (Fase 2), pero ninguna tabla lo muestra todavía.                                          |
 | Laboratorio SQL (P08)           | MISSING     | `features/laboratory/presentation/lab-page.tsx` declara «Servicio no disponible». Sin editor, analizador, validador, servicio Oracle ni resultados. Estado honesto, conforme a AGENTS.md.                            |
-| SQL Challenge (P09–P13)         | PARTIAL     | Fase 2: dominio, rúbricas de M01–M10, motor de partida y persistencia local probados. Sin pantallas; M08 parcial (sin analizador) y M10 sin Oracle. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).           |
+| SQL Challenge (P09–P13)         | PARTIAL     | M01–M09 DONE y jugables (Fase 3); M10 bloqueada hasta tener Oracle real. Pantalla final con puntuación, precisión, tiempo, intentos, pistas y reinicio. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).       |
 | Sistema de puntuación (P15)     | PARTIAL     | Reglas puras y pruebas G11/G12 para la práctica individual. La puntuación autoritativa de sala en servidor sigue pendiente (R6).                                                                                     |
 | Supabase / persistencia         | MISSING     | Sin dependencia, cliente, esquema, RLS, Auth ni `.env.example`.                                                                                                                                                      |
 | Sala en vivo / QR (P14–P16)     | MISSING     | `features/rooms/presentation/live-page.tsx` es un placeholder. Sin salas, rondas, tiempo autoritativo ni ranking.                                                                                                    |
 | Resultados / estadísticas (P17) | MISSING     | `features/results/presentation/results-page.tsx` muestra «Sin resultados». Sin cálculo ni almacenamiento.                                                                                                            |
 | Recursos / chuleta (P18)        | MISSING     | Placeholder en `features/resources`.                                                                                                                                                                                 |
-| Sistema de diseño               | DONE (base) | 13 componentes en `src/presentation/components/ui`, tokens en `src/styles/_tokens.scss`, showcase `/dev/design-system`.                                                                                              |
+| Sistema de diseño               | DONE (base) | 13 componentes en `src/presentation/components/ui`, más `SequenceBuilder` (arrastre accesible) en `src/presentation/components/interaction`. Tokens en `src/styles/_tokens.scss`; showcase `/dev/design-system`.     |
 | Navegación y layouts            | DONE (base) | `site-header.tsx` con menú móvil, `module-layout.tsx` con modos `standard`/proyección, `error.tsx`, `loading.tsx`, `not-found.tsx`.                                                                                  |
-| Arquitectura por capas          | DONE (base) | Regla ESLint local `scripts/architecture-boundaries.mjs` y pruebas en `tests/unit/architecture.test.ts`. Primeras capas de negocio en `src/domain` y `features/challenge/{domain,application,infrastructure}`.       |
-| Responsive                      | PARTIAL     | Verificado solo sobre rutas vacías y showcase: 360–1920 px y reflow a 180/720 px sin scroll global. No aplica todavía a lecciones, tablas reales, editor ni misiones. Sin dispositivos físicos ni proyector.         |
+| Arquitectura por capas          | DONE (base) | Regla ESLint local `scripts/architecture-boundaries.mjs` y pruebas en `tests/unit/architecture.test.ts`. Capa `composition` (Fase 3): única que une infraestructura con aplicación; solo `app` la importa.           |
+| Responsive                      | PARTIAL     | Rutas base, showcase y Challenge verificados sin scroll global: a 390 px en móvil táctil y a 1440 px (Fase 3). Faltan lecciones, editor, dispositivos físicos y proyector.                                           |
 
 ## Verificaciones de la auditoría inicial (antes de la Fase 1)
 
@@ -133,15 +135,27 @@ Observación: `reuseExistingServer` reutiliza fuera de CI cualquier servidor que
 | `npm run build`        | Correcto: 11 páginas.                                               |
 | `npm run test:e2e`     | Correcto: 75/75 (incluye `/challenge` en Chromium, Edge y WebKit).  |
 
+## Verificaciones tras la Fase 3
+
+| Comando                | Resultado                                                        |
+| ---------------------- | ---------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                        |
+| `npm run typecheck`    | Correcto.                                                        |
+| `npm run format:check` | Correcto.                                                        |
+| `npm run test:unit`    | Correcto: 11 archivos, 189 pruebas.                              |
+| `npm run build`        | Correcto: 11 páginas. Sin rúbricas en `.next/static`.            |
+| `npm run test:e2e`     | Correcto: 126/126 (51 del Challenge) en Chromium, Edge y WebKit. |
+
 ## Riesgos
 
 | Riesgo                                         | Impacto                                                                                                                                                                                                                  |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Oracle real (R1) sin instancia ni credenciales | Bloquea P08, M10 y las pruebas LAB11–LAB16. Según AGENTS.md no se puede sustituir por un simulador rotulado como Oracle.                                                                                                 |
-| Challenge sin interfaz                         | El núcleo existe, pero ninguna misión es jugable desde la web.                                                                                                                                                           |
-| Corrección de misiones confiada al navegador   | El dominio separa la parte pública de la privada y aplicación solo usa el catálogo público. Falta decidir la composición en servidor del evaluador (las reglas de capas impiden hoy que `app` importe infraestructura).  |
+| M10 sin Oracle                                 | El reto escrito no se puede corregir sin R1; la misión se muestra bloqueada, sin simulación.                                                                                                                             |
+| Corrección de misiones confiada al navegador   | Resuelto para la práctica: rúbricas en el servidor (Server Functions) y comprobación de que no están en `.next/static`. La práctica local sigue siendo informativa y manipulable por diseño (ARCHITECTURE).              |
 | Dependencias nuevas sin fijar                  | CodeMirror, dnd-kit y Supabase deben instalarse con versión exacta (`.npmrc` lo exige) y validarse con Next 16 / React 19.                                                                                               |
 | Bonificación por tiempo                        | Pedida en la Fase 2, pero contraria a GAME_SPEC («No hay bonificación por rapidez»). Implementada en la política de puntuación con valor 0; activarla exige actualizar GAME_SPEC, TEST_PLAN y la versión de la política. |
+| Server Function intermitente en desarrollo     | Se observó una vez con WebKit sobre `next dev`: la app mostró «Servicio no disponible» sin consumir intento. No se reprodujo después; hay que vigilarlo.                                                                 |
 | Margen de tiempo en WebKit/Windows             | Corregido en la Fase 1. La prueba más lenta usa la mitad del límite; conviene vigilarlo al añadir pruebas más largas.                                                                                                    |
 | Ramas divergentes respecto al remoto           | `main` local está un commit por delante de `origin/main`. La rama de trabajo autorizada es `claude-finish-20260923`.                                                                                                     |
 | Pendientes externos                            | Vídeos, logotipo oficial, nombre del docente y asignatura, alojamiento y medición de capacidad.                                                                                                                          |
@@ -154,7 +168,7 @@ Observación: `reuseExistingServer` reutiliza fuera de CI cualquier servidor que
 4. Modo Estudio (P03) y Modo Exposición (P02) sobre el mismo contenido.
 5. Buscador global Ctrl+K (P04) con índice público.
 6. Analizador y validador del subconjunto SELECT v1 en dominio, con casos S01–S14 (necesario para laboratorio y M08/M10).
-7. SQL Challenge individual (R4): el núcleo está hecho (Fase 2); siguen las pantallas según el orden de [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).
+7. SQL Challenge individual (R4): M01–M09 hechas (Fase 3); M10 pendiente de Oracle y editor.
 8. En paralelo, cuando haya infraestructura: R1 Oracle real y laboratorio (P08).
 9. Recursos, chuleta y catálogo futuro (P18); vídeos cuando existan los activos.
 10. Supabase, salas, tiempo autoritativo, ranking y estadísticas (R6).

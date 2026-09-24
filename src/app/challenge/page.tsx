@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { ChallengePage } from '@/features/challenge/presentation/challenge-page';
+import { ChallengeRoot } from '@/composition/challenge/challenge-root';
 
 export const metadata: Metadata = { title: 'SQL Oracle Challenge' };
 
 export default function Page() {
-  return <ChallengePage />;
+  return <ChallengeRoot />;
 }

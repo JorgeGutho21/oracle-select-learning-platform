@@ -18,8 +18,12 @@ import {
 const check = (id: MissionId, answer: MissionAnswer): EvaluationOutcome =>
   evaluateMissionAnswer(getMissionDefinition(id), answer);
 const kind = (id: MissionId, answer: MissionAnswer) => check(id, answer).kind;
+const feedback = (id: MissionId, answer: MissionAnswer) => {
+  const outcome = check(id, answer);
+  return outcome.kind === 'correct' || outcome.kind === 'incorrect' ? outcome.feedback : '';
+};
 
-describe('Catálogo público de misiones', () => {
+describe('Catálogo público de misiones (Challenge v2)', () => {
   it('contiene exactamente diez misiones M01–M10 en orden', () => {
     expect(PUBLIC_MISSIONS.map(({ id }) => id)).toEqual([...MISSION_IDS]);
     expect(PUBLIC_MISSIONS.map(({ order }) => order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -27,15 +31,24 @@ describe('Catálogo público de misiones', () => {
 
   it('suma 1000 puntos y 900 segundos base', () => {
     expect(PUBLIC_MISSIONS.reduce((sum, mission) => sum + mission.maxScore, 0)).toBe(1000);
-    expect(PUBLIC_MISSIONS.map(({ baseDurationSeconds }) => baseDurationSeconds)).toEqual([
-      45, 60, 60, 75, 90, 90, 90, 90, 120, 180,
-    ]);
+    expect(PUBLIC_MISSIONS.reduce((sum, mission) => sum + mission.baseDurationSeconds, 0)).toBe(
+      900,
+    );
   });
 
-  it('cada misión declara un tipo de interacción soportado y datos del mismo tipo', () => {
+  it('la dificultad no disminuye de M01 a M10', () => {
+    const rank = { facil: 0, media: 1, dificil: 2 } as const;
+    const levels = PUBLIC_MISSIONS.map(({ difficulty }) => rank[difficulty]);
+    expect(levels).toEqual([...levels].sort((a, b) => a - b));
+    expect(levels[0]).toBe(0);
+    expect(levels.at(-1)).toBe(2);
+  });
+
+  it('cada misión tiene pedido, tipo soportado y datos del mismo tipo', () => {
     for (const mission of PUBLIC_MISSIONS) {
       expect(INTERACTION_TYPES).toContain(mission.interactionType);
       expect(mission.publicData.type).toBe(mission.interactionType);
+      expect(mission.request.length).toBeGreaterThan(0);
       expect(mission.lessons.length).toBeGreaterThan(0);
     }
   });
@@ -54,10 +67,13 @@ describe('Catálogo público de misiones', () => {
   });
 
   it('G15: las piezas públicas no se presentan en el orden de la solución', () => {
-    const m02 = getMissionDefinition('M02');
-    if (m02.publicData.type !== 'reorder-sql') throw new Error('tipo');
-    const presented = m02.publicData.pieces.map(({ id }) => id).filter((id) => id !== 'm02-end');
-    expect(kind('M02', { type: 'reorder-sql', pieceIds: presented })).toBe('incorrect');
+    for (const id of ['M02', 'M06', 'M09'] as const) {
+      const data = getMissionDefinition(id).publicData;
+      if (!('pieces' in data)) throw new Error('sin piezas');
+      const presented = data.pieces.map((piece) => piece.id);
+      const type = data.type as 'reorder-sql' | 'alias-builder' | 'build-query';
+      expect(kind(id, { type, pieceIds: presented } as MissionAnswer)).toBe('incorrect');
+    }
   });
 
   it('C03: ninguna misión exige cláusulas futuras', () => {
@@ -81,35 +97,30 @@ describe('Catálogo público de misiones', () => {
   });
 });
 
-describe('G01 — M01 SELECT Visual', () => {
+describe('M01 — columnas', () => {
   const answer = (columns: string[]): MissionAnswer => ({ type: 'drag-column', columns });
   it('acepta NOMBRE, SALARIO sin distinguir caja', () => {
     expect(kind('M01', answer(['NOMBRE', 'SALARIO']))).toBe('correct');
     expect(kind('M01', answer(['nombre', 'salario']))).toBe('correct');
   });
-  it('rechaza *, columnas de más, orden invertido, incompletas e inexistentes', () => {
-    expect(check('M01', answer(['*'])).kind).toBe('incorrect');
-    expect(check('M01', answer(['ID', 'NOMBRE', 'SALARIO']))).toMatchObject({ kind: 'incorrect' });
-    expect(check('M01', answer(['SALARIO', 'NOMBRE']))).toMatchObject({
-      kind: 'incorrect',
-      feedback: expect.stringContaining('orden'),
-    });
-    expect(kind('M01', answer(['NOMBRE']))).toBe('incorrect');
-    expect(check('M01', answer(['SUELDO']))).toMatchObject({
-      feedback: expect.stringContaining('SUELDO'),
-    });
+  it('explica orden invertido, columnas de más, incompletas y asterisco', () => {
+    expect(feedback('M01', answer(['SALARIO', 'NOMBRE']))).toContain('orden');
+    expect(feedback('M01', answer(['ID', 'NOMBRE', 'SALARIO']))).toContain('Sobran columnas');
+    expect(feedback('M01', answer(['NOMBRE']))).toContain('Falta mostrar SALARIO');
+    expect(feedback('M01', answer(['*']))).toContain('asterisco');
+    expect(feedback('M01', answer(['SUELDO']))).toContain('SUELDO no es una columna');
   });
   it('una respuesta vacía no es un intento', () => {
     expect(kind('M01', answer([]))).toBe('invalid-input');
   });
 });
 
-describe('G02 — M02 Constructor de Consultas', () => {
+describe('M02 — orden de SQL', () => {
   const solution = [
     'm02-select',
-    'm02-ciudad',
-    'm02-comma',
     'm02-nombre',
+    'm02-comma',
+    'm02-ciudad',
     'm02-from',
     'm02-empleados',
   ];
@@ -118,160 +129,148 @@ describe('G02 — M02 Constructor de Consultas', () => {
     expect(kind('M02', answer(solution))).toBe('correct');
     expect(kind('M02', answer([...solution, 'm02-end']))).toBe('correct');
   });
-  it('rechaza columnas invertidas, columna tras FROM y consultas incompletas', () => {
+  it('explica columnas invertidas, columna tras FROM, falta de piezas y SELECT al final', () => {
     expect(
-      kind(
+      feedback(
+        'M02',
+        answer([
+          'm02-select',
+          'm02-ciudad',
+          'm02-comma',
+          'm02-nombre',
+          'm02-from',
+          'm02-empleados',
+        ]),
+      ),
+    ).toContain('orden');
+    expect(
+      feedback(
         'M02',
         answer([
           'm02-select',
           'm02-nombre',
           'm02-comma',
-          'm02-ciudad',
-          'm02-from',
           'm02-empleados',
+          'm02-from',
+          'm02-ciudad',
         ]),
       ),
-    ).toBe('incorrect');
+    ).toContain('FROM recibe');
+    expect(feedback('M02', answer(['m02-select', 'm02-nombre']))).toContain('Usa todas las piezas');
     expect(
-      check(
+      feedback(
         'M02',
         answer([
-          'm02-select',
-          'm02-empleados',
-          'm02-comma',
           'm02-nombre',
-          'm02-from',
+          'm02-comma',
           'm02-ciudad',
+          'm02-from',
+          'm02-empleados',
+          'm02-select',
         ]),
       ),
-    ).toMatchObject({
-      feedback: expect.stringContaining('FROM recibe el nombre de la tabla'),
-    });
-    expect(kind('M02', answer(['m02-select', 'm02-ciudad']))).toBe('incorrect');
+    ).toContain('SELECT');
     expect(kind('M02', answer(['m02-end', ...solution]))).toBe('incorrect');
+  });
+  it('una respuesta vacía no es un intento', () => {
     expect(kind('M02', answer([]))).toBe('invalid-input');
   });
 });
 
-describe('G03 — M03 asterisco', () => {
+describe('M03 — SELECT *', () => {
   const headers = ['ID', 'NOMBRE', 'EDAD', 'CIUDAD', 'SALARIO', 'DEPTO'];
   const answer = (h: string[], rowCount: number | null): MissionAnswer => ({
     type: 'predict-result',
     headers: h,
-    rows: [],
+    sourceRowIds: [],
     rowCount,
   });
   it('acepta los seis encabezados en orden y seis filas', () => {
     expect(kind('M03', answer(headers, 6))).toBe('correct');
   });
   it('rechaza *, orden cambiado, columnas faltantes y conteo erróneo', () => {
-    expect(check('M03', answer(['*'], 6))).toMatchObject({
-      feedback: expect.stringContaining('asterisco no es una columna'),
-    });
-    expect(kind('M03', answer([...headers].reverse(), 6))).toBe('incorrect');
+    expect(feedback('M03', answer(['*'], 6))).toContain('asterisco no es una columna');
+    expect(feedback('M03', answer([...headers].reverse(), 6))).toContain('orden del esquema');
     expect(kind('M03', answer(headers.slice(0, 5), 6))).toBe('incorrect');
-    expect(kind('M03', answer(headers, 1))).toBe('incorrect');
+    expect(feedback('M03', answer(headers, 1))).toContain('cuántas filas');
     expect(kind('M03', answer(headers, null))).toBe('incorrect');
     expect(kind('M03', answer([], null))).toBe('invalid-input');
   });
 });
 
-describe('G04 — M04 multiplicidad', () => {
-  const six = [['Bogotá'], ['Cali'], ['Bogotá'], ['Medellín'], ['Cali'], ['Bogotá']];
-  const answer = (headers: string[], rows: string[][]): MissionAnswer => ({
+describe('M04 — predicción de resultado', () => {
+  const all = [1, 2, 3, 4, 5, 6];
+  const answer = (headers: string[], sourceRowIds: number[]): MissionAnswer => ({
     type: 'predict-result',
     headers,
-    rows,
+    sourceRowIds,
     rowCount: null,
   });
-  it('acepta el multiconjunto exacto en cualquier orden', () => {
-    expect(kind('M04', answer(['CIUDAD'], six))).toBe('correct');
-    expect(kind('M04', answer(['ciudad'], [...six].reverse()))).toBe('correct');
+  it('acepta NOMBRE, SALARIO con los seis empleados en cualquier orden', () => {
+    expect(kind('M04', answer(['NOMBRE', 'SALARIO'], all))).toBe('correct');
+    expect(kind('M04', answer(['nombre', 'salario'], [...all].reverse()))).toBe('correct');
   });
-  it('rechaza tres ciudades únicas con feedback sobre DISTINCT', () => {
-    expect(check('M04', answer(['CIUDAD'], [['Bogotá'], ['Cali'], ['Medellín']]))).toMatchObject({
-      kind: 'incorrect',
-      feedback: expect.stringContaining('DISTINCT'),
-    });
+  it('explica filas faltantes: proyectar no filtra', () => {
+    expect(feedback('M04', answer(['NOMBRE', 'SALARIO'], [1, 2, 3]))).toContain(
+      'Faltan 3 empleados',
+    );
+    expect(feedback('M04', answer(['NOMBRE', 'SALARIO'], [1, 2, 3, 4, 5]))).toContain(
+      'Faltan 1 empleado:',
+    );
   });
-  it('rechaza conteos equivocados, encabezado erróneo y tildes perdidas', () => {
-    expect(kind('M04', answer(['CIUDAD'], [...six.slice(1), ['Cali']]))).toBe('incorrect');
-    expect(kind('M04', answer(['NOMBRE'], six))).toBe('incorrect');
-    expect(
-      kind(
-        'M04',
-        answer(
-          ['CIUDAD'],
-          six.map(([city]) => [city!.replace('á', 'a')]),
-        ),
-      ),
-    ).toBe('incorrect');
+  it('explica encabezados en otro orden o columnas ajenas', () => {
+    expect(feedback('M04', answer(['SALARIO', 'NOMBRE'], all))).toContain(
+      'orden escrito en SELECT',
+    );
+    expect(feedback('M04', answer(['NOMBRE', 'SALARIO', 'EDAD'], all))).toContain(
+      'solo tiene las columnas',
+    );
+  });
+  it('una respuesta vacía no es un intento', () => {
     expect(kind('M04', answer([], []))).toBe('invalid-input');
   });
 });
 
-describe('G05 — M05 expresión', () => {
-  const answer = (pieceIds: string[], value: number | null): MissionAnswer => ({
+describe('M05 — expresión calculada', () => {
+  const expression = ['m05-salario', 'm05-times', 'm05-12'];
+  const values = (ana: number | null, pedro: number | null, maria: number | null) => [
+    { employeeId: 1, value: ana },
+    { employeeId: 4, value: pedro },
+    { employeeId: 5, value: maria },
+  ];
+  const answer = (
+    pieceIds: string[],
+    predictions = values(36000000, 21600000, 44400000),
+  ): MissionAnswer => ({
     type: 'expression-builder',
     pieceIds,
-    value,
+    predictions,
   });
-  const withParens = [
-    'm05-open',
-    'm05-salario',
-    'm05-plus',
-    'm05-100000',
-    'm05-close',
-    'm05-times',
-    'm05-12',
-  ];
-  it('acepta la expresión y su equivalente conmutada', () => {
-    expect(kind('M05', answer(withParens, 37200000))).toBe('correct');
-    expect(
-      kind(
-        'M05',
-        answer(
-          ['m05-12', 'm05-times', 'm05-open', 'm05-salario', 'm05-plus', 'm05-100000', 'm05-close'],
-          37200000,
-        ),
-      ),
-    ).toBe('correct');
-    expect(
-      kind(
-        'M05',
-        answer(
-          ['m05-open', 'm05-100000', 'm05-plus', 'm05-salario', 'm05-close', 'm05-times', 'm05-12'],
-          37200000,
-        ),
-      ),
-    ).toBe('correct');
+  it('acepta salario * 12 y su forma conmutada con los valores exactos', () => {
+    expect(kind('M05', answer(expression))).toBe('correct');
+    expect(kind('M05', answer(['m05-12', 'm05-times', 'm05-salario']))).toBe('correct');
   });
-  it('rechaza la versión sin paréntesis con feedback de precedencia', () => {
-    expect(
-      check(
-        'M05',
-        answer(['m05-salario', 'm05-plus', 'm05-100000', 'm05-times', 'm05-12'], 4200000),
-      ),
-    ).toMatchObject({
-      kind: 'incorrect',
-      feedback: expect.stringContaining('paréntesis'),
-    });
-  });
-  it('rechaza valor erróneo, expresiones sin SALARIO, incompletas y piezas ajenas', () => {
-    expect(check('M05', answer(withParens, 4200000))).toMatchObject({
-      feedback: expect.stringContaining('valor'),
-    });
-    expect(kind('M05', answer(withParens, null))).toBe('incorrect');
-    expect(kind('M05', answer(['m05-100000', 'm05-times', 'm05-12'], 37200000))).toBe('incorrect');
-    expect(kind('M05', answer(['m05-open', 'm05-salario', 'm05-plus'], 37200000))).toBe(
-      'incorrect',
+  it('explica expresiones que no anualizan, sin SALARIO o incompletas', () => {
+    expect(feedback('M05', answer(['m05-salario', 'm05-plus', 'm05-12']))).toContain('no calcula');
+    expect(feedback('M05', answer(['m05-salario', 'm05-times', 'm05-100']))).toContain(
+      'no calcula',
     );
-    expect(kind('M05', answer(['m05-salario', 'x'], 37200000))).toBe('incorrect');
-    expect(kind('M05', answer([], null))).toBe('invalid-input');
+    expect(feedback('M05', answer(['m05-edad', 'm05-times', 'm05-12']))).toContain('SALARIO');
+    expect(feedback('M05', answer(['m05-salario', 'm05-times']))).toContain('incompleta');
+    expect(feedback('M05', answer(['m05-salario', 'x']))).toContain('no pertenecen');
+  });
+  it('señala por nombre los valores calculados erróneos o vacíos', () => {
+    expect(feedback('M05', answer(expression, values(36000000, 1800000, 44400000)))).toContain(
+      'Pedro',
+    );
+    expect(feedback('M05', answer(expression, values(null, 21600000, 44400000)))).toContain('Ana');
+  });
+  it('una respuesta vacía no es un intento', () => {
+    expect(kind('M05', answer([], values(null, null, null)))).toBe('invalid-input');
   });
 });
 
-describe('G06 — M06 alias', () => {
+describe('M06 — alias con AS', () => {
   const solution = [
     'm06-select',
     'm06-nombre',
@@ -281,253 +280,183 @@ describe('G06 — M06 alias', () => {
     'm06-from',
     'm06-empleados',
   ];
-  const answer = (pieceIds: string[], labeledColumnIndex: number | null): MissionAnswer => ({
-    type: 'alias-builder',
-    pieceIds,
-    labeledColumnIndex,
+  const answer = (pieceIds: string[]): MissionAnswer => ({ type: 'alias-builder', pieceIds });
+  it('acepta el alias tras la expresión, con o sin terminador', () => {
+    expect(kind('M06', answer(solution))).toBe('correct');
+    expect(kind('M06', answer([...solution, 'm06-end']))).toBe('correct');
   });
-  it('acepta el alias tras la expresión y la etiqueta en la columna calculada', () => {
-    expect(kind('M06', answer(solution, 1))).toBe('correct');
+  it('explica el alias junto a NOMBRE, sin AS o tras la tabla', () => {
+    expect(
+      feedback(
+        'M06',
+        answer([
+          'm06-select',
+          'm06-nombre',
+          'm06-as',
+          'm06-comma',
+          'm06-expr',
+          'm06-from',
+          'm06-empleados',
+        ]),
+      ),
+    ).toContain('NOMBRE');
+    expect(feedback('M06', answer(solution.filter((id) => id !== 'm06-as')))).toContain('Sin AS');
+    expect(
+      feedback(
+        'M06',
+        answer([
+          'm06-select',
+          'm06-nombre',
+          'm06-comma',
+          'm06-expr',
+          'm06-from',
+          'm06-empleados',
+          'm06-as',
+        ]),
+      ),
+    ).toContain('después de la tabla');
   });
-  it('rechaza el alias junto a NOMBRE o tras la tabla', () => {
-    expect(
-      check(
-        'M06',
-        answer(
-          [
-            'm06-select',
-            'm06-nombre',
-            'm06-as',
-            'm06-comma',
-            'm06-expr',
-            'm06-from',
-            'm06-empleados',
-          ],
-          1,
-        ),
-      ),
-    ).toMatchObject({
-      feedback: expect.stringContaining('NOMBRE'),
-    });
-    expect(
-      check(
-        'M06',
-        answer(
-          [
-            'm06-select',
-            'm06-nombre',
-            'm06-comma',
-            'm06-expr',
-            'm06-from',
-            'm06-empleados',
-            'm06-as',
-          ],
-          1,
-        ),
-      ),
-    ).toMatchObject({
-      feedback: expect.stringContaining('tabla'),
-    });
-  });
-  it('rechaza la etiqueta en el encabezado equivocado, sin alias o incompleta', () => {
-    expect(kind('M06', answer(solution, 0))).toBe('incorrect');
-    expect(
-      kind(
-        'M06',
-        answer(
-          solution.filter((id) => id !== 'm06-as'),
-          1,
-        ),
-      ),
-    ).toBe('incorrect');
-    expect(kind('M06', answer(['m06-expr', 'm06-as'], 1))).toBe('incorrect');
-    expect(kind('M06', answer([], null))).toBe('invalid-input');
+  it('rechaza consultas incompletas y la respuesta vacía no es intento', () => {
+    expect(kind('M06', answer(['m06-expr', 'm06-as']))).toBe('incorrect');
+    expect(kind('M06', answer([]))).toBe('invalid-input');
   });
 });
 
-describe('G07 — M07 DISTINCT compuesto', () => {
-  const five = [
-    ['Cali', 'Contabilidad'],
-    ['Bogotá', 'Sistemas'],
-    ['Medellín', 'Ventas'],
-    ['Cali', 'Sistemas'],
-    ['Bogotá', 'Ventas'],
-  ];
-  const answer = (rows: string[][]): MissionAnswer => ({ type: 'distinct-result', rows });
-  it('acepta los cinco pares en cualquier orden', () => {
-    expect(kind('M07', answer(five))).toBe('correct');
+describe('M07 — DISTINCT', () => {
+  // Proyección: Bogotá, Cali, Bogotá, Medellín, Cali, Bogotá.
+  const answer = (keptIndexes: number[]): MissionAnswer => ({
+    type: 'distinct-result',
+    keptIndexes,
   });
-  it('rechaza conservar repeticiones idénticas', () => {
-    expect(check('M07', answer([...five, ['Bogotá', 'Sistemas']]))).toMatchObject({
-      feedback: expect.stringContaining('idénticas'),
-    });
+  it('acepta un ejemplar de cada ciudad, sea cual sea la fila conservada', () => {
+    expect(kind('M07', answer([0, 1, 3]))).toBe('correct');
+    expect(kind('M07', answer([5, 4, 3]))).toBe('correct');
   });
-  it('rechaza reducir Bogotá a un único departamento', () => {
-    expect(
-      check(
-        'M07',
-        answer([
-          ['Bogotá', 'Sistemas'],
-          ['Cali', 'Sistemas'],
-          ['Medellín', 'Ventas'],
-        ]),
-      ),
-    ).toMatchObject({
-      feedback: expect.stringContaining('igual ciudad y diferente departamento'),
-    });
+  it('explica duplicados restantes y ciudades eliminadas por completo', () => {
+    expect(feedback('M07', answer([0, 1, 2, 3, 4, 5]))).toContain('repetidas');
+    expect(feedback('M07', answer([0, 1]))).toContain('Medellín');
+    expect(feedback('M07', answer([0, 2, 3]))).toContain('Cali');
   });
-  it('rechaza pares inventados y la respuesta vacía no es intento', () => {
-    expect(kind('M07', answer([...five.slice(1), ['Cali', 'Ventas']]))).toBe('incorrect');
+  it('ignora índices repetidos o ajenos y la respuesta vacía no es intento', () => {
+    expect(kind('M07', answer([0, 0, 1, 3, 99]))).toBe('correct');
     expect(kind('M07', answer([]))).toBe('invalid-input');
   });
 });
 
-describe('G08 — M08 Debug Terminal', () => {
-  const repaired = [
-    'SELECT',
-    'nombre',
-    ',',
-    'salario',
-    '*',
-    '12',
-    'AS',
-    'salario_anual',
-    'FROM',
-    'empleados',
-    ';',
-  ];
-  const answer = (selectedTokenIndex: number | null, repairedTokens: string[]): MissionAnswer => ({
-    type: 'hotspot-error',
-    selectedTokenIndex,
-    repairedTokens,
+describe('M08 — detectar el error', () => {
+  // Tokens: SELECT nombre salario FROM empleados ;  → huecos 1..5
+  const answer = (gapIndex: number | null): MissionAnswer => ({ type: 'hotspot-error', gapIndex });
+  it('acepta la coma entre nombre y salario', () => {
+    expect(kind('M08', answer(2))).toBe('correct');
   });
-  it('acepta localizar la coma y retirarla, con o sin terminador y con la expresión conmutada', () => {
-    expect(kind('M08', answer(8, repaired))).toBe('correct');
-    expect(kind('M08', answer(8, repaired.slice(0, -1)))).toBe('correct');
-    expect(
-      kind(
-        'M08',
-        answer(8, [
-          'SELECT',
-          'nombre',
-          ',',
-          '12',
-          '*',
-          'salario',
-          'AS',
-          'salario_anual',
-          'FROM',
-          'empleados',
-        ]),
-      ),
-    ).toBe('correct');
+  it('rechaza otros huecos con feedback de objetivo, no de sintaxis', () => {
+    for (const gap of [1, 3, 4, 5]) expect(kind('M08', answer(gap))).toBe('incorrect');
+    expect(feedback('M08', answer(1))).toContain('sigue sin cumplir el pedido');
   });
-  it('rechaza una localización incorrecta aunque la reparación sea buena', () => {
-    expect(kind('M08', answer(2, repaired))).toBe('incorrect');
-    expect(kind('M08', answer(null, repaired))).toBe('incorrect');
+  it('la explicación aclara que sin coma es un alias implícito válido (LAB10)', () => {
+    expect(getMissionDefinition('M08').explanation).toContain('alias SALARIO');
   });
-  it('rechaza borrar la expresión para que compile, con feedback de objetivo', () => {
-    expect(check('M08', answer(8, ['SELECT', 'nombre', 'FROM', 'empleados']))).toMatchObject({
-      kind: 'incorrect',
-      feedback: expect.stringContaining('no cumple el pedido'),
-    });
-  });
-  it('rechaza una consulta todavía rota y la respuesta vacía no es intento', () => {
-    expect(
-      kind(
-        'M08',
-        answer(8, [
-          'SELECT',
-          'nombre',
-          ',',
-          'salario',
-          '*',
-          '12',
-          'AS',
-          'salario_anual',
-          ',',
-          'FROM',
-          'empleados',
-        ]),
-      ),
-    ).toBe('incorrect');
-    expect(kind('M08', answer(null, []))).toBe('invalid-input');
+  it('rechaza huecos inexistentes y la respuesta vacía no es intento', () => {
+    expect(kind('M08', answer(0))).toBe('incorrect');
+    expect(kind('M08', answer(6))).toBe('incorrect');
+    expect(kind('M08', answer(null))).toBe('invalid-input');
   });
 });
 
-describe('G09 — M09 reconstrucción', () => {
-  const solution = [
+describe('M09 — lenguaje a SQL', () => {
+  const base = [
     'm09-select',
-    'm09-distinct',
+    'm09-nombre',
+    'm09-comma-a',
     'm09-ciudad',
-    'm09-as-ciudad',
-    'm09-comma',
-    'm09-depto',
-    'm09-as-depto',
+    'm09-comma-b',
+    'm09-salario',
     'm09-from',
     'm09-empleados',
   ];
-  const answer = (pieceIds: string[], rowCount: number | null): MissionAnswer => ({
-    type: 'build-query',
-    pieceIds,
-    rowCount,
-  });
-  it('acepta la consulta con predicción 5, con o sin terminador', () => {
-    expect(kind('M09', answer(solution, 5))).toBe('correct');
-    expect(kind('M09', answer([...solution, 'm09-end'], 5))).toBe('correct');
-  });
-  it('rechaza predicciones 6 y 3', () => {
-    expect(kind('M09', answer(solution, 6))).toBe('incorrect');
-    expect(kind('M09', answer(solution, 3))).toBe('incorrect');
-  });
-  it('rechaza DISTINCT fuera de lugar y alias intercambiados', () => {
-    const misplaced = [
+  const answer = (pieceIds: string[]): MissionAnswer => ({ type: 'build-query', pieceIds });
+  it('acepta la consulta sin depender de qué coma se use ni del terminador', () => {
+    expect(kind('M09', answer(base))).toBe('correct');
+    const swappedCommas = [
       'm09-select',
+      'm09-nombre',
+      'm09-comma-b',
       'm09-ciudad',
-      'm09-as-ciudad',
-      'm09-comma',
-      'm09-distinct',
-      'm09-depto',
-      'm09-as-depto',
+      'm09-comma-a',
+      'm09-salario',
+      'm09-from',
+      'm09-empleados',
+      'm09-end',
+    ];
+    expect(kind('M09', answer(swappedCommas))).toBe('correct');
+  });
+  it('explica una coma ausente como alias implícito', () => {
+    const noComma = [
+      'm09-select',
+      'm09-nombre',
+      'm09-ciudad',
+      'm09-comma-b',
+      'm09-salario',
       'm09-from',
       'm09-empleados',
     ];
-    expect(check('M09', answer(misplaced, 5))).toMatchObject({
-      feedback: expect.stringContaining('DISTINCT'),
-    });
-    const swapped = [
-      'm09-select',
-      'm09-distinct',
-      'm09-ciudad',
-      'm09-as-depto',
-      'm09-comma',
-      'm09-depto',
-      'm09-as-ciudad',
-      'm09-from',
-      'm09-empleados',
-    ];
-    expect(check('M09', answer(swapped, 5))).toMatchObject({
-      feedback: expect.stringContaining('alias'),
-    });
+    expect(feedback('M09', answer(noComma))).toContain('como un alias');
   });
-  it('rechaza encabezados en otro orden y la respuesta vacía no es intento', () => {
-    const reversed = [
-      'm09-select',
-      'm09-distinct',
-      'm09-depto',
-      'm09-as-depto',
-      'm09-comma',
-      'm09-ciudad',
-      'm09-as-ciudad',
-      'm09-from',
-      'm09-empleados',
-    ];
-    expect(kind('M09', answer(reversed, 5))).toBe('incorrect');
-    expect(kind('M09', answer([], null))).toBe('invalid-input');
+  it('explica asterisco, DISTINCT, columnas de más, faltantes y desordenadas', () => {
+    expect(
+      feedback('M09', answer(['m09-select', 'm09-star', 'm09-from', 'm09-empleados'])),
+    ).toContain('asterisco');
+    expect(feedback('M09', answer(['m09-select', 'm09-distinct', ...base.slice(1)]))).toContain(
+      'DISTINCT',
+    );
+    expect(
+      feedback(
+        'M09',
+        answer([...base.slice(0, 6), 'm09-comma-a', 'm09-edad', 'm09-from', 'm09-empleados']),
+      ),
+    ).toContain('Sobran');
+    expect(
+      feedback(
+        'M09',
+        answer([
+          'm09-select',
+          'm09-nombre',
+          'm09-comma-a',
+          'm09-ciudad',
+          'm09-from',
+          'm09-empleados',
+        ]),
+      ),
+    ).toContain('Falta mostrar SALARIO');
+    expect(
+      feedback(
+        'M09',
+        answer([
+          'm09-select',
+          'm09-ciudad',
+          'm09-comma-a',
+          'm09-nombre',
+          'm09-comma-b',
+          'm09-salario',
+          'm09-from',
+          'm09-empleados',
+        ]),
+      ),
+    ).toContain('orden');
+    expect(
+      feedback(
+        'M09',
+        answer(['m09-select', 'm09-nombre', 'm09-distinct', 'm09-from', 'm09-empleados']),
+      ),
+    ).toContain('DISTINCT va inmediatamente');
+  });
+  it('una respuesta vacía no es un intento y piezas ajenas se rechazan', () => {
+    expect(kind('M09', answer([]))).toBe('invalid-input');
+    expect(feedback('M09', answer(['m09-select', 'm02-nombre']))).toContain('no pertenecen');
   });
 });
 
-describe('G10 — M10 reto escrito', () => {
+describe('M10 — reto escrito', () => {
   it('rechaza el editor vacío sin consumir intento', () => {
     expect(kind('M10', { type: 'write-query', sql: '   ' })).toBe('invalid-input');
   });

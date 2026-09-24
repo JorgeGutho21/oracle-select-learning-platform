@@ -24,17 +24,17 @@ La experiencia incluye Home, Exposición, Estudio, búsqueda Ctrl+K/Cmd+K, víde
 
 ## Estado comprobado
 
-| Elemento                   | Estado                                                                                                                                                         |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R0: once especificaciones  | Completas y subidas a GitHub.                                                                                                                                  |
-| Estructura por capas       | Next.js App Router y presentación por módulos; límites ESLint; núcleo reservado sin lógica ficticia.                                                           |
-| README, AGENTS, .gitignore | Creados y versionados.                                                                                                                                         |
-| R1: Oracle real            | Pendiente; instancia, credenciales y conectividad no verificadas.                                                                                              |
-| R2                         | Cimientos técnicos, rutas vacías y showcase `/dev/design-system` implementados; verificación final en curso. No incluye contenido ni buscador de producto.     |
-| R3–R8                      | R4 en curso: núcleo del Challenge (dominio, rúbricas, motor y persistencia local) sin pantallas. R3 y R5–R8 pendientes; sin despliegue.                        |
-| Pruebas                    | En verde: lint, typecheck, formato, 143 unitarias (121 del Challenge), build y 75/75 E2E. No acredita Oracle, pantallas del juego, salas ni producto completo. |
-| Estado detallado           | `docs/PROJECT_STATUS.md` y `docs/CHALLENGE_STATUS.md`.                                                                                                         |
-| Continuidad y prompt       | Esta entrega añade este archivo y `CODEX_PROMPT.md`.                                                                                                           |
+| Elemento                   | Estado                                                                                                                                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R0: once especificaciones  | Completas y subidas a GitHub.                                                                                                                                         |
+| Estructura por capas       | Next.js App Router y presentación por módulos; límites ESLint; núcleo reservado sin lógica ficticia.                                                                  |
+| README, AGENTS, .gitignore | Creados y versionados.                                                                                                                                                |
+| R1: Oracle real            | Pendiente; instancia, credenciales y conectividad no verificadas.                                                                                                     |
+| R2                         | Cimientos técnicos, rutas vacías y showcase `/dev/design-system` implementados; verificación final en curso. No incluye contenido ni buscador de producto.            |
+| R3–R8                      | R4 avanzado: Challenge v2 jugable en `/challenge` (M01–M09); M10 bloqueada sin Oracle. R3 y R5–R8 pendientes; sin despliegue.                                         |
+| Pruebas                    | En verde: lint, typecheck, formato, 189 unitarias, build y 126/126 E2E (51 del Challenge) en Chromium, Edge y WebKit. No acredita Oracle, salas ni producto completo. |
+| Estado detallado           | `docs/PROJECT_STATUS.md` y `docs/CHALLENGE_STATUS.md`.                                                                                                                |
+| Continuidad y prompt       | Esta entrega añade este archivo y `CODEX_PROMPT.md`.                                                                                                                  |
 
 Commit inicial documental: `dda7d2b892207d226c78d3f3252827290ccf93dd`. Es una referencia histórica; consultar Git para conocer el último commit y la rama actuales.
 
@@ -69,7 +69,7 @@ La última captura muestra una carpeta `Presentacion_SELECT_JorgeGutierrez/Juego
 
 ## Siguiente trabajo
 
-Fases 1 (estabilización técnica) y 2 (núcleo del SQL Challenge) cerradas. La rama de trabajo autorizada es `claude-finish-20260923`; no trabajar en `main` ni hacer push a `main`. Siguiente paso: esperar la instrucción del usuario. El orden recomendado está en `docs/CHALLENGE_STATUS.md` y empieza por decidir dónde se compone el evaluador en servidor y construir las pantallas con dnd-kit. Decisión pendiente del usuario: la bonificación por tiempo pedida contradice GAME_SPEC y está implementada con valor 0. R1 (Oracle) sigue pendiente y no está simulado.
+Fases 1 (estabilización), 2 (núcleo del Challenge) y 3 (Challenge interactivo) cerradas. La rama de trabajo autorizada es `claude-finish-20260923`; no trabajar en `main` ni hacer push a `main`. Siguiente paso: esperar la instrucción del usuario. Pendientes: M10 con Oracle real y editor; resultados locales en `/results`; decidir sobre la bonificación por tiempo (contradice GAME_SPEC y vale 0). Vigilar el fallo aislado de una Server Function en `next dev` descrito en `docs/CHALLENGE_STATUS.md`. R1 (Oracle) sigue pendiente y no está simulado.
 
 Pendientes externos concretos: instancia Oracle, servicio y conectividad; configuración de Supabase; vídeos definitivos; logotipo oficial; nombre exacto de asignatura y ortografía del docente; tiempo final asignado a la exposición. Documentar qué bloquea cada pendiente y continuar el trabajo independiente.
 
@@ -95,3 +95,4 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
 - 2026-09-23: auditoría de estado sin cambios de código. Se crearon `docs/PROJECT_STATUS.md` y `docs/CHALLENGE_STATUS.md`: las misiones M01–M10 están en MISSING. Se detectó una E2E intermitente en WebKit (diálogo, timeout de 30 s).
 - 2026-09-23: Fase 1, estabilización técnica, en `claude-finish-20260923`. Causa: el screencast de la traza `retain-on-failure` en WebKit/Windows duplicaba la duración de las pruebas. Solución: el proyecto `webkit` de `playwright.config.ts` graba la traza sin screenshots. Sin cambios de timeouts, pruebas ni componentes. Verificado: lint, typecheck, format:check, 22/22 unitarias, build, 75/75 E2E y 11 repeticiones de la prueba del diálogo en WebKit. Commit `fix: stabilize base test suite`, subido a `origin/claude-finish-20260923`.
 - 2026-09-23: Fase 2, núcleo del SQL Challenge, en `claude-finish-20260923`. Dataset único en `src/domain/dataset`, comparación de resultados en `src/domain/results` y módulo `src/features/challenge` con domain (tipos `MissionDefinition`, catálogo público M01–M10, rúbricas privadas, puntuación, estado, resultado y restauración), application (puertos y `ChallengeEngine`) e infrastructure (repositorio `localStorage`, evaluador en proceso, reloj). Sin pantallas ni dependencias nuevas; CodeMirror no se instaló. `timeBonus` queda en 0 por GAME_SPEC. Verificado: lint, typecheck, format:check, 143/143 unitarias, build y 75/75 E2E. Commit `feat: implement challenge domain and game engine`, subido a `origin/claude-finish-20260923`.
+- 2026-09-23: Fase 3, Challenge interactivo, en `claude-finish-20260923`. El usuario eligió adoptar sus nuevas M01–M09 como Challenge v2: se actualizaron GAME_SPEC.md 2.0 y TEST_PLAN.md y el catálogo pasó a `select-challenge-v2`. M08 conserva la regla de LAB10 (alias implícito, fallo de objetivo). Se instaló dnd-kit (core 6.3.1, sortable 10.0.0, utilities 3.2.2) y se crearon `SequenceBuilder`, el analizador `src/domain/sql/projection-query.ts`, la presentación del Challenge y la raíz de composición `src/composition` con Server Functions (G15 comprobado en el build). Se corrigió un desbordamiento móvil del `DataTable` base. Verificado: lint, typecheck, format:check, 189 unitarias, build y 126/126 E2E. Commit `feat: implement interactive sql challenge missions`, subido a `origin/claude-finish-20260923`.

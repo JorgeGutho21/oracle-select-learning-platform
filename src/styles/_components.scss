@@ -342,6 +342,9 @@
   min-inline-size: 0;
 }
 .ds-table-scroll {
+  // Bloque contenedor de los textos ocultos absolutos: sin él escapan del scroll y
+  // desbordan la página en móvil.
+  position: relative;
   max-inline-size: 100%;
   overflow-x: auto;
   border: 1px solid var(--color-border-subtle);

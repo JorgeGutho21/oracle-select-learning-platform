@@ -1,11 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
-import {
-  evaluateExpression,
-  parseExpression,
-  referencesColumn,
-} from '@/features/challenge/domain/expression';
+import { evaluateExpression, parseExpression, referencesColumn } from '@/domain/sql/expression';
 import {
   accuracy,
   attemptPenalty,

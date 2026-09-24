@@ -39,8 +39,6 @@ export interface Piece {
   readonly role: PieceRole;
 }
 
-type Rows = readonly (readonly string[])[];
-
 /* ---------- Datos públicos por tipo de interacción ---------- */
 
 export interface DragColumnData {
@@ -52,44 +50,48 @@ export interface ReorderSqlData {
   readonly type: 'reorder-sql';
   /** Orden mezclado de presentación; nunca el orden de la solución. */
   readonly pieces: readonly Piece[];
-  readonly optionalPieceIds: readonly string[];
 }
 export interface PredictResultData {
   readonly type: 'predict-result';
   readonly query: string;
   readonly headerOptions: readonly string[];
-  /** Fichas repetibles para construir filas; vacía si solo se piden encabezados. */
-  readonly valueOptions: readonly string[];
-  readonly asks: { readonly headers: boolean; readonly rows: boolean; readonly rowCount: boolean };
+  readonly asks: {
+    readonly headers: boolean;
+    /** Marcar qué filas de EMPLEADOS aparecen en el resultado. */
+    readonly rowSelection: boolean;
+    readonly rowCount: boolean;
+  };
 }
 export interface ExpressionBuilderData {
   readonly type: 'expression-builder';
+  readonly query: string;
   /** Piezas reutilizables para construir la expresión. */
   readonly palette: readonly Piece[];
-  readonly targetEmployee: string;
+  /** Empleados (ID) cuyo valor calculado se debe predecir. */
+  readonly predictionEmployeeIds: readonly number[];
 }
 export interface AliasBuilderData {
   readonly type: 'alias-builder';
   readonly pieces: readonly Piece[];
-  readonly previewColumns: readonly string[];
 }
 export interface DistinctResultData {
   readonly type: 'distinct-result';
   readonly query: string;
-  readonly columns: readonly string[];
-  /** Proyección sin DISTINCT, con repeticiones, de la que se construye el resultado. */
-  readonly candidateRows: Rows;
+  readonly column: string;
+  /** Proyección sin DISTINCT, con repeticiones, de la que se retiran duplicados. */
+  readonly candidateValues: readonly string[];
 }
 export interface HotspotErrorData {
   readonly type: 'hotspot-error';
   readonly tokens: readonly string[];
   readonly requirement: string;
+  /** Símbolo que se inserta en el hueco elegido. */
+  readonly insertToken: string;
 }
 export interface BuildQueryData {
   readonly type: 'build-query';
+  /** Incluye piezas de distracción y piezas repetidas intercambiables. */
   readonly pieces: readonly Piece[];
-  readonly optionalPieceIds: readonly string[];
-  readonly asksRowCount: true;
 }
 export interface WriteQueryData {
   readonly type: 'write-query';
@@ -110,36 +112,29 @@ export type MissionPublicData =
 
 /* ---------- Respuestas ---------- */
 
+export interface Prediction {
+  readonly employeeId: number;
+  readonly value: number | null;
+}
+
 export type MissionAnswer =
   | { readonly type: 'drag-column'; readonly columns: readonly string[] }
   | { readonly type: 'reorder-sql'; readonly pieceIds: readonly string[] }
   | {
       readonly type: 'predict-result';
       readonly headers: readonly string[];
-      readonly rows: Rows;
+      readonly sourceRowIds: readonly number[];
       readonly rowCount: number | null;
     }
   | {
       readonly type: 'expression-builder';
       readonly pieceIds: readonly string[];
-      readonly value: number | null;
+      readonly predictions: readonly Prediction[];
     }
-  | {
-      readonly type: 'alias-builder';
-      readonly pieceIds: readonly string[];
-      readonly labeledColumnIndex: number | null;
-    }
-  | { readonly type: 'distinct-result'; readonly rows: Rows }
-  | {
-      readonly type: 'hotspot-error';
-      readonly selectedTokenIndex: number | null;
-      readonly repairedTokens: readonly string[];
-    }
-  | {
-      readonly type: 'build-query';
-      readonly pieceIds: readonly string[];
-      readonly rowCount: number | null;
-    }
+  | { readonly type: 'alias-builder'; readonly pieceIds: readonly string[] }
+  | { readonly type: 'distinct-result'; readonly keptIndexes: readonly number[] }
+  | { readonly type: 'hotspot-error'; readonly gapIndex: number | null }
+  | { readonly type: 'build-query'; readonly pieceIds: readonly string[] }
   | { readonly type: 'write-query'; readonly sql: string };
 
 export type AnswerFor<T extends InteractionType> = Extract<MissionAnswer, { type: T }>;
@@ -170,6 +165,8 @@ export interface PublicMission<T extends InteractionType = InteractionType> {
   readonly difficulty: Difficulty;
   readonly interactionType: T;
   readonly learningObjective: string;
+  /** Pedido en lenguaje natural que la misión traduce a SQL. */
+  readonly request: string;
   readonly lessons: readonly LessonId[];
   readonly instructions: string;
   readonly maxScore: number;

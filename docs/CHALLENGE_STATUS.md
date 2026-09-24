@@ -1,111 +1,84 @@
 # Estado del SQL Challenge
 
-Actualizado: 23 de septiembre de 2026, Fase 2 (núcleo del Challenge), rama `claude-finish-20260923`. Especificación de referencia: [GAME_SPEC.md](GAME_SPEC.md), requisitos P09–P13 y P15 de [PROJECT_SPEC.md](PROJECT_SPEC.md), pruebas T09–T13 y G01–G15 de [TEST_PLAN.md](TEST_PLAN.md).
+Actualizado: 23 de septiembre de 2026, Fase 3 (Challenge interactivo), rama `claude-finish-20260923`. Especificación de referencia: [GAME_SPEC.md](GAME_SPEC.md) versión 2.0 (catálogo `select-challenge-v2`), requisitos P09–P13 y P15 de [PROJECT_SPEC.md](PROJECT_SPEC.md), pruebas T09–T13 y G01–G15 de [TEST_PLAN.md](TEST_PLAN.md).
 
 ## Conclusión
 
-**El dominio y el motor de partida están implementados y probados; las pantallas de misión no.** La ruta `/challenge` sigue mostrando su estado vacío. Existen la definición tipada de las diez misiones, sus rúbricas, la puntuación, el estado de partida, el motor de práctica individual y la persistencia local. No hay todavía interfaz, arrastre (dnd-kit), editor (CodeMirror), analizador SQL ni Oracle.
+**M01–M09 están implementadas, son jugables en `/challenge` y tienen pruebas.** Se practican con ratón, arrastre, toque y teclado, sobre el motor, la puntuación, el cronómetro, los intentos, las pistas, el progreso, el feedback y la explicación comunes. **M10 está bloqueada** hasta disponer de Oracle real: no se simula su corrección y no consume intentos.
 
-## Arquitectura implementada
+## Decisión de contenido: Challenge v2
 
-```text
-src/domain/
-  dataset/empleados.ts             # fuente única de empleados-select-v1
-  results/result-table.ts          # proyección, DISTINCT y comparación por multiconjunto
-src/features/challenge/
-  domain/
-    types.ts                       # MissionDefinition, PublicMission, 9 tipos, respuestas, EvaluationOutcome
-    scoring.ts                     # ScoringPolicy, ScoreBreakdown, precisión y progreso
-    expression.ts                  # expresiones aritméticas de piezas (M05)
-    challenge-state.ts             # ChallengeState, MissionState, Attempt, HintUsage y transiciones
-    challenge-result.ts            # MissionResult y ChallengeResult
-    restore-state.ts               # validación de la partida guardada
-    missions/public-catalog.ts     # parte pública de M01–M10
-    missions/rubrics.ts            # PRIVADO: rúbricas, pistas y explicaciones
-    missions/definitions.ts        # PRIVADO: MissionDefinition completa y corrección
-  application/
-    ports.ts                       # MissionEvaluator, ChallengeRepository, Clock, IdGenerator
-    challenge-engine.ts            # motor de partida
-  infrastructure/
-    browser-challenge-repository.ts
-    in-process-mission-evaluator.ts
-    system-clock.ts
-```
+En la Fase 3 el responsable del proyecto redefinió M01–M09 (pedidos en lenguaje natural, SELECT \*, predicción de resultado, columna calculada, alias, DISTINCT sobre una columna, coma ausente y traducción a bloques) y eligió adoptarlas como versión 2. Se actualizaron GAME_SPEC.md y TEST_PLAN.md, y la versión del catálogo pasó a `select-challenge-v2`, de modo que las partidas guardadas con la v1 se descartan.
 
-Decisiones:
-
-- **Separación pública/privada (G15).** `PublicMission` contiene id, versión, orden, título, descripción, dificultad, tipo de interacción, objetivo, lecciones, instrucciones, puntuación máxima, duración base y `publicData`. `MissionDefinition` añade `hint`, `explanation` y `rubric`. Aplicación solo importa el catálogo público; pistas, explicaciones y corrección llegan por el puerto `MissionEvaluator`. La explicación solo se entrega con la misión cerrada. Una prueba falla si otra capa importa las rúbricas.
-- **Piezas mezcladas.** El catálogo público presenta las piezas en un orden fijo que no es el de la solución.
-- **Una sola fuente de datos.** Todos los resultados esperados se derivan de `EMPLEADOS_DATASET`; una prueba comprueba que los registros solo se definen en ese módulo.
-- **Tipos de interacción.** `drag-column`, `reorder-sql`, `predict-result`, `expression-builder`, `alias-builder`, `distinct-result`, `hotspot-error`, `build-query` y `write-query`, cada uno con sus datos públicos y su forma de respuesta discriminada.
-- **Corrección.** `correct` e `incorrect` consumen intento. `invalid-input` (respuesta vacía o de otro tipo) y `technical` (servicio caído, Oracle no disponible) no lo consumen.
-- **Motor.** `ChallengeEngine` ofrece `start`, `submit`, `requestHint`, `openMission`, `advance`, `skip`, `pause`/`resume`, `finish`, `reset`, `restore`, `getResult`, `getExplanation` y `subscribe` (compatible con `useSyncExternalStore`). Admite una sola corrección pendiente y descarta correcciones que llegan después de reiniciar.
-- **Persistencia.** Solo `BrowserChallengeRepository` accede a `localStorage`, bajo la clave `sql-select-lab:challenge:practice`. Nunca lanza: si el almacenamiento falta, está bloqueado o lleno, la partida sigue en memoria y se informa `unavailable`. Al restaurar, el dominio valida la partida y descarta datos corruptos o de otra versión (esquema, Challenge, dataset o política). El cronómetro queda en pausa con el tiempo acumulado hasta el último guardado.
-- **Cronómetro.** Es informativo: cuenta el tiempo activo por misión, se pausa al cambiar de misión, al cerrarla o al llamar a `pause()`, y no afecta a los puntos.
-
-## Puntuación y bonificación por tiempo
-
-La fórmula normativa se aplica solo al primer acierto: `100 − 20 × (intento − 1) − 20 × pistas`, con un máximo de 1000.
-
-La Fase 2 pidió un «bonus por tiempo», pero GAME_SPEC dice «No hay bonificación por rapidez» y tiene precedencia sobre la puntuación (AGENTS.md). Se implementó el componente `timeBonus` dentro de `ScoringPolicy`. La política vigente, `GAME_SPEC_SCORING_POLICY`, fija `maxTimeBonus: 0`, así que la bonificación siempre vale cero. Una política alternativa con bonificación existe solo en pruebas. **Activarla requiere decidirlo, actualizar GAME_SPEC.md y TEST_PLAN.md y crear una versión nueva de la política**; las partidas guardadas con otra versión se descartan.
+M08 respeta LAB10: `SELECT nombre salario FROM empleados;` es SQL válido (SALARIO es un alias implícito de NOMBRE). El estudiante localiza el hueco de la coma y el feedback explica que falla el pedido de dos columnas, no la sintaxis.
 
 ## Estado por misión
 
-| Misión | Tipo                 | Dominio y rúbrica                                                                                | Interfaz | Estado  |
-| ------ | -------------------- | ------------------------------------------------------------------------------------------------ | -------- | ------- |
-| M01    | `drag-column`        | DONE: G01 mediante comparación de resultados.                                                    | MISSING  | PARTIAL |
-| M02    | `reorder-sql`        | DONE: G02, terminador opcional.                                                                  | MISSING  | PARTIAL |
-| M03    | `predict-result`     | DONE: G03, encabezados y conteo derivados del esquema.                                           | MISSING  | PARTIAL |
-| M04    | `predict-result`     | DONE: G04, multiconjunto con feedback sobre DISTINCT.                                            | MISSING  | PARTIAL |
-| M05    | `expression-builder` | DONE: G05, equivalencia evaluada sobre las seis filas; exige SALARIO.                            | MISSING  | PARTIAL |
-| M06    | `alias-builder`      | DONE: G06, posición del alias y encabezado etiquetado.                                           | MISSING  | PARTIAL |
-| M07    | `distinct-result`    | DONE: G07, cinco pares derivados del dataset.                                                    | MISSING  | PARTIAL |
-| M08    | `hotspot-error`      | PARTIAL: localización y reparación como secuencia de tokens.                                     | MISSING  | PARTIAL |
-| M09    | `build-query`        | DONE: G09, DISTINCT, alias y predicción 5.                                                       | MISSING  | PARTIAL |
-| M10    | `write-query`        | PARTIAL: rechaza el editor vacío; sin Oracle devuelve `oracle-unavailable` sin consumir intento. | MISSING  | PARTIAL |
+| Misión | Contenido                                     | Interacción                                                     | Estado  | Pruebas                  |
+| ------ | --------------------------------------------- | --------------------------------------------------------------- | ------- | ------------------------ |
+| M01    | `SELECT nombre, salario FROM empleados;`      | Arrastrar columnas a SELECT; resaltado en la tabla              | DONE    | Unitarias + E2E ×3       |
+| M02    | `SELECT nombre, ciudad FROM empleados;`       | Ordenar piezas                                                  | DONE    | Unitarias + E2E ×3       |
+| M03    | `SELECT * FROM empleados;`                    | Construir encabezados y número de filas                         | DONE    | Unitarias + E2E ×3 + axe |
+| M04    | Resultado de `SELECT nombre, salario`         | Construir encabezados y marcar filas en la tabla                | DONE    | Unitarias + E2E ×3       |
+| M05    | `salario * 12`                                | Construir la expresión y predecir valores de Ana, Pedro y María | DONE    | Unitarias + E2E ×3       |
+| M06    | `salario * 12 AS salario_anual`               | Ordenar piezas con vista de encabezados y tabla intacta         | DONE    | Unitarias + E2E ×3 + axe |
+| M07    | `SELECT DISTINCT ciudad`                      | Antes (6 filas) → retirar repeticiones → después (3)            | DONE    | Unitarias + E2E ×3 + axe |
+| M08    | Coma ausente en `SELECT nombre salario`       | Hotspot: huecos seleccionables en el código                     | DONE    | Unitarias + E2E ×3 + axe |
+| M09    | «nombre, ciudad y salario de todos» → bloques | Bloques con distractores; corregido por resultado, no por texto | DONE    | Unitarias + E2E ×3       |
+| M10    | Consulta escrita con cálculo y alias          | Bloqueada: «Misión pendiente del servicio Oracle»               | BLOCKED | Unitarias + E2E ×3       |
 
-Limitaciones reconocidas:
+«E2E ×3» significa Chromium, Microsoft Edge y WebKit.
 
-- **M08:** la reparación se valida como secuencia de tokens normalizada, aceptando la expresión conmutada `12 * salario`. La edición libre con equivalencias generales necesita el analizador del subconjunto SELECT v1 (LAB_SPEC), pendiente.
-- **M10:** no se simula la corrección. G10 exige ejecutar en Oracle real (R1, pendiente).
+## Arquitectura
 
-## Subsistemas
+```text
+src/domain/
+  dataset/empleados.ts          # fuente única de empleados-select-v1
+  results/result-table.ts       # proyección, DISTINCT, comparación por multiconjunto
+  sql/expression.ts             # expresiones aritméticas
+  sql/projection-query.ts       # analizador estructural del subconjunto de proyección
+src/features/challenge/
+  domain/                       # tipos, catálogo público v2, rúbricas privadas, puntuación, estado
+  application/
+    challenge-engine.ts         # motor de partida
+    challenge-api.ts            # superficie pública para presentación
+    ports.ts
+  infrastructure/               # localStorage, evaluador en proceso, reloj
+  presentation/
+    challenge-experience.tsx    # introducción, mapa, misión, resumen
+    mission-view.tsx            # marco común: pedido, cronómetro, intentos, pista, feedback, explicación
+    mission-map.tsx, challenge-summary.tsx, source-table.tsx
+    interactions/               # una interacción por tipo; ninguna contiene reglas de corrección
+src/presentation/components/interaction/sequence-builder.tsx   # dnd-kit reutilizable
+src/composition/challenge/
+  actions.ts                    # Server Functions: corrección, pista y explicación
+  challenge-root.tsx            # une motor, localStorage y Server Functions
+```
 
-| Subsistema                             | Estado  | Nota                                                                                                                  |
-| -------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------- |
-| `MissionDefinition` y catálogo de diez | DONE    | Versión `select-challenge-v1`; suma 1000 puntos y 900 s base.                                                         |
-| Dataset único                          | DONE    | Inmutable en profundidad, con huella FNV-1a.                                                                          |
-| Comparador de resultados               | DONE    | Orden de columnas, multiconjunto de filas y tildes conservadas.                                                       |
-| Evaluador de expresiones de piezas     | DONE    | Precedencia, paréntesis, división entre cero y columnas no numéricas.                                                 |
-| Puntuación, precisión y progreso       | DONE    | G11 y G12. `timeBonus` a cero por la política normativa.                                                              |
-| Intentos, pistas, omisión y cierre     | DONE    | Dos intentos puntuados, pista idempotente, práctica sin puntos tras cerrar.                                           |
-| Cronómetro individual                  | DONE    | Tiempo activo con pausas; solo informativo.                                                                           |
-| Motor de partida                       | DONE    | Iniciar, responder, pista, avanzar, omitir, terminar, reiniciar y restaurar.                                          |
-| Persistencia local                     | DONE    | Adaptador de infraestructura, con tolerancia a fallos y validación al restaurar.                                      |
-| Composición en servidor                | MISSING | Las reglas de capas impiden que `app` y presentación importen infraestructura; falta decidir el punto de composición. |
-| Pantallas, mapa y feedback visual      | MISSING | Fase posterior.                                                                                                       |
-| Arrastre accesible (dnd-kit)           | MISSING | P10 y G14.                                                                                                            |
-| Editor SQL (CodeMirror)                | MISSING | No instalado, por indicación de la Fase 2.                                                                            |
-| Analizador SELECT v1                   | MISSING | Necesario para M08 completo, M10 y el laboratorio.                                                                    |
-| Resultados en `/results`               | MISSING | `ChallengeResult` ya está disponible para mostrarlo.                                                                  |
-| Pruebas E2E T09–T13                    | MISSING | No hay interfaz que recorrer.                                                                                         |
+- **Sin lógica duplicada.** Las misiones de piezas (M01, M02, M06, M08 y M09) pasan por el mismo analizador `analyzeProjection`. Este convierte los bloques en una consulta, calcula su resultado lógico sobre el dataset y la corrección compara resultados. Así se aceptan construcciones equivalentes, como comas intercambiables, y se explica el alias implícito. Es una comparación didáctica en memoria: no se presenta como ejecución en Oracle.
+- **G15 comprobado.** Rúbricas, pistas y explicaciones solo se ejecutan en el servidor, mediante Server Functions en `src/composition`. Una prueba E2E revisa los scripts que recibe el navegador, y se verificó que el build de producción no contiene esos textos en `.next/static`, mientras que sí están en `.next/server`.
+- **Composición.** Se añadió la capa `composition` a la regla ESLint de capas: es el único lugar que une infraestructura con aplicación, y solo `app` puede importarla. Presentación sigue sin poder importar dominio ni infraestructura.
+- **Arrastre accesible (dnd-kit 6.3.1, sortable 10.0.0, utilities 3.2.2).** `SequenceBuilder` admite arrastre con ratón (`MouseSensor`) y con dedo (`TouchSensor`). Como alternativa sin arrastre, se puede pulsar o activar con Enter una pieza para añadirla, y seleccionar una pieza colocada para moverla o quitarla con botones. El teclado usa esos controles explícitos en lugar del `KeyboardSensor` de dnd-kit, porque hay que evitar el conflicto entre la tecla Espacio y los botones y dar una alternativa de puntero simple (WCAG 2.5.7). Los cambios se anuncian en una región `aria-live`.
+- **Cronómetro informativo.** Se pausa al cambiar de misión, al cerrarla y al ocultar o abandonar la pestaña (`visibilitychange` y `pagehide`).
+- **Pantalla final.** Muestra puntuación, precisión, tiempo activo, intentos, pistas, misiones resueltas, resumen por misión, conceptos para repasar y el botón «Reiniciar práctica» con confirmación.
 
-## Pruebas
+## Puntuación
 
-Seis archivos en `tests/unit/challenge`, 121 pruebas:
+Sin cambios respecto a la Fase 2: `100 − 20 × (intento − 1) − 20 × pistas`, con un máximo de 1000. La bonificación por tiempo sigue en 0, como exige GAME_SPEC; activarla está pendiente de la decisión del responsable del proyecto.
 
-- `dataset-and-results.test.ts`: dataset, inmutabilidad, huella y casos S02–S04 y S09.
-- `scoring-and-expression.test.ts`: G11, G12, bonificación con política alternativa, precisión, progreso y casos S07–S08.
-- `missions.test.ts`: catálogo, G15 (sin datos privados ni orden de solución), C03 y G01–G10, con casos correctos, incorrectos pedagógicos, incompletos y vacíos.
-- `challenge-state.test.ts`: transiciones, U05, intentos, pistas, errores técnicos, omisión, fin de partida, inmutabilidad y resultados combinados.
-- `challenge-engine.test.ts`: motor con dobles, concurrencia, reinicio durante la corrección, restauración tras recarga (U07), almacenamiento ausente y datos corruptos.
-- `persistence.test.ts`: restauración validada, repositorio local y reglas de aislamiento de rúbricas, `localStorage` y dataset.
+## Defectos encontrados y corregidos en la fase
 
-## Orden recomendado para continuar
+- **Desbordamiento horizontal en WebKit móvil:** el texto oculto de las columnas resaltadas del `DataTable` base tenía posición absoluta y escapaba del contenedor con scroll. Se corrigió con `position: relative` en `.ds-table-scroll`.
+- **Axe:** un `aria-label` sobre un `span` del cronómetro (atributo prohibido) se sustituyó por texto oculto real.
+- **Pruebas de arrastre intermitentes en WebKit con la suite completa:** el helper medía posiciones que el auto-scroll de dnd-kit desplazaba cerca del borde. Ahora centra el recorrido y espera a que cada pieza quede colocada.
 
-1. Decidir el punto de composición en servidor para la corrección (G15) sin romper las reglas de capas.
-2. Instalar y fijar dnd-kit. Construir el mapa, el marco de misión y la interacción de piezas accesible para M01, M02, M06 y M09 (T10).
-3. Constructores de resultado para M03, M04 y M07 (T11) y de expresión para M05.
-4. Analizador del subconjunto SELECT v1 y CodeMirror para M08 completo (T12).
-5. M10 con Oracle real cuando R1 esté disponible (T13).
-6. Resultados locales en `/results` y E2E T09 completo.
+## Observación abierta
+
+En una de tres ejecuciones completas de la suite, una llamada a la Server Function de M06 en WebKit sobre `next dev` falló. La aplicación reaccionó como debe: mostró «Servicio no disponible» y no consumió intento. No se reprodujo en las dos ejecuciones completas siguientes, con 126 llamadas POST que devolvieron HTTP 200 y una latencia máxima de 98 ms, ni en 20 repeticiones de M04–M07 en WebKit. Se atribuye provisionalmente a la compilación bajo demanda del servidor de desarrollo. Hay que vigilarlo en las próximas ejecuciones.
+
+## Pendiente
+
+1. M10 con Oracle real (R1), analizador de texto libre y editor (CodeMirror, no instalado).
+2. `/results` todavía no muestra el resultado local (el resumen está dentro de `/challenge`).
+3. Prueba de arrastre táctil real en dispositivo físico: en la automatización se verifica el toque sin arrastre; el arrastre táctil con `TouchSensor` no se simula.
+4. Revisión con lector de pantalla y dispositivos físicos.

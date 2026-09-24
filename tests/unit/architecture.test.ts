@@ -30,6 +30,18 @@ describe('Límites de ARCHITECTURE.md', () => {
       'src/features/lab/application/example.ts',
       "import { client } from '@/features/live/infrastructure/client';",
     ],
+    [
+      'src/presentation/example.ts',
+      "import { Root } from '@/composition/challenge/challenge-root';",
+    ],
+    [
+      'src/application/example.ts',
+      "import { Root } from '@/composition/challenge/challenge-root';",
+    ],
+    [
+      'src/app/page.tsx',
+      "import { InProcessMissionEvaluator } from '@/features/challenge/infrastructure/evaluator';",
+    ],
   ])('rechaza una dependencia invertida en %s', async (file, code) => {
     expect(await architecturalErrors(file, code)).toHaveLength(1);
   });
@@ -39,6 +51,11 @@ describe('Límites de ARCHITECTURE.md', () => {
     ['src/infrastructure/example.ts', "import type { Port } from '@/application/ports/query';"],
     ['src/presentation/example.ts', "import { run } from '@/application/run';"],
     ['src/app/page.tsx', "import { Shell } from '@/presentation/layouts/shell';"],
+    ['src/app/page.tsx', "import { Root } from '@/composition/challenge/challenge-root';"],
+    [
+      'src/composition/challenge/actions.ts',
+      "import { Evaluator } from '@/features/challenge/infrastructure/evaluator';",
+    ],
     [
       'src/features/lab/infrastructure/example.ts',
       "import type { Port } from '../application/ports/query';",

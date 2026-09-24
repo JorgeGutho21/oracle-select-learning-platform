@@ -35,9 +35,9 @@ Herramientas propuestas para implementación: Vitest para reglas, Playwright par
 
 ## Aceptación de las misiones
 
-G01–G10 se verifican una a una con las soluciones de GAME_SPEC. Cada misión debe incluir al menos un caso correcto, uno incorrecto con sentido pedagógico, una respuesta incompleta y la interacción alternativa accesible. Para G05 y G10 verificar expresiones equivalentes. Para G07 y G09 comprobar que igual ciudad con diferente departamento conserva dos filas.
+G01–G10 se verifican una a una con las soluciones de GAME_SPEC. Cada misión debe incluir al menos un caso correcto, uno incorrecto con sentido pedagógico, una respuesta incompleta y la interacción alternativa accesible. Para G05 y G10 verificar expresiones equivalentes. Para G07 comprobar que conservar cualquier ejemplar de cada ciudad es válido y que eliminar una ciudad por completo no lo es. Para G02, G06 y G09 comprobar que se corrige el resultado de la consulta armada y no una cadena exacta (por ejemplo, comas intercambiables en M09).
 
-La misión M08 no utiliza `SELECT nombre salario FROM empleados` como ejemplo de error sintáctico: LAB10 confirma que ese SQL puede expresar un alias implícito. Debe fallar el objetivo de dos columnas, no la sintaxis.
+La misión M08 (Challenge v2) parte de `SELECT nombre salario FROM empleados;`, pero no la presenta como error sintáctico: LAB10 confirma que ese SQL expresa un alias implícito. El estudiante localiza el hueco de la coma y el feedback explica que falla el objetivo de dos columnas, no la sintaxis.
 
 G11–G15 cubren puntuación, reenvío, empates, accesibilidad y revelación de soluciones. En ronda abierta inspeccionar respuestas y recursos enviados al navegador para verificar que no incluyen rúbrica privada ni soluciones futuras; las soluciones visibles en materiales de estudio son referencias de aprendizaje, no secretos de examen.
 

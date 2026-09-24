@@ -1,8 +1,18 @@
 import path from 'node:path';
 
 const layers = new Set(['presentation', 'application', 'domain', 'infrastructure']);
+// `composition` es la raíz de composición: el único lugar que une adaptadores de
+// infraestructura con casos de uso. Solo `app` puede importarla.
 const allowed = {
-  app: new Set(['app', 'presentation', 'application', 'styles']),
+  app: new Set(['app', 'presentation', 'application', 'styles', 'composition']),
+  composition: new Set([
+    'composition',
+    'presentation',
+    'application',
+    'domain',
+    'infrastructure',
+    'styles',
+  ]),
   presentation: new Set(['presentation', 'application', 'styles']),
   application: new Set(['application', 'domain']),
   domain: new Set(['domain']),

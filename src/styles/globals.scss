@@ -4,5 +4,6 @@
 @use 'shell';
 @use 'components';
 @use 'showcase';
+@use 'challenge';
 
 @include tokens.emit;
