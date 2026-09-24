@@ -1,0 +1,151 @@
+// Catálogo de módulos: la unidad actual destacada y los futuros como fichas.
+
+.modules-hero {
+  padding-block: clamp(40px, 6vw, 88px) clamp(32px, 4vw, 56px);
+  background:
+    radial-gradient(70% 120% at 100% 0%, rgb(32 204 229 / 18%), transparent 60%), var(--color-soft);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.modules-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+.modules-hero__lead {
+  max-width: 60ch;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 1.1875rem;
+}
+.modules-body {
+  padding-block: var(--space-7) var(--space-8);
+}
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  gap: var(--space-4);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.module-card {
+  min-width: 0;
+  scroll-margin-top: var(--space-5);
+}
+.module-card article {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  height: 100%;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+.module-card--current {
+  grid-column: 1 / -1;
+}
+.module-card--current article {
+  color: var(--color-inverse);
+  background:
+    radial-gradient(70% 120% at 100% 0%, rgb(32 204 229 / 18%), transparent 60%), var(--color-night);
+  border-color: var(--color-night);
+  --color-focus: var(--color-cyan);
+}
+.module-card--upcoming article {
+  background: var(--color-page);
+  border-style: dashed;
+  border-color: var(--color-border-control);
+}
+.module-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.module-card__number {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--color-inverse);
+  background: var(--color-night);
+  border-radius: 12px;
+  font: 700 0.9375rem var(--font-mono);
+}
+.module-card--current .module-card__number {
+  color: var(--color-night);
+  background: var(--color-cyan);
+}
+.module-card__keyword {
+  justify-self: start;
+  padding: 4px 10px;
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.module-card--current .module-card__keyword {
+  color: var(--color-cyan);
+  background: rgb(32 204 229 / 10%);
+}
+.module-card__title {
+  margin: 0;
+  font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+}
+.module-card--current .module-card__title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+}
+.module-card__description,
+.module-card__meta,
+.module-card__requires {
+  margin: 0;
+}
+.module-card__description {
+  color: var(--color-muted);
+}
+.module-card--current .module-card__description {
+  max-width: 60ch;
+  color: rgb(247 250 255 / 86%);
+  font-size: 1.125rem;
+}
+.module-card__meta {
+  color: rgb(247 250 255 / 76%);
+  font-size: 0.9375rem;
+}
+.module-card__requires {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+.module-card--current .inline-action {
+  color: var(--color-cyan);
+}
+.module-card--current .ds-progress__label {
+  color: var(--color-inverse);
+}
+.study-progress-summary {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 520px;
+}
+.study-progress-summary .ds-button {
+  justify-self: start;
+}
+.modules-note {
+  margin: var(--space-6) 0 0;
+  color: var(--color-muted);
+}
+.module-card__requires ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  padding: 0;
+  margin: var(--space-1) 0 0;
+  list-style: none;
+}
+.module-card__requires li {
+  padding: 2px 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  font-size: 0.875rem;
+}

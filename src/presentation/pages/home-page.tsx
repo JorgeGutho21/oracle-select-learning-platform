@@ -3,22 +3,15 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ACADEMIC_IDENTITY as identity } from '@/application/academic-identity';
 import { PRACTICE_RULES } from '@/features/challenge/application/challenge-api';
+import { MODULE_STATUS_LABEL, upcomingModules } from '@/features/modules/application/modules-api';
+import { getVideo } from '@/features/resources/application/resources-api';
 import { analyzeLabQuery } from '@/features/laboratory/application/lab-api';
 import { LESSONS } from '@/features/study/application/study-api';
+import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { HomeDemonstration } from './home-demonstration';
 
 /** Consulta de la portada; su resultado sale del motor educativo y del dataset único. */
 const HERO_SQL = 'SELECT nombre,\n       salario * 12 AS salario_anual\nFROM   empleados;';
-
-const FUTURE_TOPICS = [
-  ['WHERE', 'Elegir filas mediante condiciones.'],
-  ['BETWEEN', 'Filtrar por rangos de valores.'],
-  ['IN', 'Comparar contra una lista de valores.'],
-  ['LIKE', 'Buscar patrones de texto.'],
-  ['JOIN', 'Relacionar información entre tablas.'],
-  ['GROUP BY', 'Agrupar filas para resumirlas.'],
-  ['Funciones', 'Texto, fechas y agregados.'],
-] as const;
 
 const numberFormat = new Intl.NumberFormat('es-CO');
 
@@ -74,6 +67,7 @@ function HeroTerminal() {
 }
 
 export function HomePage({ progress }: { readonly progress: ReactNode }) {
+  const intro = getVideo('intro');
   return (
     <div className="home">
       <section className="home-band home-band--night home-hero" aria-labelledby="home-title">
@@ -242,23 +236,27 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
 
       <section className="home-band home-band--light" aria-labelledby="start-title">
         <div className="site-container home-start">
-          <article className="home-video" aria-labelledby="start-title">
-            <div className="home-video__slot" aria-hidden="true">
-              <span className="home-video__play">▶</span>
-            </div>
-            <div className="home-video__copy">
-              <p className="home-eyebrow">Vídeo introductorio</p>
-              <h2 id="start-title">Una primera mirada a SQL</h2>
-              <p>
-                En preparación: 90–120 segundos, con subtítulos y transcripción. Mientras tanto, la
-                primera lección cubre lo mismo.
-              </p>
-              <Link href="/learn/introduccion" className="inline-action">
-                Empezar por «¿Qué es SQL?» <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-          </article>
-          <div className="home-progress">{progress}</div>
+          <div className="home-video">
+            <header className="home-heading home-heading--compact">
+              <p className="home-eyebrow">Inicio del recorrido</p>
+              <h2 id="start-title">Antes de empezar</h2>
+            </header>
+            <VideoPlayer
+              title={intro.title}
+              description={intro.description}
+              plannedDuration={intro.plannedDuration}
+              source={intro.source}
+              poster={intro.poster}
+              captions={intro.captions}
+              transcriptUrl={intro.transcriptUrl}
+            />
+          </div>
+          <div className="home-progress">
+            {progress}
+            <Link href="/learn/introduccion" className="inline-action">
+              Empezar por «¿Qué es SQL?» <span aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -274,14 +272,17 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
             <p>Estos temas llegarán en unidades futuras. Esta unidad se concentra en SELECT.</p>
           </header>
           <ul className="home-future__grid">
-            {FUTURE_TOPICS.map(([title, description]) => (
-              <li key={title}>
-                <span className="home-future__tag">Próximamente</span>
-                <code>{title}</code>
-                <span>{description}</span>
+            {upcomingModules().map((entry) => (
+              <li key={entry.id}>
+                <span className="home-future__tag">{MODULE_STATUS_LABEL[entry.status]}</span>
+                <code>{entry.keyword}</code>
+                <span>{entry.description}</span>
               </li>
             ))}
           </ul>
+          <Link href="/modules" className="inline-action home-future__link">
+            Ver el catálogo de módulos <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </section>
     </div>

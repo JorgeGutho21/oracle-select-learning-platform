@@ -78,9 +78,13 @@ Las diez rondas suman 15 minutos de respuesta con tiempos base, más transicione
 
 Ambos: voz en español, subtítulos revisados, transcripción accesible, imagen de portada, controles nativos y ningún autoplay con sonido. NotebookLM es la herramienta de producción sugerida por el usuario; revisar sus resultados contra este mapa. Vídeos alojados externamente, con enlace alternativo si falla la inserción. No están producidos en esta entrega.
 
+Implementación (Fase 6): las URLs viven en una sola configuración, `src/features/resources/domain/videos.ts`, junto con título, descripción, duración prevista (1:30–2:00 y 3:00–4:00), portada, subtítulos y transcripción. Sin URL, el componente `VideoPlayer` muestra «Video en preparación» y nunca un reproductor vacío. Ubicación: el introductorio en Home y al inicio de `/learn`; el resumen al final de L08 y en la escena 14 de la Exposición; ambos en `/resources`. Solo se aceptan direcciones HTTPS o rutas propias.
+
 ## Chuleta
 
 Una página web imprimible con significado, patrón y ejemplo para SELECT, FROM, *, lista de columnas, expresiones, AS y DISTINCT. Añadir las advertencias: SELECT no altera el dataset del laboratorio; AS cambia la etiqueta; DISTINCT compara la fila proyectada; no hay orden garantizado de filas sin una cláusula de ordenamiento. No incluir una pared de filtros futuros ni exigir descargar un PDF.
+
+Implementación (Fase 6): `/resources` reúne la chuleta (conceptos, patrón y ejemplo derivados de L01–L07), una tabla de referencia rápida con el tamaño del resultado calculado por el motor, los ejemplos LAB01–LAB09 del laboratorio, los dos videos y las fuentes (referencia oficial F7 y material del curso). La impresión deja solo la chuleta y la tabla de referencia.
 
 ## Correcciones editoriales de las fuentes
 
@@ -99,7 +103,7 @@ Oracle documenta que AS es opcional para alias de columna y DISTINCT compara tod
 
 ## Extensión futura y aceptación editorial
 
-Catálogo futuro: filtros y comparaciones; rangos/listas/patrones; lógica y NULL; ordenamiento; JOIN; agrupaciones y subconsultas. Solo fichas de título, propósito y prerrequisito. No aparecen como lecciones incompletas del curso actual.
+Catálogo `/modules` (versión 1.1, decidida por el responsable del proyecto): 01 SELECT en Oracle SQL (unidad actual) y siete módulos futuros, 02 WHERE, 03 BETWEEN, 04 IN, 05 LIKE, 06 JOIN, 07 GROUP BY y 08 Funciones. Cada ficha futura muestra número, título, propósito, prerrequisitos y el estado «Próximamente», sin lecciones ni actividades. La fuente única es `src/features/modules/domain/catalog.ts`, que también alimenta Home y el buscador. Los temas de lógica, NULL y ordenamiento quedan para una revisión posterior del catálogo.
 
 - C01: las nueve lecciones tienen objetivo, fuente, ejemplo, feedback y comprobación observable.
 - C02: todos los ejemplos y resultados coinciden con el dataset canónico y el motor Oracle objetivo antes de publicar.

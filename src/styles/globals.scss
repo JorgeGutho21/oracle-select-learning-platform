@@ -4,6 +4,7 @@
 @use 'shell';
 @use 'components';
 @use 'highlight-table';
+@use 'media';
 @use 'showcase';
 @use 'challenge';
 @use 'lab';
@@ -12,5 +13,6 @@
 @use 'presentation';
 @use 'search';
 @use 'resources';
+@use 'modules';
 
 @include tokens.emit;

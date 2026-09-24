@@ -80,7 +80,7 @@ test.describe('Buscador global', () => {
     );
     await field(page).fill('vídeo');
     await expect(palette(page).getByRole('group', { name: 'Recursos' })).toContainText(
-      'Vídeo de introducción',
+      'Video introductorio',
     );
   });
 

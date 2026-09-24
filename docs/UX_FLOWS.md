@@ -16,8 +16,8 @@ Versión 1.0 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md).
 | `/presenter` | Presentador autenticado y autorizado: crear y dirigir sala. | `/presenter/{sala}`. |
 | `/presenter/{sala}` | Panel docente privado y vista de proyección sin credenciales. | Estadísticas y cierre. |
 | `/results` | Resultado individual de este navegador. | Repasar conceptos. |
-| `/resources` | Vídeos, chuleta y fuentes académicas. | Recurso o lección. |
-| `/modules` | Catálogo de futuras unidades. | Volver al curso actual. |
+| `/resources` | Chuleta imprimible, referencia rápida, ejemplos SQL, videos, accesos directos y fuentes. | Recurso, lección o laboratorio. |
+| `/modules` | Catálogo: la unidad actual SELECT, con su progreso local, y siete módulos futuros «Próximamente». | Volver al curso actual. |
 
 Navegación principal en escritorio: Inicio, Aprender (Estudio y Exposición), Laboratorio, Challenge, En vivo, Recursos y Buscar, en una sola fila; por debajo de 992 px, menú compacto. No hay barra lateral permanente fuera del temario de Estudio.
 

@@ -153,7 +153,7 @@ test.describe('Modo Exposición', () => {
   });
 
   // Una prueba por escena: cada análisis axe tiene su propio presupuesto de tiempo.
-  for (const scene of [1, 5, 10, 11, 13, 15]) {
+  for (const scene of [1, 5, 10, 11, 13, 14, 15]) {
     test(`la escena ${scene} cumple WCAG 2 AA`, async ({ page }) => {
       await openDeck(page, `/presentation?scene=${scene}`);
       await expect(page.locator(`[data-scene="${scene}"]`)).toBeVisible();

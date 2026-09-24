@@ -41,7 +41,13 @@ test.describe('Home', () => {
     const future = page.locator('#proximos-modulos li');
     await expect(future).toHaveCount(7);
     await expect(future.filter({ hasText: 'Próximamente' })).toHaveCount(7);
-    await expect(page.getByText('En preparación: 90–120 segundos', { exact: false })).toBeVisible();
+    const intro = page.locator('.video-player').filter({ hasText: 'Video introductorio' });
+    await expect(intro).toContainText('Video en preparación');
+    await expect(intro.locator('iframe, video')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /Ver el catálogo de módulos/ })).toHaveAttribute(
+      'href',
+      '/modules',
+    );
   });
 
   test('la demostración escribe la consulta y conserva las seis filas', async ({ page }) => {

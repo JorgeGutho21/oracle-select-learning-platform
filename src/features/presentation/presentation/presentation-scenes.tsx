@@ -12,6 +12,7 @@ import {
   type LabAnalysis,
 } from '@/features/laboratory/application/lab-api';
 import { SCENES } from '../application/presentation-api';
+import { getVideo } from '@/features/resources/application/resources-api';
 import {
   getLesson,
   LESSONS,
@@ -19,6 +20,7 @@ import {
   STUDY_DATASET,
 } from '@/features/study/application/study-api';
 import { HighlightTable } from '@/presentation/components/data/highlight-table';
+import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { SceneQr } from './scene-qr';
 
 type Tone = 'light' | 'soft' | 'night' | 'tech';
@@ -238,6 +240,23 @@ function RevealAnswer() {
   );
 }
 
+function SummaryVideo() {
+  const video = getVideo('summary');
+  return (
+    <VideoPlayer
+      compact
+      titleAs="p"
+      title={video.title}
+      description={video.description}
+      plannedDuration={video.plannedDuration}
+      source={video.source}
+      poster={video.poster}
+      captions={video.captions}
+      transcriptUrl={video.transcriptUrl}
+    />
+  );
+}
+
 const SUMMARY = [
   ['SELECT', 'Qué columnas mostrar.'],
   ['FROM', 'De qué tabla salen.'],
@@ -293,7 +312,9 @@ export function renderScene(scene: number): ReactNode {
             ))}
           </ol>
           <p className="scene-note">
-            Vídeo introductorio: en preparación. Esta escena puede presentarse sin él.
+            {getVideo('intro').source
+              ? 'Video introductorio disponible en Recursos; puede omitirse en clase.'
+              : 'Video introductorio: en preparación. Esta escena se presenta sin él.'}
           </p>
         </Scene>
       );
@@ -556,15 +577,18 @@ export function renderScene(scene: number): ReactNode {
     case 14:
       return (
         <Scene number={14} eyebrow="Para recordar">
-          <ul className="scene-summary">
-            {SUMMARY.map(([code, text]) => (
-              <li key={code}>
-                <code>{code}</code>
-                <span>{text}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="scene-note">Vídeo resumen: en preparación. La chuleta está en Recursos.</p>
+          <div className="scene-split scene-split--summary">
+            <ul className="scene-summary">
+              {SUMMARY.map(([code, text]) => (
+                <li key={code}>
+                  <code>{code}</code>
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
+            <SummaryVideo />
+          </div>
+          <p className="scene-note">La chuleta imprimible está en Recursos.</p>
         </Scene>
       );
     case 15:

@@ -9,6 +9,7 @@ const routes = [
   '/live',
   '/results',
   '/resources',
+  '/modules',
 ] as const;
 
 const navigation = [
@@ -60,12 +61,28 @@ test('la barra principal muestra las entradas acordadas y la búsqueda', async (
   ).toBeLessThan(8);
 });
 
-test('«Aprender» queda activo también en el Modo Exposición', async ({ page }) => {
+test('«Aprender» queda activo también en Exposición y en el catálogo', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/presentation');
-  await expect(
-    page.getByRole('navigation', { name: 'Navegación principal' }).locator('[aria-current="page"]'),
-  ).toHaveText('Aprender');
+  for (const route of ['/presentation', '/modules']) {
+    await page.goto(route);
+    await expect(
+      page
+        .getByRole('navigation', { name: 'Navegación principal' })
+        .locator('[aria-current="page"]'),
+    ).toHaveText('Aprender');
+  }
+});
+
+test('el pie enlaza los recorridos, los recursos y el catálogo de módulos', async ({ page }) => {
+  await page.goto('/');
+  const footer = page.getByRole('navigation', { name: 'Enlaces del pie' });
+  await footer.getByRole('link', { name: 'Catálogo de módulos' }).click();
+  await expect(page).toHaveURL('/modules');
+  await expect(page.getByRole('heading', { level: 1, name: 'Módulos de SQL' })).toBeVisible();
+  await expect(footer.getByRole('link', { name: 'Recursos y chuleta' })).toHaveAttribute(
+    'href',
+    '/resources',
+  );
 });
 
 for (const width of [390, 1440]) {

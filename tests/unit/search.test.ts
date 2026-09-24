@@ -35,7 +35,7 @@ describe('Índice público de búsqueda', () => {
   it('deriva toda la navegación del mismo catálogo público', () => {
     expect(getPlatformNavigation()).toEqual([
       { href: '/', label: 'Inicio', alsoActiveOn: [] },
-      { href: '/learn', label: 'Aprender', alsoActiveOn: ['/presentation'] },
+      { href: '/learn', label: 'Aprender', alsoActiveOn: ['/presentation', '/modules'] },
       { href: '/lab', label: 'Laboratorio', alsoActiveOn: [] },
       { href: '/challenge', label: 'Challenge', alsoActiveOn: [] },
       { href: '/live', label: 'En vivo', alsoActiveOn: [] },

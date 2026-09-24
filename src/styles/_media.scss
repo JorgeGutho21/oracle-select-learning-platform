@@ -1,0 +1,126 @@
+// Reproductor de video 16:9. Las medidas internas usan em para escalar con su contexto
+// (página o escena de la Exposición).
+
+.video-player {
+  display: grid;
+  gap: 0.9em;
+  min-width: 0;
+  margin: 0;
+}
+.video-player__frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-night);
+  border-radius: var(--radius-card);
+}
+.video-player__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  border: 0;
+}
+.video-player__placeholder {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.45em;
+  height: 100%;
+  padding: 1em;
+  color: var(--color-inverse);
+  text-align: center;
+  background:
+    radial-gradient(60% 80% at 80% 0%, rgb(32 204 229 / 22%), transparent 60%),
+    linear-gradient(135deg, var(--color-primary), var(--color-night));
+}
+.video-player__placeholder strong {
+  font-size: 1.15em;
+}
+.video-player__placeholder span:not(.video-player__icon) {
+  color: rgb(247 250 255 / 84%);
+  font-size: 0.9em;
+}
+.video-player__placeholder--error {
+  background: var(--color-night);
+}
+.video-player__icon {
+  display: grid;
+  place-items: center;
+  width: 3.4em;
+  height: 3.4em;
+  padding-left: 0.2em;
+  margin-bottom: 0.3em;
+  color: var(--color-night);
+  background: rgb(247 250 255 / 88%);
+  border-radius: 50%;
+  font-size: 1em;
+}
+.video-player__loading {
+  position: absolute;
+  inset: 0;
+  // Informa sin bloquear los controles del reproductor.
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  color: var(--color-inverse);
+  background: rgb(11 23 51 / 82%);
+}
+.video-player__spinner {
+  width: 1.2em;
+  height: 1.2em;
+  border: 0.18em solid rgb(247 250 255 / 30%);
+  border-top-color: var(--color-cyan);
+  border-radius: 50%;
+  animation: video-spin 900ms linear infinite;
+}
+@keyframes video-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.video-player__caption {
+  display: grid;
+  gap: 0.35em;
+}
+.video-player__title {
+  margin: 0;
+  font-size: 1.25em;
+  line-height: 1.25;
+}
+.video-player__description,
+.video-player__meta,
+.video-player__links {
+  margin: 0;
+}
+.video-player__description {
+  color: var(--color-muted);
+}
+.video-player__meta {
+  color: var(--color-muted);
+  font-size: 0.875em;
+}
+.video-player__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.2em;
+}
+.video-player__links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 650;
+}
+.video-player--compact {
+  gap: 0.6em;
+}
+.video-player--compact .video-player__meta {
+  display: none;
+}
+@media print {
+  .video-player {
+    display: none;
+  }
+}

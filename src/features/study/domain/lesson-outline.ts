@@ -17,6 +17,8 @@ export interface LessonOutline {
   readonly summary: string;
   /** Términos de búsqueda sin tildes; nunca soluciones de actividades. */
   readonly keywords: readonly string[];
+  /** Ficha de la chuleta, para las lecciones que enseñan una pieza de SELECT. */
+  readonly concept?: { readonly title: string; readonly keywords: readonly string[] };
 }
 
 export const LESSON_OUTLINE: readonly LessonOutline[] = [
@@ -37,6 +39,7 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     badge: 'SELECT',
     summary: 'Elige las columnas que aparecerán en el resultado.',
     keywords: ['select', 'proyeccion', 'elegir datos', 'l01'],
+    concept: { title: 'SELECT', keywords: ['select', 'seleccionar', 'mostrar', 'proyeccion'] },
   },
   {
     id: 'L02',
@@ -44,8 +47,9 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'FROM: de dónde vienen los datos',
     shortTitle: 'FROM',
     badge: 'FROM',
-    summary: 'Identifica EMPLEADOS como la tabla de origen.',
+    summary: 'Indica la tabla de la que salen los datos.',
     keywords: ['from', 'origen', 'tabla empleados', 'l02'],
+    concept: { title: 'FROM', keywords: ['from', 'origen', 'tabla'] },
   },
   {
     id: 'L03',
@@ -53,8 +57,9 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'SELECT *: todas las columnas',
     shortTitle: 'SELECT *',
     badge: 'SELECT *',
-    summary: 'Comprende qué muestra SELECT * en esta tabla.',
+    summary: 'Muestra todas las columnas de la tabla, en su orden.',
     keywords: ['*', 'asterisco', 'select *', 'todas las columnas', 'l03'],
+    concept: { title: 'SELECT *', keywords: ['*', 'select *', 'asterisco', 'todas las columnas'] },
   },
   {
     id: 'L04',
@@ -62,8 +67,12 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Columnas específicas y su orden',
     shortTitle: 'Columnas específicas',
     badge: 'ciudad, nombre',
-    summary: 'Separa columnas con comas y controla el orden de salida.',
+    summary: 'Muestra solo las columnas pedidas, separadas por comas y en el orden escrito.',
     keywords: ['columnas', 'lista', 'coma', 'orden', 'proyeccion', 'l04'],
+    concept: {
+      title: 'Lista de columnas',
+      keywords: ['columnas', 'coma', 'lista', 'orden de columnas'],
+    },
   },
   {
     id: 'L05',
@@ -71,8 +80,12 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Expresiones y cálculos',
     shortTitle: 'Expresiones y cálculos',
     badge: 'salario * 12',
-    summary: 'Calcula valores con operadores y paréntesis.',
+    summary: 'Calcula valores nuevos con +, -, *, / y paréntesis, sin cambiar la tabla.',
     keywords: ['expresiones', 'calculos', 'aritmetica', 'salario anual', 'l05'],
+    concept: {
+      title: 'Expresiones aritméticas',
+      keywords: ['expresiones', 'calculos', 'operadores', 'parentesis', 'precedencia'],
+    },
   },
   {
     id: 'L06',
@@ -80,8 +93,12 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Alias con AS',
     shortTitle: 'Alias AS',
     badge: 'AS',
-    summary: 'Cambia la etiqueta de una columna del resultado sin alterar la fuente.',
+    summary: 'Da un encabezado claro a una columna del resultado; la tabla no cambia.',
     keywords: ['as', 'alias', 'encabezado', 'nombre de columna', 'l06'],
+    concept: {
+      title: 'AS · alias de columna',
+      keywords: ['as', 'alias', 'encabezado', 'renombrar columna'],
+    },
   },
   {
     id: 'L07',
@@ -89,8 +106,9 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'DISTINCT: sin filas repetidas',
     shortTitle: 'DISTINCT',
     badge: 'DISTINCT',
-    summary: 'Elimina duplicados de la combinación proyectada.',
+    summary: 'Quita las filas repetidas de las columnas mostradas.',
     keywords: ['distinct', 'unicos', 'sin repetir', 'duplicados', 'l07'],
+    concept: { title: 'DISTINCT', keywords: ['distinct', 'unicos', 'sin repetir', 'duplicados'] },
   },
   {
     id: 'L08',

@@ -24,7 +24,9 @@ import {
   type StudyLesson,
   type TransformationStep,
 } from '../application/study-api';
+import { getVideo, type VideoResource } from '@/features/resources/application/resources-api';
 import { HighlightTable } from '@/presentation/components/data/highlight-table';
+import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { Alert, Button, CodeBlock, Dialog, Progress } from '@/presentation/components/ui';
 
 const NOT_SAVED =
@@ -142,6 +144,27 @@ export function StudyProgress({
         actividad.
       </p>
     </section>
+  );
+}
+
+/** Resumen breve del avance para tarjetas, como la del catálogo de módulos. */
+export function StudyProgressSummary({ progress }: { progress: StudyProgressState }) {
+  const done = currentCompletedCount(progress, LESSON_VERSIONS);
+  const last = LESSONS.find((lesson) => lesson.id === progress.lastLesson);
+  return (
+    <div className="study-progress-summary">
+      <Progress
+        label={`Tu progreso: ${done} de ${LESSONS.length} lecciones`}
+        value={done}
+        max={LESSONS.length}
+      />
+      <Link
+        className="ds-button ds-button--primary"
+        href={(last ? `/learn/${last.slug}` : '/learn') as Route}
+      >
+        {last ? `Continuar en ${last.shortTitle}` : 'Empezar el Modo Estudio'}
+      </Link>
+    </div>
   );
 }
 
@@ -629,6 +652,20 @@ function Comparisons({ lesson }: { lesson: StudyLesson }) {
   );
 }
 
+function UnitVideo({ video }: { video: VideoResource }) {
+  return (
+    <VideoPlayer
+      title={video.title}
+      description={video.description}
+      plannedDuration={video.plannedDuration}
+      source={video.source}
+      poster={video.poster}
+      captions={video.captions}
+      transcriptUrl={video.transcriptUrl}
+    />
+  );
+}
+
 function LessonIndex({ progress, onReset }: { progress: StudyProgressState; onReset: () => void }) {
   const completed = new Set(progress.completed);
   const updated = new Set(updatedLessons(progress, LESSON_VERSIONS));
@@ -739,6 +776,20 @@ export function StudyPage({
         </header>
         <div className="site-container study-index">
           {alerts}
+          <section className="study-start" aria-labelledby="study-start-title">
+            <div className="study-start__copy">
+              <p className="study-eyebrow">Inicio del recorrido</p>
+              <h2 id="study-start-title">Antes de la primera lección</h2>
+              <p>
+                Mira el video introductorio o empieza directamente: la primera lección explica lo
+                mismo con la tabla EMPLEADOS.
+              </p>
+              <Link className="ds-button ds-button--primary" href="/learn/introduccion">
+                Empezar por «¿Qué es SQL?»
+              </Link>
+            </div>
+            <UnitVideo video={getVideo('intro')} />
+          </section>
           <LessonIndex progress={progress} onReset={() => setResetOpen(true)} />
         </div>
         {resetDialog}
@@ -835,6 +886,18 @@ export function StudyPage({
             solved={completed.has(lesson.id)}
             done={() => complete(lesson.id)}
           />
+          {!next && (
+            <section className="study-closing" aria-labelledby="study-closing-title">
+              <p className="study-eyebrow">Final del recorrido</p>
+              <h2 id="study-closing-title">Repasa toda la unidad</h2>
+              <UnitVideo video={getVideo('summary')} />
+              <p>
+                Después, pon a prueba lo aprendido en el{' '}
+                <Link href="/challenge">SQL Challenge</Link> o repasa la{' '}
+                <Link href={'/resources#chuleta' as Route}>chuleta de SELECT</Link>.
+              </p>
+            </section>
+          )}
           <p className="study-source">Fuente académica: {lesson.sourceReference}</p>
           <nav className="study-pager" aria-label="Navegación entre lecciones">
             {previous ? (
