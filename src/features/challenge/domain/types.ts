@@ -1,3 +1,5 @@
+import type { ResultTable } from '@/domain/results/result-table';
+
 /** Contratos de misión de GAME_SPEC.md. La parte pública nunca incluye rúbrica, pista ni explicación. */
 
 export const INTERACTION_TYPES = [
@@ -174,8 +176,17 @@ export interface PublicMission<T extends InteractionType = InteractionType> {
   readonly publicData: PublicDataFor<T>;
 }
 
+/**
+ * Veredicto de una rúbrica. `requires-execution` indica que la estructura y los requisitos
+ * se cumplen y que la corrección final exige ejecutar la sentencia canónica en Oracle (M10).
+ */
+export type RubricVerdict =
+  EvaluationOutcome | { readonly kind: 'requires-execution'; readonly statement: string };
+
 export interface MissionRubric<T extends InteractionType = InteractionType> {
-  readonly validate: (answer: AnswerFor<T>) => EvaluationOutcome;
+  readonly validate: (answer: AnswerFor<T>) => RubricVerdict;
+  /** Califica el resultado devuelto por Oracle para las misiones que lo requieren. */
+  readonly gradeExecution?: (result: ResultTable) => EvaluationOutcome;
 }
 
 /** Contenido privado: permanece en el servicio de corrección hasta cerrar la oportunidad puntuada. */

@@ -5,6 +5,7 @@ import {
   expectCorrect,
   expectFeedback,
   mapScore,
+  fillEditor,
   mouseDrag,
   openMission,
   startChallenge,
@@ -29,7 +30,7 @@ test.describe('Challenge M08–M10 y resultados', () => {
     await expect(page.getByText('Insertarás «,» entre nombre y salario.')).toBeVisible();
     await submit(page);
     await expectCorrect(page);
-    await expect(page.getByText(/Oracle interpreta SELECT nombre salario/)).toBeVisible();
+    await expect(page.getByText(/Oracle lee salario como un alias de NOMBRE/)).toBeVisible();
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(results.violations).toEqual([]);
   });
@@ -60,14 +61,32 @@ test.describe('Challenge M08–M10 y resultados', () => {
     await expect(mapScore(page)).toContainText('80');
   });
 
-  test('M10 queda bloqueada sin Oracle y no simula la corrección', async ({ page }) => {
+  test('M10: editor con revisión sin puntuar; el SQL inválido consume intento y Oracle no se simula', async ({
+    page,
+  }) => {
     await startChallenge(page);
     await openMission(page, 10, 'Final Boss: Query Master');
-    await expect(page.getByText('Misión pendiente del servicio Oracle')).toBeVisible();
-    await expect(page.getByRole('button', { name: /^Comprobar/ })).toHaveCount(0);
-    await page.getByRole('button', { name: 'Omitir por ahora' }).click();
-    await page.getByRole('button', { name: 'Omitir con cero puntos' }).click();
-    await expect(page.getByText('Omitida', { exact: true }).first()).toBeVisible();
+    const editor = page.getByRole('textbox', { name: 'Tu consulta para el reto final' });
+    await fillEditor(editor, 'SELECT nombre,\nFROM empleados');
+    await page.getByRole('button', { name: 'Revisar sintaxis (sin puntuar)' }).click();
+    await expect(page.getByText('Falta una columna o expresión después de la coma.')).toBeVisible();
+    await expect(page.getByText('Intento 1 de 2')).toBeVisible();
+
+    await fillEditor(editor, 'SELECT nombre FROM empleados');
+    await page.getByRole('button', { name: 'Enviar para evaluar' }).click();
+    await expectFeedback(page, 'tres columnas');
+    await expect(page.getByText('Intento 2 de 2')).toBeVisible();
+
+    await fillEditor(
+      editor,
+      'SELECT nombre, ciudad,\n  (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados;',
+    );
+    await page.getByRole('button', { name: 'Enviar para evaluar' }).click();
+    await expect(
+      page.getByRole('status').filter({ hasText: 'Servicio no disponible' }),
+    ).toContainText('No se consumió ningún intento');
+    await expect(page.getByText('Intento 2 de 2')).toBeVisible();
+    await expect(page.getByText('Resuelta', { exact: true })).toHaveCount(0);
   });
 
   test('la pantalla final resume puntuación, precisión, tiempo, intentos y pistas y permite reiniciar', async ({
@@ -139,7 +158,8 @@ test.describe('Challenge M08–M10 y resultados', () => {
     expect(sources.length).toBeGreaterThan(0);
     const secrets = [
       'El pedido menciona dos datos de cada empleado',
-      'Oracle interpreta SELECT nombre salario',
+      'se obtienen las dos columnas pedidas',
+      'Calcula primero el nuevo salario mensual',
       'Cada dato mencionado en el pedido es una columna',
     ];
     for (const source of sources) {

@@ -79,7 +79,7 @@ test.describe('Challenge M01–M03', () => {
     for (const piece of ['SELECT', 'nombre', ',', 'empleados', 'FROM', 'ciudad'])
       await addPiece(page, piece);
     await submit(page);
-    await expectFeedback(page, 'FROM recibe el nombre de la tabla');
+    await expectFeedback(page, 'es el nombre de la tabla');
     for (let index = 0; index < 6; index++) {
       await page.locator('.ch-zone--target .ch-piece').first().click();
       await page.getByRole('button', { name: 'Quitar' }).click();

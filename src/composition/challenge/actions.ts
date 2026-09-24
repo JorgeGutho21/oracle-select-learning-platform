@@ -8,6 +8,7 @@ import {
   type MissionId,
 } from '@/features/challenge/domain/types';
 import { InProcessMissionEvaluator } from '@/features/challenge/infrastructure/in-process-mission-evaluator';
+import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured-oracle-executor';
 
 /**
  * Corrección de la práctica individual en el servidor: las rúbricas, pistas y
@@ -15,7 +16,8 @@ import { InProcessMissionEvaluator } from '@/features/challenge/infrastructure/i
  * son accesibles por POST directo, así que cada entrada se valida aquí.
  */
 
-const evaluator = new InProcessMissionEvaluator();
+// Sustituir por el adaptador Oracle real cuando exista la instancia (R1).
+const evaluator = new InProcessMissionEvaluator(new UnconfiguredOracleExecutor());
 const MAX_ANSWER_BYTES = 4000;
 
 const INVALID: EvaluationOutcome = {

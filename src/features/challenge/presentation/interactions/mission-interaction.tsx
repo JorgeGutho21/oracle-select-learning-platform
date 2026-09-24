@@ -11,9 +11,9 @@ import { ColumnsInteraction } from './columns-interaction';
 import { DistinctInteraction } from './distinct-interaction';
 import { ExpressionInteraction } from './expression-interaction';
 import { HotspotInteraction } from './hotspot-interaction';
-import { LockedQueryInteraction } from './locked-query-interaction';
 import { PiecesInteraction, type PieceMissionType } from './pieces-interaction';
 import { PredictInteraction } from './predict-interaction';
+import { WriteQueryInteraction } from './write-query-interaction';
 
 /** Respuesta vacía inicial de cada tipo de interacción. */
 export function emptyAnswer(mission: AnyPublicMission): MissionAnswer {
@@ -73,6 +73,6 @@ export function MissionInteraction({ mission, answer, onChange, disabled }: Prop
     case 'hotspot-error':
       return <HotspotInteraction {...as<'hotspot-error'>(mission, answer)} {...common} />;
     case 'write-query':
-      return <LockedQueryInteraction mission={mission as PublicMission<'write-query'>} />;
+      return <WriteQueryInteraction {...as<'write-query'>(mission, answer)} {...common} />;
   }
 }

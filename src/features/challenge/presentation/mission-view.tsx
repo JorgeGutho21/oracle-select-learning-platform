@@ -103,9 +103,9 @@ export function MissionView({
   const running = state.timer.runningSince !== null;
   const now = useNow(running);
   const used = scoredAttempts(state).length;
-  const locked = mission.interactionType === 'write-query';
+  const written = mission.interactionType === 'write-query';
   const practice = closed && state.status !== 'solved';
-  const inputDisabled = pending !== null || state.status === 'solved' || locked;
+  const inputDisabled = pending !== null || state.status === 'solved';
   const titleId = `mission-${mission.id}-title`;
 
   return (
@@ -155,7 +155,7 @@ export function MissionView({
             {hint}
           </Alert>
         )}
-        {practice && !locked && (
+        {practice && (
           <Alert tone="info" title="Práctica sin puntos">
             La oportunidad puntuada terminó. Puedes seguir ensayando: estos intentos no suman
             puntos.
@@ -169,17 +169,17 @@ export function MissionView({
       </div>
 
       <div className="ch-actions">
-        {!locked && state.status !== 'solved' && (
+        {state.status !== 'solved' && (
           <Button
             onClick={onSubmit}
             pending={pending === 'submit'}
             pendingLabel="Corrigiendo…"
             disabled={pending !== null}
           >
-            {practice ? 'Comprobar (práctica)' : 'Comprobar'}
+            {practice ? 'Comprobar (práctica)' : written ? 'Enviar para evaluar' : 'Comprobar'}
           </Button>
         )}
-        {!closed && !locked && (
+        {!closed && (
           <Button
             variant="secondary"
             onClick={onHint}
@@ -197,7 +197,7 @@ export function MissionView({
         )}
         {!closed && (
           <Button variant="text" onClick={() => setConfirmSkip(true)} disabled={pending !== null}>
-            {locked ? 'Omitir por ahora' : 'Omitir misión'}
+            Omitir misión
           </Button>
         )}
       </div>

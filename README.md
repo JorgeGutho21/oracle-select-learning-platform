@@ -10,7 +10,7 @@ Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 
 ## Estado del proyecto
 
-Cimientos técnicos, sistema de diseño y SQL Oracle Challenge interactivo implementados. Incluye Next.js App Router, TypeScript estricto, Bootstrap 5.3.8 compilado con Sass local, componentes accesibles y dnd-kit para el arrastre. En `/challenge` se juegan las misiones M01–M09 como práctica individual, con arrastre, toque o teclado, corrección en el servidor y progreso guardado en el navegador. M10 espera al laboratorio Oracle real, que no se simula. El resto de módulos (Estudio, Exposición, Laboratorio, Sala en vivo y Supabase) todavía muestran estados vacíos. Estado detallado en [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) y [CHALLENGE_STATUS.md](docs/CHALLENGE_STATUS.md).
+Cimientos técnicos, sistema de diseño y SQL Oracle Challenge interactivo implementados. Incluye Next.js App Router, TypeScript estricto, Bootstrap 5.3.8 compilado con Sass local, componentes accesibles dnd-kit para el arrastre y CodeMirror 6 como editor SQL. En `/challenge` se juegan las misiones M01–M09 como práctica individual, con arrastre, toque o teclado, corrección en el servidor y progreso guardado en el navegador. El Laboratorio (`/lab`) analiza consultas con el motor SQL educativo del curso (diagnóstico, vista previa rotulada, traducción y anatomía) y separa la ejecución real en Oracle, que todavía no está conectada y no se simula; lo mismo ocurre con la calificación final de M10. Estudio, Exposición, Sala en vivo y Supabase siguen con estados vacíos. Estado detallado en [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) y [CHALLENGE_STATUS.md](docs/CHALLENGE_STATUS.md).
 
 ## Desarrollo local
 

@@ -58,3 +58,12 @@ export async function mouseDrag(page: Page, source: Locator, target: Locator) {
   await page.mouse.move(to.x + to.width / 2 + 2, to.y + to.height / 2 + 2, { steps: 2 });
   await page.mouse.up();
 }
+
+/** Sustituye el contenido de un editor CodeMirror como lo haría una persona al teclado. */
+export async function fillEditor(editor: Locator, text: string) {
+  await editor.click();
+  await editor.press('ControlOrMeta+a');
+  await editor.press('Delete');
+  await editor.page().keyboard.insertText(text);
+  await expect(editor).toContainText(text.split('\n')[0]!);
+}

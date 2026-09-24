@@ -10,12 +10,12 @@ import { MISSION_PRIVATE } from '@/features/challenge/domain/missions/rubrics';
 import {
   INTERACTION_TYPES,
   MISSION_IDS,
-  type EvaluationOutcome,
   type MissionAnswer,
   type MissionId,
+  type RubricVerdict,
 } from '@/features/challenge/domain/types';
 
-const check = (id: MissionId, answer: MissionAnswer): EvaluationOutcome =>
+const check = (id: MissionId, answer: MissionAnswer): RubricVerdict =>
   evaluateMissionAnswer(getMissionDefinition(id), answer);
 const kind = (id: MissionId, answer: MissionAnswer) => check(id, answer).kind;
 const feedback = (id: MissionId, answer: MissionAnswer) => {
@@ -108,7 +108,9 @@ describe('M01 — columnas', () => {
     expect(feedback('M01', answer(['ID', 'NOMBRE', 'SALARIO']))).toContain('Sobran columnas');
     expect(feedback('M01', answer(['NOMBRE']))).toContain('Falta mostrar SALARIO');
     expect(feedback('M01', answer(['*']))).toContain('asterisco');
-    expect(feedback('M01', answer(['SUELDO']))).toContain('SUELDO no es una columna');
+    expect(feedback('M01', answer(['SUELDO']))).toContain(
+      'SUELDO no pertenece a la tabla EMPLEADOS',
+    );
   });
   it('una respuesta vacía no es un intento', () => {
     expect(kind('M01', answer([]))).toBe('invalid-input');
@@ -155,7 +157,7 @@ describe('M02 — orden de SQL', () => {
           'm02-ciudad',
         ]),
       ),
-    ).toContain('FROM recibe');
+    ).toContain('es el nombre de la tabla');
     expect(feedback('M02', answer(['m02-select', 'm02-nombre']))).toContain('Usa todas las piezas');
     expect(
       feedback(
@@ -354,7 +356,7 @@ describe('M08 — detectar el error', () => {
     expect(feedback('M08', answer(1))).toContain('sigue sin cumplir el pedido');
   });
   it('la explicación aclara que sin coma es un alias implícito válido (LAB10)', () => {
-    expect(getMissionDefinition('M08').explanation).toContain('alias SALARIO');
+    expect(getMissionDefinition('M08').explanation).toContain('Oracle lee salario como un alias');
   });
   it('rechaza huecos inexistentes y la respuesta vacía no es intento', () => {
     expect(kind('M08', answer(0))).toBe('incorrect');
@@ -456,16 +458,93 @@ describe('M09 — lenguaje a SQL', () => {
   });
 });
 
-describe('M10 — reto escrito', () => {
+describe('M10 — reto escrito (motor compartido + Oracle)', () => {
+  const m10 = (sql: string) => check('M10', { type: 'write-query', sql });
+  const reference =
+    'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados;';
+
   it('rechaza el editor vacío sin consumir intento', () => {
-    expect(kind('M10', { type: 'write-query', sql: '   ' })).toBe('invalid-input');
+    expect(m10('   ').kind).toBe('invalid-input');
   });
-  it('sin Oracle real declara indisponibilidad técnica en vez de simular la corrección', () => {
+
+  it('una consulta que cumple estructura y requisitos exige ejecución en Oracle con la sentencia canónica', () => {
+    expect(m10(reference)).toEqual({
+      kind: 'requires-execution',
+      statement:
+        'SELECT NOMBRE, CIUDAD, (SALARIO + 100000) * 12 AS PROYECCION_ANUAL FROM EMPLEADOS',
+    });
     expect(
-      check('M10', {
-        type: 'write-query',
-        sql: 'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados;',
-      }),
-    ).toMatchObject({ kind: 'technical', reason: 'oracle-unavailable' });
+      m10('select nombre, ciudad, 12 * (100000 + salario) as Proyeccion_Anual from empleados'),
+    ).toMatchObject({
+      kind: 'requires-execution',
+    });
+  });
+
+  it.each([
+    [
+      'un error de sintaxis del parser',
+      'SELECT nombre ciudad salario FROM empleados',
+      'Falta una coma',
+    ],
+    [
+      'una columna desconocida',
+      'SELECT nombre, ciudad, (sueldo + 100000) * 12 AS proyeccion_anual FROM empleados',
+      'SUELDO',
+    ],
+    ['el asterisco', 'SELECT * FROM empleados', 'asterisco'],
+    [
+      'DISTINCT',
+      'SELECT DISTINCT nombre, ciudad, salario * 12 AS proyeccion_anual FROM empleados',
+      'DISTINCT',
+    ],
+    [
+      'dos columnas',
+      'SELECT nombre, (salario + 100000) * 12 AS proyeccion_anual FROM empleados',
+      'tres columnas',
+    ],
+    [
+      'sin cálculo sobre SALARIO',
+      'SELECT nombre, ciudad, edad * 12 AS proyeccion_anual FROM empleados',
+      'SALARIO',
+    ],
+    ['sin alias', 'SELECT nombre, ciudad, (salario + 100000) * 12 FROM empleados', 'Usa AS'],
+    [
+      'alias implícito',
+      'SELECT nombre, ciudad, (salario + 100000) * 12 proyeccion_anual FROM empleados',
+      'exige escribir AS',
+    ],
+    [
+      'otro encabezado',
+      'SELECT nombre, ciudad, (salario + 100000) * 12 AS anual FROM empleados',
+      'PROYECCION_ANUAL',
+    ],
+    [
+      'una consulta fuera de alcance',
+      'SELECT nombre FROM empleados WHERE edad > 20',
+      'unidad futura',
+    ],
+  ])('rechaza como intento académico %s', (_label, sql, text) => {
+    expect(m10(sql)).toMatchObject({ kind: 'incorrect', feedback: expect.stringContaining(text) });
+  });
+
+  it('califica el resultado devuelto por Oracle comparándolo con la referencia', () => {
+    const grade = getMissionDefinition('M10').rubric.gradeExecution!;
+    const expected = {
+      columns: ['NOMBRE', 'CIUDAD', 'PROYECCION_ANUAL'],
+      rows: [
+        ['Ana', 'Bogotá', 37200000],
+        ['Carlos', 'Cali', 61200000],
+        ['Laura', 'Bogotá', 51600000],
+        ['Pedro', 'Medellín', 22800000],
+        ['María', 'Cali', 45600000],
+        ['Jorge', 'Bogotá', 34800000],
+      ],
+    };
+    expect(grade(expected).kind).toBe('correct');
+    expect(grade({ ...expected, rows: [...expected.rows].reverse() }).kind).toBe('correct');
+    expect(grade({ ...expected, columns: ['NOMBRE', 'CIUDAD', 'TOTAL'] })).toMatchObject({
+      kind: 'incorrect',
+    });
+    expect(grade({ ...expected, rows: expected.rows.slice(1) }).kind).toBe('incorrect');
   });
 });

@@ -8,6 +8,7 @@ import {
   type StorageLike,
 } from '@/features/challenge/infrastructure/browser-challenge-repository';
 import { InProcessMissionEvaluator } from '@/features/challenge/infrastructure/in-process-mission-evaluator';
+import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured-oracle-executor';
 import type { MissionAnswer } from '@/features/challenge/domain/types';
 
 class MemoryStorage implements StorageLike {
@@ -34,7 +35,8 @@ function setup(options: { storage?: StorageLike | null; evaluator?: MissionEvalu
   let counter = 0;
   const create = () =>
     new ChallengeEngine({
-      evaluator: options.evaluator ?? new InProcessMissionEvaluator(),
+      evaluator:
+        options.evaluator ?? new InProcessMissionEvaluator(new UnconfiguredOracleExecutor()),
       repository: new BrowserChallengeRepository(() => storage),
       clock,
       ids: { next: () => `session-${++counter}` },
@@ -87,7 +89,7 @@ describe('Motor de partida individual', () => {
   });
 
   it('un fallo del servicio de pistas no aplica descuento', async () => {
-    const base = new InProcessMissionEvaluator();
+    const base = new InProcessMissionEvaluator(new UnconfiguredOracleExecutor());
     const evaluator: MissionEvaluator = {
       evaluate: (request) => base.evaluate(request),
       getHint: vi.fn().mockRejectedValue(new Error('red')),
@@ -117,7 +119,7 @@ describe('Motor de partida individual', () => {
 
   it('rechaza un segundo envío mientras el primero se corrige', async () => {
     let release: () => void = () => {};
-    const base = new InProcessMissionEvaluator();
+    const base = new InProcessMissionEvaluator(new UnconfiguredOracleExecutor());
     const evaluator: MissionEvaluator = {
       evaluate: (request) =>
         new Promise((resolve) => {
@@ -138,7 +140,7 @@ describe('Motor de partida individual', () => {
 
   it('descarta una corrección que llega después de reiniciar la partida', async () => {
     let release: () => void = () => {};
-    const base = new InProcessMissionEvaluator();
+    const base = new InProcessMissionEvaluator(new UnconfiguredOracleExecutor());
     const evaluator: MissionEvaluator = {
       evaluate: (request) =>
         new Promise((resolve) => {
@@ -167,7 +169,21 @@ describe('Motor de partida individual', () => {
     await expect(engine.getExplanation('M01')).resolves.toContain('SELECT nombre, salario');
   });
 
-  it('M10 sin Oracle informa indisponibilidad sin consumir intento', async () => {
+  const M10_OK: MissionAnswer = {
+    type: 'write-query',
+    sql: 'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados;',
+  };
+
+  it('M10 con estructura correcta y sin Oracle es técnico y no consume intento', async () => {
+    const { engine } = setup();
+    await engine.start();
+    await engine.openMission('M10');
+    const result = await engine.submit(M10_OK);
+    expect(result.outcome).toMatchObject({ kind: 'technical', reason: 'oracle-unavailable' });
+    expect(result.mission.attempts).toHaveLength(0);
+  });
+
+  it('M10 con un error de SQL detectado por el parser consume un intento académico', async () => {
     const { engine } = setup();
     await engine.start();
     await engine.openMission('M10');
@@ -175,8 +191,60 @@ describe('Motor de partida individual', () => {
       type: 'write-query',
       sql: 'SELECT nombre FROM empleados',
     });
-    expect(result.outcome).toMatchObject({ kind: 'technical', reason: 'oracle-unavailable' });
-    expect(result.mission.attempts).toHaveLength(0);
+    expect(result.outcome).toMatchObject({ kind: 'incorrect' });
+    expect(result.mission.attempts).toHaveLength(1);
+  });
+
+  it('M10 se califica con el resultado real cuando Oracle responde', async () => {
+    const rows = [
+      ['Ana', 'Bogotá', 37200000],
+      ['Carlos', 'Cali', 61200000],
+      ['Laura', 'Bogotá', 51600000],
+      ['Pedro', 'Medellín', 22800000],
+      ['María', 'Cali', 45600000],
+      ['Jorge', 'Bogotá', 34800000],
+    ];
+    const execute = vi.fn().mockResolvedValue({
+      status: 'ok',
+      columns: [
+        { name: 'NOMBRE', type: 'text' },
+        { name: 'CIUDAD', type: 'text' },
+        { name: 'PROYECCION_ANUAL', type: 'number' },
+      ],
+      rows,
+      elapsedMs: 12,
+      engine: 'Oracle de prueba',
+    });
+    const oracle = { status: vi.fn(), execute };
+    const { engine } = setup({ evaluator: new InProcessMissionEvaluator(oracle) });
+    await engine.start();
+    await engine.openMission('M10');
+    const result = await engine.submit(M10_OK);
+    expect(execute).toHaveBeenCalledWith({
+      statement:
+        'SELECT NOMBRE, CIUDAD, (SALARIO + 100000) * 12 AS PROYECCION_ANUAL FROM EMPLEADOS',
+    });
+    expect(result).toMatchObject({ outcome: { kind: 'correct' }, closedNow: true });
+    expect(engine.getResult()?.missions[9]?.score.total).toBe(100);
+  });
+
+  it('M10 muestra el error ORA que devuelve Oracle como intento incorrecto', async () => {
+    const oracle = {
+      status: vi.fn(),
+      execute: vi.fn().mockResolvedValue({
+        status: 'oracle-error',
+        code: 'ORA-01476',
+        message: 'divisor is equal to zero',
+      }),
+    };
+    const { engine } = setup({ evaluator: new InProcessMissionEvaluator(oracle) });
+    await engine.start();
+    await engine.openMission('M10');
+    const result = await engine.submit(M10_OK);
+    expect(result.outcome).toMatchObject({
+      kind: 'incorrect',
+      feedback: expect.stringContaining('ORA-01476'),
+    });
   });
 
   it('restaura la partida tras recargar con cronómetro en pausa y sin puntos extra (U07)', async () => {

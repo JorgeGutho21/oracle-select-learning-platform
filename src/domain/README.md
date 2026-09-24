@@ -11,5 +11,10 @@ Contenido compartido entre módulos:
 - `results/result-table.ts`: proyección, DISTINCT y comparación de resultados
   por multiconjunto con orden de columnas (LAB_SPEC.md).
 
+- `sql/`: motor SQL educativo único del subconjunto SELECT v1 (LAB_SPEC.md):
+  léxico, parser a AST, analizador contra el catálogo, diagnósticos pedagógicos,
+  evaluación educativa sin `eval`, traducción, anatomía y sentencia canónica.
+  Lo usan el laboratorio y el Challenge; no ejecuta nada en Oracle.
+
 Las reglas propias de un módulo viven en `features/<modulo>/domain`. Todavía no
-se implementan el analizador SQL, el laboratorio ni los estados de sala.
+se implementan los estados de sala.

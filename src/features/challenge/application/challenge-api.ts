@@ -1,5 +1,6 @@
 import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
-import { analyzeProjection, tokensFromPieces } from '@/domain/sql/projection-query';
+import { analyzeSql } from '@/domain/sql/analyzer';
+import { runEducational } from '@/domain/sql/educational-run';
 import { GAME_SPEC_SCORING_POLICY } from '../domain/scoring';
 
 /**
@@ -53,6 +54,35 @@ export const PRACTICE_RULES = Object.freeze({
  * una consulta válida. Solo describe la forma; la corrección la hace el evaluador.
  */
 export function previewHeaders(pieceTexts: readonly string[]): readonly string[] | null {
-  const analysis = analyzeProjection(tokensFromPieces(pieceTexts));
-  return analysis.ok ? analysis.result.columns : null;
+  return runEducational(pieceTexts.join(' ')).result?.table.columns ?? null;
+}
+
+export interface SqlCheckItem {
+  readonly severity: 'error' | 'warning';
+  readonly message: string;
+  readonly hint: string | null;
+  readonly line: number;
+  readonly column: number;
+  readonly from: number;
+  readonly to: number;
+}
+
+/** Revisión sin puntuar de una consulta escrita (M10) con el motor SQL compartido. */
+export function checkSql(sql: string): {
+  readonly valid: boolean;
+  readonly items: readonly SqlCheckItem[];
+} {
+  const analysis = analyzeSql(sql);
+  return {
+    valid: analysis.ok,
+    items: analysis.diagnostics.map((item) => ({
+      severity: item.severity,
+      message: item.message,
+      hint: item.hint,
+      line: item.line,
+      column: item.column,
+      from: item.span.start,
+      to: item.span.end,
+    })),
+  };
 }

@@ -64,7 +64,9 @@ describe('Server Functions de corrección de la práctica', () => {
 
   it('entregan pista y explicación solo para misiones existentes', async () => {
     await expect(getPracticeHint('M08')).resolves.toContain('columnas');
-    await expect(getPracticeExplanation('M08')).resolves.toContain('alias SALARIO');
+    await expect(getPracticeExplanation('M08')).resolves.toContain(
+      'Oracle lee salario como un alias',
+    );
     await expect(getPracticeHint('M99' as never)).rejects.toThrow('Misión desconocida');
   });
 });

@@ -1,9 +1,9 @@
 import type {
   AnyMissionDefinition,
-  EvaluationOutcome,
   MissionAnswer,
   MissionDefinition,
   MissionId,
+  RubricVerdict,
 } from '../types';
 import { PUBLIC_MISSIONS } from './public-catalog';
 import { MISSION_PRIVATE } from './rubrics';
@@ -37,7 +37,7 @@ export function getMissionDefinition(id: MissionId): AnyMissionDefinition {
 export function evaluateMissionAnswer(
   definition: AnyMissionDefinition,
   answer: MissionAnswer,
-): EvaluationOutcome {
+): RubricVerdict {
   if (answer.type !== definition.interactionType) {
     return { kind: 'invalid-input', message: 'La respuesta no corresponde a esta misión.' };
   }

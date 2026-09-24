@@ -1,10 +1,10 @@
 # Estado del SQL Challenge
 
-Actualizado: 23 de septiembre de 2026, Fase 3 (Challenge interactivo), rama `claude-finish-20260923`. Especificación de referencia: [GAME_SPEC.md](GAME_SPEC.md) versión 2.0 (catálogo `select-challenge-v2`), requisitos P09–P13 y P15 de [PROJECT_SPEC.md](PROJECT_SPEC.md), pruebas T09–T13 y G01–G15 de [TEST_PLAN.md](TEST_PLAN.md).
+Actualizado: 23 de septiembre de 2026, Fase 4 (motor SQL educativo y laboratorio), rama `claude-finish-20260923`. Especificación de referencia: [GAME_SPEC.md](GAME_SPEC.md) versión 2.0 (catálogo `select-challenge-v2`), requisitos P09–P13 y P15 de [PROJECT_SPEC.md](PROJECT_SPEC.md), pruebas T09–T13 y G01–G15 de [TEST_PLAN.md](TEST_PLAN.md).
 
 ## Conclusión
 
-**M01–M09 están implementadas, son jugables en `/challenge` y tienen pruebas.** Se practican con ratón, arrastre, toque y teclado, sobre el motor, la puntuación, el cronómetro, los intentos, las pistas, el progreso, el feedback y la explicación comunes. **M10 está bloqueada** hasta disponer de Oracle real: no se simula su corrección y no consume intentos.
+**M01–M09 están implementadas, son jugables en `/challenge` y tienen pruebas.** Se practican con ratón, arrastre, toque y teclado, sobre el motor, la puntuación, el cronómetro, los intentos, las pistas, el progreso, el feedback y la explicación comunes. **M10 tiene editor y corrección estructural (Fase 4), pero la calificación final exige Oracle real:** sin el servicio no se simula la corrección y un envío correcto no consume intentos.
 
 ## Decisión de contenido: Challenge v2
 
@@ -14,18 +14,18 @@ M08 respeta LAB10: `SELECT nombre salario FROM empleados;` es SQL válido (SALAR
 
 ## Estado por misión
 
-| Misión | Contenido                                     | Interacción                                                     | Estado  | Pruebas                  |
-| ------ | --------------------------------------------- | --------------------------------------------------------------- | ------- | ------------------------ |
-| M01    | `SELECT nombre, salario FROM empleados;`      | Arrastrar columnas a SELECT; resaltado en la tabla              | DONE    | Unitarias + E2E ×3       |
-| M02    | `SELECT nombre, ciudad FROM empleados;`       | Ordenar piezas                                                  | DONE    | Unitarias + E2E ×3       |
-| M03    | `SELECT * FROM empleados;`                    | Construir encabezados y número de filas                         | DONE    | Unitarias + E2E ×3 + axe |
-| M04    | Resultado de `SELECT nombre, salario`         | Construir encabezados y marcar filas en la tabla                | DONE    | Unitarias + E2E ×3       |
-| M05    | `salario * 12`                                | Construir la expresión y predecir valores de Ana, Pedro y María | DONE    | Unitarias + E2E ×3       |
-| M06    | `salario * 12 AS salario_anual`               | Ordenar piezas con vista de encabezados y tabla intacta         | DONE    | Unitarias + E2E ×3 + axe |
-| M07    | `SELECT DISTINCT ciudad`                      | Antes (6 filas) → retirar repeticiones → después (3)            | DONE    | Unitarias + E2E ×3 + axe |
-| M08    | Coma ausente en `SELECT nombre salario`       | Hotspot: huecos seleccionables en el código                     | DONE    | Unitarias + E2E ×3 + axe |
-| M09    | «nombre, ciudad y salario de todos» → bloques | Bloques con distractores; corregido por resultado, no por texto | DONE    | Unitarias + E2E ×3       |
-| M10    | Consulta escrita con cálculo y alias          | Bloqueada: «Misión pendiente del servicio Oracle»               | BLOCKED | Unitarias + E2E ×3       |
+| Misión | Contenido                                     | Interacción                                                                                   | Estado                | Pruebas                  |
+| ------ | --------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------- | ------------------------ |
+| M01    | `SELECT nombre, salario FROM empleados;`      | Arrastrar columnas a SELECT; resaltado en la tabla                                            | DONE                  | Unitarias + E2E ×3       |
+| M02    | `SELECT nombre, ciudad FROM empleados;`       | Ordenar piezas                                                                                | DONE                  | Unitarias + E2E ×3       |
+| M03    | `SELECT * FROM empleados;`                    | Construir encabezados y número de filas                                                       | DONE                  | Unitarias + E2E ×3 + axe |
+| M04    | Resultado de `SELECT nombre, salario`         | Construir encabezados y marcar filas en la tabla                                              | DONE                  | Unitarias + E2E ×3       |
+| M05    | `salario * 12`                                | Construir la expresión y predecir valores de Ana, Pedro y María                               | DONE                  | Unitarias + E2E ×3       |
+| M06    | `salario * 12 AS salario_anual`               | Ordenar piezas con vista de encabezados y tabla intacta                                       | DONE                  | Unitarias + E2E ×3 + axe |
+| M07    | `SELECT DISTINCT ciudad`                      | Antes (6 filas) → retirar repeticiones → después (3)                                          | DONE                  | Unitarias + E2E ×3 + axe |
+| M08    | Coma ausente en `SELECT nombre salario`       | Hotspot: huecos seleccionables en el código; corrección con el motor SQL compartido           | DONE                  | Unitarias + E2E ×3 + axe |
+| M09    | «nombre, ciudad y salario de todos» → bloques | Bloques con distractores; motor SQL compartido, corregido por resultado                       | DONE                  | Unitarias + E2E ×3       |
+| M10    | Consulta escrita con cálculo y alias          | Editor CodeMirror; estructura y requisitos con el motor compartido; resultado final en Oracle | PARTIAL (espera a R1) | Unitarias + E2E ×3       |
 
 «E2E ×3» significa Chromium, Microsoft Edge y WebKit.
 
@@ -35,8 +35,8 @@ M08 respeta LAB10: `SELECT nombre salario FROM empleados;` es SQL válido (SALAR
 src/domain/
   dataset/empleados.ts          # fuente única de empleados-select-v1
   results/result-table.ts       # proyección, DISTINCT, comparación por multiconjunto
-  sql/expression.ts             # expresiones aritméticas
-  sql/projection-query.ts       # analizador estructural del subconjunto de proyección
+  sql/                          # motor SQL educativo único (Fase 4): léxico, parser, analizador,
+                                # evaluador, traductor, anatomía y sentencia canónica
 src/features/challenge/
   domain/                       # tipos, catálogo público v2, rúbricas privadas, puntuación, estado
   application/
@@ -55,12 +55,22 @@ src/composition/challenge/
   challenge-root.tsx            # une motor, localStorage y Server Functions
 ```
 
-- **Sin lógica duplicada.** Las misiones de piezas (M01, M02, M06, M08 y M09) pasan por el mismo analizador `analyzeProjection`. Este convierte los bloques en una consulta, calcula su resultado lógico sobre el dataset y la corrección compara resultados. Así se aceptan construcciones equivalentes, como comas intercambiables, y se explica el alias implícito. Es una comparación didáctica en memoria: no se presenta como ejecución en Oracle.
+- **Un solo motor SQL (Fase 4).** Las misiones que construyen consultas (M01, M02, M06, M08, M09 y M10), la expresión de M05 y el laboratorio usan el mismo léxico, parser y analizador de `src/domain/sql`. Las piezas se unen en texto, se analizan a un árbol sintáctico y se corrigen por su resultado lógico sobre el dataset: se aceptan construcciones equivalentes (comas intercambiables, `12 * salario`) y el feedback reutiliza los diagnósticos pedagógicos del laboratorio, como la coma ausente leída como alias implícito (LAB10). Es una comparación didáctica en memoria; no se presenta como ejecución en Oracle.
 - **G15 comprobado.** Rúbricas, pistas y explicaciones solo se ejecutan en el servidor, mediante Server Functions en `src/composition`. Una prueba E2E revisa los scripts que recibe el navegador, y se verificó que el build de producción no contiene esos textos en `.next/static`, mientras que sí están en `.next/server`.
 - **Composición.** Se añadió la capa `composition` a la regla ESLint de capas: es el único lugar que une infraestructura con aplicación, y solo `app` puede importarla. Presentación sigue sin poder importar dominio ni infraestructura.
 - **Arrastre accesible (dnd-kit 6.3.1, sortable 10.0.0, utilities 3.2.2).** `SequenceBuilder` admite arrastre con ratón (`MouseSensor`) y con dedo (`TouchSensor`). Como alternativa sin arrastre, se puede pulsar o activar con Enter una pieza para añadirla, y seleccionar una pieza colocada para moverla o quitarla con botones. El teclado usa esos controles explícitos en lugar del `KeyboardSensor` de dnd-kit, porque hay que evitar el conflicto entre la tecla Espacio y los botones y dar una alternativa de puntero simple (WCAG 2.5.7). Los cambios se anuncian en una región `aria-live`.
 - **Cronómetro informativo.** Se pausa al cambiar de misión, al cerrarla y al ocultar o abandonar la pestaña (`visibilitychange` y `pagehide`).
 - **Pantalla final.** Muestra puntuación, precisión, tiempo activo, intentos, pistas, misiones resueltas, resumen por misión, conceptos para repasar y el botón «Reiniciar práctica» con confirmación.
+
+## M10 y Oracle (Fase 4)
+
+- La rúbrica aplica las capas 1 y 2 de LAB_SPEC con el motor compartido: estructura del subconjunto, tres columnas, cálculo sobre SALARIO, `AS` explícito y encabezado PROYECCION_ANUAL.
+- Un error de SQL o un requisito incumplido es un intento académico y lo consume, como exige GAME_SPEC.
+- Si todo se cumple, la rúbrica devuelve `requires-execution` con la **sentencia canónica** reconstruida desde el árbol. El evaluador la envía al puerto `OracleQueryExecutor`:
+  - Hoy el adaptador `UnconfiguredOracleExecutor` responde «no configurado», así que el resultado es técnico y no consume intento.
+  - Con un Oracle real, `gradeExecution` compararía la salida con la referencia. Está probado con un doble de Oracle, e incluye el caso de error ORA.
+- El botón «Revisar sintaxis (sin puntuar)» usa el mismo motor sin gastar intentos.
+- CodeMirror se carga bajo demanda al abrir M10, así que no pesa en la carga inicial de `/challenge`.
 
 ## Puntuación
 
@@ -78,7 +88,7 @@ En una de tres ejecuciones completas de la suite, una llamada a la Server Functi
 
 ## Pendiente
 
-1. M10 con Oracle real (R1), analizador de texto libre y editor (CodeMirror, no instalado).
+1. Calificación final de M10 con Oracle real (R1): falta el adaptador node-oracledb del puerto `OracleQueryExecutor`.
 2. `/results` todavía no muestra el resultado local (el resumen está dentro de `/challenge`).
 3. Prueba de arrastre táctil real en dispositivo físico: en la automatización se verifica el toque sin arrastre; el arrastre táctil con `TouchSensor` no se simula.
 4. Revisión con lector de pantalla y dispositivos físicos.

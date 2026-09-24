@@ -7,14 +7,12 @@ import {
   sameRowMultiset,
   type ResultTable,
 } from '@/domain/results/result-table';
-import { evaluateExpression, parseExpression, referencesColumn } from '@/domain/sql/expression';
-import {
-  analyzeProjection,
-  tokenizeSql,
-  tokensFromPieces,
-  type ProjectionAnalysis,
-  type ProjectionError,
-} from '@/domain/sql/projection-query';
+import { analyzeExpression } from '@/domain/sql/analyzer';
+import { referencedColumns, type Expression, type SelectStatement } from '@/domain/sql/ast';
+import { describeDiagnostic } from '@/domain/sql/diagnostics';
+import { runEducational } from '@/domain/sql/educational-run';
+import { evaluateExpression } from '@/domain/sql/evaluator';
+import { renderStatement } from '@/domain/sql/render';
 import type {
   AnswerFor,
   AnyMissionPrivate,
@@ -23,13 +21,15 @@ import type {
   MissionId,
   MissionPrivate,
   Piece,
+  RubricVerdict,
 } from '../types';
 import { findPublicMission } from './public-catalog';
 
 /**
  * PRIVADO. Rúbricas, pistas y explicaciones del Challenge v2. Solo debe componerse en el
  * servicio de corrección; nunca importarse desde aplicación ni presentación.
- * Las respuestas se corrigen por su resultado sobre el dataset canónico, no por su texto.
+ * Toda consulta se analiza con el motor SQL compartido (el mismo del laboratorio) y se
+ * corrige por su resultado sobre el dataset canónico, no por su texto.
  */
 
 const correct = (feedback: string): EvaluationOutcome => ({ kind: 'correct', feedback });
@@ -46,7 +46,8 @@ function define<T extends InteractionType>(
   content: {
     hint: string;
     explanation: string;
-    validate: (answer: AnswerFor<T>) => EvaluationOutcome;
+    validate: (answer: AnswerFor<T>) => RubricVerdict;
+    gradeExecution?: (result: ResultTable) => EvaluationOutcome;
   },
 ): MissionPrivate<T> {
   return {
@@ -54,16 +55,19 @@ function define<T extends InteractionType>(
     interactionType,
     hint: content.hint,
     explanation: content.explanation,
-    rubric: { validate: content.validate },
+    rubric: {
+      validate: content.validate,
+      ...(content.gradeExecution ? { gradeExecution: content.gradeExecution } : {}),
+    },
   };
 }
 
 /* ---------- Corrección común por resultado ---------- */
 
 function reference(sql: string): ResultTable {
-  const analysis = analyzeProjection(tokenizeSql(sql));
-  if (!analysis.ok) throw new Error(`Consulta de referencia inválida: ${sql}`);
-  return analysis.result;
+  const run = runEducational(sql);
+  if (!run.result) throw new Error(`Consulta de referencia inválida: ${sql}`);
+  return run.result.table;
 }
 
 function publicDataOf<T extends InteractionType>(missionId: MissionId, type: T) {
@@ -76,81 +80,59 @@ function pieceMap(pieces: readonly Piece[]): ReadonlyMap<string, string> {
   return new Map(pieces.map((item) => [item.id, item.text]));
 }
 
-function analyzePieces(
+/** Texto SQL armado con piezas, o `null` si alguna pieza no pertenece a la misión. */
+function sqlFromPieces(
   pieceIds: readonly string[],
   pieces: ReadonlyMap<string, string>,
-): ProjectionAnalysis | null {
+): string | null {
   const texts = pieceIds.map((id) => pieces.get(id));
-  if (texts.some((text) => text === undefined)) return null;
-  return analyzeProjection(tokensFromPieces(texts as string[]));
+  return texts.some((text) => text === undefined) ? null : texts.join(' ');
 }
 
-export function describeProjectionError(error: ProjectionError): string {
-  switch (error.code) {
-    case 'empty':
-      return 'La consulta está vacía.';
-    case 'missing-select':
-      return 'Una consulta comienza con SELECT: primero se indica qué mostrar.';
-    case 'missing-from':
-      return 'Falta FROM: indica de qué tabla salen los datos.';
-    case 'missing-table':
-      return 'Después de FROM va el nombre de la tabla.';
-    case 'unknown-table':
-      return `FROM recibe el nombre de la tabla EMPLEADOS, no ${error.table}.`;
-    case 'trailing-tokens':
-      return `Sobra algo después de la tabla: ${error.tokens.join(' ')}. La lista de columnas va entre SELECT y FROM.`;
-    case 'empty-item':
-      return 'Hay una coma sin columna: cada coma anuncia otro elemento de la lista.';
-    case 'star-mixed':
-      return 'El asterisco ya representa todas las columnas; en esta unidad no se combina con otras ni lleva alias.';
-    case 'misplaced-keyword':
-      return error.keyword === 'DISTINCT'
-        ? 'DISTINCT va inmediatamente después de SELECT.'
-        : `${error.keyword} está fuera de su lugar en la consulta.`;
-    case 'alias-without-name':
-      return 'AS debe ir seguido del nombre del encabezado.';
-    case 'invalid-expression':
-      return 'Uno de los elementos no forma una columna o expresión completa.';
-    case 'unknown-column':
-      return `${error.column} no es una columna de EMPLEADOS.`;
-    case 'not-numeric':
-      return `${error.column} es texto: no admite operaciones aritméticas.`;
-    case 'division-by-zero':
-      return 'No se puede dividir entre cero.';
-    case 'invalid-character':
-      return `El símbolo ${error.character} no forma parte de esta unidad.`;
-  }
-}
-
-/** Feedback pedagógico al comparar el resultado de una consulta con el esperado. */
-function judge(
-  analysis: ProjectionAnalysis | null,
+/** Compara el resultado con el esperado y explica la diferencia en términos del pedido. */
+function explainResult(
+  statement: SelectStatement,
+  actual: ResultTable,
   expected: ResultTable,
   success: string,
+  warnings: readonly { code: string; message: string }[] = [],
 ): EvaluationOutcome {
-  if (!analysis) return incorrect('La consulta contiene piezas que no pertenecen a esta misión.');
-  if (!analysis.ok) return incorrect(describeProjectionError(analysis.error));
-  const comparison = compareResults(analysis.result, expected);
+  const comparison = compareResults(actual, expected);
   if (comparison.equal) return correct(success);
-  const implicit = analysis.query.items.find((item) => item.aliasKind === 'implicit');
-  if (implicit?.alias) {
-    return incorrect(
-      `Sin coma entre ${implicit.expressionTokens.join(' ')} y ${implicit.alias}, Oracle lee ${implicit.alias} como un alias: la consulta es válida, pero esa parte muestra una sola columna llamada ${normalizeIdentifier(implicit.alias)}.`,
-    );
-  }
-  if (analysis.query.items.some((item) => item.isStar)) {
+  const comma = warnings.find((warning) => warning.code === 'possible-missing-comma');
+  if (comma) return incorrect(comma.message);
+  if (statement.items.some((item) => item.kind === 'star')) {
     return incorrect('El asterisco muestra todas las columnas; el pedido solo pide algunas.');
   }
-  const actual = analysis.result.columns.map(normalizeIdentifier);
+  const got = actual.columns.map(normalizeIdentifier);
   const wanted = expected.columns.map(normalizeIdentifier);
-  if (actual.length === wanted.length && sortedKey(actual) === sortedKey(wanted)) {
+  if (got.length === wanted.length && sortedKey(got) === sortedKey(wanted)) {
     return incorrect(`Las columnas son correctas, pero el orden pedido es ${wanted.join(', ')}.`);
   }
-  const extra = actual.filter((column) => !wanted.includes(column));
-  const missing = wanted.filter((column) => !actual.includes(column));
+  const extra = got.filter((column) => !wanted.includes(column));
+  const missing = wanted.filter((column) => !got.includes(column));
   if (extra.length > 0) return incorrect(`Sobran columnas: ${extra.join(', ')} no se pidió.`);
   if (missing.length > 0) return incorrect(`Falta mostrar ${missing.join(', ')}.`);
-  return incorrect('La consulta es válida, pero su resultado no responde al pedido.');
+  if (comparison.difference === 'row-count')
+    return incorrect('El resultado no tiene todas las filas pedidas.');
+  return incorrect('La consulta es válida, pero sus valores no responden al pedido.');
+}
+
+/** Analiza con el motor compartido y corrige por resultado. */
+function judge(sql: string | null, expected: ResultTable, success: string): EvaluationOutcome {
+  if (sql === null)
+    return incorrect('La consulta contiene piezas que no pertenecen a esta misión.');
+  const run = runEducational(sql);
+  const error = run.analysis.errors[0] ?? run.runtimeError;
+  if (error) return incorrect(describeDiagnostic(error));
+  if (!run.analysis.statement || !run.result) return incorrect('La consulta no es válida.');
+  return explainResult(
+    run.analysis.statement,
+    run.result.table,
+    expected,
+    success,
+    run.analysis.warnings,
+  );
 }
 
 /* ---------- M01 ---------- */
@@ -162,9 +144,8 @@ const m01 = define('M01', 'drag-column', {
     'SELECT nombre, salario FROM empleados; proyecta dos columnas en ese orden para los seis empleados. Las demás columnas siguen en la tabla; solo no se muestran.',
   validate: ({ columns }) => {
     if (columns.length === 0) return invalid('Arrastra al menos una columna a la lista de SELECT.');
-    const list = columns.flatMap((column, index) => (index === 0 ? [column] : [',', column]));
     return judge(
-      analyzeProjection(['SELECT', ...list, 'FROM', 'empleados']),
+      `SELECT ${columns.join(', ')} FROM empleados`,
       m01Expected,
       'Correcto: seis empleados con NOMBRE y SALARIO, en ese orden.',
     );
@@ -186,7 +167,7 @@ const m02 = define('M02', 'reorder-sql', {
       return incorrect('Usa todas las piezas: faltan algunas para completar la consulta.');
     }
     return judge(
-      analyzePieces(pieceIds, m02Pieces),
+      sqlFromPieces(pieceIds, m02Pieces),
       m02Expected,
       'Correcto: cláusulas y columnas en el orden de SQL.',
     );
@@ -255,21 +236,19 @@ const m04 = define('M04', 'predict-result', {
 /* ---------- M05 ---------- */
 const m05Data = publicDataOf('M05', 'expression-builder');
 const m05Palette = pieceMap(m05Data.palette);
-const m05Reference = ['salario', '*', '12'];
 
-function columnValues(tokens: readonly string[]): number[] | null {
-  const parsed = parseExpression(tokens);
-  if (!parsed.ok) return null;
+function columnValues(expression: Expression): number[] | null {
   const values: number[] = [];
   for (const row of rows) {
-    const value = evaluateExpression(parsed.node, row);
-    if (!value.ok) return null;
+    const value = evaluateExpression(expression, row);
+    if (!value.ok || typeof value.value !== 'number') return null;
     values.push(value.value);
   }
   return values;
 }
 
-const m05Expected = columnValues(m05Reference);
+const m05Reference = analyzeExpression('salario * 12').expression;
+const m05Expected = m05Reference ? columnValues(m05Reference) : null;
 
 const m05 = define('M05', 'expression-builder', {
   hint: 'Un año tiene doce meses: la expresión parte del salario mensual.',
@@ -285,16 +264,16 @@ const m05 = define('M05', 'expression-builder', {
     if (tokens.some((token) => token === undefined)) {
       return incorrect('La expresión contiene piezas que no pertenecen a esta misión.');
     }
-    const parsed = parseExpression(tokens as string[]);
-    if (!parsed.ok) {
+    const { expression, errors } = analyzeExpression(tokens.join(' '));
+    if (!expression || errors.length > 0) {
       return incorrect(
         'La expresión está incompleta: combina una columna, un operador y un número.',
       );
     }
-    if (!referencesColumn(parsed.node, 'SALARIO')) {
+    if (!referencedColumns(expression).includes('SALARIO')) {
       return incorrect('El cálculo debe partir de la columna SALARIO.');
     }
-    const actual = columnValues(tokens as string[]);
+    const actual = columnValues(expression);
     if (!actual || actual.join() !== m05Expected.join()) {
       return incorrect(
         'La expresión no calcula el salario de un año: revisa el operador y el número.',
@@ -324,27 +303,33 @@ const m06 = define('M06', 'alias-builder', {
     'SELECT nombre, salario * 12 AS salario_anual FROM empleados; muestra el encabezado SALARIO_ANUAL para la columna calculada. AS solo cambia el encabezado del resultado: la tabla EMPLEADOS conserva su columna SALARIO.',
   validate: ({ pieceIds }) => {
     if (pieceIds.length === 0) return invalid('Coloca las piezas antes de comprobar.');
-    const analysis = analyzePieces(pieceIds, m06Pieces);
-    if (analysis?.ok && analysis.query.items.length === 2) {
-      const labeled = analysis.query.items.findIndex((item) => item.alias !== null);
-      if (labeled === 0) {
+    const sql = sqlFromPieces(pieceIds, m06Pieces);
+    if (sql !== null) {
+      const run = runEducational(sql);
+      const statement = run.analysis.statement;
+      if (run.analysis.errors.some((error) => error.code === 'table-alias')) {
         return incorrect(
-          'El alias quedó junto a NOMBRE: debe describir la columna calculada salario * 12.',
+          'El alias quedó después de la tabla: AS nombra una columna del resultado, no la tabla.',
         );
       }
-      if (labeled === -1) {
-        return incorrect(
-          'Sin AS, el encabezado de la columna calculada es la propia expresión SALARIO*12.',
+      if (statement && run.analysis.ok && statement.items.length === 2) {
+        const labeled = statement.items.findIndex(
+          (item) => item.kind === 'expression' && item.alias,
         );
+        if (labeled === 0) {
+          return incorrect(
+            'El alias quedó junto a NOMBRE: debe describir la columna calculada salario * 12.',
+          );
+        }
+        if (labeled === -1) {
+          return incorrect(
+            'Sin AS, el encabezado de la columna calculada es la propia expresión SALARIO*12.',
+          );
+        }
       }
-    }
-    if (analysis && !analysis.ok && analysis.error.code === 'trailing-tokens') {
-      return incorrect(
-        'El alias quedó después de la tabla: AS nombra una columna del resultado, no la tabla.',
-      );
     }
     return judge(
-      analysis,
+      sql,
       m06Expected,
       'Correcto: el resultado muestra SALARIO_ANUAL y la tabla conserva SALARIO.',
     );
@@ -381,11 +366,12 @@ const m07 = define('M07', 'distinct-result', {
 /* ---------- M08 ---------- */
 const m08Data = publicDataOf('M08', 'hotspot-error');
 const m08Expected = reference('SELECT nombre, salario FROM empleados');
+const m08Original = runEducational(m08Data.tokens.join(' '));
 
 const m08 = define('M08', 'hotspot-error', {
   hint: 'Cuenta cuántas columnas pide el pedido y cuántas separa realmente la lista.',
   explanation:
-    'Sin coma, Oracle interpreta SELECT nombre salario como la columna NOMBRE con el alias SALARIO: es una consulta válida, pero devuelve una sola columna. Con SELECT nombre, salario FROM empleados; se obtienen las dos columnas pedidas.',
+    `${m08Original.analysis.warnings.find((warning) => warning.code === 'possible-missing-comma')?.message ?? ''} Con SELECT nombre, salario FROM empleados; se obtienen las dos columnas pedidas.`.trim(),
   validate: ({ gapIndex }) => {
     if (gapIndex === null) return invalid('Selecciona un hueco de la consulta.');
     const tokens = m08Data.tokens;
@@ -394,7 +380,7 @@ const m08 = define('M08', 'hotspot-error', {
     }
     const repaired = [...tokens.slice(0, gapIndex), m08Data.insertToken, ...tokens.slice(gapIndex)];
     const outcome = judge(
-      analyzeProjection(repaired),
+      repaired.join(' '),
       m08Expected,
       'Correcto: con la coma, NOMBRE y SALARIO son dos columnas.',
     );
@@ -415,14 +401,14 @@ const m09 = define('M09', 'build-query', {
     'SELECT nombre, ciudad, salario FROM empleados; responde al pedido: tres columnas en el orden mencionado y los seis empleados. Se acepta cualquier construcción con el mismo resultado.',
   validate: ({ pieceIds }) => {
     if (pieceIds.length === 0) return invalid('Coloca los bloques antes de comprobar.');
-    const analysis = analyzePieces(pieceIds, m09Pieces);
-    if (analysis?.ok && analysis.query.distinct) {
+    const sql = sqlFromPieces(pieceIds, m09Pieces);
+    if (sql !== null && runEducational(sql).analysis.statement?.distinct) {
       return incorrect(
         'El pedido dice «todos los empleados»: DISTINCT eliminaría filas repetidas y no se pidió.',
       );
     }
     return judge(
-      analysis,
+      sql,
       m09Expected,
       'Correcto: tres columnas en el orden del pedido para todos los empleados.',
     );
@@ -430,18 +416,66 @@ const m09 = define('M09', 'build-query', {
 });
 
 /* ---------- M10 ---------- */
+const m10Expected = reference(
+  'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados',
+);
+
 const m10 = define('M10', 'write-query', {
   hint: 'Calcula primero el nuevo salario mensual y después multiplícalo por 12.',
   explanation:
     'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados; conserva a los seis empleados, proyecta tres columnas y etiqueta el cálculo.',
+  // Capas 1 y 2 de LAB_SPEC (estructura y requisitos) con el motor compartido; la capa 3,
+  // la salida real, exige ejecutar en Oracle.
   validate: ({ sql }) => {
     if (sql.trim() === '') return invalid('Escribe una consulta antes de enviarla.');
-    return {
-      kind: 'technical',
-      reason: 'oracle-unavailable',
-      message:
-        'Esta misión se corrige ejecutando la consulta en Oracle y el servicio no está disponible. No se consumió ningún intento.',
-    };
+    const run = runEducational(sql);
+    const error = run.analysis.errors[0];
+    if (error) return incorrect(describeDiagnostic(error));
+    const statement = run.analysis.statement!;
+    if (statement.items.some((item) => item.kind === 'star')) {
+      return incorrect('El pedido indica tres columnas concretas: el asterisco mostraría todas.');
+    }
+    if (statement.distinct) {
+      return incorrect('El pedido conserva a todos los empleados: DISTINCT no se pidió.');
+    }
+    if (statement.items.length !== 3) {
+      return incorrect(
+        `El pedido tiene tres columnas (NOMBRE, CIUDAD y la proyección anual); tu consulta tiene ${statement.items.length}.`,
+      );
+    }
+    const third = statement.items[2]!;
+    if (third.kind !== 'expression')
+      return incorrect('La tercera columna debe ser el cálculo anual.');
+    if (
+      third.expression.kind === 'column' ||
+      !referencedColumns(third.expression).includes('SALARIO')
+    ) {
+      return incorrect('La tercera columna es un cálculo basado en SALARIO.');
+    }
+    if (!third.alias) return incorrect('Usa AS para llamar PROYECCION_ANUAL a la tercera columna.');
+    if (!third.alias.explicit) {
+      return incorrect('El pedido exige escribir AS antes del alias PROYECCION_ANUAL.');
+    }
+    if (third.alias.header !== 'PROYECCION_ANUAL') {
+      return incorrect(
+        `El encabezado de la tercera columna debe ser PROYECCION_ANUAL, no ${third.alias.header}.`,
+      );
+    }
+    return { kind: 'requires-execution', statement: renderStatement(statement) };
+  },
+  gradeExecution: (result) => {
+    const comparison = compareResults(result, m10Expected);
+    if (comparison.equal) {
+      return correct('Correcto: Oracle devolvió seis filas con NOMBRE, CIUDAD y PROYECCION_ANUAL.');
+    }
+    if (comparison.difference === 'columns') {
+      return incorrect(
+        `Oracle devolvió las columnas ${result.columns.join(', ')}; el pedido es NOMBRE, CIUDAD, PROYECCION_ANUAL.`,
+      );
+    }
+    return incorrect(
+      'La consulta se ejecutó, pero los valores no corresponden al salario anual tras sumar 100000.',
+    );
   },
 });
 

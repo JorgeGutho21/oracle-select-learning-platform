@@ -1,7 +1,5 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
-import { evaluateExpression, parseExpression, referencesColumn } from '@/domain/sql/expression';
 import {
   accuracy,
   attemptPenalty,
@@ -14,7 +12,6 @@ import {
   type ScoringPolicy,
 } from '@/features/challenge/domain/scoring';
 
-const ana = EMPLEADOS_DATASET.rows[0]!;
 const solved = (solvedOnAttempt: number, hintsUsed: number, elapsedMs = 10_000) =>
   scoreMission({ solved: true, solvedOnAttempt, hintsUsed, elapsedMs, baseDurationMs: 60_000 });
 
@@ -109,49 +106,5 @@ describe('Precisión y progreso', () => {
   it('progreso evita divisiones por cero', () => {
     expect(progress(4, 10)).toEqual({ closed: 4, total: 10, ratio: 0.4 });
     expect(progress(0, 0).ratio).toBe(0);
-  });
-});
-
-describe('Expresiones de piezas (S07, S08)', () => {
-  const evaluate = (tokens: string[]) => {
-    const parsed = parseExpression(tokens);
-    if (!parsed.ok) throw new Error(parsed.error);
-    return evaluateExpression(parsed.node, ana);
-  };
-
-  it('S07: la multiplicación precede a la suma', () => {
-    expect(evaluate(['salario', '+', '100000', '*', '12'])).toEqual({ ok: true, value: 4200000 });
-    expect(evaluate(['(', 'salario', '+', '100000', ')', '*', '12'])).toEqual({
-      ok: true,
-      value: 37200000,
-    });
-  });
-
-  it('S08: expresiones equivalentes coinciden y la resta asocia a la izquierda', () => {
-    expect(evaluate(['12', '*', 'SALARIO'])).toEqual(evaluate(['salario', '*', '12']));
-    expect(evaluate(['10', '-', '3', '-', '2'])).toEqual({ ok: true, value: 5 });
-    expect(evaluate(['salario', '/', '2'])).toEqual({ ok: true, value: 1500000 });
-  });
-
-  it('distingue entrada vacía, incompleta, desbalanceada o inesperada', () => {
-    expect(parseExpression([])).toEqual({ ok: false, error: 'empty' });
-    expect(parseExpression(['salario', '+'])).toEqual({ ok: false, error: 'incomplete' });
-    expect(parseExpression(['(', 'salario'])).toEqual({ ok: false, error: 'unbalanced' });
-    expect(parseExpression(['salario', ')'])).toEqual({ ok: false, error: 'unbalanced' });
-    expect(parseExpression(['salario', '12'])).toEqual({ ok: false, error: 'unexpected-token' });
-    expect(parseExpression(['+', '12'])).toEqual({ ok: false, error: 'unexpected-token' });
-  });
-
-  it('informa columnas inexistentes, texto y división entre cero', () => {
-    expect(evaluate(['sueldo'])).toEqual({ ok: false, error: 'unknown-column' });
-    expect(evaluate(['nombre', '*', '2'])).toEqual({ ok: false, error: 'not-numeric' });
-    expect(evaluate(['salario', '/', '0'])).toEqual({ ok: false, error: 'division-by-zero' });
-  });
-
-  it('detecta si la expresión referencia una columna', () => {
-    const parsed = parseExpression(['(', 'salario', '+', '1', ')', '*', '12']);
-    expect(parsed.ok && referencesColumn(parsed.node, 'SALARIO')).toBe(true);
-    const constant = parseExpression(['37200000']);
-    expect(constant.ok && referencesColumn(constant.node, 'SALARIO')).toBe(false);
   });
 });
