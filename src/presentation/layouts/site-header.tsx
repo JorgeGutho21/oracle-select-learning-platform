@@ -12,8 +12,13 @@ export function SiteHeader() {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDetailsElement>(null);
 
-  // Al cambiar de ruta el menú móvil se cierra, también con los botones del navegador.
+  const lastPathname = useRef(pathname);
+
+  // Al cambiar de ruta el menú móvil se cierra, también con los botones del navegador. No
+  // actúa al montar: un toque temprano, antes de hidratar, dejaría el menú cerrado de golpe.
   useEffect(() => {
+    if (lastPathname.current === pathname) return;
+    lastPathname.current = pathname;
     if (menuRef.current) menuRef.current.open = false;
   }, [pathname]);
 

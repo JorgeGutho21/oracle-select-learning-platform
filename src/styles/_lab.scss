@@ -2,6 +2,7 @@
 
 .lab-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   min-inline-size: 0;
 }
@@ -18,6 +19,9 @@
 
 .lab-panel {
   display: grid;
+  // Sin columna explícita, la pista implícita «auto» crece hasta el ancho mínimo del
+  // contenido (editor, selector, botones) y el panel desborda en pantallas estrechas.
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: var(--space-4);
   min-inline-size: 0;
@@ -37,7 +41,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  min-inline-size: 0;
   margin: 0;
+  overflow-wrap: anywhere;
   font-size: 1.375rem;
   line-height: 1.2;
 }
@@ -55,6 +61,7 @@
 }
 .lab-stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
   min-inline-size: 0;
 }
@@ -93,7 +100,9 @@
 }
 .lab-schema li {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: baseline;
+  max-inline-size: 100%;
   gap: var(--space-2);
   padding: var(--space-1) var(--space-3);
   background: var(--color-page);
@@ -146,6 +155,7 @@
 /* ---------- Resultado ---------- */
 .lab-result__block {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
   min-inline-size: 0;
 }
@@ -165,6 +175,13 @@
 }
 
 /* ---------- Traducción ---------- */
+.lab-translation__summary,
+.lab-steps,
+.lab-muted,
+.lab-empty {
+  // Identificadores largos (SALARIO_ANUAL) se parten solo si no caben en la línea.
+  overflow-wrap: break-word;
+}
 .lab-translation__summary {
   margin: 0;
   font-size: 1.125rem;
@@ -172,6 +189,7 @@
 }
 .lab-steps {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
   margin: 0;
   padding-inline-start: var(--space-5);
@@ -180,6 +198,7 @@
 /* ---------- Anatomía ---------- */
 .lab-anatomy {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   min-inline-size: 0;
 }
@@ -238,13 +257,16 @@
 }
 .lab-anatomy__legend {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
   margin: 0;
   padding-inline-start: var(--space-5);
 }
 .lab-legend {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
+  overflow-wrap: anywhere;
   padding: var(--space-2) var(--space-3);
   background: var(--color-page);
   border-inline-start: 6px solid var(--color-border-control);
@@ -270,4 +292,28 @@
 }
 .lab-legend--table {
   border-inline-start-color: #8a5cf6;
+}
+
+// Reflujo equivalente a zoom 200 % en un teléfono de 360 px (DESIGN_SYSTEM, D05): el
+// panel conserva todas sus funciones; solo tabla y editor desplazan dentro de su marco.
+@media (max-width: 300px) {
+  .lab-panel {
+    padding: var(--space-3);
+  }
+  .lab-panel__title {
+    font-size: 1.125rem;
+  }
+  .lab-select {
+    inline-size: 100%;
+  }
+  .lab-actions .ds-button {
+    flex: 1 1 100%;
+  }
+  .lab-anatomy__legend,
+  .lab-steps {
+    padding-inline-start: var(--space-4);
+  }
+  .lab-anatomy__code {
+    padding: var(--space-3);
+  }
 }

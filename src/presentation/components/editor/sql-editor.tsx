@@ -118,6 +118,9 @@ export function SqlEditor({
           sql({ dialect: PLSQL, upperCaseKeywords: true }),
           syntaxHighlighting(highlight),
           lintGutter(),
+          // Con zoom alto o pantallas estrechas, la consulta se lee entera sin desplazar en
+          // horizontal (WCAG 1.4.10). No altera el texto ni las posiciones de diagnóstico.
+          EditorView.lineWrapping,
           placeholder(placeholderText),
           keymap.of([
             {

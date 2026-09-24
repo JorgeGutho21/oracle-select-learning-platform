@@ -152,14 +152,15 @@ test.describe('Modo Exposición', () => {
     await expect(await sceneTitle(page)).toHaveText('Qué es SQL');
   });
 
-  test('cumple WCAG 2 AA en escenas claras y oscuras', async ({ page }) => {
-    for (const scene of [1, 5, 10, 11, 13, 15]) {
+  // Una prueba por escena: cada análisis axe tiene su propio presupuesto de tiempo.
+  for (const scene of [1, 5, 10, 11, 13, 15]) {
+    test(`la escena ${scene} cumple WCAG 2 AA`, async ({ page }) => {
       await openDeck(page, `/presentation?scene=${scene}`);
       await expect(page.locator(`[data-scene="${scene}"]`)).toBeVisible();
       const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
       expect(results.violations, `escena ${scene}`).toEqual([]);
-    }
-  });
+    });
+  }
 
   test('en móvil la escena fluye sin desplazamiento horizontal', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });

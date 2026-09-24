@@ -8,6 +8,7 @@ const VIEWPORTS = [
   [768, 1024],
   [430, 932],
   [390, 844],
+  [360, 800],
 ] as const;
 
 const ROUTES = [
@@ -79,7 +80,7 @@ test('la barra de navegación cabe en una fila desde 992 px y se compacta por de
 });
 
 test('los controles táctiles de la barra miden al menos 44 px', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: 360, height: 800 });
   await page.goto('/');
   for (const control of [
     page.getByRole('button', { name: 'Buscar' }),

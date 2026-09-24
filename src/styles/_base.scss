@@ -74,6 +74,15 @@ input,
 textarea {
   max-width: 100%;
 }
+// WebKit suma al desbordamiento de la página el texto interno de un <select> más estrecho
+// que su opción más larga (ignora `overflow` en este control). La contención de pintura
+// recorta solo el rótulo visible: las opciones siguen completas en la lista nativa.
+select {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  contain: paint;
+}
 img,
 svg {
   max-width: 100%;

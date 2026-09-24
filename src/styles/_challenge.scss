@@ -4,6 +4,29 @@
   gap: var(--space-3);
 }
 
+// Rejillas de una columna: sin pista explícita, la columna implícita «auto» crece hasta el
+// ancho mínimo del contenido y desborda con zoom alto. Las reglas posteriores la amplían.
+.ch-layout,
+.ch-layout__map,
+.ch-layout__main,
+.ch-stack,
+.ch-intro,
+.ch-summary,
+.ch-feedback,
+.ch-rules,
+.ch-map,
+.ch-mission,
+.ch-request,
+.ch-builder,
+.ch-field,
+.ch-predictions,
+.ch-prediction,
+.ch-compare,
+.ch-compare__panel,
+.ch-rows {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .ch-layout {
   display: grid;
   gap: var(--space-6);
@@ -79,7 +102,7 @@
 }
 .ch-map__list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -87,7 +110,7 @@
 }
 @media (min-width: 992px) {
   .ch-map__list {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .ch-map__item {
@@ -391,7 +414,7 @@
 }
 .ch-predictions__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: var(--space-3);
 }
 .ch-prediction {
@@ -421,7 +444,7 @@
 }
 @media (min-width: 768px) {
   .ch-compare {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 .ch-compare__panel {
@@ -553,7 +576,7 @@
 /* ---------- Resumen ---------- */
 .ch-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
   gap: var(--space-3);
   margin: 0;
 }
@@ -587,5 +610,31 @@
   .ch-zone,
   .ch-piece {
     transition: none;
+  }
+}
+
+// Reflujo equivalente a zoom 200 % en un teléfono de 360 px (DESIGN_SYSTEM, D05): la
+// partida conserva todas sus interacciones; solo tablas y código desplazan en su marco.
+@media (max-width: 300px) {
+  .ch-intro,
+  .ch-summary,
+  .ch-feedback,
+  .ch-mission {
+    padding: var(--space-3);
+  }
+  .ch-request {
+    padding: var(--space-3);
+  }
+  .ch-mission__header > * {
+    min-inline-size: 0;
+  }
+  .ch-mission__title,
+  .ch-request,
+  .ch-instructions,
+  .ch-row-toggle {
+    overflow-wrap: anywhere;
+  }
+  .ch-row-toggle {
+    flex-wrap: wrap;
   }
 }
