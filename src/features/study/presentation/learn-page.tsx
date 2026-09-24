@@ -1,104 +1,96 @@
 'use client';
+
+import type { Route } from 'next';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { StudyProgressRepository, StudyProgressState } from '../application/progress';
-import { STUDY_PROGRESS_VERSION } from '../application/progress';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  currentCompletedCount,
+  emptyStudyProgress,
+  parseStudyProgress,
+  updatedLessons,
+  withCompletedLesson,
+  withVisitedLesson,
+  type StudyProgressRepository,
+  type StudyProgressState,
+} from '../application/progress';
 import {
   checkCompleteQuery,
+  LESSON_VERSIONS,
   LESSONS,
+  lessonLabHref,
   STUDY_DATASET,
   STUDY_RELEASE_ID,
   type LessonId,
   type StudyLesson,
+  type TransformationStep,
 } from '../application/study-api';
+import { HighlightTable } from '@/presentation/components/data/highlight-table';
 import { Alert, Button, CodeBlock, Dialog, Progress } from '@/presentation/components/ui';
-import { DatasetTable } from '@/presentation/components/data/dataset-table';
 
-function fresh(): StudyProgressState {
-  return {
-    releaseId: STUDY_RELEASE_ID,
-    version: STUDY_PROGRESS_VERSION,
-    completed: [],
-    lessonVersions: {},
-    lastLesson: null,
-    updatedAt: Date.now(),
-  };
-}
-function valid(value: unknown): value is StudyProgressState {
-  if (!value || typeof value !== 'object') return false;
-  const item = value as Partial<StudyProgressState>;
-  return (
-    item.releaseId === STUDY_RELEASE_ID &&
-    item.version === STUDY_PROGRESS_VERSION &&
-    Array.isArray(item.completed) &&
-    typeof item.lessonVersions === 'object'
-  );
-}
+const NOT_SAVED =
+  'El progreso no se guardará al cerrar: el almacenamiento local no está disponible.';
+
+const SOURCE_COLUMNS = STUDY_DATASET.columns.map(({ name, type }) => ({ name, type }));
+const SOURCE_ROWS = STUDY_DATASET.rows.map((row) => SOURCE_COLUMNS.map(({ name }) => row[name]));
 
 export function useStudyProgress(repository: StudyProgressRepository) {
-  const [progress, setProgress] = useState<StudyProgressState>(fresh);
+  const [progress, setProgress] = useState<StudyProgressState>(() =>
+    emptyStudyProgress(STUDY_RELEASE_ID, 0),
+  );
   const [warning, setWarning] = useState('');
-  const [outdated, setOutdated] = useState(false);
+  const [otherRelease, setOtherRelease] = useState(false);
   const [ready, setReady] = useState(false);
+  // Solo se guarda lo que cambia después de leer el almacenamiento.
+  const dirty = useRef(false);
+
   useEffect(() => {
     let active = true;
     void repository.load().then((stored) => {
       if (!active) return;
       if (stored.status === 'found') {
-        if (valid(stored.data)) setProgress(stored.data);
-        else setOutdated(true);
-      } else if (stored.status === 'unavailable' || stored.status === 'unreadable')
-        setWarning(
-          'No pudimos leer el almacenamiento local. Tu avance continuará en memoria durante esta visita.',
-        );
+        const parsed = parseStudyProgress(stored.data, STUDY_RELEASE_ID);
+        if (parsed.status === 'valid') setProgress(parsed.progress);
+        else setOtherRelease(true);
+      } else if (stored.status === 'unavailable' || stored.status === 'unreadable') {
+        setWarning(NOT_SAVED);
+      }
       setReady(true);
     });
     return () => {
       active = false;
     };
   }, [repository]);
-  const save = useCallback(
-    async (next: StudyProgressState) => {
-      setProgress(next);
-      if (!(await repository.save(next)))
-        setWarning('No pudimos guardar el avance. Continuará en memoria durante esta visita.');
-    },
-    [repository],
-  );
+
+  useEffect(() => {
+    if (!ready || !dirty.current) return;
+    dirty.current = false;
+    void repository.save(progress).then((ok) => {
+      if (!ok) setWarning(NOT_SAVED);
+    });
+  }, [progress, ready, repository]);
+
+  const update = useCallback((next: (current: StudyProgressState) => StudyProgressState) => {
+    dirty.current = true;
+    setProgress(next);
+  }, []);
+
   const visit = useCallback(
-    (id: LessonId) => {
-      setProgress((current) => {
-        if (current.lastLesson === id) return current;
-        const next = { ...current, lastLesson: id, updatedAt: Date.now() };
-        void repository.save(next).then((ok) => {
-          if (!ok)
-            setWarning('No pudimos guardar el avance. Continuará en memoria durante esta visita.');
-        });
-        return next;
-      });
-    },
-    [repository],
+    (id: LessonId) => update((current) => withVisitedLesson(current, id, Date.now())),
+    [update],
   );
   const complete = useCallback(
-    (id: LessonId) => {
-      const lessonVersion = LESSONS.find((lesson) => lesson.id === id)?.version ?? 1;
-      void save({
-        ...progress,
-        completed: [...new Set([...progress.completed, id])],
-        lessonVersions: { ...progress.lessonVersions, [id]: lessonVersion },
-        lastLesson: id,
-        updatedAt: Date.now(),
-      });
-    },
-    [progress, save],
+    (id: LessonId) =>
+      update((current) => withCompletedLesson(current, id, LESSON_VERSIONS[id], Date.now())),
+    [update],
   );
   const reset = useCallback(async () => {
-    setProgress(fresh());
-    setOutdated(false);
-    if (!(await repository.clear()))
-      setWarning('El avance se reinició en memoria, pero no pudimos borrar el dato local.');
+    dirty.current = false;
+    setProgress(emptyStudyProgress(STUDY_RELEASE_ID, Date.now()));
+    setOtherRelease(false);
+    if (!(await repository.clear())) setWarning(NOT_SAVED);
   }, [repository]);
-  return { progress, warning, outdated, ready, visit, complete, reset };
+
+  return { progress, warning, otherRelease, ready, visit, complete, reset };
 }
 
 export function StudyProgress({
@@ -109,34 +101,52 @@ export function StudyProgress({
   compact?: boolean;
 }) {
   const last = LESSONS.find((lesson) => lesson.id === progress.lastLesson);
-  const updated = progress.completed.filter((id) => {
-    const lesson = LESSONS.find((item) => item.id === id);
-    return lesson && progress.lessonVersions[id] !== lesson.version;
-  }).length;
+  const done = currentCompletedCount(progress, LESSON_VERSIONS);
+  const updated = updatedLessons(progress, LESSON_VERSIONS).length;
   return (
     <section
-      className={`study-progress ${compact ? 'study-progress--compact' : ''}`}
+      className={`study-progress ${compact ? 'study-progress--compact' : ''}`.trim()}
       aria-labelledby="study-progress-title"
     >
-      <div>
-        <p className="study-eyebrow">Tu recorrido</p>
+      <div className="study-progress__head">
+        <p className="study-eyebrow">Tu progreso</p>
         <h2 id="study-progress-title">
-          {progress.completed.length} de {LESSONS.length} lecciones
+          {done} de {LESSONS.length} lecciones
         </h2>
       </div>
-      <Progress label="Progreso del curso" value={progress.completed.length} max={LESSONS.length} />
+      <Progress label="Progreso del Modo Estudio" value={done} max={LESSONS.length} />
       {updated > 0 && (
         <p className="study-updated">
-          {updated} lección actualizada: vuelve a resolverla para renovar la marca.
+          Contenido actualizado; conviene repasarlo ({updated}{' '}
+          {updated === 1 ? 'lección' : 'lecciones'}).
         </p>
       )}
-      {last && (
-        <Link className="ds-button ds-button--secondary" href={`/learn/${last.slug}`}>
-          Continuar en {last.shortTitle}
-        </Link>
-      )}
+      <div className="study-progress__actions">
+        {last ? (
+          <Link className="ds-button ds-button--primary" href={`/learn/${last.slug}` as Route}>
+            Continuar en {last.shortTitle}
+          </Link>
+        ) : (
+          <Link className="ds-button ds-button--primary" href="/learn/introduccion">
+            Empezar el recorrido
+          </Link>
+        )}
+        {compact && (
+          <Link className="ds-button ds-button--secondary" href="/learn">
+            Ver temario
+          </Link>
+        )}
+      </div>
+      <p className="study-progress__note">
+        Se guarda solo en este navegador. Visitar no completa: cada lección se marca al resolver su
+        actividad.
+      </p>
     </section>
   );
+}
+
+function feedbackFor(ok: boolean, success: string, retry: string) {
+  return { ok, message: ok ? success : retry };
 }
 
 function Activity({
@@ -149,7 +159,7 @@ function Activity({
   done: () => void;
 }) {
   const [choice, setChoice] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
   const [parts, setParts] = useState({ row: '', column: '', header: '' });
   const [counts, setCounts] = useState({ cities: '', pairs: '' });
   const [sql, setSql] = useState('');
@@ -157,9 +167,9 @@ function Activity({
   const [order, setOrder] = useState({ first: '', second: '' });
   const [expanded, setExpanded] = useState(false);
   const [alias, setAlias] = useState('');
-  const finish = (ok: boolean, message: string) => {
-    setFeedback(message);
-    if (ok) done();
+  const finish = (result: { ok: boolean; message: string }) => {
+    setFeedback(result);
+    if (result.ok) done();
   };
   const a = lesson.activity;
   return (
@@ -169,22 +179,27 @@ function Activity({
       {a.kind === 'choice' && (
         <fieldset>
           <legend>{a.prompt}</legend>
-          {a.options.map((option, i) => (
-            <label className="study-option" key={option}>
-              <input
-                type="radio"
-                name={`answer-${lesson.id}`}
-                checked={choice === i}
-                onChange={() => setChoice(i)}
-              />{' '}
-              {option}
-            </label>
-          ))}
+          <div className="study-options">
+            {a.options.map((option, i) => (
+              <label className="study-option" key={option}>
+                <input
+                  type="radio"
+                  name={`answer-${lesson.id}`}
+                  checked={choice === i}
+                  onChange={() => setChoice(i)}
+                />
+                <code>{option}</code>
+              </label>
+            ))}
+          </div>
           <Button
             onClick={() =>
               finish(
-                choice === a.answer,
-                choice === a.answer ? a.success : 'Revisa la explicación y prueba otra opción.',
+                feedbackFor(
+                  choice === a.answer,
+                  a.success,
+                  'Revisa la explicación y prueba otra opción.',
+                ),
               )
             }
           >
@@ -194,7 +209,7 @@ function Activity({
       )}
       {a.kind === 'select-columns' && (
         <>
-          <p>Selecciona sobre la fuente las columnas que pide la consulta.</p>
+          <p>Toca las columnas que pide la consulta: SELECT nombre, salario.</p>
           <div className="study-column-picker">
             {STUDY_DATASET.columns.map(({ name }) => (
               <Button
@@ -216,10 +231,13 @@ function Activity({
           <Button
             onClick={() =>
               finish(
-                selectedColumns.length === 2 &&
-                  selectedColumns.includes('NOMBRE') &&
-                  selectedColumns.includes('SALARIO'),
-                'Selecciona exactamente NOMBRE y SALARIO; las seis filas permanecen.',
+                feedbackFor(
+                  selectedColumns.length === 2 &&
+                    selectedColumns.includes('NOMBRE') &&
+                    selectedColumns.includes('SALARIO'),
+                  'Correcto: NOMBRE y SALARIO; las seis filas permanecen.',
+                  'Selecciona exactamente NOMBRE y SALARIO.',
+                ),
               )
             }
           >
@@ -230,7 +248,7 @@ function Activity({
       {a.kind === 'expand-star' && (
         <>
           <p>Expande el asterisco para comprobar qué representa en esta posición.</p>
-          <Button variant="secondary" onClick={() => setExpanded(true)}>
+          <Button variant="secondary" aria-expanded={expanded} onClick={() => setExpanded(true)}>
             Expandir *
           </Button>
           {expanded && (
@@ -245,8 +263,11 @@ function Activity({
             disabled={!expanded}
             onClick={() =>
               finish(
-                expanded,
-                'Correcto: * muestra los seis encabezados y conserva las seis filas.',
+                feedbackFor(
+                  expanded,
+                  'Correcto: * muestra los seis encabezados y conserva las seis filas.',
+                  'Primero expande el asterisco.',
+                ),
               )
             }
           >
@@ -282,15 +303,15 @@ function Activity({
             </label>
           </div>
           <Button
-            onClick={() => {
-              const ok = order.first === 'CIUDAD' && order.second === 'NOMBRE';
+            onClick={() =>
               finish(
-                ok,
-                ok
-                  ? 'Correcto: el resultado coloca CIUDAD antes de NOMBRE y mantiene seis filas.'
-                  : 'La consulta pide CIUDAD primero y NOMBRE después.',
-              );
-            }}
+                feedbackFor(
+                  order.first === 'CIUDAD' && order.second === 'NOMBRE',
+                  'Correcto: el resultado coloca CIUDAD antes de NOMBRE y mantiene seis filas.',
+                  'La consulta pide CIUDAD primero y NOMBRE después.',
+                ),
+              )
+            }
           >
             Aplicar orden
           </Button>
@@ -300,9 +321,14 @@ function Activity({
         <>
           <label className="study-query">
             Escribe el encabezado para SALARIO × 12
-            <input value={alias} onChange={(e) => setAlias(e.target.value)} />
+            <input
+              value={alias}
+              onChange={(e) => setAlias(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
           </label>
-          <div className="study-alias-preview">
+          <div className="study-alias-preview" aria-live="polite">
             <span>
               Fuente intacta: <strong>SALARIO</strong>
             </span>
@@ -311,15 +337,15 @@ function Activity({
             </span>
           </div>
           <Button
-            onClick={() => {
-              const ok = alias.trim().toUpperCase() === 'SALARIO_ANUAL';
+            onClick={() =>
               finish(
-                ok,
-                ok
-                  ? 'Correcto: el resultado dice SALARIO_ANUAL y la fuente conserva SALARIO.'
-                  : 'El pedido requiere exactamente el alias SALARIO_ANUAL.',
-              );
-            }}
+                feedbackFor(
+                  alias.trim().toUpperCase() === 'SALARIO_ANUAL',
+                  'Correcto: el resultado dice SALARIO_ANUAL y la fuente conserva SALARIO.',
+                  'El pedido requiere exactamente el alias SALARIO_ANUAL.',
+                ),
+              )
+            }
           >
             Asignar alias
           </Button>
@@ -327,7 +353,7 @@ function Activity({
       )}
       {a.kind === 'table-parts' && (
         <>
-          <p>Identifica tres partes usando la primera fila visible.</p>
+          <p>Identifica tres partes usando la primera fila de EMPLEADOS.</p>
           <div className="study-fields">
             <label>
               Una fila
@@ -366,10 +392,13 @@ function Activity({
           <Button
             onClick={() =>
               finish(
-                parts.row === 'Datos de Ana' &&
-                  parts.column === 'SALARIO' &&
-                  parts.header === 'CIUDAD',
-                'Datos de Ana es una fila; SALARIO, una columna; CIUDAD, su encabezado.',
+                feedbackFor(
+                  parts.row === 'Datos de Ana' &&
+                    parts.column === 'SALARIO' &&
+                    parts.header === 'CIUDAD',
+                  'Correcto: los datos de Ana son una fila; SALARIO, una columna; CIUDAD, un encabezado.',
+                  'Una fila es un registro completo; una columna, un dato de todos; el encabezado, su nombre.',
+                ),
               )
             }
           >
@@ -381,29 +410,32 @@ function Activity({
         <>
           <fieldset>
             <legend>Para Ana, ¿qué comparación es correcta?</legend>
-            {[
-              'Sin paréntesis: 4.200.000; con paréntesis: 37.200.000',
-              'Ambas producen 37.200.000',
-              'Sin paréntesis: 37.200.000; con paréntesis: 4.200.000',
-            ].map((option, i) => (
-              <label className="study-option" key={option}>
-                <input
-                  type="radio"
-                  name="precedence"
-                  checked={choice === i}
-                  onChange={() => setChoice(i)}
-                />{' '}
-                {option}
-              </label>
-            ))}
+            <div className="study-options">
+              {[
+                'Sin paréntesis: 4.200.000; con paréntesis: 37.200.000',
+                'Ambas producen 37.200.000',
+                'Sin paréntesis: 37.200.000; con paréntesis: 4.200.000',
+              ].map((option, i) => (
+                <label className="study-option" key={option}>
+                  <input
+                    type="radio"
+                    name="precedence"
+                    checked={choice === i}
+                    onChange={() => setChoice(i)}
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+            </div>
           </fieldset>
           <Button
             onClick={() =>
               finish(
-                choice === 0,
-                choice === 0
-                  ? 'Correcto: la multiplicación ocurre primero, salvo que los paréntesis agrupen la suma.'
-                  : 'Revisa qué operación ocurre primero.',
+                feedbackFor(
+                  choice === 0,
+                  'Correcto: la multiplicación ocurre primero, salvo que los paréntesis agrupen la suma.',
+                  'Revisa qué operación ocurre primero.',
+                ),
               )
             }
           >
@@ -413,7 +445,7 @@ function Activity({
       )}
       {a.kind === 'distinct-counts' && (
         <>
-          <p>Cuenta resultados únicos en las dos proyecciones.</p>
+          <p>Cuenta los resultados únicos de las dos proyecciones.</p>
           <div className="study-fields">
             <label>
               Ciudades únicas
@@ -435,10 +467,11 @@ function Activity({
           <Button
             onClick={() =>
               finish(
-                counts.cities === '3' && counts.pairs === '5',
-                counts.cities === '3' && counts.pairs === '5'
-                  ? 'Correcto: seis filas se transforman en 3 ciudades o 5 pares únicos.'
-                  : 'DISTINCT compara toda la combinación proyectada.',
+                feedbackFor(
+                  counts.cities.trim() === '3' && counts.pairs.trim() === '5',
+                  'Correcto: seis filas se reducen a 3 ciudades o a 5 pares únicos.',
+                  'DISTINCT compara toda la combinación proyectada.',
+                ),
               )
             }
           >
@@ -451,7 +484,7 @@ function Activity({
           <label className="study-query">
             {a.prompt}
             <textarea
-              rows={6}
+              rows={5}
               value={sql}
               onChange={(e) => setSql(e.target.value)}
               spellCheck={false}
@@ -459,85 +492,186 @@ function Activity({
           </label>
           <Button
             onClick={() => {
-              const result = checkCompleteQuery(sql);
-              finish(result.correct, result.message);
+              const check = checkCompleteQuery(sql);
+              finish({ ok: check.correct, message: check.message });
             }}
           >
             Revisar consulta
           </Button>
         </>
       )}
-      {(feedback || solved) && (
-        <Alert
-          tone={solved ? 'success' : 'warning'}
-          title={solved ? 'Lección completada' : 'Aún no'}
-          live
-        >
-          {feedback || 'Ya resolviste esta actividad.'}
+      {feedback && !feedback.ok && (
+        <Alert tone="warning" title="Aún no" live>
+          {feedback.message}
+        </Alert>
+      )}
+      {(solved || feedback?.ok) && (
+        <Alert tone="success" title="Lección completada" live>
+          {feedback?.ok ? feedback.message : 'Ya resolviste esta actividad en este navegador.'}
         </Alert>
       )}
     </section>
   );
 }
 
-function Result({ lesson }: { lesson: StudyLesson }) {
-  const p = lesson.analysis.preview;
-  if (!p) return null;
-  const columns = p.columns.map((c) => ({
-    name: c.name,
-    type: c.type === 'number' ? ('number' as const) : ('text' as const),
-  }));
-  const rows = p.rows.map((values, row) =>
-    Object.fromEntries([['_key', row], ...columns.map((c, i) => [c.name, values[i] ?? ''])]),
-  );
+function StepView({ step }: { step: TransformationStep }) {
+  if (step.kind === 'source') {
+    return (
+      <HighlightTable
+        caption={`Tabla fuente ${STUDY_DATASET.table}`}
+        columns={SOURCE_COLUMNS}
+        rows={SOURCE_ROWS}
+        highlightedColumns={step.columns}
+        dimOthers
+        {...(step.row === undefined ? {} : { highlightedRow: step.row })}
+        summary={`Tabla ${STUDY_DATASET.table} · ${SOURCE_ROWS.length} filas · ${SOURCE_COLUMNS.length} columnas`}
+      />
+    );
+  }
+  const preview = step.analysis.preview;
+  if (!preview) return null;
   return (
-    <DatasetTable
-      caption={`Resultado del ejemplo ${lesson.id}`}
-      columns={columns}
-      rows={rows}
-      rowKey={(row) => String(row._key)}
-      formatted={columns
-        .filter((c) => c.name.includes('SALARIO') || c.name === 'TOTAL')
-        .map((c) => c.name)}
-    />
+    <>
+      <code className="study-step__sql">{step.sql}</code>
+      <HighlightTable
+        caption={`Resultado de ${step.sql}`}
+        columns={preview.columns}
+        rows={preview.rows}
+        duplicateRows={step.duplicateRows}
+        summary={`Resultado · ${preview.rows.length} filas · ${preview.columns.length} ${
+          preview.columns.length === 1 ? 'columna' : 'columnas'
+        } · vista educativa`}
+      />
+    </>
   );
 }
 
-function VisualExamples({ lesson }: { lesson: StudyLesson }) {
+function Transformation({ lesson }: { lesson: StudyLesson }) {
+  const [index, setIndex] = useState(0);
+  const step = lesson.steps[index];
+  if (!step) return null;
+  return (
+    <section className="study-visual" aria-labelledby="visual-title">
+      <div className="study-visual__head">
+        <div>
+          <p className="study-eyebrow">Efecto visual</p>
+          <h2 id="visual-title">De la tabla al resultado</h2>
+        </div>
+        <ol className="study-steps">
+          {lesson.steps.map((item, itemIndex) => (
+            <li key={item.title}>
+              <button
+                type="button"
+                aria-current={itemIndex === index ? 'step' : undefined}
+                onClick={() => setIndex(itemIndex)}
+              >
+                <span aria-hidden="true">{itemIndex + 1}</span> {item.title}
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+      <p className="study-visual__caption" aria-live="polite">
+        <strong>
+          Paso {index + 1} de {lesson.steps.length}:
+        </strong>{' '}
+        {step.caption}
+      </p>
+      <StepView step={step} />
+      <div className="study-visual__nav">
+        <Button variant="secondary" disabled={index === 0} onClick={() => setIndex(index - 1)}>
+          ← Paso anterior
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={index === lesson.steps.length - 1}
+          onClick={() => setIndex(index + 1)}
+        >
+          Paso siguiente →
+        </Button>
+      </div>
+      <p className="study-note">
+        Vista educativa sobre {STUDY_DATASET.id}. Sin ORDER BY, Oracle no garantiza el orden de las
+        filas.
+      </p>
+    </section>
+  );
+}
+
+function Comparisons({ lesson }: { lesson: StudyLesson }) {
   if (lesson.visualExamples.length === 0) return null;
   return (
     <section className="study-comparisons" aria-labelledby="comparison-title">
-      <h2 id="comparison-title">Compara la transformación</h2>
-      <div>
+      <p className="study-eyebrow">Compara</p>
+      <h2 id="comparison-title">Dos consultas, dos resultados</h2>
+      <div className="study-comparisons__grid">
         {lesson.visualExamples.map((example) => {
           const preview = example.analysis.preview;
           if (!preview) return null;
-          const columns = preview.columns.map((c) => ({ name: c.name, type: c.type }));
-          const rows = preview.rows.map((values, row) =>
-            Object.fromEntries([
-              ['_key', row],
-              ...columns.map((c, i) => [c.name, values[i] ?? '']),
-            ]),
-          );
           return (
             <article key={example.sql}>
-              <strong>{example.label}</strong>
+              <h3>{example.label}</h3>
               <CodeBlock
                 code={example.sql}
-                labHref={`/lab?sql=${encodeURIComponent(example.sql)}&returnTo=${encodeURIComponent(`/learn/${lesson.slug}`)}`}
+                labHref={lessonLabHref(example.sql, `/learn/${lesson.slug}`) as Route}
               />
-              <DatasetTable
+              <HighlightTable
                 caption={example.label}
-                columns={columns}
-                rows={rows}
-                rowKey={(item) => String(item._key)}
-                formatted={['TOTAL']}
+                columns={preview.columns}
+                rows={preview.rows}
+                summary={`${preview.rows.length} filas`}
               />
             </article>
           );
         })}
       </div>
     </section>
+  );
+}
+
+function LessonIndex({ progress, onReset }: { progress: StudyProgressState; onReset: () => void }) {
+  const completed = new Set(progress.completed);
+  const updated = new Set(updatedLessons(progress, LESSON_VERSIONS));
+  return (
+    <>
+      <ol className="study-path" aria-label="Temario del Modo Estudio">
+        {LESSONS.map((lesson, index) => {
+          const state = updated.has(lesson.id)
+            ? 'Contenido actualizado'
+            : completed.has(lesson.id)
+              ? 'Completada'
+              : 'Pendiente';
+          return (
+            <li key={lesson.id}>
+              <Link
+                className={`study-card ${state === 'Completada' ? 'is-done' : ''}`.trim()}
+                href={`/learn/${lesson.slug}` as Route}
+              >
+                <span className="study-card__number">{String(index + 1).padStart(2, '0')}</span>
+                <span className="study-card__body">
+                  <strong>{lesson.shortTitle}</strong>
+                  <span>{lesson.objective}</span>
+                </span>
+                <code className="study-card__badge">{lesson.badge}</code>
+                <span className="study-card__state">
+                  {state === 'Completada' ? '✓ ' : ''}
+                  {state}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="study-index-footer">
+        <Link className="study-teach" href="/presentation">
+          <strong>¿Vas a explicarlo en clase?</strong>
+          <span>El Modo Exposición presenta el mismo contenido en escenas para proyector.</span>
+        </Link>
+        <Button variant="text" onClick={onReset}>
+          Reiniciar progreso
+        </Button>
+      </div>
+    </>
   );
 }
 
@@ -548,168 +682,155 @@ export function StudyPage({
   repository: StudyProgressRepository;
   lesson?: StudyLesson;
 }) {
-  const { progress, warning, outdated, ready, visit, complete, reset } =
+  const { progress, warning, otherRelease, ready, visit, complete, reset } =
     useStudyProgress(repository);
   const [resetOpen, setResetOpen] = useState(false);
   useEffect(() => {
     if (lesson && ready) visit(lesson.id);
   }, [lesson, ready, visit]);
   const completed = useMemo(() => new Set(progress.completed), [progress.completed]);
-  if (!lesson)
+
+  const alerts = (
+    <>
+      {warning && (
+        <Alert tone="warning" title="Progreso solo en memoria">
+          {warning}
+        </Alert>
+      )}
+      {otherRelease && (
+        <Alert tone="info" title="Contenido actualizado">
+          Tu progreso guardado corresponde a otra versión del curso; conviene repasar las lecciones.
+        </Alert>
+      )}
+    </>
+  );
+
+  const resetDialog = (
+    <Dialog
+      open={resetOpen}
+      onClose={() => setResetOpen(false)}
+      title="¿Reiniciar tu progreso?"
+      description="Se borrarán las lecciones completadas y la última lección visitada solo en este navegador."
+    >
+      <div className="study-dialog-actions">
+        <Button variant="secondary" onClick={() => setResetOpen(false)}>
+          Conservar progreso
+        </Button>
+        <Button onClick={() => void reset().then(() => setResetOpen(false))}>Sí, reiniciar</Button>
+      </div>
+    </Dialog>
+  );
+
+  if (!lesson) {
     return (
       <div className="study-shell">
         <header className="study-hero">
-          <p className="study-eyebrow">Modo Estudio · 45–60 minutos</p>
-          <h1>Aprende SELECT paso a paso</h1>
-          <p>
-            Nueve lecciones breves con la misma tabla EMPLEADOS, ejemplos verificables y una
-            actividad antes de marcar cada avance.
-          </p>
+          <div className="site-container study-hero__inner">
+            <div>
+              <p className="study-eyebrow">Modo Estudio · 45–60 minutos</p>
+              <h1>Aprende SELECT paso a paso</h1>
+              <p className="study-hero__lead">
+                Nueve lecciones cortas con la misma tabla EMPLEADOS. Cada una muestra la tabla, la
+                consulta, el efecto y el resultado, y termina con una actividad.
+              </p>
+            </div>
+            <StudyProgress progress={progress} />
+          </div>
         </header>
-        {warning && (
-          <Alert tone="warning" title="Avance solo en memoria">
-            {warning}
-          </Alert>
-        )}
-        <StudyProgress progress={progress} />
-        {outdated && (
-          <Alert tone="warning" title="Progreso de otra versión">
-            El contenido cambió. Reinicia el progreso para estudiar la versión actual.
-          </Alert>
-        )}
-        <div className="study-catalog">
-          {LESSONS.map((item, i) => (
-            <Link className="study-card" href={`/learn/${item.slug}`} key={item.id}>
-              <span>
-                {item.id} · {i + 1} de {LESSONS.length}
-              </span>
-              <h2>{item.title}</h2>
-              <p>{item.objective}</p>
-              <strong>{completed.has(item.id) ? 'Completada ✓' : 'Empezar →'}</strong>
-            </Link>
-          ))}
+        <div className="site-container study-index">
+          {alerts}
+          <LessonIndex progress={progress} onReset={() => setResetOpen(true)} />
         </div>
-        <Button variant="text" onClick={() => setResetOpen(true)}>
-          Reiniciar progreso
-        </Button>
-        <Reset
-          open={resetOpen}
-          close={() => setResetOpen(false)}
-          reset={() => void reset().then(() => setResetOpen(false))}
-        />
+        {resetDialog}
       </div>
     );
-  const index = LESSONS.findIndex((x) => x.id === lesson.id);
+  }
+
+  const index = LESSONS.findIndex((item) => item.id === lesson.id);
   const previous = LESSONS[index - 1];
   const next = LESSONS[index + 1];
+  const labHref = lessonLabHref(lesson.sql, `/learn/${lesson.slug}`) as Route;
+  const toc = LESSONS.map((item) => (
+    <li key={item.id}>
+      <Link
+        aria-current={item.id === lesson.id ? 'page' : undefined}
+        href={`/learn/${item.slug}` as Route}
+      >
+        <span className="study-toc__number" aria-hidden="true">
+          {completed.has(item.id) ? '✓' : String(LESSONS.indexOf(item) + 1).padStart(2, '0')}
+        </span>
+        <span>
+          {item.shortTitle}
+          {completed.has(item.id) && <span className="visually-hidden"> (completada)</span>}
+        </span>
+      </Link>
+    </li>
+  ));
+
   return (
     <div className="study-shell">
-      <div className="study-layout">
-        <details className="study-mobile-index">
-          <summary>
-            Temario · {lesson.id} {lesson.shortTitle}
-          </summary>
-          <ol>
-            {LESSONS.map((item) => (
-              <li key={item.id}>
-                <Link
-                  aria-current={item.id === lesson.id ? 'page' : undefined}
-                  href={`/learn/${item.slug}`}
-                >
-                  {completed.has(item.id) ? '✓ ' : ''}
-                  {item.id} {item.shortTitle}
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </details>
-        <aside className="study-index" aria-label="Temario">
-          <Link href="/learn">← Ver recorrido</Link>
-          <ol>
-            {LESSONS.map((item) => (
-              <li key={item.id}>
-                <Link
-                  aria-current={item.id === lesson.id ? 'page' : undefined}
-                  href={`/learn/${item.slug}`}
-                >
-                  {completed.has(item.id) ? '✓ ' : ''}
-                  {item.id} {item.shortTitle}
-                </Link>
-              </li>
-            ))}
-          </ol>
+      <div className="site-container study-layout">
+        <aside className="study-toc" aria-label="Temario">
+          <Link href="/learn" className="study-toc__back">
+            ← Temario completo
+          </Link>
+          <ol>{toc}</ol>
         </aside>
         <article className="study-lesson">
-          <header>
+          <details className="study-mobile-toc">
+            <summary>
+              Temario · Lección {index + 1} de {LESSONS.length}
+            </summary>
+            <ol>{toc}</ol>
+          </details>
+          <header className="study-lesson__header">
             <p className="study-eyebrow">
-              {lesson.id} · Lección {index + 1} de {LESSONS.length}
+              Lección {index + 1} de {LESSONS.length} · {lesson.id}
             </p>
             <h1>{lesson.title}</h1>
             <p className="study-objective">
               <strong>Objetivo:</strong> {lesson.objective}
             </p>
           </header>
-          {warning && (
-            <Alert tone="warning" title="Avance solo en memoria">
-              {warning}
-            </Alert>
-          )}
-          <section>
-            <h2>Una idea cotidiana</h2>
-            <p>{lesson.explanation}</p>
-          </section>
-          <section>
-            <h2>Consulta canónica</h2>
-            <CodeBlock
-              code={lesson.sql}
-              labHref={`/lab?sql=${encodeURIComponent(lesson.sql)}&returnTo=${encodeURIComponent(`/learn/${lesson.slug}`)}`}
-            />
+          {alerts}
+          <div className="study-intro">
+            <section className="study-card-block" aria-labelledby="idea-title">
+              <p className="study-eyebrow">Explicación cotidiana</p>
+              <h2 id="idea-title">La idea</h2>
+              <p>{lesson.explanation}</p>
+            </section>
+            <section
+              className="study-card-block study-card-block--syntax"
+              aria-labelledby="syntax-title"
+            >
+              <p className="study-eyebrow">Sintaxis</p>
+              <h2 id="syntax-title">El patrón</h2>
+              <pre className="study-syntax">
+                <code>{lesson.syntax}</code>
+              </pre>
+            </section>
+          </div>
+          <section className="study-example" aria-labelledby="example-title">
+            <p className="study-eyebrow">Ejemplo con EMPLEADOS</p>
+            <h2 id="example-title">La consulta</h2>
+            <CodeBlock code={lesson.sql} labHref={labHref} />
             <p className="study-translation">
-              <strong>En español:</strong> {lesson.translation}
+              <strong>Traducción:</strong> {lesson.translation}
             </p>
           </section>
-          <section>
-            <h2>Fuente: EMPLEADOS</h2>
-            <DatasetTable
-              caption={`Tabla fuente ${STUDY_DATASET.table}`}
-              columns={STUDY_DATASET.columns}
-              rows={STUDY_DATASET.rows}
-              rowKey={(row) => String(row.ID)}
-              formatted={['SALARIO']}
-              highlighted={lesson.analysis.sourceColumns}
-              highlightNote="Las columnas resaltadas participan en esta consulta."
-            />
-          </section>
-          <section className="study-transform" aria-label="Transformación visual">
+          <Transformation key={lesson.id} lesson={lesson} />
+          <Comparisons lesson={lesson} />
+          <section className="study-error" aria-labelledby="error-title">
+            <span className="study-error__mark" aria-hidden="true">
+              !
+            </span>
             <div>
-              <span>1</span>
-              <strong>Fuente</strong>
-            </div>
-            <b aria-hidden="true">→</b>
-            <div>
-              <span>2</span>
-              <strong>SELECT transforma la vista</strong>
-            </div>
-            <b aria-hidden="true">→</b>
-            <div>
-              <span>3</span>
-              <strong>Resultado</strong>
+              <h2 id="error-title">Error frecuente</h2>
+              <p>{lesson.frequentError}</p>
             </div>
           </section>
-          <section>
-            <h2>Resultado del ejemplo</h2>
-            <Result lesson={lesson} />
-            <p className="study-note">
-              Ejemplo educativo sobre {STUDY_DATASET.id}. Sin ORDER BY, el orden de filas no está
-              garantizado.
-            </p>
-          </section>
-          <VisualExamples lesson={lesson} />
-          <Alert tone="warning" title="Error frecuente">
-            {lesson.frequentError}
-          </Alert>
           <Activity
-            key={lesson.id}
+            key={`activity-${lesson.id}`}
             lesson={lesson}
             solved={completed.has(lesson.id)}
             done={() => complete(lesson.id)}
@@ -717,41 +838,28 @@ export function StudyPage({
           <p className="study-source">Fuente académica: {lesson.sourceReference}</p>
           <nav className="study-pager" aria-label="Navegación entre lecciones">
             {previous ? (
-              <Link className="ds-button ds-button--secondary" href={`/learn/${previous.slug}`}>
+              <Link
+                className="ds-button ds-button--secondary"
+                href={`/learn/${previous.slug}` as Route}
+              >
                 ← {previous.shortTitle}
               </Link>
             ) : (
               <span />
             )}
             {next ? (
-              <Link className="ds-button ds-button--primary" href={`/learn/${next.slug}`}>
+              <Link className="ds-button ds-button--primary" href={`/learn/${next.slug}` as Route}>
                 {next.shortTitle} →
               </Link>
             ) : (
-              <Link className="ds-button ds-button--primary" href="/lab">
-                Practicar en laboratorio →
+              <Link className="ds-button ds-button--primary" href={labHref}>
+                Practicar en el laboratorio →
               </Link>
             )}
           </nav>
         </article>
       </div>
+      {resetDialog}
     </div>
-  );
-}
-function Reset({ open, close, reset }: { open: boolean; close: () => void; reset: () => void }) {
-  return (
-    <Dialog
-      open={open}
-      onClose={close}
-      title="¿Reiniciar tu progreso?"
-      description="Se eliminarán las lecciones completadas y la última lección visitada en este dispositivo."
-    >
-      <div className="study-dialog-actions">
-        <Button variant="secondary" onClick={close}>
-          Conservar progreso
-        </Button>
-        <Button onClick={reset}>Sí, reiniciar</Button>
-      </div>
-    </Dialog>
   );
 }

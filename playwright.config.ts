@@ -8,7 +8,7 @@ export default defineConfig({
   workers: 2,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://127.0.0.1:3100',
+    baseURL: 'http://127.0.0.1:3200',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
@@ -25,10 +25,13 @@ export default defineConfig({
       },
     },
   ],
+  // Las E2E usan el build de producción: `next dev` compila cada ruta bajo demanda y, con
+  // la suite completa, las Server Functions superaban las esperas en Edge. Next 16 separa
+  // `.next/dev`, así que un servidor de desarrollo puede seguir abierto en el puerto 3100.
   webServer: {
-    command: 'npm run dev -- --hostname 127.0.0.1 --port 3100',
-    url: 'http://127.0.0.1:3100',
+    command: 'npm run build && npm run start -- --hostname 127.0.0.1 --port 3200',
+    url: 'http://127.0.0.1:3200',
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 300_000,
   },
 });

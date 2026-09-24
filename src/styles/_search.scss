@@ -41,7 +41,7 @@
   overscroll-behavior: contain;
 }
 
-.search-results__group h3 {
+.search-results__label {
   margin-block-end: var(--space-2);
   color: var(--color-muted);
   font-size: 0.875rem;
@@ -116,5 +116,30 @@ button.search-result:hover,
     align-items: flex-start;
     flex-direction: column;
     gap: var(--space-2);
+  }
+}
+
+// Paleta de comandos: anclada arriba, como en la documentación técnica de referencia.
+.search-dialog {
+  max-inline-size: min(720px, calc(100vw - 32px));
+  margin-block-start: min(12vh, 120px);
+}
+.search-dialog .ds-dialog__title {
+  font-size: 1.25rem;
+}
+.search-dialog .ds-dialog__description {
+  margin-block-end: var(--space-4);
+  font-size: 0.9375rem;
+}
+@media (max-width: 575px) {
+  .search-dialog {
+    max-inline-size: calc(100vw - 16px);
+    max-block-size: calc(100dvh - 16px);
+    margin-block-start: 8px;
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+  }
+  .search-results {
+    max-block-size: calc(100dvh - 300px);
   }
 }

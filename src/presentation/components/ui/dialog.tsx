@@ -8,10 +8,12 @@ export interface DialogProps {
   onClose: () => void;
   title: string;
   description?: string;
+  /** Clase adicional para variantes de composición, como la paleta de búsqueda. */
+  className?: string;
   children: ReactNode;
 }
 
-export function Dialog({ open, onClose, title, description, children }: DialogProps) {
+export function Dialog({ open, onClose, title, description, className, children }: DialogProps) {
   const id = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -25,7 +27,14 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
       dialog.showModal();
     } else if (!open && dialog.open) {
       dialog.close();
-      triggerRef.current?.focus();
+      const trigger = triggerRef.current;
+      if (trigger && trigger !== document.body && trigger.isConnected) trigger.focus();
+      // Sin activador enfocable (atajo de teclado), el foco no se queda en un control oculto.
+      else if (
+        document.activeElement instanceof HTMLElement &&
+        dialog.contains(document.activeElement)
+      )
+        document.activeElement.blur();
     }
   }, [open]);
 
@@ -38,7 +47,7 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
 
   return (
     <dialog
-      className="ds-dialog"
+      className={className ? `ds-dialog ${className}` : 'ds-dialog'}
       ref={dialogRef}
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}

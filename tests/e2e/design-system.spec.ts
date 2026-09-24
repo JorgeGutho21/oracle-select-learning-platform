@@ -94,6 +94,8 @@ test('las pestañas conservan selección, foco y panel asociado al navegar con t
 }) => {
   await page.goto(showcasePath);
   const tabs = page.getByRole('main').getByRole('tab');
+  // React revela en diferido el contenido transmitido por streaming: `count()` no espera.
+  await expect(tabs.nth(1)).toBeVisible();
   const count = await tabs.count();
   expect(count).toBeGreaterThan(1);
 

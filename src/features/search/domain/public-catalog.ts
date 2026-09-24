@@ -1,3 +1,5 @@
+import { LESSON_OUTLINE } from '@/features/study/domain/lesson-outline';
+
 export const searchGroups = ['Conceptos', 'Lecciones', 'Práctica', 'Recursos'] as const;
 
 export type SearchGroup = (typeof searchGroups)[number];
@@ -13,6 +15,8 @@ export interface PublicCatalogEntry {
   readonly navigation?: {
     readonly label: string;
     readonly order: number;
+    /** Rutas adicionales en las que esta entrada figura como activa. */
+    readonly alsoActiveOn?: readonly string[];
   };
 }
 
@@ -34,9 +38,9 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     description: 'Recorrido de estudio con las nueve lecciones de esta unidad.',
     group: 'Lecciones',
     href: '/learn',
-    aliases: ['aprender', 'estudio', 'curso', 'lecciones', 'select'],
+    aliases: ['aprender', 'estudio', 'modo estudio', 'curso', 'lecciones'],
     available: true,
-    navigation: { label: 'Estudio', order: 2 },
+    navigation: { label: 'Aprender', order: 2, alsoActiveOn: ['/presentation'] },
   },
   {
     id: 'presentation',
@@ -44,9 +48,16 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     description: 'Exposición guiada por escenas para trabajar con la clase.',
     group: 'Recursos',
     href: '/presentation',
-    aliases: ['presentacion', 'exposicion', 'diapositivas', 'escenas', 'clase'],
+    aliases: [
+      'presentacion',
+      'exposicion',
+      'modo exposicion',
+      'diapositivas',
+      'escenas',
+      'clase',
+      'proyector',
+    ],
     available: true,
-    navigation: { label: 'Exposición', order: 3 },
   },
   {
     id: 'lab',
@@ -56,7 +67,7 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     href: '/lab',
     aliases: ['laboratorio', 'lab', 'editor', 'oracle', 'ejecutar consulta'],
     available: true,
-    navigation: { label: 'Laboratorio', order: 4 },
+    navigation: { label: 'Laboratorio', order: 3 },
   },
   {
     id: 'challenge',
@@ -66,7 +77,7 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     href: '/challenge',
     aliases: ['challenge', 'quiz', 'juego', 'misiones', 'practica'],
     available: true,
-    navigation: { label: 'Challenge', order: 5 },
+    navigation: { label: 'Challenge', order: 4 },
   },
   {
     id: 'live',
@@ -76,7 +87,7 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     href: '/live',
     aliases: ['en vivo', 'sala', 'codigo', 'qr', 'participar'],
     available: true,
-    navigation: { label: 'Sala en vivo', order: 6 },
+    navigation: { label: 'En vivo', order: 5 },
   },
   {
     id: 'results',
@@ -86,7 +97,6 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     href: '/results',
     aliases: ['resultados', 'progreso', 'puntaje', 'puntuacion', 'repaso'],
     available: true,
-    navigation: { label: 'Resultados', order: 7 },
   },
   {
     id: 'resources',
@@ -96,89 +106,17 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     href: '/resources',
     aliases: ['recursos', 'materiales', 'fuentes', 'chuleta', 'videos'],
     available: true,
-    navigation: { label: 'Recursos', order: 8 },
+    navigation: { label: 'Recursos', order: 6 },
   },
-  {
-    id: 'lesson-introduction',
-    title: 'Introducción a SQL',
-    description: 'Distingue tabla, fila y columna antes de consultar datos.',
+  ...LESSON_OUTLINE.map((lesson): PublicCatalogEntry => ({
+    id: `lesson-${lesson.slug}`,
+    title: lesson.title,
+    description: lesson.summary,
     group: 'Lecciones',
-    href: '/learn/introduccion',
-    aliases: ['introduccion', 'sql', 'tabla', 'fila', 'columna', 'l00'],
+    href: `/learn/${lesson.slug}`,
+    aliases: lesson.keywords,
     available: true,
-  },
-  {
-    id: 'lesson-select',
-    title: 'SELECT: qué mostrar',
-    description: 'Elige las columnas que aparecerán en el resultado.',
-    group: 'Lecciones',
-    href: '/learn/select',
-    aliases: ['select', 'proyeccion', 'elegir datos', 'l01'],
-    available: true,
-  },
-  {
-    id: 'lesson-from',
-    title: 'FROM: de dónde vienen los datos',
-    description: 'Identifica EMPLEADOS como la tabla de origen.',
-    group: 'Lecciones',
-    href: '/learn/from',
-    aliases: ['from', 'origen', 'tabla empleados', 'l02'],
-    available: true,
-  },
-  {
-    id: 'lesson-star',
-    title: 'Asterisco: todas las columnas',
-    description: 'Comprende qué muestra SELECT * en esta tabla.',
-    group: 'Lecciones',
-    href: '/learn/asterisco',
-    aliases: ['*', 'asterisco', 'select *', 'todas las columnas', 'l03'],
-    available: true,
-  },
-  {
-    id: 'lesson-columns',
-    title: 'Columnas específicas y orden',
-    description: 'Separa columnas con comas y controla el orden de salida.',
-    group: 'Lecciones',
-    href: '/learn/columnas',
-    aliases: ['columnas', 'lista', 'coma', 'orden', 'proyeccion', 'l04'],
-    available: true,
-  },
-  {
-    id: 'lesson-expressions',
-    title: 'Expresiones y cálculos',
-    description: 'Calcula valores con operadores y paréntesis.',
-    group: 'Lecciones',
-    href: '/learn/expresiones',
-    aliases: ['expresiones', 'calculos', 'aritmetica', 'salario anual', 'l05'],
-    available: true,
-  },
-  {
-    id: 'lesson-alias',
-    title: 'Alias con AS',
-    description: 'Cambia la etiqueta de una columna de resultado sin alterar la fuente.',
-    group: 'Lecciones',
-    href: '/learn/alias',
-    aliases: ['as', 'alias', 'encabezado', 'nombre de columna', 'l06'],
-    available: true,
-  },
-  {
-    id: 'lesson-distinct',
-    title: 'DISTINCT: valores sin repetir',
-    description: 'Elimina duplicados de la combinación proyectada.',
-    group: 'Lecciones',
-    href: '/learn/distinct',
-    aliases: ['distinct', 'unicos', 'sin repetir', 'duplicados', 'l07'],
-    available: true,
-  },
-  {
-    id: 'lesson-complete-query',
-    title: 'Consulta completa de proyección',
-    description: 'Integra SELECT, FROM, expresiones y alias en un pedido completo.',
-    group: 'Lecciones',
-    href: '/learn/consulta-completa',
-    aliases: ['consulta completa', 'select from', 'integracion', 'l08'],
-    available: true,
-  },
+  })),
   {
     id: 'video-introduction',
     title: 'Vídeo de introducción',
@@ -195,6 +133,69 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     group: 'Recursos',
     href: '/resources#video-resumen',
     aliases: ['video', 'videos', 'resumen', 'repaso', 'v02'],
+    available: true,
+  },
+  {
+    id: 'concept-select',
+    title: 'SELECT',
+    description: 'Indica qué columnas o expresiones muestra el resultado.',
+    group: 'Conceptos',
+    href: '/resources#chuleta-select',
+    aliases: ['select', 'seleccionar', 'mostrar', 'proyeccion'],
+    available: true,
+  },
+  {
+    id: 'concept-from',
+    title: 'FROM',
+    description: 'Indica la tabla de la que salen los datos.',
+    group: 'Conceptos',
+    href: '/resources#chuleta-from',
+    aliases: ['from', 'origen', 'tabla'],
+    available: true,
+  },
+  {
+    id: 'concept-star',
+    title: 'SELECT *',
+    description: 'Muestra todas las columnas de la tabla, en su orden.',
+    group: 'Conceptos',
+    href: '/resources#chuleta-asterisco',
+    aliases: ['*', 'select *', 'asterisco', 'todas las columnas'],
+    available: true,
+  },
+  {
+    id: 'concept-columns',
+    title: 'Lista de columnas',
+    description: 'Columnas separadas por coma, en el orden pedido.',
+    group: 'Conceptos',
+    href: '/resources#chuleta-columnas',
+    aliases: ['columnas', 'coma', 'lista', 'orden de columnas'],
+    available: true,
+  },
+  {
+    id: 'concept-expressions',
+    title: 'Expresiones aritméticas',
+    description: 'Cálculos con +, -, *, / y paréntesis sobre columnas numéricas.',
+    group: 'Conceptos',
+    href: '/resources#chuleta-expresiones',
+    aliases: ['expresiones', 'calculos', 'operadores', 'parentesis', 'precedencia'],
+    available: true,
+  },
+  {
+    id: 'concept-alias',
+    title: 'AS · alias de columna',
+    description: 'Da un encabezado claro a una columna del resultado.',
+    group: 'Conceptos',
+    href: '/resources#chuleta-alias',
+    aliases: ['as', 'alias', 'encabezado', 'renombrar columna'],
+    available: true,
+  },
+  {
+    id: 'concept-distinct',
+    title: 'DISTINCT',
+    description: 'Quita las filas repetidas de la proyección completa.',
+    group: 'Conceptos',
+    href: '/resources#chuleta-distinct',
+    aliases: ['distinct', 'unicos', 'sin repetir', 'duplicados'],
     available: true,
   },
   {
@@ -251,4 +252,4 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     aliases: ['funciones', 'functions', 'sum', 'count', 'avg', 'futuro'],
     available: false,
   },
-] as const;
+];

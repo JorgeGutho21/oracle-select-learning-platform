@@ -7,7 +7,7 @@ Versión 1.0 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md).
 | Ruta propuesta | Público y propósito | Salida principal |
 |---|---|---|
 | `/` | Todos: identidad, objetivo y elección de recorrido. | Exposición o Estudio. |
-| `/presentation` | Expositor: E01–E14, sin autenticación para enseñar. | Laboratorio, sala o cierre. |
+| `/presentation` | Expositor: dieciséis escenas 16:9 para proyector, sin autenticación para enseñar. | Laboratorio, sala o cierre. |
 | `/learn` y `/learn/{leccion}` | Estudiante: L00–L08 con progreso local. | Siguiente lección o practicar. |
 | `/lab` | Todos: escribir y ejecutar el subconjunto permitido. | Resultado y explicación. |
 | `/challenge` | Práctica individual de M01–M10. | `/results` local. |
@@ -19,19 +19,21 @@ Versión 1.0 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md).
 | `/resources` | Vídeos, chuleta y fuentes académicas. | Recurso o lección. |
 | `/modules` | Catálogo de futuras unidades. | Volver al curso actual. |
 
+Navegación principal en escritorio: Inicio, Aprender (Estudio y Exposición), Laboratorio, Challenge, En vivo, Recursos y Buscar, en una sola fila; por debajo de 992 px, menú compacto. No hay barra lateral permanente fuera del temario de Estudio.
+
 Home no exige registro. Crear o dirigir salas sí requiere la identidad autorizada del presentador. Un QR público nunca conduce a un panel de administración.
 
 ## Flujo A — Preparar y realizar la exposición
 
-1. Home → «Iniciar exposición». Se abre E01 o se ofrece reanudar la última escena local.
+1. Home → «Iniciar clase». Se abre la escena 01 o se ofrece reanudar la última escena local.
 2. El expositor avanza con botones o flechas. El contador indica escena actual y total.
 3. Pantalla completa se activa solo mediante acción del usuario. Si el navegador la rechaza, la escena sigue disponible en la ventana.
 4. Vídeos se reproducen manualmente, pueden omitirse y tienen transcripción. Al salir de su escena se pausa la reproducción.
 5. «Abrir en laboratorio» transfiere el ejemplo y mantiene un enlace para volver a la escena. Si existe un borrador distinto, se ofrece conservarlo o sustituirlo antes de perderlo.
-6. E13 abre la sala creada por el presentador o permite crearla tras autenticarse. Se proyectan QR, código y número de participantes, sin mostrar tokens ni datos privados.
-7. Tras el Challenge, E14 muestra estadísticas y acceso a la chuleta.
+6. La escena 15 abrirá la sala creada por el presentador o permitirá crearla tras autenticarse; se proyectarán QR, código y número de participantes, sin tokens ni datos privados. Mientras las salas no existan (R6), su QR abre la práctica individual del Challenge y la escena lo indica.
+7. Tras el Challenge, la escena 16 ofrece la chuleta, el Modo Estudio y el laboratorio; las estadísticas de sala llegarán con R6.
 
-U01: un recorrido E04 → laboratorio → volver conserva escena y consulta. Las flechas solo navegan escenas cuando el foco está fuera de campos editables, reproductor y diálogos. Escape cierra primero el diálogo activo o sale de pantalla completa sin borrar progreso.
+U01: un recorrido escena 12 → laboratorio → volver conserva escena y consulta. Las flechas solo navegan escenas cuando el foco está fuera de campos editables, reproductor y diálogos. Escape cierra primero el diálogo activo o sale de pantalla completa sin borrar progreso.
 
 ## Flujo B — Estudiar por cuenta propia
 

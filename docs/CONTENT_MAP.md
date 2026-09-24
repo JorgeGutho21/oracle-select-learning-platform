@@ -41,26 +41,32 @@ Se usan seis columnas: ID, NOMBRE, EDAD, CIUDAD, SALARIO, DEPTO. TELEFONO queda 
 
 DISTINCT CIUDAD produce Bogotá, Cali y Medellín. DISTINCT CIUDAD, DEPTO produce (Bogotá, Ventas), (Cali, Sistemas), (Bogotá, Sistemas), (Medellín, Ventas), (Cali, Contabilidad). Las listas aquí tienen orden expositivo; sin ORDER BY no se garantiza el orden de las filas. La evaluación compara filas sin depender de su posición y sí respeta el orden de columnas.
 
-## Exposición E01–E14
+## Exposición: dieciséis escenas
 
-Ruta `/presentation`; un identificador de escena permite volver al mismo punto. La exposición principal propuesta dura unos 20 minutos, sin contar el Challenge en vivo ni la discusión. Como no existe una duración exacta confirmada, se permite omitir vídeos o demostraciones sin alterar el contenido del modo Estudio.
+Ruta `/presentation`; el número de escena (`?scene=N`) permite volver al mismo punto. La exposición principal propuesta dura unos 20 minutos, sin contar el Challenge ni la discusión. Como no existe una duración exacta confirmada, se permite omitir vídeos o demostraciones sin alterar el contenido del modo Estudio.
 
-| Escena | Contenido | Duración orientativa | Acción del expositor |
-|---|---|---:|---|
-| E01 | Portada, autor y objetivo | 0:30 | Explicar qué podrá hacer la clase. |
-| E02 | Vídeo introductorio | 2:00 | Reproducir u omitir. |
-| E03 | Tabla, fila, columna y SQL, L00 | 1:00 | Señalar un registro y un encabezado. |
-| E04 | SELECT y FROM, L01–L02 | 2:00 | Traducir «qué» y «de dónde». |
-| E05 | Asterisco, L03 | 1:00 | Expandir todas las columnas. |
-| E06 | Columnas y su orden, L04 | 1:30 | Alternar la proyección manteniendo filas. |
-| E07 | Expresiones, L05 | 2:00 | Calcular salario anual y comprobar Ana. |
-| E08 | Alias, L06 | 1:30 | Cambiar encabezado, observar origen intacto. |
-| E09 | DISTINCT, L07 | 2:00 | Contrastar duplicados de ciudades y pares. |
-| E10 | Consulta completa, L08 | 2:00 | Resolver un pedido con la clase. |
-| E11 | Laboratorio real | 2:00 | Ejecutar una variante escrita en directo. |
-| E12 | Síntesis visual y acceso al vídeo resumen | 0:30 | Ofrecer repaso, sin reproducción forzada. |
-| E13 | Entrada a sala mediante QR | 1:00 | Esperar conexiones e iniciar Challenge. |
-| E14 | Resultados, chuleta y próximos módulos | Flexible | Revisar el concepto con menor acierto. |
+Versión 1.1 (23 de septiembre de 2026): el responsable del proyecto fijó un guion de dieciséis escenas que sustituye a E01–E14. El vídeo introductorio pasa a ser un bloque omitible de la escena 02, la consulta completa se presenta como anatomía (11) y se añaden la tabla EMPLEADOS (04), el Challenge (13), el reto con QR (15) y el cierre (16).
+
+| Escena | Contenido | Antes | Duración orientativa | Acción del expositor |
+|---|---|---|---:|---|
+| 01 | Portada: unidad, asignatura, autor, profesor y logotipo | E01 | 0:30 | Explicar qué podrá hacer la clase. |
+| 02 | Qué aprenderemos: la ruta L00–L08 y el vídeo introductorio (omitible) | E02 | 1:00 | Presentar el recorrido. |
+| 03 | Qué es SQL: tabla, fila y columna, L00 | E03 | 1:00 | Señalar un registro y un encabezado. |
+| 04 | La tabla EMPLEADOS completa | — | 0:30 | Presentar la única fuente de datos. |
+| 05 | SELECT y FROM, L01–L02 | E04 | 1:30 | Traducir «qué» y «de dónde». |
+| 06 | SELECT *, L03 | E05 | 1:00 | Expandir todas las columnas. |
+| 07 | Columnas específicas y su orden, L04 | E06 | 1:30 | Comparar dos órdenes de la misma proyección. |
+| 08 | Expresiones y precedencia, L05 | E07 | 2:00 | Calcular el salario anual y comprobar Ana. |
+| 09 | Alias con AS, L06 | E08 | 1:30 | Comparar el encabezado sin y con alias. |
+| 10 | DISTINCT, L07 | E09 | 2:00 | Marcar repetidas: seis filas, tres ciudades, cinco pares. |
+| 11 | Anatomía de una consulta completa, L08 | E10 | 2:00 | Nombrar cada parte de la consulta. |
+| 12 | Laboratorio | E11 | 2:00 | Abrir el ejemplo y volver a la escena. |
+| 13 | SQL Challenge | — | 0:30 | Presentar reglas y misiones. |
+| 14 | Resumen y acceso al vídeo resumen | E12 | 0:30 | Repasar los siete conceptos. |
+| 15 | Reto rápido y QR | E13 | 1:00 | Revelar la respuesta; proyectar el QR de la práctica individual. |
+| 16 | Cierre y recursos | E14 | Flexible | Invitar a Estudio, laboratorio y chuleta. |
+
+Mientras no existan salas en vivo (R6), el QR de la escena 15 abre la práctica individual del Challenge en la dirección actual y la escena lo dice. No se muestran códigos de sala ni participantes inventados.
 
 Las diez rondas suman 15 minutos de respuesta con tiempos base, más transiciones y explicación. Una sesión completa requiere aproximadamente 40–45 minutos; es una planificación, no un dato confirmado del horario. El cronómetro de exposición, que puede pausarse, es independiente de la cuenta regresiva de sala.
 

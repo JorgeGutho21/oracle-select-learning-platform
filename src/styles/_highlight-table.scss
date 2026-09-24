@@ -1,0 +1,91 @@
+// Tabla didáctica compartida por Estudio, Home y Exposición.
+
+.hl-table {
+  min-width: 0;
+}
+.hl-table__scroll {
+  // Contiene el texto accesible oculto de las celdas desplazadas.
+  position: relative;
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 14px;
+}
+.hl-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.hl-table th,
+.hl-table td {
+  padding: 10px 16px;
+  text-align: left;
+  white-space: nowrap;
+  transition:
+    background var(--duration-transition),
+    color var(--duration-transition),
+    opacity var(--duration-transition);
+}
+.hl-table th {
+  color: var(--color-primary);
+  background: var(--color-soft);
+  font: 700 0.875rem var(--font-mono);
+  letter-spacing: 0.02em;
+}
+.hl-table td {
+  color: var(--color-ink);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.hl-table .is-number {
+  text-align: right;
+}
+.hl-table th.is-on {
+  color: var(--color-night);
+  background: var(--color-cyan);
+}
+.hl-table td.is-on {
+  background: color-mix(in srgb, var(--color-cyan) 16%, var(--color-surface));
+  font-weight: 650;
+}
+.hl-table .is-dim {
+  opacity: 0.45;
+}
+.hl-table tr.is-row td {
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+  box-shadow:
+    inset 0 2px 0 var(--color-primary),
+    inset 0 -2px 0 var(--color-primary);
+  font-weight: 650;
+}
+.hl-table tr.is-duplicate td {
+  color: var(--color-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 5%, var(--color-surface));
+}
+.hl-table__badge {
+  display: inline-block;
+  margin-left: var(--space-3);
+  padding: 1px 8px;
+  color: var(--color-danger);
+  background: var(--color-surface);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+  vertical-align: middle;
+}
+.hl-table__summary {
+  margin: var(--space-2) 0 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.hl-table--large th,
+.hl-table--large td {
+  padding: 0.45em 0.8em;
+  font-size: 1em;
+}
+.hl-table--large th {
+  font-size: 0.8em;
+}

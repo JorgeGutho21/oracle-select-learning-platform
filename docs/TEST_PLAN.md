@@ -15,7 +15,7 @@ Herramientas propuestas para implementación: Vitest para reglas, Playwright par
 | Prueba | Requisito | Procedimiento | Resultado verificable |
 |---|---|---|---|
 | T01 | P01 Home | Abrir a 390 px y 1440 px; recorrer todos los accesos y regresar. | Identidad y objetivo visibles; cada enlace abre el destino correcto sin página rota. |
-| T02 | P02 Exposición | Recorrer E01–E14 con botones y flechas; entrar/salir de pantalla completa; abrir laboratorio y regresar. | Escena y contador correctos; foco en editor no cambia escenas; reanudación exacta. |
+| T02 | P02 Exposición | Recorrer las escenas 01–16 con botones, flechas y Av Pág/Re Pág; entrar/salir de pantalla completa; abrir laboratorio y regresar. | Escena y contador correctos; foco en editor no cambia escenas; reanudación exacta. |
 | T03 | P03 Estudio | Completar L00, abrir otras sin resolver y recargar; simular almacenamiento bloqueado. | Solo L00 aparece completada; advertencia de persistencia cuando corresponde; estudio sigue utilizable. |
 | T04 | P04 Búsqueda | Probar Ctrl+K, Cmd+K, lupa, teclado y Escape; buscar alias, AS, *, asterisco, video, quiz, WHERE y texto inexistente. | Destinos y etiquetas correctos; futuras unidades separadas; foco restaurado; ninguna solución privada indexada. |
 | T05 | P05 Introducción | Reproducir, pausar, omitir, activar subtítulos y abrir transcripción; bloquear proveedor de vídeo. | Duración 90–120 s; sin autoplay con audio; alternativa útil ante fallo. |

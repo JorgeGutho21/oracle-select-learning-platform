@@ -39,7 +39,7 @@ Los identificadores P01–P18 son requisitos. Las pruebas T01–T18 de TEST_PLAN
 | ID | Módulo | Criterio de aceptación verificable |
 |---|---|---|
 | P01 | Home | Muestra autor, institución, objetivo y accesos a Exposición, Estudio, Laboratorio, Challenge y Sala en vivo. Todos abren la ruta correcta desde móvil y escritorio. |
-| P02 | Modo Exposición | Recorre las escenas E01–E14 de CONTENT_MAP con botones y flechas, muestra posición, ofrece pantalla completa y conserva la escena al salir y regresar. Flechas no interfieren con editor o vídeo. |
+| P02 | Modo Exposición | Recorre las dieciséis escenas de CONTENT_MAP con botones y flechas, muestra posición, ofrece pantalla completa y conserva la escena al salir y regresar. Flechas no interfieren con editor o vídeo. |
 | P03 | Modo Estudio | Contiene L00–L08, navegación libre y reanudación local. Abrir una página no la marca como aprendida; se registra como completada al resolver su comprobación. |
 | P04 | Buscador global | Ctrl+K, Cmd+K y botón visible abren el mismo diálogo. «alias», «asterisco», «video», «quiz» y «chuleta» llevan al contenido correspondiente; Escape devuelve el foco. |
 | P05 | Vídeo introductorio | Reproduce 90–120 segundos con subtítulos, controles, transcripción y opción de omitir. No se inicia con audio automáticamente. |

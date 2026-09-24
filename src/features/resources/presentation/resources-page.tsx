@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { LESSONS } from '@/features/study/application/study-api';
+import type { Route } from 'next';
+import { LESSONS, lessonLabHref } from '@/features/study/application/study-api';
 import { CodeBlock } from '@/presentation/components/ui';
 
 /** Recursos de la unidad vigente; los vídeos se incorporarán al recibir los activos. */
@@ -25,14 +26,17 @@ export function ResourcesPage() {
         <p>La consulta elige una vista de los datos. El origen sigue intacto.</p>
         <div className="resources-grid">
           {LESSONS.filter((lesson) => lesson.id !== 'L00' && lesson.id !== 'L08').map((lesson) => (
-            <article className="resource-card" key={lesson.id}>
+            <article className="resource-card" id={`chuleta-${lesson.slug}`} key={lesson.id}>
               <h3>{lesson.shortTitle}</h3>
+              <pre className="resource-syntax">
+                <code>{lesson.syntax}</code>
+              </pre>
               <p>{lesson.translation}</p>
               <CodeBlock
                 code={lesson.sql}
-                labHref={`/lab?sql=${encodeURIComponent(lesson.sql)}&returnTo=${encodeURIComponent(`/learn/${lesson.slug}`)}`}
+                labHref={lessonLabHref(lesson.sql, `/learn/${lesson.slug}`) as Route}
               />
-              <Link className="inline-action" href={`/learn/${lesson.slug}`}>
+              <Link className="inline-action" href={`/learn/${lesson.slug}` as Route}>
                 Repasar {lesson.shortTitle} →
               </Link>
             </article>

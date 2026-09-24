@@ -17,6 +17,16 @@ export interface SearchResultDto {
 export interface NavigationItemDto {
   readonly href: string;
   readonly label: string;
+  /** Rutas, además de `href`, en las que la entrada se marca como actual. */
+  readonly alsoActiveOn: readonly string[];
+}
+
+/** Indica si una entrada de navegación corresponde a la ruta actual. */
+export function isNavigationItemActive(item: NavigationItemDto, pathname: string): boolean {
+  if (item.href === '/') return pathname === '/';
+  return [item.href, ...item.alsoActiveOn].some(
+    (base) => pathname === base || pathname.startsWith(`${base}/`),
+  );
 }
 
 export const searchResultGroups: readonly SearchGroup[] = searchGroups;
@@ -36,7 +46,10 @@ function words(value: string): readonly string[] {
 
 function includesTerm(entryWords: readonly string[], term: string): boolean {
   if (term.length <= 2 || term === '*') return entryWords.includes(term);
-  return entryWords.some((word) => word.startsWith(term) || term.startsWith(word));
+  // «expresión» encuentra «expresiones»; una palabra corta («e», «de») no absorbe términos.
+  return entryWords.some(
+    (word) => word.startsWith(term) || (word.length >= 4 && term.startsWith(word)),
+  );
 }
 
 function rank(entry: PublicCatalogEntry, query: string): number | null {
@@ -90,5 +103,9 @@ export function getPlatformNavigation(): readonly NavigationItemDto[] {
       } => entry.href !== null && entry.navigation !== undefined,
     )
     .sort((left, right) => left.navigation.order - right.navigation.order)
-    .map((entry) => ({ href: entry.href, label: entry.navigation.label }));
+    .map((entry) => ({
+      href: entry.href,
+      label: entry.navigation.label,
+      alsoActiveOn: entry.navigation.alsoActiveOn ?? [],
+    }));
 }

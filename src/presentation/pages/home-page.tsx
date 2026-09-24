@@ -2,231 +2,286 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ACADEMIC_IDENTITY as identity } from '@/application/academic-identity';
+import { PRACTICE_RULES } from '@/features/challenge/application/challenge-api';
+import { analyzeLabQuery } from '@/features/laboratory/application/lab-api';
+import { LESSONS } from '@/features/study/application/study-api';
 import { HomeDemonstration } from './home-demonstration';
+
+/** Consulta de la portada; su resultado sale del motor educativo y del dataset único. */
+const HERO_SQL = 'SELECT nombre,\n       salario * 12 AS salario_anual\nFROM   empleados;';
+
+const FUTURE_TOPICS = [
+  ['WHERE', 'Elegir filas mediante condiciones.'],
+  ['BETWEEN', 'Filtrar por rangos de valores.'],
+  ['IN', 'Comparar contra una lista de valores.'],
+  ['LIKE', 'Buscar patrones de texto.'],
+  ['JOIN', 'Relacionar información entre tablas.'],
+  ['GROUP BY', 'Agrupar filas para resumirlas.'],
+  ['Funciones', 'Texto, fechas y agregados.'],
+] as const;
+
+const numberFormat = new Intl.NumberFormat('es-CO');
+
+function HeroTerminal() {
+  const preview = analyzeLabQuery(HERO_SQL).preview;
+  const keywords = /\b(SELECT|AS|FROM)\b/g;
+  return (
+    <figure className="home-terminal" aria-label="Ejemplo de consulta y su resultado">
+      <div className="home-terminal__bar" aria-hidden="true">
+        <span className="home-terminal__dots">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span>empleados-select-v1</span>
+      </div>
+      <pre className="home-terminal__code">
+        <code>
+          {HERO_SQL.split(keywords).map((part, index) =>
+            index % 2 === 1 ? <b key={index}>{part}</b> : part,
+          )}
+        </code>
+      </pre>
+      {preview && (
+        <div className="home-terminal__result">
+          <table>
+            <caption>Vista educativa · {preview.rows.length} filas</caption>
+            <thead>
+              <tr>
+                {preview.columns.map((column) => (
+                  <th key={column.name} scope="col">
+                    {column.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {preview.rows.map((row, index) => (
+                <tr key={index}>
+                  {row.map((value, cell) => (
+                    <td key={cell} className={typeof value === 'number' ? 'is-number' : undefined}>
+                      {typeof value === 'number' ? numberFormat.format(value) : value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </figure>
+  );
+}
 
 export function HomePage({ progress }: { readonly progress: ReactNode }) {
   return (
-    <div className="site-container learning-home">
-      <section className="learning-hero" data-theme="dark" aria-labelledby="home-title">
-        <div className="learning-hero-copy">
-          <span className="eyebrow">ORACLE SQL · FUNDAMENTOS DE SELECT</span>
-          <h1 id="home-title">
-            SELECT
-            <br />
-            <span>EN ORACLE SQL</span>
-            <span className="home-title-dot" aria-hidden="true">
-              .
-            </span>
-          </h1>
-          <p className="home-lead">
-            De una pregunta a una consulta.
-            <br />
-            Aprende a leer los datos, elegir lo que necesitas y entender cada resultado.
-          </p>
-          <div className="hero-actions">
-            <Link href="/presentation" className="hero-action hero-action--primary">
-              Iniciar clase <span aria-hidden="true">↗</span>
-            </Link>
-            <Link href="/learn" className="hero-action">
-              Modo Estudio <span aria-hidden="true">→</span>
-            </Link>
+    <div className="home">
+      <section className="home-band home-band--night home-hero" aria-labelledby="home-title">
+        <div className="site-container home-hero__grid">
+          <div className="home-hero__copy">
+            <p className="home-eyebrow">Oracle Database · SQL Fundamentals</p>
+            <h1 id="home-title" className="home-hero__title">
+              <span className="home-hero__select">SELECT</span>{' '}
+              <span className="home-hero__rest">
+                en Oracle SQL<span aria-hidden="true">.</span>
+              </span>
+            </h1>
+            <p className="home-hero__lead">
+              Aprende a pedir datos a una tabla: elige columnas, calcula valores y entiende cada
+              resultado. Sin experiencia previa.
+            </p>
+            <p className="home-hero__byline">
+              <span>{identity.author}</span>
+              <span>{identity.course}</span>
+              <span>{identity.institution}</span>
+            </p>
+            <nav className="home-hero__actions" aria-label="Recorridos principales">
+              <Link href="/presentation" className="hero-action hero-action--primary">
+                Iniciar clase <span aria-hidden="true">→</span>
+              </Link>
+              <Link href="/learn" className="hero-action">
+                Modo Estudio <span aria-hidden="true">→</span>
+              </Link>
+              <Link href="/lab" className="hero-action">
+                Laboratorio SQL <span aria-hidden="true">→</span>
+              </Link>
+              <Link href="/challenge" className="hero-action">
+                SQL Challenge <span aria-hidden="true">→</span>
+              </Link>
+            </nav>
           </div>
-          <div className="home-secondary-actions">
-            <Link href="/lab">
-              Laboratorio SQL <span aria-hidden="true">↗</span>
-            </Link>
-            <Link href="/challenge">
-              SQL Challenge <span aria-hidden="true">↗</span>
-            </Link>
-          </div>
-          <p className="home-hero-label">
-            OBSERVA <span aria-hidden="true">/</span> COMPRENDE <span aria-hidden="true">/</span>{' '}
-            PRACTICA
-          </p>
-        </div>
-        <HomeDemonstration />
-      </section>
-      <section className="home-identity" aria-label="Identidad académica">
-        <Image
-          src={identity.logo}
-          width={805}
-          height={417}
-          alt={identity.institution}
-          className="institution-logo"
-          priority
-        />
-        <div>
-          <strong>{identity.institution}</strong>
-          <p>
-            {identity.program} · {identity.course}
-          </p>
-        </div>
-        <dl>
-          <div>
-            <dt>Presentado por</dt>
-            <dd>{identity.author}</dd>
-          </div>
-          <div>
-            <dt>Docente</dt>
-            <dd>{identity.teacher}</dd>
-          </div>
-        </dl>
-      </section>
-      <section className="home-study-band" aria-label="Tu recorrido de estudio">
-        {progress}
-      </section>
-      <section className="home-learning-section" aria-labelledby="learning-title">
-        <div className="home-section-heading">
-          <span className="eyebrow">01 / COMIENZA POR LO ESENCIAL</span>
-          <h2 id="learning-title">Una tabla. Muchas respuestas.</h2>
-          <p className="muted">
-            No necesitas experiencia previa. Empieza con seis empleados y descubre cómo una consulta
-            transforma lo que ves.
-          </p>
-        </div>
-        <div className="home-concept-grid">
-          <Link href="/learn/select" className="home-concept-card">
-            <span className="home-card-number">01</span>
-            <code>SELECT / FROM</code>
-            <h3>
-              Qué necesitas.
-              <br />
-              De dónde viene.
-            </h3>
-            <p>Lee la tabla y elige la información que responde a tu pregunta.</p>
-            <span className="home-card-link">
-              Elegir columnas <span aria-hidden="true">↗</span>
-            </span>
-          </Link>
-          <Link href="/learn/expresiones" className="home-concept-card">
-            <span className="home-card-number">02</span>
-            <code>* 12 AS salario_anual</code>
-            <h3>
-              Calcula.
-              <br />
-              Dale un nombre.
-            </h3>
-            <p>Obtén nuevos valores y ponles una etiqueta sin cambiar la tabla original.</p>
-            <span className="home-card-link">
-              Explorar expresiones <span aria-hidden="true">↗</span>
-            </span>
-          </Link>
-          <Link href="/learn/distinct" className="home-concept-card">
-            <span className="home-card-number">03</span>
-            <code>SELECT DISTINCT</code>
-            <h3>
-              Encuentra
-              <br />
-              lo que es único.
-            </h3>
-            <p>Observa las repeticiones y comprende qué significa un resultado distinto.</p>
-            <span className="home-card-link">
-              Entender DISTINCT <span aria-hidden="true">↗</span>
-            </span>
-          </Link>
+          <HeroTerminal />
         </div>
       </section>
-      <section className="home-path-section" aria-labelledby="path-title">
-        <div className="home-section-heading">
-          <span className="eyebrow">02 / A TU MANERA</span>
-          <h2 id="path-title">Del concepto a la práctica.</h2>
-        </div>
-        <div className="home-path-grid">
-          <Link href="/learn" className="home-path-card">
-            <span className="home-path-icon" aria-hidden="true">
-              Aa
-            </span>
+
+      <section
+        className="home-band home-band--light home-identity"
+        aria-label="Identidad académica"
+      >
+        <div className="site-container home-identity__inner">
+          <Image
+            src={identity.logo}
+            width={805}
+            height={417}
+            alt={identity.institution}
+            className="home-identity__logo"
+            priority
+          />
+          <dl className="home-identity__facts">
             <div>
-              <h3>Modo Estudio</h3>
+              <dt>Universidad</dt>
+              <dd>{identity.institution}</dd>
+            </div>
+            <div>
+              <dt>Programa</dt>
+              <dd>{identity.program}</dd>
+            </div>
+            <div>
+              <dt>Asignatura</dt>
+              <dd>{identity.course}</dd>
+            </div>
+            <div>
+              <dt>Unidad</dt>
+              <dd>{identity.unitTitle}</dd>
+            </div>
+            <div>
+              <dt>Autor</dt>
+              <dd>{identity.author}</dd>
+            </div>
+            <div>
+              <dt>Profesor</dt>
+              <dd>{identity.teacher}</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section className="home-band home-band--soft" aria-labelledby="learn-title">
+        <div className="site-container">
+          <header className="home-heading">
+            <p className="home-eyebrow">01 · Qué aprenderás</p>
+            <h2 id="learn-title">Nueve pasos. Una sola tabla.</h2>
+            <p>
+              Todo el recorrido usa EMPLEADOS: seis personas y seis columnas. Cada paso muestra la
+              tabla, la consulta y el resultado.
+            </p>
+          </header>
+          <ol className="home-path">
+            {LESSONS.map((lesson, index) => (
+              <li key={lesson.id}>
+                <Link href={`/learn/${lesson.slug}`} className="home-path__card">
+                  <span className="home-path__number">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="home-path__copy">
+                    <strong>{lesson.shortTitle}</strong>
+                    <span>{lesson.objective}</span>
+                  </span>
+                  <code className="home-path__code">{lesson.badge}</code>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="home-band home-band--primary" aria-labelledby="demo-title">
+        <div className="site-container home-demo-band">
+          <header className="home-heading home-heading--inverse">
+            <p className="home-eyebrow">02 · Pruébalo ahora</p>
+            <h2 id="demo-title">Elige columnas. Mira el resultado.</h2>
+            <p>
+              Toca las columnas en el orden que quieras. La consulta se escribe sola y las seis
+              filas se conservan.
+            </p>
+          </header>
+          <HomeDemonstration />
+        </div>
+      </section>
+
+      <section className="home-band home-band--tech" aria-labelledby="challenge-title">
+        <div className="site-container home-challenge">
+          <div className="home-challenge__copy">
+            <p className="home-eyebrow">03 · SQL Oracle Challenge</p>
+            <h2 id="challenge-title">Diez misiones para demostrar lo aprendido.</h2>
+            <p>
+              Ordena piezas, predice resultados, detecta errores y escribe la consulta final. Con
+              ratón, toque o teclado.
+            </p>
+            <Link href="/challenge" className="hero-action hero-action--primary">
+              SQL Challenge <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+          <div className="home-challenge__console" aria-label="Reglas de la práctica">
+            <p className="home-challenge__prompt">
+              <span aria-hidden="true">$</span> reglas --practica-individual
+            </p>
+            <dl>
+              <div>
+                <dt>Misiones</dt>
+                <dd>10</dd>
+              </div>
+              <div>
+                <dt>Puntos máximos</dt>
+                <dd>{PRACTICE_RULES.maxScorePerMission * 10}</dd>
+              </div>
+              <div>
+                <dt>Intentos puntuados</dt>
+                <dd>{PRACTICE_RULES.maxScoredAttempts} por misión</dd>
+              </div>
+              <div>
+                <dt>Pista opcional</dt>
+                <dd>−{PRACTICE_RULES.hintPenalty} puntos</dd>
+              </div>
+            </dl>
+            <p className="home-challenge__note">
+              El reto final se califica con Oracle; mientras el servicio no esté conectado, se
+              revisa su estructura sin puntuar.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-band home-band--light" aria-labelledby="start-title">
+        <div className="site-container home-start">
+          <article className="home-video" aria-labelledby="start-title">
+            <div className="home-video__slot" aria-hidden="true">
+              <span className="home-video__play">▶</span>
+            </div>
+            <div className="home-video__copy">
+              <p className="home-eyebrow">Vídeo introductorio</p>
+              <h2 id="start-title">Una primera mirada a SQL</h2>
               <p>
-                Nueve lecciones visuales. Ejemplos, transformaciones y una comprobación a tu ritmo.
+                En preparación: 90–120 segundos, con subtítulos y transcripción. Mientras tanto, la
+                primera lección cubre lo mismo.
               </p>
+              <Link href="/learn/introduccion" className="inline-action">
+                Empezar por «¿Qué es SQL?» <span aria-hidden="true">→</span>
+              </Link>
             </div>
-            <span aria-hidden="true">↗</span>
-          </Link>
-          <Link href="/presentation" className="home-path-card">
-            <span className="home-path-icon" aria-hidden="true">
-              ▱
-            </span>
-            <div>
-              <h3>Modo Exposición</h3>
-              <p>Una idea por escena. Un recorrido para conversar, observar y aprender en clase.</p>
-            </div>
-            <span aria-hidden="true">↗</span>
-          </Link>
-          <Link href="/lab" className="home-path-card">
-            <span className="home-path-icon" aria-hidden="true">
-              &gt;_
-            </span>
-            <div>
-              <h3>Laboratorio SQL</h3>
-              <p>
-                Escribe y analiza tu consulta. La ejecución real en Oracle está pendiente de
-                conexión.
-              </p>
-            </div>
-            <span aria-hidden="true">↗</span>
-          </Link>
-          <Link href="/challenge" className="home-path-card">
-            <span className="home-path-icon" aria-hidden="true">
-              {'{}'}
-            </span>
-            <div>
-              <h3>SQL Oracle Challenge</h3>
-              <p>Nueve misiones para practicar. El reto final espera la conexión con Oracle.</p>
-            </div>
-            <span aria-hidden="true">↗</span>
-          </Link>
+          </article>
+          <div className="home-progress">{progress}</div>
         </div>
       </section>
-      <section className="home-video-section" aria-labelledby="intro-title">
-        <div className="home-video-slot">
-          <span aria-hidden="true">▷</span>
-          <strong>Una primera mirada a SQL</strong>
-          <span>Vídeo introductorio · En preparación</span>
-        </div>
-        <div>
-          <span className="eyebrow">ANTES DE EMPEZAR</span>
-          <h2 id="intro-title">
-            Los datos ya están.
-            <br />
-            La pregunta es tuya.
-          </h2>
-          <p>
-            Imagina que necesitas saber en qué ciudades trabaja un equipo. SQL te permite pedir esa
-            información con una consulta.
-          </p>
-          <p className="muted">
-            El vídeo se incorporará con subtítulos y transcripción. Mientras tanto, la introducción
-            está disponible como lección.
-          </p>
-          <Link href="/learn/introduccion" className="inline-action">
-            Comenzar desde cero <span aria-hidden="true">→</span>
-          </Link>
-        </div>
-      </section>
-      <section className="home-future-section" id="proximos-modulos" aria-labelledby="future-title">
-        <div className="home-section-heading">
-          <span className="eyebrow">EL SIGUIENTE PASO</span>
-          <h2 id="future-title">Una base para seguir aprendiendo.</h2>
-          <p className="muted">
-            Estos temas llegarán en futuras unidades. El recorrido actual se concentra en SELECT.
-          </p>
-        </div>
-        <div className="home-future-grid">
-          {[
-            ['WHERE', 'Elegir filas mediante condiciones.'],
-            ['BETWEEN · IN · LIKE', 'Explorar rangos, listas y patrones.'],
-            ['JOIN', 'Relacionar información entre tablas.'],
-            ['GROUP BY · Funciones', 'Agrupar datos y resumir información.'],
-          ].map(([title, description]) => (
-            <article key={title}>
-              <span className="home-future-tag">Próximamente</span>
-              <h3>{title}</h3>
-              <p>{description}</p>
-              <small>Prerrequisito: fundamentos de SELECT.</small>
-            </article>
-          ))}
+
+      <section
+        className="home-band home-band--light home-future"
+        id="proximos-modulos"
+        aria-labelledby="future-title"
+      >
+        <div className="site-container">
+          <header className="home-heading">
+            <p className="home-eyebrow">Próximos módulos</p>
+            <h2 id="future-title">Después de SELECT.</h2>
+            <p>Estos temas llegarán en unidades futuras. Esta unidad se concentra en SELECT.</p>
+          </header>
+          <ul className="home-future__grid">
+            {FUTURE_TOPICS.map(([title, description]) => (
+              <li key={title}>
+                <span className="home-future__tag">Próximamente</span>
+                <code>{title}</code>
+                <span>{description}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </div>

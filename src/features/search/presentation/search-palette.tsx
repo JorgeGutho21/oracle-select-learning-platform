@@ -2,7 +2,7 @@
 
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState, useSyncExternalStore } from 'react';
 import {
   searchPublicCatalog,
   searchResultGroups,
@@ -12,6 +12,10 @@ import { Dialog } from '@/presentation/components/ui/dialog';
 import { SearchField } from '@/presentation/components/ui/search-field';
 import { useHydrated } from '@/presentation/hooks/use-hydrated';
 
+const noSubscription = () => () => {};
+const platformShortcut = () => (/mac|iphone|ipad/i.test(navigator.platform) ? '⌘ K' : 'Ctrl K');
+
+/** Enfoca el destino: la sección del ancla si existe; si no, el título principal. */
 function focusDestinationTitle(href: string) {
   const target = new URL(href, window.location.href);
   let attempts = 0;
@@ -21,11 +25,16 @@ function focusDestinationTitle(href: string) {
     const atDestination =
       window.location.pathname === target.pathname &&
       (target.search === '' || window.location.search === target.search);
-    const title = document.querySelector<HTMLElement>('#main-content h1');
+    const anchor = target.hash ? document.getElementById(target.hash.slice(1)) : null;
+    const title =
+      anchor?.querySelector<HTMLElement>('h2, h3') ??
+      anchor ??
+      document.querySelector<HTMLElement>('#main-content h1');
 
     if (atDestination && title) {
       if (!title.hasAttribute('tabindex')) title.tabIndex = -1;
       title.focus();
+      if (anchor) anchor.scrollIntoView({ block: 'start' });
       return;
     }
 
@@ -43,7 +52,12 @@ export function SearchPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
-  const results = useMemo(() => searchPublicCatalog(query), [query]);
+  const shortcut = useSyncExternalStore(noSubscription, platformShortcut, () => 'Ctrl K');
+  // El orden de recorrido con flechas coincide con el orden visible por grupos.
+  const results = useMemo(() => {
+    const found = searchPublicCatalog(query);
+    return searchResultGroups.flatMap((group) => found.filter((result) => result.group === group));
+  }, [query]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -97,16 +111,21 @@ export function SearchPalette() {
         disabled={!hydrated}
         aria-haspopup="dialog"
         aria-keyshortcuts="Control+K Meta+K"
+        aria-label="Buscar"
         onClick={() => setOpen(true)}
       >
         <span className="global-search-trigger__icon" aria-hidden="true">
-          ⌕
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="8.5" cy="8.5" r="6" />
+            <path d="m13 13 5 5" strokeLinecap="round" />
+          </svg>
         </span>
-        <span>Buscar</span>
-        <kbd aria-hidden="true">Ctrl K</kbd>
+        <span className="global-search-trigger__label">Buscar</span>
+        <kbd aria-hidden="true">{shortcut}</kbd>
       </button>
 
       <Dialog
+        className="search-dialog"
         open={open}
         onClose={() => setOpen(false)}
         title="Buscar en SQL SELECT LAB"
@@ -177,7 +196,10 @@ export function SearchPalette() {
                     key={group}
                     aria-labelledby={groupId}
                   >
-                    <h3 id={groupId}>{group}</h3>
+                    {/* Un listbox solo admite grupos y opciones: el rótulo da nombre al grupo. */}
+                    <div id={groupId} className="search-results__label" aria-hidden="true">
+                      {group}
+                    </div>
                     <div className="search-results__items">
                       {groupResults.map((result) => {
                         const index = results.indexOf(result);

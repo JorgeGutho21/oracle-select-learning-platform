@@ -152,3 +152,18 @@ Conclusión: el error real se corrigió. Los fallos restantes de Edge son espera
 6. Resultados locales del Challenge en `/results`.
 7. QA visual y de accesibilidad en móvil, escritorio y proyección de todas las pantallas nuevas.
 8. Actualizar `docs/PROJECT_STATUS.md` y `docs/CHALLENGE_STATUS.md` al cerrar la fase.
+
+## Seguimiento en la Fase 5
+
+Resuelto el 24 de septiembre de 2026, en la misma rama:
+
+| Pendiente de la auditoría                    | Resolución                                                                                                                                                                                                 |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exposición con 16 escenas en vez de E01–E14  | El responsable fijó un guion de dieciséis escenas que coincide con el de Codex; CONTENT_MAP pasa a la versión 1.1. El marco se rehízo como lienzo 16:9 escalable, con reanudación local y anuncio acotado. |
+| `presentation-page.tsx`                      | Sustituido por la raíz de composición `src/composition/presentation`, que une la memoria de escena (infraestructura) con la presentación.                                                                  |
+| Validación y efectos del progreso de Estudio | La validación pasa a `features/study/application/progress.ts`; el guardado deja de hacerse dentro de un actualizador de estado.                                                                            |
+| Sin E2E para los módulos nuevos              | Nuevas E2E de Home, Estudio, Exposición, buscador, navegación y responsive en Chromium, Edge y WebKit.                                                                                                     |
+| Rótulo en inglés de la portada               | La auditoría lo había traducido; el responsable pidió expresamente «ORACLE DATABASE · SQL FUNDAMENTALS» y se restituyó.                                                                                    |
+| Etiquetas de navegación                      | Por decisión del responsable: Inicio, Aprender, Laboratorio, Challenge, En vivo, Recursos y Buscar.                                                                                                        |
+
+Errores de Codex encontrados al probar y corregidos: el `listbox` del buscador contenía encabezados `h3` (ARIA inválido, detectado por axe); palabras de una o dos letras de otras fichas («e», «de») hacían coincidir cualquier término que empezara por esa letra; el elemento activo con flechas no coincidía con el orden visible por grupos.

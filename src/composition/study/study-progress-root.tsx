@@ -9,7 +9,7 @@ export function StudyProgressRoot({ compact = true }: { compact?: boolean }) {
   return (
     <>
       {warning && (
-        <Alert tone="warning" title="Avance solo en memoria">
+        <Alert tone="warning" title="Progreso solo en memoria">
           {warning}
         </Alert>
       )}

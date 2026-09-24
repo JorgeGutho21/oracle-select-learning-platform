@@ -72,3 +72,15 @@
     color: black;
   }
 }
+.resource-card {
+  scroll-margin-top: var(--space-5);
+}
+.resource-syntax {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  overflow-x: auto;
+  color: var(--color-ink);
+  background: var(--color-soft);
+  border-radius: var(--radius-control);
+  font-size: 0.9375rem;
+}
