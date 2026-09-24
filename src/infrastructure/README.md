@@ -1,9 +1,12 @@
 # Infraestructura
 
-Futuros adaptadores para contratos de aplicación y dominio: Oracle, persistencia,
+Adaptadores para contratos de aplicación y dominio: Oracle, persistencia,
 identidad, tiempo real, reloj y almacenamiento local. Ningún componente visual
 importa directamente un adaptador concreto.
 
-No contiene clientes de Supabase, drivers Oracle, credenciales, simuladores,
-migraciones ni servicios en esta fase. La composición de adaptadores de servidor
-se definirá al incorporar un caso de uso real, protegiendo los secretos.
+Adaptadores existentes, en `features/challenge/infrastructure`: almacenamiento
+local de la práctica, corrección en proceso con las rúbricas privadas, reloj del
+sistema e identificadores. No hay clientes de Supabase, drivers Oracle,
+credenciales, simuladores de Oracle ni migraciones. La composición de
+adaptadores se definirá al incorporar la interfaz del Challenge, protegiendo
+rúbricas y secretos.
