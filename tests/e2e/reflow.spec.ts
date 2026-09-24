@@ -7,6 +7,7 @@ import {
   startChallenge,
   submit,
 } from './challenge-helpers';
+import { ORACLE_CONFIGURED } from './support/oracle';
 
 /**
  * Reflujo con zoom del 200 % (DESIGN_SYSTEM, D05; WCAG 1.4.10): un teléfono de 360 px
@@ -63,7 +64,11 @@ test('con zoom 200 % el laboratorio sigue siendo usable', async ({ page }) => {
   await page.getByRole('button', { name: 'Analizar' }).click();
   await expect(page.getByRole('table').filter({ hasText: 'SALARIO_ANUAL' }).first()).toBeAttached();
   await page.getByRole('button', { name: 'Ejecutar en Oracle' }).click();
-  await expect(page.getByText('Servicio Oracle no disponible')).toBeVisible();
+  await expect(
+    ORACLE_CONFIGURED
+      ? page.getByRole('table', { name: /^Oracle \(Oracle Database/ })
+      : page.getByText('Servicio Oracle no disponible'),
+  ).toBeVisible();
   expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
 });
 

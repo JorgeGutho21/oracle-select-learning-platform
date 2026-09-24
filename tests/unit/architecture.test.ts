@@ -1,9 +1,16 @@
 // @vitest-environment node
 import path from 'node:path';
 import { ESLint } from 'eslint';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 const eslint = new ESLint();
+
+// La primera llamada carga toda la configuración de ESLint (parser de TypeScript y plugins).
+// Es preparación, no la prueba: con la suite completa en paralelo puede superar el plazo
+// por prueba, así que se hace una vez aquí con su propio margen.
+beforeAll(async () => {
+  await eslint.lintText('export {};', { filePath: path.resolve('src/domain/warmup.ts') });
+}, 60_000);
 
 async function architecturalErrors(file: string, code: string): Promise<string[]> {
   const results = await eslint.lintText(code, { filePath: path.resolve(file) });

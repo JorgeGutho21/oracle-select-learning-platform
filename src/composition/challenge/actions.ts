@@ -8,7 +8,7 @@ import {
   type MissionId,
 } from '@/features/challenge/domain/types';
 import { InProcessMissionEvaluator } from '@/features/challenge/infrastructure/in-process-mission-evaluator';
-import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured-oracle-executor';
+import { oracleExecutor } from '../oracle/oracle-server';
 
 /**
  * Corrección de la práctica individual en el servidor: las rúbricas, pistas y
@@ -16,8 +16,8 @@ import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured
  * son accesibles por POST directo, así que cada entrada se valida aquí.
  */
 
-// Sustituir por el adaptador Oracle real cuando exista la instancia (R1).
-const evaluator = new InProcessMissionEvaluator(new UnconfiguredOracleExecutor());
+// M10 se califica ejecutando en Oracle; sin configuración, el adaptador declara «no conectado».
+const evaluator = new InProcessMissionEvaluator(oracleExecutor());
 const MAX_ANSWER_BYTES = 4000;
 
 const INVALID: EvaluationOutcome = {

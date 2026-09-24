@@ -69,12 +69,17 @@ test.describe('Home', () => {
     );
   });
 
-  test('cumple WCAG 2 AA en escritorio y móvil', async ({ page }) => {
-    for (const width of [1440, 390]) {
+  // Un análisis por tamaño: la Home es larga y dos análisis completos en una sola prueba
+  // superaban el plazo en Edge con la suite completa.
+  for (const [label, width] of [
+    ['escritorio', 1440],
+    ['móvil', 390],
+  ] as const) {
+    test(`cumple WCAG 2 AA en ${label}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await page.goto('/');
       const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
       expect(results.violations).toEqual([]);
-    }
-  });
+    });
+  }
 });

@@ -20,8 +20,11 @@ function renderExpression(expression: Expression, schema: TableSchema): string {
       return expression.raw;
     case 'group':
       return `(${renderExpression(expression.expression, schema)})`;
-    case 'unary':
-      return `${expression.operator}${renderExpression(expression.operand, schema)}`;
+    case 'unary': {
+      const operand = renderExpression(expression.operand, schema);
+      // "- -SALARIO" nunca se escribe "--SALARIO": para Oracle, "--" abre un comentario.
+      return `${expression.operator}${/^[-+]/.test(operand) ? ' ' : ''}${operand}`;
+    }
     case 'binary':
       return `${renderExpression(expression.left, schema)} ${expression.operator} ${renderExpression(expression.right, schema)}`;
   }

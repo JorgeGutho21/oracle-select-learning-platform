@@ -106,6 +106,24 @@ Luis supera a Eva por resolver más misiones con igual puntuación. Eva y Sol co
 | OPS02 | Restaurar copia de aplicación y recalcular ranking. | Puntajes, denominadores y empates iguales a los previos. |
 | OPS03 | Publicar nueva versión durante una sala. | Sala conserva dataset, misión y rúbrica fijados al iniciar. |
 
+## Oracle real: pruebas automatizadas (Fase 8)
+
+Instancia de verificación: Oracle Database 23ai Free 23.26.3 en el contenedor oficial `container-registry.oracle.com/database/free:latest-lite`, con `EMPLEADOS` cargada desde `oracle/empleados-select-v1.sql` y la cuenta `SQL_LAB_READER` (solo `CREATE SESSION` y `READ`). Instalación reproducible con `npm run oracle:up` y `npm run oracle:setup` ([ORACLE_SETUP.md](ORACLE_SETUP.md)). Las pruebas contra Oracle se omiten sin la cuenta lectora; nunca hay secretos en el repositorio.
+
+| ID | Cobertura | Dónde |
+|---|---|---|
+| LAB11 | LAB01–LAB10 ejecutados en Oracle: mismas columnas, filas (multiconjunto) y tipos que el análisis educativo; valores de LAB03 y LAB06–LAB10. | `tests/integration/oracle-real.test.ts` |
+| LAB12 | Espacios, caja, comentarios de línea y terminador no cambian el resultado. | Integración. |
+| LAB13 | DML, varias sentencias, otra tabla y WHERE se rechazan antes de Oracle; un `UPDATE` enviado directamente con la cuenta lectora lo rechaza Oracle; los datos siguen intactos. | Integración. |
+| LAB14 | Un plazo agotado (800 ms) devuelve «no disponible» y el grupo de una conexión sigue sirviendo; errores de conexión sin detalles internos. | Integración y unitarias. |
+| LAB15 | El mismo contenido en otro orden es equivalente; quitar una fila no lo es. | Integración. |
+| LAB16 | Una consulta válida que no cumple el pedido recibe feedback de objetivo (M10 con otro cálculo). | Integración y E2E. |
+| G10 | M10: la referencia y tres expresiones equivalentes son correctas en Oracle; dos salidas distintas, incorrectas; `AS` y columnas se comprueban antes. | Integración y E2E (Chromium, Edge, WebKit). |
+| T08 | `/lab` muestra la tabla real rotulada «Oracle (Oracle Database 23…)», un `ORA-01476` real y «No se envió a Oracle» para lo rechazado. | `tests/e2e/oracle-real.spec.ts` |
+| SEC01/SEC02 | Solo la sentencia canónica llega al driver; la salud rechaza cuentas con privilegios de más y una tabla que no coincide con el dataset. | Unitarias e integración. |
+
+Sin Oracle configurado, las mismas E2E comprueban que `/lab` y M10 declaran «no disponible» y no simulan resultados (`ORACLE_USER= ORACLE_PASSWORD= ORACLE_CONNECT_STRING= npm run test:e2e`). La carga de 60 estudiantes contra Oracle sigue pendiente (umbral de 2 s en la tabla de rendimiento).
+
 ## Sala en vivo 1.1: pruebas automatizadas (Fase 7)
 
 La sala a ritmo propio de [REALTIME_SPEC](REALTIME_SPEC.md) 1.1 tiene tres niveles de prueba. Una misma batería de contrato (`tests/support/classroom-contract.ts`) se ejecuta con el almacenamiento en memoria (`tests/unit/classroom`) y con PostgreSQL embebido sobre la migración real, llamando a las funciones como `service_role` (`tests/integration/classroom-postgres.test.ts`). Las E2E (`tests/e2e/classroom.spec.ts`) recorren profesor y móviles en Chromium, Edge y WebKit con el almacenamiento en memoria.

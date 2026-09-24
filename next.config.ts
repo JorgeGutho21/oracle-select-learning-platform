@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   typedRoutes: true,
+  // El driver de Oracle se carga desde node_modules en el servidor, sin empaquetarlo.
+  serverExternalPackages: ['oracledb'],
   sassOptions: {
     quietDeps: true,
     // Rutas nativas también para imports internos de Bootstrap en Windows.

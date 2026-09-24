@@ -16,7 +16,7 @@ import {
 } from '@/features/classroom/infrastructure/notifiers';
 import { SupabaseClassroomRepository } from '@/features/classroom/infrastructure/supabase-classroom-repository';
 import { InProcessMissionEvaluator } from '@/features/challenge/infrastructure/in-process-mission-evaluator';
-import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured-oracle-executor';
+import { oracleExecutor } from '../oracle/oracle-server';
 
 /**
  * Raíz de composición de la sala en vivo (solo servidor). La clave de servicio de Supabase
@@ -69,7 +69,7 @@ export function classroomRuntime(): ClassroomRuntime {
       ? new ClassroomService({
           repository,
           // El mismo evaluador del Challenge individual: una sola definición de corrección.
-          evaluator: new InProcessMissionEvaluator(new UnconfiguredOracleExecutor()),
+          evaluator: new InProcessMissionEvaluator(oracleExecutor()),
           notifier,
           presenterGate: gate,
           secrets: nodeSecrets,

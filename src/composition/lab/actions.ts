@@ -5,22 +5,20 @@ import {
   executeOnOracle,
   type LabExecution,
 } from '@/features/laboratory/application/execute-on-oracle';
-import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured-oracle-executor';
+import { oracleExecutor } from '../oracle/oracle-server';
 
 /**
- * Ejecución real del laboratorio en el servidor. El adaptador vigente declara que Oracle no
- * está conectado (R1 pendiente); se sustituirá por el adaptador node-oracledb sin cambiar
- * la interfaz. Las Server Functions son accesibles por POST directo: se valida la entrada.
+ * Ejecución real del laboratorio en el servidor con el adaptador que elige el entorno
+ * (node-oracledb o «no conectado»). Las Server Functions son accesibles por POST directo:
+ * se valida la entrada y el analizador decide qué llega a Oracle.
  */
-
-const executor = new UnconfiguredOracleExecutor();
 
 export async function executeLabQuery(sql: string): Promise<LabExecution> {
   if (typeof sql !== 'string')
     return { status: 'rejected', message: 'La consulta no tiene un formato válido.' };
-  return executeOnOracle(sql, executor);
+  return executeOnOracle(sql, oracleExecutor());
 }
 
 export async function getLabOracleStatus(): Promise<OracleServiceStatus> {
-  return executor.status();
+  return oracleExecutor().status();
 }

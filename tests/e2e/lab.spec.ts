@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { fillEditor } from './challenge-helpers';
+import { ORACLE_CONFIGURED } from './support/oracle';
 
 const editorOf = (page: Page) => page.getByRole('textbox', { name: 'Consulta SQL' });
 const panel = (page: Page, name: string) => page.getByRole('region', { name });
@@ -12,7 +13,9 @@ test.describe('Laboratorio SQL', () => {
     await page.goto('/lab');
     await expect(page.getByRole('heading', { level: 1, name: 'Laboratorio SQL' })).toBeVisible();
     await expect(editorOf(page)).toContainText('SELECT nombre, salario');
-    await expect(panel(page, 'Resultado')).toContainText('No conectado');
+    await expect(panel(page, 'Resultado')).toContainText(
+      ORACLE_CONFIGURED ? 'Conectado' : 'No conectado',
+    );
 
     await page.getByRole('button', { name: 'Analizar' }).click();
 
@@ -37,8 +40,16 @@ test.describe('Laboratorio SQL', () => {
     }
 
     await page.getByRole('button', { name: 'Ejecutar en Oracle' }).click();
-    await expect(result.getByText('Servicio Oracle no disponible')).toBeVisible();
-    await expect(result.locator('.lab-result__block--oracle table')).toHaveCount(0);
+    if (ORACLE_CONFIGURED) {
+      // Resultado real del motor, identificado como tal y distinto de la vista previa.
+      const real = result.getByRole('table', { name: /^Oracle \(Oracle Database \d+/ });
+      await expect(real).toContainText('3.000.000');
+      await expect(real.getByRole('columnheader')).toHaveText(['NOMBRE', 'SALARIO']);
+      await expect(real.getByRole('row')).toHaveCount(7);
+    } else {
+      await expect(result.getByText('Servicio Oracle no disponible')).toBeVisible();
+      await expect(result.locator('.lab-result__block--oracle table')).toHaveCount(0);
+    }
     const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(axe.violations).toEqual([]);
   });

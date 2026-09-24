@@ -17,7 +17,13 @@ export interface OracleColumn {
   readonly type: 'number' | 'text';
 }
 
-export type OracleUnavailableReason = 'not-configured' | 'unreachable' | 'busy' | 'timeout';
+export type OracleUnavailableReason =
+  | 'not-configured'
+  | 'unreachable'
+  | 'busy'
+  | 'timeout'
+  /** El resultado supera 100 filas o 100 KB: no se muestra ni se califica (LAB_SPEC). */
+  | 'too-large';
 
 export type OracleExecutionResult =
   | {

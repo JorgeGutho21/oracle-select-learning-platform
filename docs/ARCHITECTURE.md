@@ -71,6 +71,12 @@ El servicio Oracle no tiene acceso a resultados, identidades ni credenciales de 
 
 Validar origen de peticiones, sesión y expiración; limitar intentos de ingreso por identidad y dirección de red sin bloquear a toda una universidad tras pocos accesos compartidos. Alias tratados como texto, no HTML. Respuestas y errores se muestran escapados.
 
+## Servicio Oracle implementado (Fase 8)
+
+El puerto `OracleQueryExecutor` (`src/application/oracle-executor.ts`) tiene dos adaptadores en `src/infrastructure/oracle`: `OracledbQueryExecutor`, con node-oracledb en modo Thin, grupo de conexiones, cola acotada, plazo total y salud real (dataset y privilegios); y `UnconfiguredOracleExecutor`, que declara «no conectado» sin simular. La raíz `src/composition/oracle/oracle-server.ts` (`server-only`) elige uno según el entorno y lo comparten el laboratorio, la práctica del Challenge y la sala en vivo, así que M10 se califica con el mismo Oracle en los tres. El driver se excluye del empaquetado (`serverExternalPackages`) y se carga la primera vez que se usa.
+
+Diferencia con la tabla de componentes: el servicio Oracle corre dentro del servidor de la web en lugar de un servicio Node separado. La cuenta lectora, los límites y el aislamiento de LAB_SPEC se aplican igual; separarlo sigue siendo posible sin cambiar el puerto si el alojamiento de la web no tiene red hasta Oracle.
+
 ## Sala en vivo implementada (Fase 7, REALTIME_SPEC 1.1)
 
 Módulo `src/features/classroom`, con las mismas capas que el resto:

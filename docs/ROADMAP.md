@@ -22,6 +22,8 @@ No se asignan fechas inventadas: no se confirmó duración exacta de exposición
 | R7 — Validación y ensayo | Seguridad, accesibilidad, carga, restauración, recuperación de cortes y ensayo completo de exposición. | R5 y R6. | TEST_PLAN completo, sin bloqueos críticos; prueba en teléfonos y proyector del contexto real. |
 | R8 — Publicación funcional | Publicación de web, API, servicio Oracle, configuración de canales, dominio/QR definitivo y verificación de recursos. | R7 y acceso al alojamiento seleccionado. | Recorrido completo desde enlace público con estudiante nuevo; SQL real, vídeos y diez rondas operativos. |
 
+Estado de R1 (Fase 8): adaptador node-oracledb con cuenta lectora, grupo, plazos y salud real; LAB01–LAB15 verificados contra Oracle Database 23ai Free local (compatible con la sintaxis 19c del subconjunto). Falta la instancia accesible desde el despliegue.
+
 Estado de R5 (Fase 6): chuleta imprimible, catálogo `/modules` e infraestructura de video terminados; la producción de V01 y V02 sigue pendiente.
 
 Estado de R6 (Fase 7): sala en vivo 1.1 a ritmo propio implementada (esquema, RLS, QR, inscripciones, corrección y puntos en servidor, ranking y estadísticas), verificada en memoria y en PostgreSQL embebido. Pendientes: validación en un proyecto Supabase remoto, ensayo de 60 inscritos (R10) y, para una versión posterior, rondas guiadas, pausa y cuenta docente ([REALTIME_SPEC](REALTIME_SPEC.md) 1.1).

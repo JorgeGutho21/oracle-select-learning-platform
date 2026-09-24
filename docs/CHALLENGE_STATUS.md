@@ -1,10 +1,10 @@
 # Estado del SQL Challenge
 
-Actualizado: 23 de septiembre de 2026, Fase 4 (motor SQL educativo y laboratorio), rama `claude-finish-20260923`. Especificación de referencia: [GAME_SPEC.md](GAME_SPEC.md) versión 2.0 (catálogo `select-challenge-v2`), requisitos P09–P13 y P15 de [PROJECT_SPEC.md](PROJECT_SPEC.md), pruebas T09–T13 y G01–G15 de [TEST_PLAN.md](TEST_PLAN.md).
+Actualizado: 24 de septiembre de 2026, Fase 8 (Oracle real y M10), rama `claude-finish-20260923`. Especificación de referencia: [GAME_SPEC.md](GAME_SPEC.md) versión 2.0 (catálogo `select-challenge-v2`), requisitos P09–P13 y P15 de [PROJECT_SPEC.md](PROJECT_SPEC.md), pruebas T09–T13 y G01–G15 de [TEST_PLAN.md](TEST_PLAN.md).
 
 ## Conclusión
 
-**M01–M09 están implementadas, son jugables en `/challenge` y tienen pruebas.** Se practican con ratón, arrastre, toque y teclado, sobre el motor, la puntuación, el cronómetro, los intentos, las pistas, el progreso, el feedback y la explicación comunes. **M10 tiene editor y corrección estructural (Fase 4), pero la calificación final exige Oracle real:** sin el servicio no se simula la corrección y un envío correcto no consume intentos.
+**M01–M09 están implementadas, son jugables en `/challenge` y tienen pruebas.** Se practican con ratón, arrastre, toque y teclado, sobre el motor, la puntuación, el cronómetro, los intentos, las pistas, el progreso, el feedback y la explicación comunes. **M10 está completa (Fase 8):** estructura y requisitos con el motor compartido y calificación final ejecutando la consulta en Oracle real. Sin Oracle configurado no se simula: el envío es un fallo técnico que no consume intentos.
 
 ## Decisión de contenido: Challenge v2
 
@@ -14,18 +14,18 @@ M08 respeta LAB10: `SELECT nombre salario FROM empleados;` es SQL válido (SALAR
 
 ## Estado por misión
 
-| Misión | Contenido                                     | Interacción                                                                                   | Estado                | Pruebas                  |
-| ------ | --------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------- | ------------------------ |
-| M01    | `SELECT nombre, salario FROM empleados;`      | Arrastrar columnas a SELECT; resaltado en la tabla                                            | DONE                  | Unitarias + E2E ×3       |
-| M02    | `SELECT nombre, ciudad FROM empleados;`       | Ordenar piezas                                                                                | DONE                  | Unitarias + E2E ×3       |
-| M03    | `SELECT * FROM empleados;`                    | Construir encabezados y número de filas                                                       | DONE                  | Unitarias + E2E ×3 + axe |
-| M04    | Resultado de `SELECT nombre, salario`         | Construir encabezados y marcar filas en la tabla                                              | DONE                  | Unitarias + E2E ×3       |
-| M05    | `salario * 12`                                | Construir la expresión y predecir valores de Ana, Pedro y María                               | DONE                  | Unitarias + E2E ×3       |
-| M06    | `salario * 12 AS salario_anual`               | Ordenar piezas con vista de encabezados y tabla intacta                                       | DONE                  | Unitarias + E2E ×3 + axe |
-| M07    | `SELECT DISTINCT ciudad`                      | Antes (6 filas) → retirar repeticiones → después (3)                                          | DONE                  | Unitarias + E2E ×3 + axe |
-| M08    | Coma ausente en `SELECT nombre salario`       | Hotspot: huecos seleccionables en el código; corrección con el motor SQL compartido           | DONE                  | Unitarias + E2E ×3 + axe |
-| M09    | «nombre, ciudad y salario de todos» → bloques | Bloques con distractores; motor SQL compartido, corregido por resultado                       | DONE                  | Unitarias + E2E ×3       |
-| M10    | Consulta escrita con cálculo y alias          | Editor CodeMirror; estructura y requisitos con el motor compartido; resultado final en Oracle | PARTIAL (espera a R1) | Unitarias + E2E ×3       |
+| Misión | Contenido                                     | Interacción                                                                                                  | Estado        | Pruebas                                 |
+| ------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------- | --------------------------------------- |
+| M01    | `SELECT nombre, salario FROM empleados;`      | Arrastrar columnas a SELECT; resaltado en la tabla                                                           | DONE          | Unitarias + E2E ×3                      |
+| M02    | `SELECT nombre, ciudad FROM empleados;`       | Ordenar piezas                                                                                               | DONE          | Unitarias + E2E ×3                      |
+| M03    | `SELECT * FROM empleados;`                    | Construir encabezados y número de filas                                                                      | DONE          | Unitarias + E2E ×3 + axe                |
+| M04    | Resultado de `SELECT nombre, salario`         | Construir encabezados y marcar filas en la tabla                                                             | DONE          | Unitarias + E2E ×3                      |
+| M05    | `salario * 12`                                | Construir la expresión y predecir valores de Ana, Pedro y María                                              | DONE          | Unitarias + E2E ×3                      |
+| M06    | `salario * 12 AS salario_anual`               | Ordenar piezas con vista de encabezados y tabla intacta                                                      | DONE          | Unitarias + E2E ×3 + axe                |
+| M07    | `SELECT DISTINCT ciudad`                      | Antes (6 filas) → retirar repeticiones → después (3)                                                         | DONE          | Unitarias + E2E ×3 + axe                |
+| M08    | Coma ausente en `SELECT nombre salario`       | Hotspot: huecos seleccionables en el código; corrección con el motor SQL compartido                          | DONE          | Unitarias + E2E ×3 + axe                |
+| M09    | «nombre, ciudad y salario de todos» → bloques | Bloques con distractores; motor SQL compartido, corregido por resultado                                      | DONE          | Unitarias + E2E ×3                      |
+| M10    | Consulta escrita con cálculo y alias          | Editor CodeMirror; estructura y requisitos con el motor compartido; resultado final ejecutado en Oracle real | DONE (Fase 8) | Unitarias + integración Oracle + E2E ×3 |
 
 «E2E ×3» significa Chromium, Microsoft Edge y WebKit.
 
@@ -72,6 +72,10 @@ src/composition/challenge/
 - El botón «Revisar sintaxis (sin puntuar)» usa el mismo motor sin gastar intentos.
 - CodeMirror se carga bajo demanda al abrir M10, así que no pesa en la carga inicial de `/challenge`.
 
+## M10 con Oracle real (Fase 8)
+
+Flujo: parser → validación de requisitos → sentencia canónica → Oracle real → salida → comparación con la referencia → puntuación. No se compara la cadena: se aceptan `12 * (100000 + salario)` y `salario * 12 + 1200000`, con otra caja, espacios o comentarios, porque Oracle devuelve la misma salida. Un cálculo distinto (`salario * 12 + 100000`) es un intento académico incorrecto por los valores que devuelve Oracle. Verificado contra Oracle Database 23ai Free en `tests/integration/oracle-real.test.ts` y en E2E en Chromium, Edge y WebKit. La práctica individual y la sala en vivo usan el mismo adaptador.
+
 ## Puntuación
 
 Sin cambios respecto a la Fase 2: `100 − 20 × (intento − 1) − 20 × pistas`, con un máximo de 1000. La bonificación por tiempo sigue en 0, como exige GAME_SPEC; activarla está pendiente de la decisión del responsable del proyecto.
@@ -88,7 +92,7 @@ En una de tres ejecuciones completas de la suite, una llamada a la Server Functi
 
 ## Pendiente
 
-1. Calificación final de M10 con Oracle real (R1): falta el adaptador node-oracledb del puerto `OracleQueryExecutor`.
+1. ~~Calificación final de M10 con Oracle real~~ (Fase 8). Para los estudiantes falta una instancia Oracle compartida en el despliegue.
 2. `/results` todavía no muestra el resultado local (el resumen está dentro de `/challenge`).
 3. Prueba de arrastre táctil real en dispositivo físico: en la automatización se verifica el toque sin arrastre; el arrastre táctil con `TouchSensor` no se simula.
 4. Revisión con lector de pantalla y dispositivos físicos.

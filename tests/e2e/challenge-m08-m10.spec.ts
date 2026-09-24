@@ -11,6 +11,7 @@ import {
   startChallenge,
   submit,
 } from './challenge-helpers';
+import { ORACLE_CONFIGURED } from './support/oracle';
 
 async function solveM01(page: import('@playwright/test').Page) {
   await addPiece(page, 'nombre');
@@ -61,7 +62,7 @@ test.describe('Challenge M08–M10 y resultados', () => {
     await expect(mapScore(page)).toContainText('80');
   });
 
-  test('M10: editor con revisión sin puntuar; el SQL inválido consume intento y Oracle no se simula', async ({
+  test('M10: revisión sin puntuar, intento por SQL que no cumple y corrección final en Oracle', async ({
     page,
   }) => {
     await startChallenge(page);
@@ -82,11 +83,19 @@ test.describe('Challenge M08–M10 y resultados', () => {
       'SELECT nombre, ciudad,\n  (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados;',
     );
     await page.getByRole('button', { name: 'Enviar para evaluar' }).click();
-    await expect(
-      page.getByRole('status').filter({ hasText: 'Servicio no disponible' }),
-    ).toContainText('No se consumió ningún intento');
-    await expect(page.getByText('Intento 2 de 2')).toBeVisible();
-    await expect(page.getByText('Resuelta', { exact: true })).toHaveCount(0);
+    if (ORACLE_CONFIGURED) {
+      // Corrección real: Oracle ejecuta la consulta y la salida se compara con la esperada.
+      await expectCorrect(page);
+      await expect(page.getByText('Resuelta', { exact: true }).first()).toBeVisible();
+      await expect(mapScore(page)).toContainText('80');
+    } else {
+      // Sin Oracle no se simula: fallo técnico que no consume intento.
+      await expect(
+        page.getByRole('status').filter({ hasText: 'Servicio no disponible' }),
+      ).toContainText('No se consumió ningún intento');
+      await expect(page.getByText('Intento 2 de 2')).toBeVisible();
+      await expect(page.getByText('Resuelta', { exact: true })).toHaveCount(0);
+    }
   });
 
   test('la pantalla final resume puntuación, precisión, tiempo, intentos y pistas y permite reiniciar', async ({

@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { readFileSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   SupabaseClassroomRepository,
   type RpcClient,
@@ -71,6 +71,11 @@ async function asRole<T>(db: PGlite, role: Role, sql: string): Promise<T[]> {
 }
 
 const database = supabaseLikeDatabase();
+// Arrancar PostgreSQL (WASM) y aplicar la migración es preparación, no parte de la primera
+// prueba: con la suite completa en paralelo puede superar el plazo por prueba.
+beforeAll(async () => {
+  await database;
+}, 60_000);
 afterAll(async () => {
   await (await database).close();
 });

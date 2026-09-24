@@ -1,6 +1,6 @@
 # LAB_SPEC — Laboratorio de Oracle SQL real
 
-Versión 1.0 · Requisito P08. Datos en [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
+Versión 1.1 · Requisito P08. Datos en [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md). La 1.1 añade la [implementación](#implementación-fase-8) del adaptador Oracle real.
 
 ## Qué significa ejecución real
 
@@ -103,3 +103,18 @@ Solo mostrar un código ORA si realmente lo devuelve Oracle; los errores detecta
 - LAB14: fallos, cancelación y saturación no filtran credenciales ni agotan permanentemente el grupo de conexiones.
 - LAB15: dos respuestas con igual contenido en distinto orden de filas son equivalentes; eliminar una fila repetida sin DISTINCT produce resultado distinto.
 - LAB16: una consulta válida que no satisface el pedido recibe feedback de objetivo, separado del diagnóstico del motor.
+
+## Implementación (Fase 8)
+
+Adaptador `OracledbQueryExecutor` (`src/infrastructure/oracle`) con el driver oficial `oracledb` 7.0.1 en modo Thin, compuesto solo en el servidor (`src/composition/oracle/oracle-server.ts`, marcado `server-only`). Configuración por entorno y pasos de instalación en [ORACLE_SETUP.md](ORACLE_SETUP.md).
+
+| Regla de esta especificación | Cómo se cumple |
+|---|---|
+| Validación previa y sentencia desde el árbol (pasos 1–4) | `executeOnOracle` analiza con el motor único de `src/domain/sql` y envía `renderStatement`; lo rechazado no llega al driver. `- -SALARIO` se escribe con espacio para que Oracle no lo lea como comentario `--`. |
+| Cuenta lectora (paso 5) | Se rechazan SYS, SYSTEM y demás cuentas administrativas, y que la lectora sea la propietaria. La salud comprueba privilegios efectivos: solo `CREATE SESSION`, sin tablas propias y solo lectura sobre `EMPLEADOS`. |
+| Límites (paso 6) | Grupo de 10 conexiones, cola de 60 y plazo total de 5 s que incluye la espera (`queueTimeout` y `callTimeout`). Se piden 101 filas: con más de 100 o más de 100 KB no se muestra ni se califica. |
+| Arranque | El servidor crea el grupo y comprueba la salud al iniciar (`src/instrumentation.ts`): la primera consulta no agota el plazo por la conexión inicial. |
+| Liberación (paso 7) | La conexión se devuelve siempre; si el plazo se agota o la conexión falla, se retira del grupo (`drop`). |
+| Precisión decimal | `NUMBER` se lee como texto decimal y se convierte a número solo si no pierde precisión; si no, se conserva el texto exacto. |
+| Errores | Código ORA real con mensaje pedagógico (por ejemplo `ORA-01476`); conexión, credenciales, cola y plazo son «servicio no disponible», sin detalles internos y sin consumir intentos. |
+| Dataset | Salud: `EMPLEADOS` debe coincidir fila a fila con `empleados-select-v1`. Script de carga versionado en `oracle/empleados-select-v1.sql`. |

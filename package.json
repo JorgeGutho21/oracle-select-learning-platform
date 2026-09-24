@@ -21,7 +21,11 @@
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium webkit msedge",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "oracle:up": "node scripts/oracle-local.mjs up",
+    "oracle:setup": "node scripts/oracle-local.mjs setup",
+    "oracle:status": "node scripts/oracle-local.mjs status",
+    "oracle:down": "node scripts/oracle-local.mjs down"
   },
   "dependencies": {
     "@codemirror/commands": "6.11.1",
@@ -37,6 +41,7 @@
     "@supabase/supabase-js": "2.117.1",
     "bootstrap": "5.3.8",
     "next": "16.3.6",
+    "oracledb": "7.0.1",
     "qrcode-generator": "2.0.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",

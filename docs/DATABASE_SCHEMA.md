@@ -30,7 +30,7 @@ ID de versión: `empleados-select-v1`. Fuente de valores: `SentenciasSQL_GM.pptx
 
 Decisión de reconciliación: F2 y el juego usan María 31, Jorge 29 y Ventas y añaden TELEFONO. No se trasladan esas diferencias al dataset v1. TELEFONO y ejemplos de NULL quedan para otra versión. No utilizar DEPARTAMENTO como un identificador alternativo silencioso: el esquema muestra DEPTO claramente.
 
-Una única definición versionada origina la carga administrativa de Oracle y la copia de visualización. Al publicar, comparar esquema, filas y huella de contenido. No permitir editar el dataset desde la plataforma. Cambios producen una nueva versión y no alteran salas activas. El usuario lector Oracle posee solo permiso de lectura sobre la tabla aprobada; un usuario distinto administra el esquema.
+Una única definición versionada origina la carga administrativa de Oracle y la copia de visualización. Al publicar, comparar esquema, filas y huella de contenido. No permitir editar el dataset desde la plataforma. Cambios producen una nueva versión y no alteran salas activas. El usuario lector Oracle posee solo permiso de lectura sobre la tabla aprobada; un usuario distinto administra el esquema. Implementación (Fase 8): la carga es [`oracle/empleados-select-v1.sql`](../oracle/empleados-select-v1.sql), cuya igualdad con `src/domain/dataset/empleados.ts` verifica una prueba unitaria; el servidor compara además la tabla real con el dataset antes de ejecutar ([ORACLE_SETUP.md](ORACLE_SETUP.md)).
 
 ## Entidades de la plataforma
 
