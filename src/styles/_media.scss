@@ -124,3 +124,19 @@
     display: none;
   }
 }
+
+// Código QR compartido (Exposición y sala en vivo).
+.qr-code {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.qr-code__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 0.5em;
+  color: var(--color-muted);
+  font-size: 0.8em;
+  text-align: center;
+}

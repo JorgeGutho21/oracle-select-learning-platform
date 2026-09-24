@@ -32,6 +32,19 @@ export function Tooltip({ label, children }: TooltipProps) {
     setOpen(true);
   }
 
+  const showRef = useRef(show);
+  useEffect(() => {
+    showRef.current = show;
+  });
+
+  useEffect(() => {
+    // Si el foco llegó antes de hidratar, `onFocus` nunca se disparó: se abre al montar.
+    const frame = window.requestAnimationFrame(() => {
+      if (document.activeElement === triggerRef.current) showRef.current();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     function dismiss(event: PointerEvent) {

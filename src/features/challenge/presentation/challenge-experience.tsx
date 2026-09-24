@@ -32,10 +32,15 @@ function lastAttemptOutcome(state: MissionState): EvaluationOutcome | null {
 
 export interface ChallengeExperienceProps {
   engine: ChallengeEngine;
+  /**
+   * Partida dentro de una sala en vivo: el servidor registra los puntos y la cierra el
+   * profesor, así que no se ofrecen «Terminar» ni «Reiniciar».
+   */
+  live?: { readonly roomCode: string };
 }
 
 /** Práctica individual del SQL Oracle Challenge (UX_FLOWS, Flujo E). */
-export function ChallengeExperience({ engine }: ChallengeExperienceProps) {
+export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) {
   const state = useChallengeState(engine);
   const [restore, setRestore] = useState<RestoreStatus | 'loading'>('loading');
   const [drafts, setDrafts] = useState<Drafts>({});
@@ -162,7 +167,11 @@ export function ChallengeExperience({ engine }: ChallengeExperienceProps) {
             <li>La pista es opcional y resta {PRACTICE_RULES.hintPenalty} puntos.</li>
             <li>El cronómetro solo informa tu tiempo y se pausa al salir de la pestaña.</li>
             <li>Puedes arrastrar piezas, tocarlas o usar el teclado.</li>
-            <li>Es práctica individual: tu resultado se guarda solo en este navegador.</li>
+            <li>
+              {live
+                ? 'Tus puntos los registra el servidor y aparecen en el ranking de la clase.'
+                : 'Es práctica individual: tu resultado se guarda solo en este navegador.'}
+            </li>
           </ul>
           {restore === 'discarded' && (
             <Alert tone="info" title="Partida anterior descartada">
@@ -176,7 +185,7 @@ export function ChallengeExperience({ engine }: ChallengeExperienceProps) {
             </Alert>
           )}
           <div className="ch-actions">
-            <Button onClick={start}>Comenzar práctica</Button>
+            <Button onClick={start}>{live ? 'Comenzar el Challenge' : 'Comenzar práctica'}</Button>
           </div>
           {error && (
             <Alert tone="danger" title="No se pudo iniciar" live>
@@ -246,7 +255,9 @@ export function ChallengeExperience({ engine }: ChallengeExperienceProps) {
   return (
     <div className="site-container feature-page ch-page">
       <header className="feature-heading ch-page__heading">
-        <span className="eyebrow">Aplicar · Práctica individual</span>
+        <span className="eyebrow">
+          {live ? `Sala en vivo · ${live.roomCode}` : 'Aplicar · Práctica individual'}
+        </span>
         <h1>SQL Oracle Challenge</h1>
         {engine.getPersistenceStatus() === 'unavailable' && (
           <Alert tone="warning" title="Progreso sin guardar">
@@ -273,7 +284,7 @@ export function ChallengeExperience({ engine }: ChallengeExperienceProps) {
             disabled={pending !== null || finished}
             onOpen={open}
           />
-          {!finished && (
+          {!finished && !live && (
             <Button variant="secondary" onClick={() => setConfirmFinish(true)}>
               Terminar y ver resultados
             </Button>
@@ -284,7 +295,7 @@ export function ChallengeExperience({ engine }: ChallengeExperienceProps) {
             <ChallengeSummary
               result={result}
               missions={engine.missions}
-              onRestart={start}
+              {...(live ? {} : { onRestart: start })}
               {...(!finished ? { onReview: () => setShowSummary(false) } : {})}
             />
           ) : mission && missionState ? (

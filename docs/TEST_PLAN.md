@@ -106,6 +106,32 @@ Luis supera a Eva por resolver más misiones con igual puntuación. Eva y Sol co
 | OPS02 | Restaurar copia de aplicación y recalcular ranking. | Puntajes, denominadores y empates iguales a los previos. |
 | OPS03 | Publicar nueva versión durante una sala. | Sala conserva dataset, misión y rúbrica fijados al iniciar. |
 
+## Sala en vivo 1.1: pruebas automatizadas (Fase 7)
+
+La sala a ritmo propio de [REALTIME_SPEC](REALTIME_SPEC.md) 1.1 tiene tres niveles de prueba. Una misma batería de contrato (`tests/support/classroom-contract.ts`) se ejecuta con el almacenamiento en memoria (`tests/unit/classroom`) y con PostgreSQL embebido sobre la migración real, llamando a las funciones como `service_role` (`tests/integration/classroom-postgres.test.ts`). Las E2E (`tests/e2e/classroom.spec.ts`) recorren profesor y móviles en Chromium, Edge y WebKit con el almacenamiento en memoria.
+
+| ID | Cobertura | Dónde |
+|---|---|---|
+| T14 | QR y código a la misma sala, alias ocupado o no válido, cupo 61, sala iniciada, caducada e inexistente, recarga con la misma identidad. | Contrato y E2E. |
+| T15 | Puntos del servidor: 100, 80 (segundo intento o pista), 0 tras dos fallos; práctica sin puntos tras cerrar la oportunidad; fallo técnico sin consumir intento. | Contrato y E2E. |
+| T16 | Orden por puntos, misiones resueltas y tiempo; ranking de competición 1, 2, 3, 3, 5 (fixture de este plan). | Unitarias de dominio. |
+| T17 | Fixture M06 de cuatro inscritos (cinco intentos, 50 %, media 35 s, promedio 40), «Sin datos» sin intentos. | Unitarias de dominio. |
+| SEC03 | Respuestas con formato inválido o `requestId` no UUID se rechazan con Zod; el cliente no envía puntos. | Contrato y unitarias. |
+| SEC04 | Sin token de la sala no se leen vistas ni se dan órdenes. | Contrato y E2E. |
+| SEC05 | `anon` y `authenticated` sin acceso a tablas ni funciones, RLS activa sin políticas, restricciones de formato. | Integración PostgreSQL. |
+| SEC06 | Alias con HTML, correo o teléfono rechazado; se muestra siempre como texto. | Unitarias y contrato. |
+| SEC07 | La clave de servicio solo en módulos de servidor (`server-only`); vistas sin tokens ni huellas. | Unitarias y contrato. |
+| INT02 | 61 inscripciones simultáneas con cupo 60: entran 60. Mismo alias desde cinco móviles: entra uno. | Contrato (memoria y PostgreSQL). |
+| INT03 | Diez envíos simultáneos con el mismo `requestId`: un intento y un premio; mismo id con otro contenido: conflicto. | Contrato. |
+| INT04 | Envíos simultáneos desde dos pestañas: un pendiente como máximo y nunca más de dos intentos. | Contrato. |
+| RT04 | Avisos solo con la revisión; vistas tardías o de revisión menor ignoradas. | Diseño de `useRoomSync` y contrato (revisión creciente). |
+| RT06 | Reserva abandonada: a los 30 s deja de bloquear sin consumir intento. | Contrato. |
+| OPS01 | Mantenimiento: caduca salas vencidas y borra terminadas tras 30 días. | Integración PostgreSQL. |
+
+Concurrencia probada: 50 estudiantes que entran y responden a la vez. PGlite es una sola conexión, así que valida la lógica transaccional y los bloqueos por operación, no la contención de conexiones reales.
+
+**Pendiente, sin credenciales:** el ensayo del proyecto Supabase remoto (Realtime Broadcast, latencia, 60 móviles reales durante 20 minutos). Los umbrales de la tabla siguiente no están medidos para la sala. Pasos en [SUPABASE_SETUP.md](SUPABASE_SETUP.md#validación-pendiente).
+
 ## Rendimiento y carga
 
 Perfil de navegador: móvil de rendimiento medio, viewport 390 × 844, red simulada de 10 Mbps y latencia de 100 ms. Navegación inicial con caché vacía; medir carga útil sin iniciar vídeos. Registrar dispositivo y navegador reales, condiciones y fecha. Cinco recorridos para métricas web básicas; al menos 100 solicitudes o eventos para percentiles del servicio.

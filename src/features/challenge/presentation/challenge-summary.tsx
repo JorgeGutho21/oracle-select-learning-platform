@@ -21,7 +21,8 @@ const statusText: Record<MissionStatus, string> = {
 export interface ChallengeSummaryProps {
   result: ChallengeResult;
   missions: readonly AnyPublicMission[];
-  onRestart: () => void;
+  /** Sin esta acción (sala en vivo) no se ofrece reiniciar: la partida la cierra el profesor. */
+  onRestart?: () => void;
   onReview?: () => void;
 }
 
@@ -105,7 +106,7 @@ export function ChallengeSummary({ result, missions, onRestart, onReview }: Chal
         </div>
       )}
       <div className="ch-actions">
-        <Button onClick={() => setConfirm(true)}>Reiniciar práctica</Button>
+        {onRestart && <Button onClick={() => setConfirm(true)}>Reiniciar práctica</Button>}
         {onReview && (
           <Button variant="secondary" onClick={onReview}>
             Volver a las misiones
@@ -122,7 +123,7 @@ export function ChallengeSummary({ result, missions, onRestart, onReview }: Chal
           <Button
             onClick={() => {
               setConfirm(false);
-              onRestart();
+              onRestart?.();
             }}
           >
             Reiniciar desde cero

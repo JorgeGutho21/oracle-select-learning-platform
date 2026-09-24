@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { RoomsPage } from '@/features/rooms/presentation/live-page';
+import { CodeEntry } from '@/features/classroom/presentation/code-entry';
 
 export const metadata: Metadata = { title: 'Sala en vivo' };
 
 export default function Page() {
-  return <RoomsPage />;
+  return <CodeEntry />;
 }

@@ -1,7 +1,7 @@
 # Módulos funcionales
 
 Las pantallas base se agrupan en exposición (`presentation`), estudio (`study`),
-laboratorio (`laboratory`), Challenge (`challenge`), salas (`rooms`), resultados
+laboratorio (`laboratory`), Challenge (`challenge`), sala en vivo (`classroom`), resultados
 (`results`) y recursos (`resources`). Contenido y búsqueda tendrán módulos propios
 cuando se implemente su comportamiento según ARCHITECTURE.md.
 

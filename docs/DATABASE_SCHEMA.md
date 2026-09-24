@@ -1,6 +1,6 @@
 # DATABASE_SCHEMA — Datos educativos y persistencia
 
-Versión 1.0 · Modelo lógico y diccionario, sin DDL ni migraciones.
+Versión 1.1 · Modelo lógico y diccionario. La migración de la sala en vivo 1.1 está en `supabase/migrations`.
 
 ## Separación de bases
 
@@ -33,6 +33,8 @@ Decisión de reconciliación: F2 y el juego usan María 31, Jorge 29 y Ventas y 
 Una única definición versionada origina la carga administrativa de Oracle y la copia de visualización. Al publicar, comparar esquema, filas y huella de contenido. No permitir editar el dataset desde la plataforma. Cambios producen una nueva versión y no alteran salas activas. El usuario lector Oracle posee solo permiso de lectura sobre la tabla aprobada; un usuario distinto administra el esquema.
 
 ## Entidades de la plataforma
+
+El modelo lógico de esta sección corresponde a la sala 1.0 con rondas y cuenta docente. La migración implementada en la Fase 7 cubre la sala 1.1 a ritmo propio: ver [Implementación de la sala 1.1](#implementación-de-la-sala-11-fase-7).
 
 Tipos indicados conceptualmente: UUID para identidad, texto acotado, entero para puntos, booleano para indicadores, timestamp con zona horaria para instantes UTC y documento estructurado para respuestas heterogéneas. Fechas, puntos y autoridad de rol provienen del servidor.
 
@@ -169,6 +171,26 @@ No hay tablas de progreso individual ni borradores en servidor en v1. Se guardan
 | Salas/rondas/puntajes | No escribir | No escribir directamente | Solo comandos autorizados | Mutaciones transaccionales. |
 
 RLS activada en tablas expuestas, sin políticas amplias de lectura anónima. El cliente no recibe columnas internas al solicitar el ranking: una proyección autorizada devuelve solo alias, puntos, posición y tiempo. La clave privilegiada permanece en servidor. Pruebas de acceso directo deben fallar igual que por interfaz.
+
+## Implementación de la sala 1.1 (Fase 7)
+
+Migración: [`supabase/migrations/20260924120000_classroom.sql`](../supabase/migrations/20260924120000_classroom.sql). Se reutiliza el naming de este documento (`rooms`, `join_code`, `state`, `ended_at`) en lugar del propuesto en la solicitud de la Fase 7, que es compatible:
+
+| Nombre pedido en la Fase 7 | Implementado | Nota |
+|---|---|---|
+| sessions (id, code, status, created_at, started_at, finished_at) | `rooms` (id, join_code, state, created_at, started_at, ended_at) | Además: `presenter_token_hash`, `revision` y `expires_at`. |
+| participants (id, session_id, nickname, joined_at) | `participants` (id, room_id, nickname, joined_at) | Además: `nickname_key`, `token_hash`, `last_seen_at`, `left_at`. |
+| attempts (id, participant_id, mission_id, attempt_number, correct, score, duration_ms, hint_used, created_at) | `attempts` con los mismos campos | Además: `room_id`, `request_id`, `payload_hash`, `status`, `outcome`, `measured_from`, `evaluated_at`. |
+| results (id, session_id, participant_id, total_score, total_time_ms, accuracy, completed_at) | `results` (room_id, participant_id PK, total_score, total_time_ms, accuracy, completed_at) | Además: `solved_missions`, `attempts`, `hints_used`. Una fila por participante; la PK es `participant_id`. |
+| — | `hints` | Primera pista por participante y misión (descuento de GAME_SPEC). |
+
+Diferencias con el modelo 1.0: no existen `presenters`, `content_releases`, `rounds` ni `command_receipts` (la sala 1.1 no tiene rondas ni cuentas docentes); el profesor y los participantes se identifican por la huella SHA-256 de un token aleatorio guardado en una cookie `httpOnly`, no por `auth_user_id`. No se guarda la respuesta completa del estudiante: solo su huella (`payload_hash`) para la idempotencia y la corrección devuelta (`outcome`) para repetirla.
+
+Invariantes en la base, además de las de la aplicación: código con el alfabeto sin ambigüedades; huellas hexadecimales de 64 caracteres; alias de 2–24 caracteres únicos por sala sin distinguir mayúsculas (`nickname_key`); `attempt_number` 1 o 2 y único por participante y misión entre los evaluados; un solo intento pendiente por participante; `request_id` único por participante; referencias compuestas `(room_id, participant_id)` que impiden mezclar salas; `results.total_score` entre 0 y 1000.
+
+Permisos: RLS activada en las cinco tablas y sin políticas; `anon` y `authenticated` no tienen privilegios sobre tablas ni funciones; solo `service_role` (servidor) ejecuta las funciones `classroom_*`, que fijan `search_path` vacío. Verificado en PostgreSQL embebido con los privilegios por defecto de Supabase (`tests/integration/classroom-postgres.test.ts`); el proyecto remoto queda pendiente de credenciales ([SUPABASE_SETUP.md](SUPABASE_SETUP.md)).
+
+Estado de DB02, DB03 y DB05 para la sala 1.1: verificados en esa base (cupo 61, alias duplicado, tercer intento, acceso directo de `anon`). DB04 (recalcular desde intentos) se cumple por diseño: ranking y estadísticas se calculan siempre desde `attempts` y `hints`; `results` es una copia regenerable al finalizar.
 
 ## Retención, mantenimiento y aceptación
 

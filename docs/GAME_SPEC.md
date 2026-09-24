@@ -141,6 +141,8 @@ El servidor calcula tiempo activo desde el inicio hasta recibir la respuesta que
 
 Orden del ranking: puntos descendentes, luego número de misiones resueltas descendente y finalmente suma de tiempos activos ascendente. Si los tres valores coinciden, comparten posición; ordenar visualmente por alias no rompe el empate. Se usa ranking de competición: 1, 2, 3, 3, 5. Se muestran ranking y cambios de posición al cierre de cada ronda. No hay ranking global histórico.
 
+Sala v1.1 a ritmo propio ([REALTIME_SPEC](REALTIME_SPEC.md) 1.1): sin rondas, el tercer criterio es el tiempo desde el inicio de la sala hasta el último acierto de cada participante, medido por el servidor. Puntos, intentos, pistas, orden y empates son los de esta especificación; el ranking se actualiza con cada intento evaluado en lugar de al cierre de ronda.
+
 ## Estadísticas y feedback
 
 Para cada misión: participantes inscritos al comenzar la sala; personas que enviaron al menos un intento académico; personas que acertaron; aciertos al primer intento; respuestas fallidas; solicitudes de pista; no respuestas; tiempo medio hasta acierto entre quienes acertaron. Mostrar el denominador de cada tasa.

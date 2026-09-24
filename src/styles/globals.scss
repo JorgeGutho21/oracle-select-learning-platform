@@ -14,5 +14,6 @@
 @use 'search';
 @use 'resources';
 @use 'modules';
+@use 'classroom';
 
 @include tokens.emit;

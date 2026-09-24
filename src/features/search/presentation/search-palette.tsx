@@ -18,10 +18,11 @@ const platformShortcut = () => (/mac|iphone|ipad/i.test(navigator.platform) ? '�
 /** Enfoca el destino: la sección del ancla si existe; si no, el título principal. */
 function focusDestinationTitle(href: string) {
   const target = new URL(href, window.location.href);
-  let attempts = 0;
+  // Plazo por tiempo, no por fotogramas: la primera visita a una ruta puede tardar más de
+  // un segundo en cargar su código y el foco se perdía (60 fotogramas ≈ 1 s).
+  const deadline = performance.now() + 5000;
 
   const tryFocus = () => {
-    attempts += 1;
     const atDestination =
       window.location.pathname === target.pathname &&
       (target.search === '' || window.location.search === target.search);
@@ -38,7 +39,7 @@ function focusDestinationTitle(href: string) {
       return;
     }
 
-    if (attempts < 60) window.requestAnimationFrame(tryFocus);
+    if (performance.now() < deadline) window.requestAnimationFrame(tryFocus);
   };
 
   window.requestAnimationFrame(tryFocus);

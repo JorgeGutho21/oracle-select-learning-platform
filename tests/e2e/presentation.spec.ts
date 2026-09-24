@@ -120,7 +120,9 @@ test.describe('Modo Exposición', () => {
     await expectScene(page, 12, 'Laboratorio');
   });
 
-  test('el reto revela su respuesta y el QR abre la práctica individual', async ({ page }) => {
+  test('el reto revela su respuesta, el QR abre la práctica y enlaza la sala en vivo', async ({
+    page,
+  }) => {
     await openDeck(page, '/presentation?scene=15');
     await page.getByRole('button', { name: 'Revelar respuesta' }).click();
     await expect(page.getByRole('status').filter({ hasText: '3 filas' })).toContainText(
@@ -130,10 +132,11 @@ test.describe('Modo Exposición', () => {
       page.getByRole('img', { name: /Código QR que abre .*\/challenge$/ }),
     ).toBeVisible();
     await expect(
-      page.getByText('La sala en vivo con código y ranking aún no está disponible.', {
-        exact: false,
-      }),
+      page.getByText('Para jugar todos juntos, crea una sala en', { exact: false }),
     ).toBeVisible();
+    await expect(
+      page.locator('.scene-qr').getByRole('link', { name: 'Sala en vivo' }),
+    ).toHaveAttribute('href', '/presenter');
   });
 
   test('la pantalla completa se activa por acción del usuario o avisa si se rechaza', async ({

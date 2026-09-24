@@ -18,11 +18,13 @@ No se asignan fechas inventadas: no se confirmó duración exacta de exposición
 | R3 — Contenido y laboratorio | L00–L08, las dieciséis escenas de Exposición, tablas, traducción, anatomía, editor y ejecución segura con errores pedagógicos. | R1 y R2. | C01–C05, T06–T08 y LAB11–LAB16 verificados. Mismo dataset en todos los ejemplos. |
 | R4 — Challenge individual | Diez misiones, construcción, predicción, reparación, reto escrito, pista, intentos, cronómetro y resultado local. | R3. | T09–T13 y G01–G15 en modo individual; ninguna misión necesita temas futuros. |
 | R5 — Vídeos y recursos | Producción de V01 y V02, revisión de narración y subtítulos, transcripciones, chuleta imprimible y catálogo futuro. | Contenido de R3 congelado; puede ejecutarse junto con R4. | T05 y T18; vídeos usan datos y términos canónicos y duraciones acordadas. |
-
-Estado de R5 (Fase 6): chuleta imprimible, catálogo `/modules` e infraestructura de video terminados; la producción de V01 y V02 sigue pendiente.
 | R6 — Persistencia y sala | Auth docente/anónima, esquema de aplicación, RLS, QR, inscripciones, rondas, corrección en servidor, ranking y estadísticas. | R4 y contratos de R1; no exige duplicar motores de corrección. | T14–T17, DB01–DB07 y R01–R11; 60 inscritos sin pérdidas, tiempo autoritativo e idempotencia. |
 | R7 — Validación y ensayo | Seguridad, accesibilidad, carga, restauración, recuperación de cortes y ensayo completo de exposición. | R5 y R6. | TEST_PLAN completo, sin bloqueos críticos; prueba en teléfonos y proyector del contexto real. |
 | R8 — Publicación funcional | Publicación de web, API, servicio Oracle, configuración de canales, dominio/QR definitivo y verificación de recursos. | R7 y acceso al alojamiento seleccionado. | Recorrido completo desde enlace público con estudiante nuevo; SQL real, vídeos y diez rondas operativos. |
+
+Estado de R5 (Fase 6): chuleta imprimible, catálogo `/modules` e infraestructura de video terminados; la producción de V01 y V02 sigue pendiente.
+
+Estado de R6 (Fase 7): sala en vivo 1.1 a ritmo propio implementada (esquema, RLS, QR, inscripciones, corrección y puntos en servidor, ranking y estadísticas), verificada en memoria y en PostgreSQL embebido. Pendientes: validación en un proyecto Supabase remoto, ensayo de 60 inscritos (R10) y, para una versión posterior, rondas guiadas, pausa y cuenta docente ([REALTIME_SPEC](REALTIME_SPEC.md) 1.1).
 
 R0 está entregado al producir estos archivos. R1–R8 son trabajo futuro, no iniciado por esta solicitud. Las puertas de calidad no implican pedir aprobación para cada actividad rutinaria; describen qué evidencia debe existir antes de avanzar.
 

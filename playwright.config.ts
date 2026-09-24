@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { E2E_PRESENTER_ACCESS_CODE } from './tests/e2e/support/classroom';
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -33,5 +34,8 @@ export default defineConfig({
     url: 'http://127.0.0.1:3200',
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,
+    // La sala en vivo se prueba con el almacenamiento en memoria del proceso (sin
+    // credenciales); el adaptador Supabase se prueba contra Postgres en tests/integration.
+    env: { CLASSROOM_BACKEND: 'memory', PRESENTER_ACCESS_CODE: E2E_PRESENTER_ACCESS_CODE },
   },
 });

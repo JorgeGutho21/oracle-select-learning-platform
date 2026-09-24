@@ -49,6 +49,20 @@ test('la ayuda se abre con foco, se puede descartar y permanece dentro del móvi
   await expect(tooltip).not.toBeVisible();
 });
 
+test('la ayuda se abre aunque el foco llegue antes de que la página termine de cargar', async ({
+  page,
+}) => {
+  // Solo los scripts: si también llegara tarde el CSS, el desplazamiento de la página
+  // cerraría la ayuda (se cierra al hacer scroll, a propósito).
+  await page.route(/\/_next\/static\/.+\.js(\?|$)/, async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.continue();
+  });
+  await page.goto('/dev/design-system', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('button', { name: 'Ayuda del componente' }).focus();
+  await expect(page.getByRole('tooltip')).toBeVisible({ timeout: 15_000 });
+});
+
 test('la búsqueda de muestra conserva texto y muestra un estado vacío explícito', async ({
   page,
 }) => {

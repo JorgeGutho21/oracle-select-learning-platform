@@ -1,99 +1,94 @@
 # REALTIME_SPEC — Sala de clase en vivo
 
-Versión 1.0 · P14–P17 · Relacionado con [GAME_SPEC.md](GAME_SPEC.md) y [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
+Versión 1.1 · P14–P17 · Relacionado con [GAME_SPEC.md](GAME_SPEC.md), [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) y [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
+
+## Cambios de la versión 1.1 (Fase 7)
+
+La versión 1.0 describía rondas guiadas por el presentador (una misión abierta a la vez, con pausa y cierre de ronda) y una cuenta docente de Supabase Auth. La Fase 7 fija otro flujo: el profesor crea la sala, los estudiantes entran por QR, el profesor inicia y **cada estudiante resuelve las diez misiones a su ritmo** mientras el ranking se actualiza; el profesor finaliza cuando decide. Esta versión especifica ese modelo, que es el implementado. Las rondas guiadas, la pausa y la cuenta docente quedan [diferidas](#diferido-a-una-versión-posterior); no se presentan como disponibles.
 
 ## Roles y capacidad
 
-Un presentador autenticado dirige su sala. Hasta 60 participantes entran con identidad anónima y alias. La prueba de margen llega a 75 conexiones, pero el cupo de producto sigue en 60. Solo el presentador crea, inicia, pausa, reanuda, cierra o cancela. La vista de proyección muestra QR, ronda, reloj, avances agregados y ranking, sin respuestas privadas ni controles de credenciales.
+- **Profesor.** Crea la sala en `/presenter` con la clave del servidor `PRESENTER_ACCESS_CODE` (no hay cuentas docentes en v1.1). Quien la crea recibe un token aleatorio en una cookie `httpOnly` y solo ese navegador dirige la sala: iniciar, finalizar o cancelar.
+- **Estudiante.** Entra con un alias en `/join/{codigo}`, sin cuenta, correo ni contraseña. Recibe su propio token en una cookie `httpOnly` limitada a esa sala.
+- **Capacidad de producto:** 60 participantes por sala; el participante 61 recibe «sala completa». El objetivo de aula es de unos 50 estudiantes. La concurrencia está probada con memoria y PostgreSQL embebido; **la capacidad en el servicio remoto no está medida** (ver [Aceptación](#aceptación)).
 
-Código de ingreso de seis caracteres alfanuméricos sin caracteres confundibles, generado aleatoriamente y único entre salas vigentes. QR contiene únicamente URL pública y código, nunca claves del anfitrión. Caducidad máxima de sala: cuatro horas desde creación. Una sala en espera también caduca. Identificadores internos no sustituyen comprobación de permisos.
+Código de ingreso: seis caracteres del alfabeto `ABCDEFGHJKMNPQRSTUVWXYZ23456789` (sin I, L, O, 0 ni 1), generado al azar en el servidor y único entre salas en espera o en curso. Se normaliza lo que escribe la persona (mayúsculas, sin espacios ni guiones). El QR contiene solo la URL pública de `/join/{codigo}`, nunca tokens. Caducidad: cuatro horas desde la creación, también en espera. Conocer el código permite validar la sala y pedir un alias, no leer datos: cada lectura exige el token de profesor o de participante.
 
-## Estados persistidos
+## Estados
 
 | Estado de sala | Operaciones permitidas | Transición |
 |---|---|---|
-| lobby | Inscripción, mostrar QR, configuración de tiempo ya elegida, ver participantes. | running al iniciar primera ronda con al menos un participante; cancelled por docente; expired al caducar. |
-| running | Ronda activa o revisión; comandos docentes autorizados. Inscripción nueva cerrada. | paused, finished después de M10 evaluada, cancelled o expired. |
-| paused | Leer estado y conservar borradores; no aceptar nuevas respuestas. | running por reanudación; cancelled o expired. |
-| finished | Ranking final, estadísticas y revisión. | Sin reapertura en v1. |
-| cancelled | Resultados parciales rotulados. | Terminal. |
-| expired | Informar vencimiento, conservar datos hasta retención. | Terminal. |
+| lobby | Inscripción, QR, lista de participantes, salir de la sala. | running al iniciar con al menos un participante; cancelled por el profesor; expired al caducar. |
+| running | Cada participante responde M01–M10 a su ritmo. Inscripción cerrada. | finished o cancelled por el profesor; expired al caducar. |
+| finished | Ranking final completo, estadísticas y resultado personal. | Terminal; sin reapertura. |
+| cancelled | Sin ranking final publicado. | Terminal. |
+| expired | Informar vencimiento; se conservan los datos hasta la retención. | Terminal. |
 
-Rondas: pending → open → grading → review → closed. `grading` impide nuevos envíos pero espera que terminen los aceptados a tiempo. Después de `review`, el presentador avanza y cierra la ronda anterior. En la última, finalizar cierra M10 y la sala. Solo hay una ronda open/grading/review activa por sala. La pausa es un estado de sala que conserva la fase de ronda y el tiempo restante.
-
-La expiración prevalece incluso durante una pausa y deja resultado parcial. Un mantenimiento del servidor recupera estos estados tras reiniciar procesos.
+Salir en espera elimina la inscripción y libera el alias. Salir o desconectarse con la sala en curso conserva al participante en el grupo y en todas las métricas, marcado como «salió».
 
 ## Protocolo de sincronización
 
-Al entrar, recuperar instantánea autorizada: room_id, revisión monotónica, estado, hora del servidor, participantes agregados, ronda y versión de misión, apertura, vencimiento o tiempo restante pausado, estado propio de respuesta y ranking publicado. El código de sala no autoriza lectura por sí solo: se requiere pertenencia o propiedad.
+Cada cambio confirmado (inscripción, salida, inicio, intento evaluado, pista, cierre) aumenta en uno la **revisión** de la sala dentro de la misma operación de base de datos. Después, el servidor publica un aviso por Supabase Realtime Broadcast en el canal `classroom:{id de sala}` con un único dato: `{ revision }`.
 
-Las mutaciones se confirman en base de datos antes de notificar. Cada cambio relevante aumenta revisión de sala. El aviso contiene room_id, revisión y tipo de cambio; los clientes obtienen la instantánea o el detalle autorizado. No necesitan interpretar una secuencia incompleta de eventos para reconstruir puntajes.
+Las pantallas nunca reconstruyen el estado a partir de avisos. Al recibir una revisión mayor que la aplicada piden al servidor su **vista autorizada** (profesor o participante), que incluye la hora del servidor. Una vista que llega tarde no sustituye otra más reciente, y una revisión menor o igual se ignora. Los avisos se agrupan: como mucho una consulta por segundo aunque lleguen en ráfaga.
 
-| Aviso conceptual | Audiencia | Efecto |
+Sin configuración pública de Realtime o con el canal caído, las pantallas consultan la vista cada 2,5 s mientras están visibles; con Realtime conectado, cada 10 s como seguridad. También consultan al volver a la pestaña y al recuperar la red.
+
+| Aviso | Quién lo recibe | Efecto |
 |---|---|---|
-| participante inscrito/conectado | Miembros y presentador, solo agregado público | Actualizar conteo; lista administrativa separada. |
-| ronda abierta | Miembros | Mostrar enunciado, duración y hora autoritativa. |
-| respuesta registrada/evaluada | Propietario de la respuesta; agregado al docente | Confirmar envío y feedback permitido. |
-| sala pausada/reanudada | Miembros | Congelar o recalcular cuenta regresiva. |
-| ronda en revisión | Miembros | Revelar explicación y ranking confirmado. |
-| sala finalizada/cancelada/caducada | Miembros | Mostrar estado terminal correcto. |
+| Participante entra o sale | Profesor y participantes (solo cifras) | Lista del profesor; «N personas en la sala». |
+| Inicio | Participantes | Pasan de la espera al Challenge sin recargar. |
+| Intento evaluado o pista | Profesor; el propio participante | Ranking, progreso por misión, «respondieron» y puntos del servidor. |
+| Finalizada, cancelada o caducada | Todos | Resultado final o mensaje de cierre. |
 
-Canales privados autorizados por identidad y pertenencia. Un canal común no contiene SQL de estudiantes, pistas privadas, soluciones anticipadas ni datos de autenticación. La presencia online es informativa, nunca prueba de inscripción o finalización. [Supabase: autorización de canales](https://supabase.com/docs/guides/realtime/authorization).
+Presencia: «conectado» significa que la pantalla del participante consultó la sala en los últimos 15 s. Es informativa y nunca prueba inscripción ni avance.
 
 ## Autoridad temporal
 
-El servidor guarda apertura y vencimiento en UTC. El cliente representa la diferencia con la hora del servidor y un reloj monotónico local; sincroniza periódicamente y al recuperar foco. Cambiar el reloj del dispositivo no modifica la validez del intento.
+Todos los instantes (creación, inicio, fin, recepción y evaluación de intentos) los fija el servidor de la aplicación; el reloj del navegador nunca interviene en puntos ni ranking. El cronómetro del profesor se dibuja con la diferencia entre la hora del servidor recibida y el reloj local.
 
-La transacción de admisión fija `received_at` con el reloj de la base de aplicación después de obtener el bloqueo de participante/ronda; apertura, vencimiento y pausas usan esa misma autoridad. Se mide y limita la espera por bloqueo. No se mezcla ese instante con la hora de Oracle ni con la del navegador.
-
-Un envío es puntual solo si su recepción validada y persistida por el servicio de aplicación ocurre con ronda abierta, antes del vencimiento y sin pausa activa. Llegar exactamente al vencimiento es tardío. El timestamp enviado por el cliente se ignora. La evaluación puede terminar después del vencimiento si el envío fue aceptado antes.
-
-Al pausar se guarda tiempo restante; al reanudar se fija un nuevo vencimiento desde el reloj del servidor. Se acumulan intervalos de pausa para descontarlos de tiempo activo. Las solicitudes ya aceptadas se evalúan normalmente; el tiempo de su respuesta sigue siendo el de recepción.
-
-Por defecto la ronda cierra al vencer. El presentador puede cerrar antes solo si todos han resuelto o agotado intentos. No se recorta el tiempo de quienes aún pueden responder. Para interrumpir una actividad incompleta debe pausar o cancelar la sala, no producir un falso cierre normal.
+**Tiempo de ranking (sala a ritmo propio):** tiempo desde el inicio de la sala hasta la evaluación del último acierto del participante. Sin aciertos no hay tiempo que comparar y se muestra «Sin datos». Sustituye, para esta versión, la suma de tiempos por ronda de GAME_SPEC, que requiere rondas.
 
 ## Idempotencia y concurrencia
 
-- Todo comando y respuesta lleva request_id único. Repetir la misma identidad, request_id y contenido devuelve el estado ya registrado; no crea otro intento.
-- Reutilizar request_id con contenido diferente devuelve conflicto y conserva la primera solicitud.
-- Bloquear transaccionalmente el estado de participante/ronda al aceptar respuesta. Dos pestañas no pueden registrar dos envíos simultáneos ni superar dos intentos académicos.
-- Una evaluación pendiente impide otro envío y la solicitud de pista de ese participante. Reservar no significa consumir intento: el consumo ocurre al producirse una evaluación académica.
-- La corrección final actualiza intento y resultado en una transacción; un reintento de corrección devuelve lo existente. Ningún evento del cliente aporta puntos.
-- Comandos del docente incluyen revisión esperada. Dos pestañas con órdenes contradictorias producen un conflicto y actualización de estado, nunca doble apertura.
-- El cierre espera pendientes por su plazo máximo de cinco segundos. No ignora una respuesta aceptada antes de vencer.
+- Cada respuesta lleva un `requestId` (UUID v4 generado en el navegador). Repetir el mismo `requestId` con el mismo contenido devuelve la corrección ya registrada, sin otro intento. Reutilizarlo con otro contenido devuelve un fallo técnico y conserva el primero.
+- Reserva en dos fases: `reserveAttempt` bloquea al participante, comprueba idempotencia, que no haya otra corrección pendiente y el máximo de dos intentos académicos; después se evalúa y `completeAttempt` registra el resultado. Dos pestañas no pueden registrar dos envíos simultáneos ni superar dos intentos.
+- Una reserva pendiente de más de 30 s (proceso caído a mitad) se marca como fallo técnico y deja de bloquear; no consume intento.
+- Resolver la misión o agotar los intentos cierra la oportunidad puntuada: los envíos siguientes se corrigen como práctica y no cambian puntos.
+- Las inscripciones se serializan por sala: nunca se supera el cupo ni se repite un alias (sin distinguir mayúsculas).
+- Las órdenes del profesor comprueban el estado de origen; una orden repetida o contradictoria devuelve conflicto y la vista actual, nunca una doble transición.
 
 ## Reconexión y fallos
 
-| Situación | Comportamiento especificado |
+| Situación | Comportamiento |
 |---|---|
-| Estudiante desconectado | Conservar borrador; el tiempo general continúa. Recuperar identidad y snapshot al volver. No prometer envío offline. |
-| Confirmación de envío perdida | Consultar request_id antes de reenviar. Si el servidor lo tiene, recuperar su corrección. |
-| Realtime interrumpido | Mostrar estado de reconexión; consultar instantánea cada 3 segundos mientras la sala esté visible. El servidor sigue validando plazos. |
-| Presentador desconectado | Ronda abierta llega a su vencimiento y pasa a revisión; no inicia automáticamente la siguiente. El docente recupera control al volver con su cuenta. |
-| API o base de aplicación no disponibles | No dar por aceptados envíos. Al recuperar servicio, el docente puede cancelar una sala si la incidencia impidió una evaluación justa. No inventar aciertos ni reconstruir tiempos desde clientes. |
-| Oracle no disponible durante misión que requiere ejecución | Error técnico sin consumir intento. Pausa de sala detectada por el servicio; conservar intentos ya evaluados y borradores. |
-| Proceso de corrección reiniciado | Recuperar reservas pendientes; si excedieron su plazo, marcarlas error técnico, sin consumir intento. |
-
-Para incidente Oracle, guardar el instante de inicio del incidente y el tiempo restante de la ronda en ese instante. Si el fallo se detecta después del vencimiento por una ejecución aceptada antes, usar su instante de recepción como inicio del incidente. Reanudar con el tiempo restante guardado, nunca reiniciar la ronda completa ni borrar resultados ya confirmados. Si no puede recuperarse con equidad, cancelar y repetir en una sala nueva. No finalizar como éxito con pendientes técnicos.
-
-Cuando vuelven notificaciones antiguas, ignorar revisiones menores o iguales a la aplicada. Si llega una revisión mayor, pedir snapshot; no sumar puntos a partir del aviso.
+| Recarga o pérdida de red del estudiante | La cookie de la sala lo reconoce: vuelve a la espera, al Challenge (con su avance local) o a su resultado, sin nuevo cupo. |
+| Respuesta sin confirmación por la red | El navegador reintenta una vez con el mismo `requestId`; el servidor no duplica el intento. Si falla, error técnico que no consume intento. |
+| Realtime interrumpido | Aviso «actualización automática cada pocos segundos» y consulta cada 2,5 s. |
+| Profesor desconectado | La sala sigue en curso; al volver con el mismo navegador recupera la consola. |
+| Llega alguien tras el inicio | «La actividad ya comenzó»: no entra a mitad de partida. |
+| Base de la sala no disponible | No se dan por aceptados envíos; mensaje técnico sin detalles internos. |
+| Oracle | La sala usa el mismo evaluador que la práctica individual (sin Oracle en esta versión); un fallo técnico no consume intento. |
 
 ## Cierre, ranking y privacidad
 
-La sala fija participantes al iniciar M01. Se usa el mismo grupo para todas las métricas, incluso si alguien abandona. El ranking publicado se reconstruye con resultados de rondas cerradas o en revisión, no con mensajes del navegador. En vivo se muestran top cinco y posición propia; lista completa al finalizar. El docente dispone de agregados y revisión de intentos de su sala.
+El grupo queda fijado al iniciar (la inscripción se cierra) y es el denominador de todas las métricas, aunque alguien salga. El ranking se calcula siempre desde los intentos registrados, con el orden y los empates de GAME_SPEC. Durante la sala el participante ve los cinco primeros y su posición; al finalizar, la lista completa. El profesor ve ranking, progreso por misión, conectados, quién respondió y estadísticas; al finalizar se guardan los resultados por participante.
 
-Alias no es identidad legal. La pantalla de entrada explica que alias, puntos y tiempo son visibles a la clase. No se requiere correo del estudiante. Datos de sala e intentos se conservan 30 días, con acceso autorizado, y se eliminan mediante mantenimiento. No hay ranking público indexable.
+El alias no es identidad legal. La pantalla de ingreso avisa que alias, puntos y tiempo son visibles para la clase y pide no usar nombre completo, correo ni teléfono. No se guardan correos ni contraseñas de estudiantes. Datos de sala e intentos se conservan 30 días tras el cierre y se eliminan con `classroom_maintenance`. No hay ranking público indexable (`noindex` en `/presenter` y `/join`).
+
+## Diferido a una versión posterior
+
+Rondas guiadas por el presentador (una misión abierta a la vez, revisión y avance), pausa y reanudación con descuento de tiempo, perfil de tiempo ×2, cierre de ronda por vencimiento, identidad docente con Supabase Auth, canales Realtime privados autorizados por pertenencia y recuperación de incidentes Oracle con tiempo restante. Los criterios R03, R07 y R08 de la versión 1.0 aplican a ese modelo y no se evalúan en v1.1.
 
 ## Aceptación
 
-- R01: dos móviles y una pantalla reciben misma ronda y revisión después de cada transición autorizada.
-- R02: modificar reloj del móvil ±10 minutos no altera tiempo admitido ni puntaje.
-- R03: recibir a vencimiento menos 1 ms acepta; recibir al vencimiento o después rechaza sin nuevo intento.
-- R04: repetir diez veces el mismo envío deja un solo registro y un solo premio.
-- R05: dos pestañas simultáneas de un participante conservan límites y resultado único.
-- R06: al reconectar tras perder tres avisos, snapshot restablece estado y total sin duplicados.
-- R07: pausa de 30 segundos conserva tiempo activo y añade esos 30 segundos al vencimiento al reanudar.
-- R08: sin presentador, se cierra la ronda vigente y se espera; no se salta a otra.
-- R09: un invitado no perteneciente a la sala no recibe sus eventos ni datos privados; un participante no ejecuta comandos docentes.
-- R10: 60 estudiantes completan el circuito; p95 de notificación ≤1 s en condiciones de TEST_PLAN, sin pérdidas ni duplicación.
-- R11: fallar Oracle no consume intentos; recuperar o cancelar produce estados y resultados explícitos.
+| Criterio | Estado en v1.1 |
+|---|---|
+| R01: dos móviles y una pantalla reciben el mismo estado y revisión tras cada transición. | Verificado en E2E (memoria) con un profesor y dos móviles. |
+| R02: cambiar el reloj del móvil no altera tiempo ni puntaje. | Por diseño: el servidor fija todos los instantes; pruebas de contrato con reloj controlado. |
+| R04: repetir diez veces el mismo envío deja un solo registro y un solo premio. | Verificado en memoria y PostgreSQL. |
+| R05: dos pestañas simultáneas conservan límites y resultado único. | Verificado en memoria y PostgreSQL. |
+| R06: al reconectar, la vista del servidor restablece el estado sin duplicados. | Verificado (recarga en espera y en curso, E2E). |
+| R09: sin token no se leen vistas ni se ejecutan órdenes; un participante no dirige la sala. | Verificado en contrato y E2E; `anon` y `authenticated` sin acceso a tablas ni funciones. |
+| R10: 60 estudiantes completan el circuito; p95 de notificación ≤1 s. | **Pendiente.** Probadas 50 inscripciones y respuestas simultáneas y 61 inscripciones con cupo 60; falta el ensayo en Supabase remoto con dispositivos reales. |
+| R11: un fallo técnico no consume intentos. | Verificado (fallos técnicos, reservas caducadas). |

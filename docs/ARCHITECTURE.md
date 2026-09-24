@@ -71,6 +71,24 @@ El servicio Oracle no tiene acceso a resultados, identidades ni credenciales de 
 
 Validar origen de peticiones, sesión y expiración; limitar intentos de ingreso por identidad y dirección de red sin bloquear a toda una universidad tras pocos accesos compartidos. Alias tratados como texto, no HTML. Respuestas y errores se muestran escapados.
 
+## Sala en vivo implementada (Fase 7, REALTIME_SPEC 1.1)
+
+Módulo `src/features/classroom`, con las mismas capas que el resto:
+
+| Capa | Contenido |
+|---|---|
+| Dominio | Código de sala, saneado de alias, estados y transiciones, ranking, progreso por misión y estadísticas (sin React, red ni almacenamiento). |
+| Aplicación | `ClassroomService` (crear, inscribir, iniciar, finalizar, cancelar, salir, responder, pista, vistas), puertos `ClassroomRepository`, `RoomNotifier`, `PresenterGate` y `ClassroomSecrets`, esquemas Zod y la superficie `classroom-api` para presentación. |
+| Infraestructura | `SupabaseClassroomRepository` (solo RPC a las funciones de la migración), `MemoryClassroomRepository` (desarrollo y pruebas, activado expresamente), aviso por Supabase Broadcast, suscripción del navegador, tokens y huellas de Node. |
+| Presentación | Consola del profesor, ingreso móvil, espera, resultado personal, `/live` y `/results`. Recibe acciones por props; no importa Supabase. |
+| Composición | `src/composition/classroom`: raíz de servidor (`server-only`) que elige el almacenamiento por entorno, Server Functions con cookies `httpOnly`, y raíces de cliente que unen el Challenge en vivo con esas funciones. |
+
+React nunca accede a Supabase para leer o escribir datos: todo pasa por Server Functions que validan con Zod y llaman al servicio. El navegador solo abre, si está configurado, un canal Broadcast de solo lectura que transporta la revisión. La clave `service_role` se lee únicamente en la raíz de servidor.
+
+La sala reutiliza el motor del Challenge (`ChallengeEngine`) y el mismo evaluador del servidor que la práctica: una única definición de corrección y de puntos (A05). El navegador conserva su avance local por sala; los puntos, intentos, tiempos y el ranking los calcula el servidor desde los intentos registrados (A02).
+
+Diferencias con la identidad descrita arriba, aceptadas para v1.1: el profesor usa una clave de servidor en lugar de una cuenta de Supabase Auth, y los estudiantes un token por sala en cookie en lugar de una identidad anónima de Auth. La autorización se comprueba en cada operación con la huella del token. La cuenta docente y los canales privados quedan para la versión con rondas.
+
 ## Operación y fallos
 
 - Configuración de servidor para secretos, URLs, tamaño del grupo Oracle, plazos y versiones. Nunca se incluye una clave privilegiada en recursos enviados al cliente.
