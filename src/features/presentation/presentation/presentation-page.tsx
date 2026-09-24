@@ -1,13 +1,17 @@
-import { FeaturePlaceholder } from '@/presentation/components/feature-placeholder';
+import { ACADEMIC_IDENTITY } from '@/application/academic-identity';
+import { LESSONS } from '@/features/study/application/study-api';
+import { PresentationDeck } from './presentation-deck';
 
-export function PresentationPage() {
+export interface PresentationPageProps {
+  readonly initialScene?: number;
+}
+
+export function PresentationPage({ initialScene = 1 }: PresentationPageProps) {
   return (
-    <FeaturePlaceholder
-      title="Modo Exposición"
-      description="Un espacio claro para compartir cada idea con la clase."
-      emptyTitle="La exposición está en preparación"
-      emptyDescription="Las escenas se incorporarán en una fase posterior."
-      section="Compartir"
+    <PresentationDeck
+      initialScene={initialScene}
+      identity={ACADEMIC_IDENTITY}
+      lessonCount={LESSONS.length}
     />
   );
 }

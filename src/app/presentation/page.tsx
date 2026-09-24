@@ -3,6 +3,16 @@ import { PresentationPage } from '@/features/presentation/presentation/presentat
 
 export const metadata: Metadata = { title: 'Modo Exposición' };
 
-export default function Page() {
-  return <PresentationPage />;
+interface PageProps {
+  readonly searchParams: Promise<{ readonly scene?: string | readonly string[] }>;
+}
+
+function parseScene(value: string | readonly string[] | undefined): number {
+  const parsed = Number(Array.isArray(value) ? value[0] : value);
+  return Number.isInteger(parsed) && parsed >= 1 && parsed <= 16 ? parsed : 1;
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams;
+  return <PresentationPage initialScene={parseScene(params.scene)} />;
 }

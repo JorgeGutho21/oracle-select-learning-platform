@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { StudyPage } from '@/features/study/presentation/learn-page';
+import { StudyRoot } from '@/composition/study/study-root';
 
 export const metadata: Metadata = { title: 'Modo Estudio' };
 
 export default function Page() {
-  return <StudyPage />;
+  return <StudyRoot />;
 }

@@ -1,0 +1,120 @@
+.search-palette {
+  min-inline-size: 0;
+}
+
+.search-palette .ds-field__hint {
+  margin-block-end: var(--space-4);
+}
+
+.search-palette__empty {
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-muted);
+  text-align: center;
+  background: var(--color-page);
+  border: 1px dashed var(--color-border-control);
+  border-radius: var(--radius-card);
+}
+
+.search-palette__empty p {
+  margin-block-end: var(--space-1);
+  color: var(--color-ink);
+  font-weight: 650;
+}
+
+.search-palette__empty button {
+  min-height: 44px;
+  margin-top: var(--space-3);
+  padding-inline: var(--space-4);
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-control);
+  font-weight: 650;
+}
+
+.search-results {
+  display: grid;
+  gap: var(--space-5);
+  max-block-size: min(56dvh, 560px);
+  padding-right: var(--space-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.search-results__group h3 {
+  margin-block-end: var(--space-2);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.search-results__items {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  inline-size: 100%;
+  min-block-size: 64px;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-control);
+  text-align: left;
+}
+
+button.search-result:hover,
+.search-result[aria-selected='true'] {
+  background: var(--color-soft);
+  border-color: var(--color-primary);
+}
+
+.search-result__copy {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+  line-height: 1.45;
+}
+
+.search-result__copy strong,
+.search-result__copy span {
+  overflow-wrap: anywhere;
+}
+
+.search-result__copy span {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.search-result__status {
+  flex-shrink: 0;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.search-result--future {
+  cursor: not-allowed;
+  background: var(--color-page);
+}
+
+.search-result__status--future {
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface));
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+@media (max-width: 575px) {
+  .search-result {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+}

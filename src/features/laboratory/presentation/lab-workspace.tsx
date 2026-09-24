@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useId, useMemo, useState } from 'react';
+import Link from 'next/link';
+import type { Route } from 'next';
 import { SqlEditor, type EditorDiagnostic } from '@/presentation/components/editor/sql-editor';
-import { Alert, Button, Chip } from '@/presentation/components/ui';
+import { Alert, Button, Chip, CodeBlock, Dialog } from '@/presentation/components/ui';
+import type { LabDraftRepository } from '../application/lab-draft';
 import {
   analyzeLabQuery,
   DEFAULT_LAB_SQL,
@@ -24,13 +27,16 @@ export interface LaboratoryWorkspaceProps {
   /** Ejecución real: se compone en el servidor con el adaptador Oracle vigente. */
   execute: (sql: string) => Promise<LabExecution>;
   loadStatus: () => Promise<OracleServiceStatus>;
+  repository: LabDraftRepository;
+  incomingSql: string | null;
+  returnTo: string | null;
 }
 
 /**
  * Laboratorio SQL (LAB_SPEC). «Analizar» es el análisis educativo con el motor del curso;
  * «Ejecutar en Oracle» es una operación distinta que nunca se sustituye por una simulación.
  */
-export function LaboratoryWorkspace({ execute, loadStatus }: LaboratoryWorkspaceProps) {
+export function LaboratoryWorkspace({ execute, loadStatus, repository, incomingSql, returnTo }: LaboratoryWorkspaceProps) {
   const helpId = useId();
   const [sql, setSql] = useState(DEFAULT_LAB_SQL);
   const [analysis, setAnalysis] = useState<LabAnalysis | null>(null);
@@ -38,6 +44,44 @@ export function LaboratoryWorkspace({ execute, loadStatus }: LaboratoryWorkspace
   const [execution, setExecution] = useState<{ sql: string; result: LabExecution } | null>(null);
   const [executing, setExecuting] = useState(false);
   const [statusError, setStatusError] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
+  const [storageError, setStorageError] = useState(false);
+  const [replacement, setReplacement] = useState<{ sql: string; title: string } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    repository.load().then((draft) => {
+      if (!active) return;
+      const saved = draft ?? DEFAULT_LAB_SQL;
+      if (incomingSql && saved !== DEFAULT_LAB_SQL && saved !== incomingSql) {
+        setSql(saved);
+        setReplacement({ sql: incomingSql, title: '¿Cargar el ejemplo en tu editor?' });
+      } else setSql(incomingSql ?? saved);
+      setDraftReady(true);
+    }).catch(() => {
+      if (!active) return;
+      setSql(incomingSql ?? DEFAULT_LAB_SQL);
+      setStorageError(true);
+      setDraftReady(true);
+    });
+    return () => { active = false; };
+  }, [repository, incomingSql]);
+
+  useEffect(() => {
+    if (draftReady && !storageError) void repository.save(sql).catch(() => setStorageError(true));
+  }, [repository, sql, draftReady, storageError]);
+
+  const replaceSql = (nextSql: string) => {
+    setSql(nextSql);
+    setAnalysis(null);
+    setExecution(null);
+    setReplacement(null);
+  };
+
+  const requestReplacement = (nextSql: string, title: string) => {
+    if (sql !== DEFAULT_LAB_SQL && sql !== nextSql) setReplacement({ sql: nextSql, title });
+    else replaceSql(nextSql);
+  };
 
   useEffect(() => {
     let active = true;
@@ -88,7 +132,7 @@ export function LaboratoryWorkspace({ execute, loadStatus }: LaboratoryWorkspace
 
   const loadExample = (value: string) => {
     const example = LAB_EXAMPLES.find((item) => item.id === value);
-    if (example) setSql(example.sql);
+    if (example) requestReplacement(example.sql, '¿Sustituir tu consulta por este ejemplo?');
   };
 
   return (
@@ -101,6 +145,9 @@ export function LaboratoryWorkspace({ execute, loadStatus }: LaboratoryWorkspace
           consulta paso a paso; la ejecución real necesita el servicio Oracle.
         </p>
       </header>
+
+      {returnTo && <Link href={returnTo as Route} className="inline-action lab-return">← Volver {returnTo.startsWith('/presentation') ? 'a la escena' : 'a la lección'}</Link>}
+      {storageError && <Alert tone="warning" title="El borrador no se guardará al cerrar">Puedes seguir trabajando en el editor. Copia tu consulta antes de salir.</Alert>}
 
       {statusError && (
         <Alert tone="warning" title="Estado de Oracle desconocido">
@@ -145,27 +192,26 @@ export function LaboratoryWorkspace({ execute, loadStatus }: LaboratoryWorkspace
             label="Consulta SQL"
             describedBy={helpId}
             diagnostics={editorDiagnostics}
+            readOnly={!draftReady}
           />
           <p id={helpId} className="lab-muted">
             Ctrl+Enter (Cmd+Enter en Mac) analiza la consulta. Tab sale del editor.
           </p>
           <div className="lab-actions">
-            <Button onClick={analyze}>Analizar</Button>
+            <Button onClick={analyze} disabled={!draftReady}>Analizar</Button>
             <Button
               variant="secondary"
               onClick={runOnOracle}
               pending={executing}
               pendingLabel="Ejecutando en Oracle…"
+              disabled={!draftReady}
             >
               Ejecutar en Oracle
             </Button>
             <Button
               variant="text"
-              onClick={() => {
-                setSql(DEFAULT_LAB_SQL);
-                setAnalysis(null);
-                setExecution(null);
-              }}
+              disabled={!draftReady}
+              onClick={() => requestReplacement(DEFAULT_LAB_SQL, '¿Restablecer el ejemplo inicial?')}
             >
               Restablecer ejemplo
             </Button>
@@ -183,6 +229,10 @@ export function LaboratoryWorkspace({ execute, loadStatus }: LaboratoryWorkspace
         <TranslationPanel analysis={analysis} stale={stale} />
         <AnatomyPanel analysis={analysis} stale={stale} />
       </div>
+      <Dialog open={replacement !== null} onClose={() => setReplacement(null)} title={replacement?.title ?? 'Sustituir consulta'} description="Tienes un borrador distinto. Puedes conservarlo o sustituirlo por el ejemplo que se muestra abajo.">
+        {replacement && <CodeBlock code={replacement.sql} label="Consulta que se cargará" />}
+        <div className="lab-actions"><Button variant="secondary" onClick={() => setReplacement(null)}>Conservar mi borrador</Button><Button onClick={() => { if (replacement) replaceSql(replacement.sql); }}>Cargar ejemplo</Button></div>
+      </Dialog>
     </div>
   );
 }

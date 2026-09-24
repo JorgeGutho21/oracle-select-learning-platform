@@ -6,5 +6,11 @@
 @use 'showcase';
 @use 'challenge';
 @use 'lab';
+@use 'home';
+@use 'study';
+@use 'presentation';
+@use 'search';
+@use 'resources';
+@use 'study';
 
 @include tokens.emit;

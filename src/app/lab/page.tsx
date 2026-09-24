@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { executeLabQuery, getLabOracleStatus } from '@/composition/lab/actions';
-import { LaboratoryWorkspace } from '@/features/laboratory/presentation/lab-workspace';
+import { LabRoot } from '@/composition/lab/lab-root';
+import { incomingLabSql, safeLabReturn } from '@/features/laboratory/application/lab-draft';
 
 export const metadata: Metadata = { title: 'Laboratorio SQL' };
 
-export default function Page() {
-  return <LaboratoryWorkspace execute={executeLabQuery} loadStatus={getLabOracleStatus} />;
+export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await searchParams;
+  return <LabRoot incomingSql={incomingLabSql(params.sql)} returnTo={safeLabReturn(params.returnTo)} />;
 }
