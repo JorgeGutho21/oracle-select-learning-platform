@@ -202,7 +202,12 @@ function renderScene(scene: number, identity: AcademicIdentity, lessonCount: num
   switch (scene) {
     case 1:
       return (
-        <SceneFrame number={1} eyebrow={identity.institution} title={identity.subject} tone="night">
+        <SceneFrame
+          number={1}
+          eyebrow={identity.institution}
+          title={identity.unitTitle}
+          tone="night"
+        >
           <div className="presentation-cover">
             <div>
               <p className="presentation-cover__program">{identity.program}</p>
@@ -651,8 +656,12 @@ export function PresentationDeck({ initialScene, identity, lessonCount }: Presen
   }, [navigate, scene]);
 
   async function toggleFullscreen() {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await deckRef.current?.requestFullscreen();
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await deckRef.current?.requestFullscreen();
+    } catch {
+      // El navegador puede rechazar la pantalla completa; la escena sigue en la ventana.
+    }
   }
 
   return (

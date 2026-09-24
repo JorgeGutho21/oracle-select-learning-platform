@@ -16,7 +16,7 @@ Bootstrap se usará como base de retícula y utilidades, personalizado con Sass 
 
 ## Identidad institucional
 
-Nombre público: **SQL SELECT LAB**. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutiérrez Thomas» en pie y modo Exposición. Institución: Universidad Popular del Cesar. Usar el logotipo oficial en navegación o portada sobre fondo compatible, sin deformarlo, recolorearlo ni imponerlo como marca de agua sobre tablas. Recurso oficial y escritura del docente pendientes de verificación antes de publicar.
+Nombre público: **SQL SELECT LAB**. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutierrez Thomas» y profesor «Amilkar Sierra» en pie y modo Exposición. Institución: Universidad Popular del Cesar. Usar el logotipo oficial en navegación o portada sobre fondo compatible, sin deformarlo, recolorearlo ni imponerlo como marca de agua sobre tablas. Identidad confirmada por el responsable (PROJECT_SPEC). Logotipo obtenido del sitio institucional; procedencia registrada en `public/identity/README.md`.
 
 ## Tokens propuestos
 

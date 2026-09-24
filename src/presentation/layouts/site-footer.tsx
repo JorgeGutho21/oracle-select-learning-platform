@@ -8,7 +8,9 @@ export function SiteFooter() {
         <div>
           <strong>SQL SELECT LAB</strong>
           <p>{identity.institution}</p>
-          <p>{identity.program} · {identity.course}</p>
+          <p>
+            {identity.program} · {identity.course}
+          </p>
         </div>
         <div>
           <p>{identity.author}</p>

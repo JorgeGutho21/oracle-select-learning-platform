@@ -6,7 +6,7 @@ Versión 1.0 · Plan sin programación ni despliegue en esta entrega.
 
 Construir una unidad completa sobre SELECT antes de abrir temas futuros. Validar temprano el laboratorio Oracle, porque es una dependencia real que una web estática no resuelve. Incorporar la sala después de tener contenido y evaluación consistentes, pero diseñar sus contratos desde el inicio.
 
-No se asignan fechas inventadas: no se confirmó duración exacta de exposición, fecha de entrega ni disponibilidad de servidor Oracle. Los hitos tienen dependencias y condiciones de salida verificables. El responsable del proyecto es Jorge Gutiérrez Thomas; roles técnicos y revisión académica se asignarán al iniciar implementación.
+No se asignan fechas inventadas: no se confirmó duración exacta de exposición, fecha de entrega ni disponibilidad de servidor Oracle. Los hitos tienen dependencias y condiciones de salida verificables. El responsable del proyecto es Jorge Gutierrez Thomas; roles técnicos y revisión académica se asignarán al iniciar implementación.
 
 ## Hitos
 
@@ -31,7 +31,7 @@ R0 está entregado al producir estos archivos. R1–R8 son trabajo futuro, no in
 | Oracle real | Servicio aislado con cuenta lectora y sintaxis compatible con 19c. | Instancia disponible, versión exacta, red, driver y alojamiento; no presumir acceso desde Vercel. |
 | Datos divergentes | F1 diapositiva 6 prevalece; seis columnas, María 30, Jorge 22/Sistemas. | Aplicar esa versión al adaptar el juego y validar resultados; sin mezclar datos del Artifact. |
 | Juego existente | Conservar identidad, diez posiciones y mecánicas; sustituir temas fuera del alcance. | Si se reutiliza código, obtener exportación y auditarlo. No bloquea una implementación propia de la especificación. |
-| Identidad universitaria | Jorge Gutiérrez Thomas, Universidad Popular del Cesar, Bases de Datos. | Recurso oficial de logotipo, nombre exacto de asignatura y ortografía del docente. |
+| Identidad universitaria | Confirmada: Jorge Gutierrez Thomas; profesor Amilkar Sierra; Base de Datos; Ingeniería de Sistemas; Universidad Popular del Cesar. Logotipo del sitio institucional adaggio.unicesar.edu.co. | Confirmar el permiso de uso del logotipo con la universidad antes de una publicación abierta. |
 | Duración de la exposición | Núcleo de unos 20 minutos y Challenge con 15 minutos de respuestas. | Ajustar guion al tiempo asignado; la ruta de estudio conserva contenido completo. |
 | Vídeos | Introducción 90–120 s y resumen 3–4 min. | Producir, revisar, alojar y aportar URLs/activos definitivos. |
 | Capacidad | 60 estudiantes por sala, prueba adicional a 75 conexiones. | Medición real de cuotas, latencias y recursos del alojamiento. |

@@ -32,11 +32,11 @@ describe('Índice público de búsqueda', () => {
   it('deriva toda la navegación del mismo catálogo público', () => {
     expect(getPlatformNavigation()).toEqual([
       { href: '/', label: 'Inicio' },
-      { href: '/learn', label: 'Aprender' },
-      { href: '/presentation', label: 'Presentación' },
+      { href: '/learn', label: 'Estudio' },
+      { href: '/presentation', label: 'Exposición' },
       { href: '/lab', label: 'Laboratorio' },
       { href: '/challenge', label: 'Challenge' },
-      { href: '/live', label: 'En vivo' },
+      { href: '/live', label: 'Sala en vivo' },
       { href: '/results', label: 'Resultados' },
       { href: '/resources', label: 'Recursos' },
     ]);

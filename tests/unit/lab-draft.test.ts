@@ -12,6 +12,14 @@ describe('transición de una lección o escena al laboratorio', () => {
   it('conserva únicamente destinos públicos internos del recorrido', () => {
     expect(safeLabReturn('/presentation?scene=8')).toBe('/presentation?scene=8');
     expect(safeLabReturn('/learn/alias')).toBe('/learn/alias');
-    for (const value of ['https://example.com', '//example.com', 'javascript:alert(1)', '/presentation?scene=99', '/learn/../admin', '/presentation?scene=8&redirect=x']) expect(safeLabReturn(value)).toBeNull();
+    for (const value of [
+      'https://example.com',
+      '//example.com',
+      'javascript:alert(1)',
+      '/presentation?scene=99',
+      '/learn/../admin',
+      '/presentation?scene=8&redirect=x',
+    ])
+      expect(safeLabReturn(value)).toBeNull();
   });
 });

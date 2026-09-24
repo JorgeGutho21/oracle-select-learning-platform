@@ -4,4 +4,4 @@
 
 Se verificó su uso como «Logo Unicesar» en la navegación del sitio institucional <https://adaggio.unicesar.edu.co/>. Se conserva el fondo verde, el color y la proporción original 805 × 417. SHA-256: `B91DCB4C65CC6E7761CDC909320DC970399EE91F486A156E4E68C445A78A7D16`.
 
-Identidad académica confirmada por el responsable: Universidad Popular del Cesar, Ingeniería de Sistemas, Base de Datos, Jorge Gutiérrez Thomas, docente Amílcar Sierra. El recurso se usa para identificar este material académico; no se presenta la plataforma como un servicio oficial de la universidad.
+Identidad académica confirmada por el responsable: Universidad Popular del Cesar, Ingeniería de Sistemas, asignatura Base de Datos, autor Jorge Gutierrez Thomas, profesor Amilkar Sierra. El recurso se usa para identificar este material académico; no se presenta la plataforma como un servicio oficial de la universidad.

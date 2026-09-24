@@ -6,7 +6,7 @@ Versión documental 1.0 · 23 de septiembre de 2026 · Especificación para impl
 
 Plataforma universitaria en español para que estudiantes sin experiencia puedan interpretar, construir y ejecutar consultas de proyección en Oracle SQL. Integra explicación, práctica y evaluación en una misma web. El expositor la utiliza como guía y los estudiantes participan desde sus teléfonos.
 
-Identidad: Jorge Gutiérrez Thomas, Universidad Popular del Cesar, asignatura Bases de Datos. El nombre oficial de la asignatura debe contrastarse antes de publicar. Las fuentes discrepan entre «Amílcar» y «Amílkar Sierra»; no fijar el nombre del docente hasta verificarlo. El logotipo institucional será un recurso oficial, conservando proporciones y colores, no una recreación ni una extracción del sitio del compañero.
+Identidad confirmada por el responsable del proyecto el 23 de septiembre de 2026: autor Jorge Gutierrez Thomas; profesor Amilkar Sierra; asignatura Base de Datos; programa Ingeniería de Sistemas; Universidad Popular del Cesar. Esta forma exacta, sin tildes en los nombres propios, prevalece sobre las variantes de las fuentes («Amílcar», «Amílkar», «Gutiérrez»). En el código, `src/application/academic-identity.ts` es su única fuente. El logotipo institucional será un recurso oficial, conservando proporciones y colores, no una recreación ni una extracción del sitio del compañero.
 
 Esta entrega contiene únicamente los once documentos solicitados. No contiene aplicación, migraciones, vídeos producidos ni infraestructura desplegada. Los ejemplos SQL son material didáctico, no implementación.
 

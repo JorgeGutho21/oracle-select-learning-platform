@@ -61,6 +61,8 @@ export async function mouseDrag(page: Page, source: Locator, target: Locator) {
 
 /** Sustituye el contenido de un editor CodeMirror como lo haría una persona al teclado. */
 export async function fillEditor(editor: Locator, text: string) {
+  // El editor puede estar en solo lectura mientras se carga un borrador guardado.
+  await expect(editor).toHaveAttribute('contenteditable', 'true');
   await editor.click();
   await editor.press('ControlOrMeta+a');
   await editor.press('Delete');

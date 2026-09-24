@@ -2,11 +2,15 @@
 
 Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 
-**Autor:** Jorge Gutiérrez Thomas
+**Autor:** Jorge Gutierrez Thomas
+
+**Profesor:** Amilkar Sierra
+
+**Asignatura:** Base de Datos
+
+**Programa:** Ingeniería de Sistemas
 
 **Institución:** Universidad Popular del Cesar
-
-**Área:** Bases de Datos
 
 ## Estado del proyecto
 

@@ -4,7 +4,13 @@ import { incomingLabSql, safeLabReturn } from '@/features/laboratory/application
 
 export const metadata: Metadata = { title: 'Laboratorio SQL' };
 
-export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const params = await searchParams;
-  return <LabRoot incomingSql={incomingLabSql(params.sql)} returnTo={safeLabReturn(params.returnTo)} />;
+  return (
+    <LabRoot incomingSql={incomingLabSql(params.sql)} returnTo={safeLabReturn(params.returnTo)} />
+  );
 }
