@@ -1,5 +1,7 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getVideo, isSafeMediaUrl } from '@/features/resources/application/resources-api';
 import { VIDEO_LIBRARY } from '@/features/resources/domain/videos';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
@@ -11,10 +13,28 @@ const base = {
 };
 
 describe('configuración central de videos', () => {
-  it('define los dos videos con su duración prevista y sin URL inventada', () => {
-    expect(getVideo('intro')).toMatchObject({ code: 'V01', plannedDuration: '1:30–2:00' });
-    expect(getVideo('summary')).toMatchObject({ code: 'V02', plannedDuration: '3:00–4:00' });
-    expect(Object.values(VIDEO_LIBRARY).every(({ source }) => source === null)).toBe(true);
+  it('publica los dos videos con su duración medida y su proporción', () => {
+    expect(getVideo('intro')).toMatchObject({
+      code: 'V01',
+      duration: '1:13',
+      orientation: 'portrait',
+      source: { kind: 'file', type: 'video/mp4' },
+    });
+    expect(getVideo('summary')).toMatchObject({
+      code: 'V02',
+      duration: '4:51',
+      orientation: 'landscape',
+      source: { kind: 'file', type: 'video/mp4' },
+    });
+  });
+
+  it('cada video y su portada existen en public/, sin rutas rotas', () => {
+    for (const video of Object.values(VIDEO_LIBRARY)) {
+      for (const url of [video.source?.url, video.poster]) {
+        expect(url).toMatch(/^\/media\/[a-z0-9-]+\.(mp4|jpg)$/);
+        expect(existsSync(join(process.cwd(), 'public', url!))).toBe(true);
+      }
+    }
   });
 
   it('solo acepta direcciones HTTPS o rutas propias', () => {
@@ -27,6 +47,10 @@ describe('configuración central de videos', () => {
 });
 
 describe('VideoPlayer', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('sin fuente muestra «Video en preparación» y ningún reproductor ni iframe', () => {
     const { container } = render(<VideoPlayer {...base} source={null} />);
     expect(screen.getByText('Video en preparación')).toBeInTheDocument();
@@ -54,6 +78,37 @@ describe('VideoPlayer', () => {
     expect(
       screen.getByRole('link', { name: 'Abrir el video en una pestaña nueva' }),
     ).toHaveAttribute('href', '/v.mp4');
+  });
+
+  it('un video vertical conserva 9:16 y muestra la duración real', () => {
+    const { container } = render(
+      <VideoPlayer
+        {...base}
+        duration="1:13"
+        orientation="portrait"
+        source={{ kind: 'file', url: '/v.mp4', type: 'video/mp4' }}
+      />,
+    );
+    expect(container.querySelector('figure')).toHaveClass('video-player--portrait');
+    expect(screen.getByText('Duración: 1:13')).toBeInTheDocument();
+    expect(screen.queryByText(/Duración prevista/)).toBeNull();
+  });
+
+  it('si los metadatos llegaron antes de hidratar, no se queda «Cargando»', () => {
+    vi.spyOn(HTMLMediaElement.prototype, 'readyState', 'get').mockReturnValue(
+      HTMLMediaElement.HAVE_METADATA,
+    );
+    render(<VideoPlayer {...base} source={{ kind: 'file', url: '/v.mp4', type: 'video/mp4' }} />);
+    expect(screen.queryByRole('status')).toBeNull();
+  });
+
+  it('si el navegador no descarga por adelantado, muestra la portada sin «Cargando»', () => {
+    const { container } = render(
+      <VideoPlayer {...base} source={{ kind: 'file', url: '/v.mp4', type: 'video/mp4' }} />,
+    );
+    fireEvent(container.querySelector('video')!, new Event('suspend'));
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(container.querySelector('video')).not.toBeNull();
   });
 
   it('si el archivo falla muestra el error y conserva el enlace alternativo', () => {

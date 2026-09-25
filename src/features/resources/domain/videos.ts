@@ -3,6 +3,10 @@
  * video no esté publicado, su fuente es `null` y la interfaz muestra «Video en preparación».
  * Para publicarlo basta con completar aquí `source` (y, si existen, subtítulos y
  * transcripción): ninguna página escribe URLs de video por su cuenta.
+ *
+ * Los archivos se sirven desde `public/media` (H.264 + AAC, `moov` al inicio para empezar a
+ * reproducir sin descargarlos completos). La decisión de alojamiento está en
+ * docs/PRODUCTION_SETUP.md.
  */
 
 export type VideoId = 'intro' | 'summary';
@@ -13,6 +17,9 @@ export type VideoSource =
   /** Reproductor externo insertable (por ejemplo, la URL «embed» de una plataforma). */
   | { readonly kind: 'embed'; readonly url: string };
 
+/** Proporción del video: horizontal 16:9 o vertical 9:16. */
+export type VideoOrientation = 'landscape' | 'portrait';
+
 export interface VideoResource {
   readonly id: VideoId;
   readonly code: 'V01' | 'V02';
@@ -20,6 +27,9 @@ export interface VideoResource {
   readonly description: string;
   /** Duración prevista en la planificación, no medida. */
   readonly plannedDuration: string;
+  /** Duración medida del archivo publicado (m:ss); `null` mientras no haya video. */
+  readonly duration: string | null;
+  readonly orientation: VideoOrientation;
   readonly source: VideoSource | null;
   readonly poster: string | null;
   readonly captions: { readonly url: string; readonly label: string } | null;
@@ -30,24 +40,29 @@ export const VIDEO_LIBRARY: Readonly<Record<VideoId, VideoResource>> = {
   intro: {
     id: 'intro',
     code: 'V01',
-    title: 'Video introductorio: una primera mirada a SQL',
+    title: 'Video introductorio: ¿cómo encontrar un dato?',
     description:
-      'Una tabla de empleados, la necesidad de consultarla y cómo SELECT y FROM responden qué mostrar y de dónde.',
+      'Por qué consultamos datos y cómo SELECT y FROM eligen qué columnas ver y de qué tabla salen, con un adelanto de *, cálculos, AS y DISTINCT. Lleva subtítulos incrustados; su tabla es un ejemplo, no la EMPLEADOS del laboratorio.',
     plannedDuration: '1:30–2:00',
-    source: null,
-    poster: null,
+    duration: '1:13',
+    orientation: 'portrait',
+    source: { kind: 'file', url: '/media/introduccion-select-oracle-sql.mp4', type: 'video/mp4' },
+    poster: '/media/introduccion-select-oracle-sql.jpg',
+    // Los subtítulos van incrustados en la imagen: una pista aparte los duplicaría.
     captions: null,
     transcriptUrl: null,
   },
   summary: {
     id: 'summary',
     code: 'V02',
-    title: 'Video resumen de la unidad',
+    title: 'Video resumen: fundamentos de Oracle SQL',
     description:
-      'Repaso en orden: SELECT y FROM, * frente a columnas, cálculos, alias, DISTINCT y la lectura de una consulta completa.',
+      'Repaso de la unidad: SELECT elige las columnas y FROM la tabla, * frente a columnas concretas, cálculos que no cambian la tabla original, alias con AS y DISTINCT. Sus tablas de ejemplo no son la EMPLEADOS del laboratorio.',
     plannedDuration: '3:00–4:00',
-    source: null,
-    poster: null,
+    duration: '4:51',
+    orientation: 'landscape',
+    source: { kind: 'file', url: '/media/resumen-fundamentos-oracle-sql.mp4', type: 'video/mp4' },
+    poster: '/media/resumen-fundamentos-oracle-sql.jpg',
     captions: null,
     transcriptUrl: null,
   },

@@ -66,7 +66,17 @@ const nextConfig: NextConfig = {
     silenceDeprecations: ['import'],
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // Videos y portadas de public/media: nombres estables, así que caché de un día y
+      // revalidación en segundo plano en lugar de «immutable».
+      {
+        source: '/media/:file*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
+        ],
+      },
+    ];
   },
 };
 

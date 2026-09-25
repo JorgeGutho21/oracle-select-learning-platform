@@ -80,6 +80,22 @@ Ambos: voz en español, subtítulos revisados, transcripción accesible, imagen 
 
 Implementación (Fase 6): las URLs viven en una sola configuración, `src/features/resources/domain/videos.ts`, junto con título, descripción, duración prevista (1:30–2:00 y 3:00–4:00), portada, subtítulos y transcripción. Sin URL, el componente `VideoPlayer` muestra «Video en preparación» y nunca un reproductor vacío. Ubicación: el introductorio en Home y al inicio de `/learn`; el resumen al final de L08 y en la escena 14 de la Exposición; ambos en `/resources`. Solo se aceptan direcciones HTTPS o rutas propias.
 
+Publicación (Fase 10, 24 de septiembre de 2026): los dos videos del autor se sirven desde `public/media`, sin volver a codificarlos. Se descartó alojarlos fuera porque son MP4 H.264 con `moov` al inicio y suman 31 MB. Las ubicaciones no cambian.
+
+| Video | Archivo | Duración | Formato | Subtítulos |
+|---|---|---|---|---|
+| V01, «Introducción a SELECT en Oracle SQL» | `introduccion-select-oracle-sql.mp4` | 1:13 | Vertical 9:16; el reproductor conserva la proporción | Incrustados |
+| V02, «Fundamentos de Oracle SQL» | `resumen-fundamentos-oracle-sql.mp4` | 4:51 | 16:9 | Pendientes |
+
+Diferencias con este mapa:
+
+- Las duraciones no coinciden con lo previsto.
+- Las tablas de ejemplo no son `empleados-select-v1`, y las descripciones lo advierten.
+- V01 menciona «los empleados de Bogotá», sin mostrar WHERE.
+- V02 muestra tres rótulos en inglés en su cierre.
+
+Detalle en `public/media/README.md`.
+
 ## Chuleta
 
 Una página web imprimible con significado, patrón y ejemplo para SELECT, FROM, *, lista de columnas, expresiones, AS y DISTINCT. Añadir las advertencias: SELECT no altera el dataset del laboratorio; AS cambia la etiqueta; DISTINCT compara la fila proyectada; no hay orden garantizado de filas sin una cláusula de ordenamiento. No incluir una pared de filtros futuros ni exigir descargar un PDF.

@@ -199,6 +199,8 @@ export function ResourcesPage() {
             title={intro.title}
             description={intro.description}
             plannedDuration={intro.plannedDuration}
+            duration={intro.duration}
+            orientation={intro.orientation}
             source={intro.source}
             poster={intro.poster}
             captions={intro.captions}
@@ -209,6 +211,8 @@ export function ResourcesPage() {
             title={summary.title}
             description={summary.description}
             plannedDuration={summary.plannedDuration}
+            duration={summary.duration}
+            orientation={summary.orientation}
             source={summary.source}
             poster={summary.poster}
             captions={summary.captions}

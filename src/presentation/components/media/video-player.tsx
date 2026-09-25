@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 export type VideoPlayerSource =
   | { readonly kind: 'file'; readonly url: string; readonly type: string }
@@ -11,8 +11,12 @@ export interface VideoPlayerProps {
   readonly description: string;
   /** Duración prevista, por ejemplo «1:30–2:00». */
   readonly plannedDuration: string;
+  /** Duración real del video publicado, por ejemplo «1:13». */
+  readonly duration?: string | null;
   /** Sin fuente, el reproductor muestra «Video en preparación» y nunca un marco vacío. */
   readonly source: VideoPlayerSource | null;
+  /** Un video vertical (9:16) conserva su proporción en lugar de encogerse dentro de 16:9. */
+  readonly orientation?: 'landscape' | 'portrait';
   readonly poster?: string | null;
   readonly captions?: { readonly url: string; readonly label: string } | null;
   readonly transcriptUrl?: string | null;
@@ -26,14 +30,16 @@ export interface VideoPlayerProps {
 type LoadState = 'loading' | 'ready' | 'error';
 
 /**
- * Video 16:9 accesible: controles nativos, sin reproducción automática, subtítulos y
- * transcripción cuando existan, y alternativa si el video no carga.
+ * Video accesible, 16:9 o vertical: controles nativos, sin reproducción automática,
+ * subtítulos y transcripción cuando existan, y alternativa si el video no carga.
  */
 export function VideoPlayer({
   title,
   description,
   plannedDuration,
+  duration = null,
   source,
+  orientation = 'landscape',
   poster = null,
   captions = null,
   transcriptUrl = null,
@@ -42,11 +48,25 @@ export function VideoPlayer({
   compact = false,
 }: VideoPlayerProps) {
   const [state, setState] = useState<LoadState>('loading');
+  const videoRef = useRef<HTMLVideoElement>(null);
   const titleId = useId();
   const descriptionId = useId();
-  const className = ['video-player', compact ? 'video-player--compact' : '']
+  const className = [
+    'video-player',
+    orientation === 'portrait' ? 'video-player--portrait' : '',
+    compact ? 'video-player--compact' : '',
+  ]
     .filter(Boolean)
     .join(' ');
+
+  // El navegador empieza a cargar el video del HTML antes de la hidratación: si los
+  // metadatos o el error llegaron antes que React, sus eventos ya no se repetirán.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.error) setState('error');
+    else if (video.readyState >= HTMLMediaElement.HAVE_METADATA) setState('ready');
+  }, []);
 
   let frame;
   if (!source) {
@@ -71,6 +91,7 @@ export function VideoPlayer({
       <>
         {source.kind === 'file' ? (
           <video
+            ref={videoRef}
             className="video-player__media"
             controls
             preload="metadata"
@@ -80,6 +101,9 @@ export function VideoPlayer({
             aria-labelledby={titleId}
             aria-describedby={descriptionId}
             onLoadedMetadata={() => setState('ready')}
+            // Si el navegador decide no descargar más (ahorro de datos, iOS), no hay nada
+            // que esperar: se muestra la portada con los controles.
+            onSuspend={() => setState((current) => (current === 'error' ? current : 'ready'))}
             onError={() => setState('error')}
           >
             {captions && (
@@ -124,16 +148,19 @@ export function VideoPlayer({
           {description}
         </p>
         {source ? (
-          <p className="video-player__links">
-            <a href={source.url} target="_blank" rel="noreferrer">
-              Abrir el video en una pestaña nueva
-            </a>
-            {transcriptUrl && (
-              <a href={transcriptUrl} target="_blank" rel="noreferrer">
-                Leer la transcripción
+          <>
+            {duration && <p className="video-player__meta">Duración: {duration}</p>}
+            <p className="video-player__links">
+              <a href={source.url} target="_blank" rel="noreferrer">
+                Abrir el video en una pestaña nueva
               </a>
-            )}
-          </p>
+              {transcriptUrl && (
+                <a href={transcriptUrl} target="_blank" rel="noreferrer">
+                  Leer la transcripción
+                </a>
+              )}
+            </p>
+          </>
         ) : (
           <p className="video-player__meta">
             Se publicará con subtítulos revisados y transcripción. Mientras tanto, el contenido está

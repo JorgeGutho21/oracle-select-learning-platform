@@ -74,15 +74,15 @@ test.describe('Recursos', () => {
     await expect(page).toHaveURL(/\/lab\?sql=SELECT\+DISTINCT\+ciudad/);
   });
 
-  test('los videos muestran «Video en preparación» sin reproductor roto', async ({ page }) => {
+  test('los dos videos están publicados con su duración real', async ({ page }) => {
     await page.goto('/resources');
     for (const id of ['video-introduccion', 'video-resumen']) {
       const video = page.locator(`#${id}`);
-      await expect(video).toContainText('Video en preparación');
-      await expect(video.locator('iframe, video')).toHaveCount(0);
+      await expect(video).not.toContainText('Video en preparación');
+      await expect(video.locator('video, [role="alert"]')).toHaveCount(1);
     }
-    await expect(page.locator('#video-introduccion')).toContainText('Duración prevista: 1:30–2:00');
-    await expect(page.locator('#video-resumen')).toContainText('Duración prevista: 3:00–4:00');
+    await expect(page.locator('#video-introduccion')).toContainText('Duración: 1:13');
+    await expect(page.locator('#video-resumen')).toContainText('Duración: 4:51');
   });
 
   test('las fuentes solo citan la referencia oficial y el material del curso', async ({ page }) => {

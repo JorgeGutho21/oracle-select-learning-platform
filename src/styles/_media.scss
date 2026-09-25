@@ -1,4 +1,4 @@
-// Reproductor de video 16:9. Las medidas internas usan em para escalar con su contexto
+// Reproductor de video 16:9 o vertical. Las medidas internas usan em para escalar con su contexto
 // (página o escena de la Exposición).
 
 .video-player {
@@ -112,6 +112,24 @@
   align-items: center;
   min-height: 44px;
   font-weight: 650;
+}
+// Video vertical (9:16): el marco conserva su proporción con un ancho acotado (también por
+// la altura de la ventana) y el texto se coloca al lado cuando cabe, o debajo si no.
+.video-player--portrait {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9em 1.5em;
+}
+.video-player--portrait .video-player__frame {
+  flex: 0 0 auto;
+  width: min(100%, 17.5rem, 42svh);
+  aspect-ratio: 9 / 16;
+}
+.video-player--portrait .video-player__caption {
+  flex: 1 1 15rem;
+  min-width: 0;
 }
 .video-player--compact {
   gap: 0.6em;

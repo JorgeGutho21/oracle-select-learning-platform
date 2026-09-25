@@ -658,6 +658,8 @@ function UnitVideo({ video }: { video: VideoResource }) {
       title={video.title}
       description={video.description}
       plannedDuration={video.plannedDuration}
+      duration={video.duration}
+      orientation={video.orientation}
       source={video.source}
       poster={video.poster}
       captions={video.captions}

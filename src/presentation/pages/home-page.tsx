@@ -250,6 +250,8 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
               title={intro.title}
               description={intro.description}
               plannedDuration={intro.plannedDuration}
+              duration={intro.duration}
+              orientation={intro.orientation}
               source={intro.source}
               poster={intro.poster}
               captions={intro.captions}
