@@ -76,6 +76,15 @@ const nextConfig: NextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=86400, stale-while-revalidate=604800' },
         ],
       },
+      // Subtítulos y transcripción en UTF-8 aunque el servidor no conozca la extensión.
+      {
+        source: '/media/:file([^/]+\.vtt)',
+        headers: [{ key: 'Content-Type', value: 'text/vtt; charset=utf-8' }],
+      },
+      {
+        source: '/media/:file([^/]+\.txt)',
+        headers: [{ key: 'Content-Type', value: 'text/plain; charset=utf-8' }],
+      },
     ];
   },
 };

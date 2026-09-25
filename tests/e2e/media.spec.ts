@@ -75,11 +75,50 @@ test.describe('Videos de la unidad', () => {
     await expectVideo(page, start.locator('.video-player'), intro);
   });
 
-  test('el video resumen está al final del recorrido y en la escena 14', async ({ page }) => {
+  test('el video resumen está al final del recorrido y en la escena 14', async ({
+    page,
+    browserName,
+  }) => {
     const summary = { url: SUMMARY, ratio: 16 / 9, duration: '4:51' };
     await page.goto('/learn/consulta-completa');
     const closing = page.getByRole('region', { name: 'Repasa toda la unidad' });
     await expectVideo(page, closing.locator('.video-player'), { ...summary, play: true });
+
+    // Subtítulos en español activos por defecto, sincronizados con el audio.
+    const track = closing.locator('video track');
+    await expect(track).toHaveAttribute('kind', 'captions');
+    await expect(track).toHaveAttribute('srclang', 'es');
+    await expect(track).toHaveAttribute('src', SUMMARY.replace(/\.mp4$/, '.es.vtt'));
+    const video = closing.locator('video');
+    // Chromium y Edge activan la pista marcada como predeterminada. Safari sigue la preferencia
+    // de subtítulos del sistema y la ofrece en el menú del reproductor: se activa como allí.
+    if (browserName === 'webkit') {
+      await video.evaluate((element: HTMLVideoElement) => {
+        element.textTracks[0]!.mode = 'showing';
+      });
+    }
+    await expect
+      .poll(() =>
+        video.evaluate((element: HTMLVideoElement) => element.textTracks[0]?.cues?.length ?? 0),
+      )
+      .toBeGreaterThan(80);
+    const captions = await video.evaluate((element: HTMLVideoElement) => {
+      const tracks = element.textTracks[0]!;
+      const at = (time: number) =>
+        [...(tracks.cues ?? [])]
+          .filter((cue) => cue.startTime <= time && cue.endTime >= time)
+          .map((cue) => (cue as VTTCue).text)
+          .join(' ');
+      return { mode: tracks.mode, goldenRule: at(50), distinct: at(225) };
+    });
+    expect(captions.mode).toBe('showing');
+    expect(captions.goldenRule).toContain('regla de oro');
+    expect(captions.distinct).toContain('DISTINCT');
+    const transcript = closing.getByRole('link', { name: 'Leer la transcripción' });
+    const response = await page.request.get((await transcript.getAttribute('href'))!);
+    expect(response.headers()['content-type']).toContain('charset=utf-8');
+    expect(await response.text()).toContain('SELECT elige las columnas y FROM elige la tabla.');
+
     await page.goto('/learn/distinct');
     await expect(page.getByRole('region', { name: 'Repasa toda la unidad' })).toHaveCount(0);
 

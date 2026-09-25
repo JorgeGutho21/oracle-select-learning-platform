@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -28,12 +28,36 @@ describe('configuración central de videos', () => {
     });
   });
 
-  it('cada video y su portada existen en public/, sin rutas rotas', () => {
+  it('cada video, portada, pista de subtítulos y transcripción existe en public/', () => {
     for (const video of Object.values(VIDEO_LIBRARY)) {
-      for (const url of [video.source?.url, video.poster]) {
-        expect(url).toMatch(/^\/media\/[a-z0-9-]+\.(mp4|jpg)$/);
+      const urls = [video.source?.url, video.poster, video.captions?.url, video.transcriptUrl];
+      for (const url of urls.filter(Boolean)) {
+        expect(url).toMatch(/^\/media\/[a-z0-9.-]+\.(mp4|jpg|vtt|txt)$/);
         expect(existsSync(join(process.cwd(), 'public', url!))).toBe(true);
       }
+    }
+  });
+
+  it('el resumen lleva subtítulos WebVTT revisados y el introductorio los trae incrustados', () => {
+    expect(VIDEO_LIBRARY.intro.captions).toBeNull();
+    const captions = VIDEO_LIBRARY.summary.captions!;
+    expect(captions.label).toBe('Español');
+    const vtt = readFileSync(join(process.cwd(), 'public', captions.url), 'utf8');
+    expect(vtt.startsWith('WEBVTT')).toBe(true);
+    const cues = vtt.split(/\r?\n\r?\n/).filter((block) => block.includes('-->'));
+    expect(cues.length).toBeGreaterThan(80);
+    // Términos del curso escritos como en las lecciones, sin restos del reconocimiento.
+    const text = vtt.replace(/\s+/g, ' ');
+    expect(text).toContain('el comando SELECT');
+    expect(text).toContain('el comando FROM');
+    expect(text).toContain('el comando DISTINCT');
+    expect(text).toContain('«SALARIO*12»');
+    expect(text).not.toMatch(/\b(select|from|distinct)\b|artécla|hasta el disco/);
+    for (const cue of cues) {
+      const [start, end] = cue.match(/\d{2}:\d{2}:\d{2}\.\d{3}/g)!;
+      expect(end! > start!).toBe(true);
+      const lines = cue.split(/\r?\n/).slice(2);
+      expect(lines.every((line) => line.length <= 46)).toBe(true);
     }
   });
 

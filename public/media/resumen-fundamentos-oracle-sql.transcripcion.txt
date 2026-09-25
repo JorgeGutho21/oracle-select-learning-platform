@@ -1,0 +1,77 @@
+﻿Transcripción del video resumen «Fundamentos de Oracle SQL» (V02, 4:51)
+SQL SELECT LAB · SELECT en Oracle SQL · Universidad Popular del Cesar
+
+Hola, vamos directamente al grano.
+En la explicación de hoy, vamos a desglosar los cimientos absolutos de Oracle SQL, literalmente el núcleo de la extracción de datos.
+Dominar esta lógica básica es el paso cero para entrar al mundo de los datos.
+Sin esto, bueno, no hay análisis que valga.
+Así que, vamos a construir esa base desde cero, viendo cómo transformar un montón de datos crudos en conocimiento útil y, sobre todo, bien estructurado.
+Pensemos por un segundo en el gran enigma de todo esto.
+Imaginemos un almacén digital infinito, a reventar con millones y millones de filas de datos desordenados.
+¿Cómo sabe exactamente una base de datos qué información tiene que entregar con precisión milimétrica y encima en fracciones de segundo?
+Es increíble, ¿verdad?
+Pues la respuesta no es magia, sino un lenguaje superestructurado.
+Es un filtro sistemático donde cada instrucción es como un bisturí.
+Y todo arranca con la regla más importante de este ecosistema.
+Y aquí está: la regla de oro.
+Este es el ancla mental a la que hay que aferrarse en todo momento.
+Ahora, con SQL, absolutamente todo se reduce a dos preguntas muy simples.
+La primera: ¿qué queremos ver?
+A esto responde el comando SELECT.
+Y la segunda: ¿de dónde viene esa información?
+A eso responde el comando FROM.
+Si logramos interiorizar esta premisa tan sencilla, podemos estar seguros de que el resto del lenguaje fluye solo.
+Aquí podemos ver claramente cómo encajan las piezas.
+Toda consulta básica tiene sus partes súper delimitadas.
+El SELECT va directo a cazar las columnas que interesan, digamos el nombre o el salario.
+Por otro lado, el FROM señala el origen, es decir, la tabla física donde viven esos datos.
+En serio, tener clara esta división de tareas es un cambio radical, lo cambia todo.
+Vamos a bajar esto a la realidad de los datos.
+Aquí tenemos un conjunto en estado puro, la tabla original, intacta con todos sus atributos.
+Y ojo, porque es vital distinguir entre la vista y la realidad.
+Esta cuadrícula es intocable.
+Cuando ejecutamos consultas, lo que hacemos es generar simplemente una vista temporal, rescatando solo esos fragmentos que de verdad aportan valor.
+Ahora, a la hora de extraer la información, hay un contraste metodológico súper interesante.
+Por un lado tenemos el famosísimo asterisco, que básicamente le dice al motor «tráeme absolutamente todo».
+Pero por otro lado, está la precisión de declarar exactamente qué columnas queremos, separadas por comas.
+A ver, el asterisco es comodísimo, sin duda, pero en el mundo real siempre es preferible ser precisos para no colapsar los sistemas.
+Fíjense en lo que ocurre gráficamente.
+Al poner el asterisco, la base de datos entiende un «muéstrame todo» gigante.
+Nos ahorra el tener que teclear cada encabezado uno por uno, y nos devuelve la tabla entera.
+De principio a fin.
+Es una herramienta genial para echar un primer vistazo y para entornos académicos, claro, cuando estamos conociendo una tabla.
+Pero repito, es un atajo.
+Fuera de las pruebas, hay que usarlo con bastante cuidado.
+Demos un paso más.
+Resulta que el comando SELECT no sirve solo para mostrar columnas estáticas.
+Tiene una capacidad dinámica que es una pasada.
+Nos permite calcular valores nuevos sobre la marcha usando expresiones matemáticas.
+Por ejemplo, podemos pedirle que tome el salario mensual y lo multiplique por 12.
+Y, ¡bum!
+Automáticamente nos proyecta una nueva columna con el salario anual para cada registro.
+Así de fácil.
+Eso sí, hay que hacer una pausa aquí para dejar claro un principio fundamental.
+El resultado de estas operaciones se calcula única y exclusivamente en el momento de la consulta.
+La tabla original de la base de datos ni se entera.
+Se queda intacta, inmutable.
+Esta distinción es la clave de todo.
+Consultar y calcular con SELECT nunca jamás rompe ni modifica la realidad de los datos guardados.
+Simplemente transforma la forma en que los vemos.
+Claro, el pequeño problema es que, si dejamos que la base de datos le ponga nombre a esa nueva columna matemática, el encabezado queda, digamos, un poco feo.
+Algo así como «SALARIO*12».
+Para arreglar esto, entran en juego los alias.
+Si añadimos la palabra clave AS y justo después le damos un nombre nuevo, limpiamos por completo la salida.
+Pasamos de tener un reporte en bruto a un documento súper profesional y fácil de leer.
+Y para rematar, si queremos que la vista final quede impoluta, tenemos otra herramienta clave, el comando DISTINCT.
+Con solo añadir esta palabra justo después de SELECT le estamos diciendo al sistema que revise los resultados y borre cualquier fila que esté duplicada.
+Es la mejor forma de garantizar que el análisis no se contamine con información repetida.
+Para consolidar todo esto que hemos visto, volvamos a nuestra regla de oro inicial.
+Si hay algo, una sola cosa que debe quedar grabada a fuego tras esta explicación es esto.
+SELECT elige las columnas y FROM elige la tabla.
+Son los cimientos de todo.
+Una vez que se domina esta separación de funciones, la lógica de las bases de datos gigantescas deja de ser un misterio absoluto y pasa a ser una herramienta predecible y 100 % controlable.
+Y bueno, una vez que logramos aislar quirúrgicamente esos datos exactos que necesitamos, se abre un universo entero de posibilidades analíticas.
+Filtrar la información es solo el primer paso.
+La verdadera pregunta ahora es qué tendencias ocultas, qué anomalías financieras o qué comportamientos de usuarios se pueden descubrir cuando tenemos la información tan bien estructurada frente a nosotros.
+Ese es el verdadero poder de los datos.
+Y justo ahí es donde empieza la magia para los análisis más avanzados que están por venir.

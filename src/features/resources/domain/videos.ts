@@ -63,7 +63,8 @@ export const VIDEO_LIBRARY: Readonly<Record<VideoId, VideoResource>> = {
     orientation: 'landscape',
     source: { kind: 'file', url: '/media/resumen-fundamentos-oracle-sql.mp4', type: 'video/mp4' },
     poster: '/media/resumen-fundamentos-oracle-sql.jpg',
-    captions: null,
-    transcriptUrl: null,
+    // Transcripción automática (Whisper) revisada: términos SQL y errores de reconocimiento.
+    captions: { url: '/media/resumen-fundamentos-oracle-sql.es.vtt', label: 'Español' },
+    transcriptUrl: '/media/resumen-fundamentos-oracle-sql.transcripcion.txt',
   },
 };

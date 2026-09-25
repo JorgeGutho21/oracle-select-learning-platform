@@ -1,0 +1,517 @@
+WEBVTT
+
+NOTE Video resumen V02 «Fundamentos de Oracle SQL». Transcripción automática con Whisper small, revisada a mano: términos SQL, palabras mal reconocidas y una frase duplicada.
+
+1
+00:00:00.000 --> 00:00:03.184
+Hola, vamos directamente al
+grano. En la explicación de hoy,
+
+2
+00:00:03.184 --> 00:00:05.360
+vamos a desglosar los cimientos absolutos
+
+3
+00:00:05.360 --> 00:00:09.342
+de Oracle SQL, literalmente el
+núcleo de la extracción de datos.
+
+4
+00:00:09.342 --> 00:00:10.960
+Dominar esta lógica básica
+
+5
+00:00:10.960 --> 00:00:13.920
+es el paso cero para entrar al
+mundo de los datos. Sin esto, bueno,
+
+6
+00:00:13.920 --> 00:00:14.760
+no hay análisis que
+
+7
+00:00:14.760 --> 00:00:17.441
+valga. Así que, vamos a
+construir esa base desde cero,
+
+8
+00:00:17.441 --> 00:00:19.080
+viendo cómo transformar un montón
+
+9
+00:00:19.080 --> 00:00:23.400
+de datos crudos en conocimiento útil
+y, sobre todo, bien estructurado.
+
+10
+00:00:23.400 --> 00:00:25.840
+Pensemos por un segundo en
+el gran enigma de todo esto.
+
+11
+00:00:25.840 --> 00:00:27.800
+Imaginemos un almacén digital infinito,
+
+12
+00:00:27.800 --> 00:00:30.560
+a reventar con millones y
+millones de filas de datos
+
+13
+00:00:30.560 --> 00:00:31.560
+desordenados.
+
+14
+00:00:31.560 --> 00:00:34.340
+¿Cómo sabe exactamente una base
+de datos qué información tiene
+
+15
+00:00:34.340 --> 00:00:37.040
+que entregar con precisión
+milimétrica y encima en fracciones
+
+16
+00:00:37.040 --> 00:00:37.840
+de segundo?
+
+17
+00:00:37.840 --> 00:00:38.920
+Es increíble, ¿verdad?
+
+18
+00:00:38.920 --> 00:00:42.080
+Pues la respuesta no es magia,
+sino un lenguaje superestructurado.
+
+19
+00:00:42.080 --> 00:00:44.400
+Es un filtro sistemático donde
+cada instrucción es como un
+
+20
+00:00:44.400 --> 00:00:48.320
+bisturí. Y todo arranca con la regla
+más importante de este ecosistema.
+
+21
+00:00:48.320 --> 00:00:52.560
+Y aquí está: la regla de oro. Este es el
+ancla mental a la que hay que aferrarse en
+
+22
+00:00:52.560 --> 00:00:54.435
+todo momento. Ahora, con SQL,
+
+23
+00:00:54.435 --> 00:00:58.120
+absolutamente todo se reduce
+a dos preguntas muy simples.
+
+24
+00:00:58.120 --> 00:01:02.960
+La primera: ¿qué queremos ver? A
+esto responde el comando SELECT.
+
+25
+00:01:02.960 --> 00:01:06.600
+Y la segunda: ¿de dónde viene esa
+información? A eso responde el comando FROM.
+
+26
+00:01:06.600 --> 00:01:08.900
+Si logramos interiorizar
+esta premisa tan sencilla,
+
+27
+00:01:08.900 --> 00:01:12.100
+podemos estar seguros de que el
+resto del lenguaje fluye solo.
+
+28
+00:01:12.100 --> 00:01:14.800
+Aquí podemos ver claramente
+cómo encajan las piezas.
+
+29
+00:01:14.800 --> 00:01:17.700
+Toda consulta básica tiene
+sus partes súper delimitadas.
+
+30
+00:01:17.700 --> 00:01:20.100
+El SELECT va directo a cazar
+las columnas que interesan,
+
+31
+00:01:20.100 --> 00:01:21.900
+digamos el nombre o el salario.
+
+32
+00:01:21.900 --> 00:01:23.900
+Por otro lado, el FROM señala el origen,
+
+33
+00:01:23.900 --> 00:01:26.778
+es decir, la tabla física donde
+viven esos datos. En serio,
+
+34
+00:01:26.778 --> 00:01:29.120
+tener clara esta división
+de tareas es un cambio
+
+35
+00:01:29.120 --> 00:01:32.684
+radical, lo cambia todo. Vamos a
+bajar esto a la realidad de los datos.
+
+36
+00:01:32.684 --> 00:01:34.040
+Aquí tenemos un conjunto en
+
+37
+00:01:34.040 --> 00:01:37.524
+estado puro, la tabla original,
+intacta con todos sus atributos. Y ojo,
+
+38
+00:01:37.524 --> 00:01:38.800
+porque es vital distinguir
+
+39
+00:01:38.800 --> 00:01:42.085
+entre la vista y la realidad.
+Esta cuadrícula es intocable.
+
+40
+00:01:42.085 --> 00:01:44.480
+Cuando ejecutamos
+consultas, lo que hacemos
+
+41
+00:01:44.480 --> 00:01:46.292
+es generar simplemente una vista temporal,
+
+42
+00:01:46.292 --> 00:01:48.880
+rescatando solo esos fragmentos
+que de verdad aportan valor.
+
+43
+00:01:48.880 --> 00:01:51.035
+Ahora, a la hora de
+extraer la información,
+
+44
+00:01:51.035 --> 00:01:53.440
+hay un contraste metodológico
+súper interesante.
+
+45
+00:01:53.440 --> 00:01:55.640
+Por un lado tenemos el
+famosísimo asterisco,
+
+46
+00:01:55.640 --> 00:01:57.640
+que básicamente le dice al motor «tráeme
+
+47
+00:01:57.640 --> 00:01:59.666
+absolutamente todo». Pero por otro lado,
+
+48
+00:01:59.666 --> 00:02:02.400
+está la precisión de declarar
+exactamente qué columnas
+
+49
+00:02:02.400 --> 00:02:06.290
+queremos, separadas por comas. A ver,
+el asterisco es comodísimo, sin duda,
+
+50
+00:02:06.290 --> 00:02:08.520
+pero en el mundo real
+siempre es preferible
+
+51
+00:02:08.520 --> 00:02:13.089
+ser precisos para no colapsar los sistemas.
+Fíjense en lo que ocurre gráficamente.
+
+52
+00:02:13.089 --> 00:02:13.889
+Al
+
+53
+00:02:13.200 --> 00:02:17.499
+poner el asterisco, la base de datos
+entiende un «muéstrame todo» gigante.
+
+54
+00:02:17.499 --> 00:02:18.299
+Nos ahorra
+
+55
+00:02:18.080 --> 00:02:21.900
+el tener que teclear cada encabezado uno
+por uno, y nos devuelve la tabla entera. De
+
+56
+00:02:21.900 --> 00:02:22.700
+principio a fin.
+
+57
+00:02:22.692 --> 00:02:26.751
+Es una herramienta genial para echar un
+primer vistazo y para entornos académicos,
+
+58
+00:02:26.751 --> 00:02:28.880
+claro, cuando estamos
+conociendo una tabla.
+
+59
+00:02:28.880 --> 00:02:33.880
+Pero repito, es un atajo. Fuera de las
+pruebas, hay que usarlo con bastante cuidado.
+
+60
+00:02:33.880 --> 00:02:37.760
+Demos un paso más. Resulta que el comando
+SELECT no sirve solo para mostrar columnas
+
+61
+00:02:37.760 --> 00:02:40.754
+estáticas. Tiene una capacidad
+dinámica que es una pasada.
+
+62
+00:02:40.754 --> 00:02:42.200
+Nos permite calcular valores
+
+63
+00:02:42.200 --> 00:02:45.443
+nuevos sobre la marcha usando
+expresiones matemáticas. Por ejemplo,
+
+64
+00:02:45.443 --> 00:02:48.880
+podemos pedirle que tome el salario
+mensual y lo multiplique por 12. Y,
+
+65
+00:02:48.880 --> 00:02:49.680
+¡bum!
+
+66
+00:02:49.089 --> 00:02:51.177
+Automáticamente nos proyecta
+una nueva columna con
+
+67
+00:02:51.177 --> 00:02:52.680
+el salario anual para cada registro.
+
+68
+00:02:52.680 --> 00:02:53.903
+Así de fácil. Eso sí,
+
+69
+00:02:53.903 --> 00:02:58.040
+hay que hacer una pausa aquí para
+dejar claro un principio fundamental.
+
+70
+00:02:58.040 --> 00:03:00.691
+El resultado de estas
+operaciones se calcula única
+
+71
+00:03:00.691 --> 00:03:02.600
+y exclusivamente en el momento de la
+
+72
+00:03:02.600 --> 00:03:07.154
+consulta. La tabla original de la base
+de datos ni se entera. Se queda intacta,
+
+73
+00:03:07.154 --> 00:03:10.440
+inmutable. Esta distinción es
+la clave de todo. Consultar
+
+74
+00:03:10.440 --> 00:03:12.687
+y calcular con SELECT nunca jamás rompe ni
+
+75
+00:03:12.687 --> 00:03:15.040
+modifica la realidad
+de los datos guardados.
+
+76
+00:03:15.040 --> 00:03:17.360
+Simplemente transforma la
+forma en que los vemos.
+
+77
+00:03:17.360 --> 00:03:18.954
+Claro, el pequeño problema es que,
+
+78
+00:03:18.954 --> 00:03:21.720
+si dejamos que la base de datos
+le ponga nombre a esa nueva
+
+79
+00:03:21.720 --> 00:03:26.401
+columna matemática, el encabezado
+queda, digamos, un poco feo.
+
+80
+00:03:26.401 --> 00:03:28.440
+Algo así como «SALARIO*12».
+
+81
+00:03:28.440 --> 00:03:30.854
+Para arreglar esto,
+entran en juego los alias.
+
+82
+00:03:30.854 --> 00:03:32.900
+Si añadimos la palabra clave AS y justo
+
+83
+00:03:32.900 --> 00:03:36.920
+después le damos un nombre nuevo, limpiamos
+por completo la salida. Pasamos de tener
+
+84
+00:03:36.920 --> 00:03:41.200
+un reporte en bruto a un documento
+súper profesional y fácil de leer.
+
+85
+00:03:41.200 --> 00:03:44.481
+Y para rematar, si queremos que
+la vista final quede impoluta,
+
+86
+00:03:44.481 --> 00:03:48.080
+tenemos otra herramienta clave, el
+comando DISTINCT. Con solo añadir
+
+87
+00:03:48.080 --> 00:03:51.560
+esta palabra justo después de SELECT le
+estamos diciendo al sistema que revise
+
+88
+00:03:51.560 --> 00:03:54.332
+los resultados y borre cualquier
+fila que esté duplicada.
+
+89
+00:03:54.332 --> 00:03:55.840
+Es la mejor forma de garantizar
+
+90
+00:03:55.840 --> 00:03:59.280
+que el análisis no se contamine
+con información repetida.
+
+91
+00:03:59.280 --> 00:04:03.480
+Para consolidar todo esto que hemos visto,
+volvamos a nuestra regla de oro inicial.
+
+92
+00:04:03.480 --> 00:04:04.280
+Si hay algo,
+
+93
+00:04:04.178 --> 00:04:08.600
+una sola cosa que debe quedar grabada
+a fuego tras esta explicación es esto.
+
+94
+00:04:08.600 --> 00:04:11.880
+SELECT elige las columnas
+y FROM elige la tabla.
+
+95
+00:04:11.880 --> 00:04:13.520
+Son los cimientos de todo.
+
+96
+00:04:13.520 --> 00:04:15.799
+Una vez que se domina esta
+separación de funciones,
+
+97
+00:04:15.799 --> 00:04:17.720
+la lógica de las bases
+de datos gigantescas
+
+98
+00:04:17.720 --> 00:04:20.002
+deja de ser un misterio absoluto y pasa a
+
+99
+00:04:20.002 --> 00:04:22.840
+ser una herramienta predecible
+y 100 % controlable.
+
+100
+00:04:22.840 --> 00:04:25.760
+Y bueno, una vez que logramos
+aislar quirúrgicamente esos datos
+
+101
+00:04:25.760 --> 00:04:28.560
+exactos que necesitamos, se
+abre un universo entero de
+
+102
+00:04:28.560 --> 00:04:30.320
+posibilidades analíticas.
+
+103
+00:04:30.320 --> 00:04:32.720
+Filtrar la información
+es solo el primer paso.
+
+104
+00:04:32.720 --> 00:04:35.600
+La verdadera pregunta ahora
+es qué tendencias ocultas,
+
+105
+00:04:35.600 --> 00:04:38.480
+qué anomalías financieras o
+qué comportamientos de usuarios
+
+106
+00:04:38.480 --> 00:04:40.640
+se pueden descubrir cuando
+tenemos la información tan bien
+
+107
+00:04:40.640 --> 00:04:42.400
+estructurada frente a nosotros.
+
+108
+00:04:42.400 --> 00:04:44.240
+Ese es el verdadero poder de los datos.
+
+109
+00:04:44.240 --> 00:04:45.788
+Y justo ahí es donde empieza la magia para
+
+110
+00:04:45.788 --> 00:04:47.520
+los análisis más avanzados
+que están por venir.
