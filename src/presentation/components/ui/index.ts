@@ -1,4 +1,5 @@
 export { Alert, type AlertProps } from './alert';
+export { BreakableUrl, type BreakableUrlProps } from './breakable-url';
 export { Button, type ButtonProps } from './button';
 export { Card, type CardProps } from './card';
 export { Chip, type ChipProps } from './chip';

@@ -9,7 +9,14 @@ import { StatisticsPanel } from './statistics-panel';
 import { useFocusHeadingOnChange } from './use-focus-on-change';
 import { formatDuration, useRoomSync, type RoomSubscriber } from './use-room-sync';
 import { QrCode } from '@/presentation/components/media/qr-code';
-import { Alert, Button, Chip, Dialog, LoadingState } from '@/presentation/components/ui';
+import {
+  Alert,
+  BreakableUrl,
+  Button,
+  Chip,
+  Dialog,
+  LoadingState,
+} from '@/presentation/components/ui';
 
 export interface PresenterConsoleProps {
   readonly code: string;
@@ -147,7 +154,9 @@ export function PresenterConsole({ code, loadView, runCommand, subscribe }: Pres
             <div className="classroom-qr">
               <QrCode value={joinUrl} label={`Código QR para entrar a la sala ${room.code}`} />
             </div>
-            <p className="classroom-url">{joinUrl}</p>
+            <p className="classroom-url">
+              <BreakableUrl url={joinUrl} />
+            </p>
             {base.isLocal && (
               <Alert tone="warning" title="Dirección local">
                 Este QR apunta a esta máquina: los móviles no podrán abrirlo. Configura

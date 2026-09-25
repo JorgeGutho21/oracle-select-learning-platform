@@ -126,3 +126,31 @@ test('el menú móvil se cierra con Escape y devuelve el foco', async ({ page })
   await expect(page.locator('.mobile-menu')).not.toHaveAttribute('open');
   await expect(summary).toBeFocused();
 });
+
+test('los iconos, el título y la vista previa social identifican la unidad', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/');
+  await expect(page).toHaveTitle('SELECT en Oracle SQL | SQL SELECT LAB');
+  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+    'content',
+    'SELECT en Oracle SQL | SQL SELECT LAB',
+  );
+  await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
+    'content',
+    /Jorge Gutierrez Thomas.*Amilkar Sierra/,
+  );
+  for (const [path, type] of [
+    ['/favicon.ico', 'image/x-icon'],
+    ['/icon.svg', 'image/svg+xml'],
+    ['/apple-icon.png', 'image/png'],
+    ['/opengraph-image.png', 'image/png'],
+  ] as const) {
+    const response = await request.get(path);
+    expect(response.status(), path).toBe(200);
+    expect(response.headers()['content-type'], path).toContain(type);
+  }
+});

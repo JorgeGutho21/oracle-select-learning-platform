@@ -1,0 +1,1 @@
+SQL SELECT LAB: SELECT en Oracle SQL. Universidad Popular del Cesar, Ingeniería de Sistemas, Base de Datos. Autor Jorge Gutierrez Thomas, profesor Amilkar Sierra.

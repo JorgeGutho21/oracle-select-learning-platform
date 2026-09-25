@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSyncExternalStore } from 'react';
 import { publicUrlFromEnvironment } from '@/application/public-url';
 import { QrCode } from '@/presentation/components/media/qr-code';
+import { BreakableUrl } from '@/presentation/components/ui/breakable-url';
 
 const noSubscription = () => () => {};
 const currentOrigin = () => window.location.origin;
@@ -28,7 +29,9 @@ export function SceneQr({ path }: { readonly path: string }) {
       </div>
       <figcaption>
         <strong>Practica en tu móvil</strong>
-        <span className="scene-qr__url">{url || path}</span>
+        <span className="scene-qr__url">
+          <BreakableUrl url={url || path} />
+        </span>
         <span>
           Abre el SQL Challenge individual. Para jugar todos juntos, crea una sala en{' '}
           <Link href="/presenter">Sala en vivo</Link>: proyecta su propio código.

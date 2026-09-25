@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
+  BreakableUrl,
   Button,
   CodeBlock,
   DataTable,
@@ -149,4 +150,19 @@ describe('Contratos accesibles de los componentes de presentación', () => {
       expect(screen.getByRole('status').querySelector('[aria-hidden="true"]')).not.toBeNull();
     },
   );
+});
+
+describe('BreakableUrl', () => {
+  it('ofrece cortes tras las barras y los puntos sin cambiar el texto', () => {
+    const url = 'https://sql-select-lab.vercel.app/join/ABC123';
+    const { container } = render(
+      <p>
+        <BreakableUrl url={url} />
+      </p>,
+    );
+    expect(container.textContent).toBe(url);
+    const breaks = container.querySelectorAll('wbr').length;
+    expect(breaks).toBe(url.split(/(?<=[/.?&=#-])/).length - 1);
+    expect(container.innerHTML).toContain('join/<wbr>ABC123');
+  });
 });
