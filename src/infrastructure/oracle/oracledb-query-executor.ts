@@ -114,6 +114,13 @@ export class OracledbQueryExecutor implements OracleQueryExecutor {
           poolTimeout: 60,
           poolPingInterval: 60,
           stmtCacheSize: 30,
+          // mTLS de Autonomous Database: la cartera llega como texto, sin archivos en disco.
+          ...(this.config.wallet
+            ? {
+                walletContent: this.config.wallet.content,
+                walletPassword: this.config.wallet.password,
+              }
+            : {}),
           ...(this.config.schema
             ? {
                 sessionCallback: (

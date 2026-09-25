@@ -34,6 +34,8 @@ export default defineConfig([
     'coverage/**',
     'playwright-report/**',
     'test-results/**',
+    // Capturas y guiones de QA locales (ignorados por Git).
+    'output/**',
     'next-env.d.ts',
   ]),
 ]);

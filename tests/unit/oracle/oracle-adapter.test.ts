@@ -105,6 +105,7 @@ const CONFIG: OracleConfig = {
   timeoutMs: 5000,
   maxRows: 100,
   maxBytes: 100 * 1024,
+  wallet: null,
 };
 
 function canonical(sql: string): string {
@@ -159,9 +160,49 @@ describe('configuración de Oracle desde el entorno', () => {
     });
   });
 
+  it('la cartera mTLS llega en base64 con su contraseña, siempre juntas', () => {
+    const pem = [
+      '-----BEGIN ENCRYPTED PRIVATE KEY-----',
+      'AAAA',
+      '-----END ENCRYPTED PRIVATE KEY-----',
+      '',
+    ].join('\n');
+    const base = {
+      ORACLE_USER: 'sql_lab_reader',
+      ORACLE_PASSWORD: 'x',
+      ORACLE_CONNECT_STRING:
+        '(description=(address=(protocol=tcps)(port=1522)(host=adb.example.com)))',
+    };
+    expect(
+      oracleConfigFromEnv({
+        ...base,
+        ORACLE_WALLET_PEM_BASE64: Buffer.from(pem).toString('base64'),
+        ORACLE_WALLET_PASSWORD: 'clave-de-prueba',
+      }),
+    ).toMatchObject({
+      kind: 'configured',
+      config: { wallet: { content: pem, password: 'clave-de-prueba' } },
+    });
+    expect(oracleConfigFromEnv(base)).toMatchObject({ config: { wallet: null } });
+    expect(
+      oracleConfigFromEnv({
+        ...base,
+        ORACLE_WALLET_PEM_BASE64: Buffer.from(pem).toString('base64'),
+      }).kind,
+    ).toBe('invalid');
+    expect(oracleConfigFromEnv({ ...base, ORACLE_WALLET_PASSWORD: 'x' }).kind).toBe('invalid');
+    expect(
+      oracleConfigFromEnv({
+        ...base,
+        ORACLE_WALLET_PEM_BASE64: Buffer.from('no es un PEM').toString('base64'),
+        ORACLE_WALLET_PASSWORD: 'x',
+      }).kind,
+    ).toBe('invalid');
+  });
+
   it('rechaza cuentas administrativas, la propietaria y valores incompletos o fuera de rango', () => {
     const base = { ORACLE_PASSWORD: 'x', ORACLE_CONNECT_STRING: 'db/FREEPDB1' };
-    for (const user of ['SYS', 'system', 'SysBackup']) {
+    for (const user of ['SYS', 'system', 'SysBackup', 'ADMIN', 'admin']) {
       expect(oracleConfigFromEnv({ ...base, ORACLE_USER: user }).kind).toBe('invalid');
     }
     expect(oracleConfigFromEnv({ ORACLE_USER: 'lector' }).kind).toBe('invalid');
@@ -223,6 +264,20 @@ describe('clasificación de errores de Oracle', () => {
 });
 
 describe('adaptador node-oracledb', () => {
+  it('con cartera mTLS, el grupo recibe su contenido y su contraseña', async () => {
+    const fake = fakeDriver(() => ({ rows: [['Ana']], metaData: [text('NOMBRE')] }));
+    const wallet = {
+      content: '-----BEGIN ENCRYPTED PRIVATE KEY-----',
+      password: 'clave-de-prueba',
+    };
+    const executor = new OracledbQueryExecutor({ ...CONFIG, wallet }, async () => fake.driver);
+    await executor.execute({ statement: canonical('select nombre from empleados;') });
+    expect(fake.poolAttributes[0]).toMatchObject({
+      walletContent: wallet.content,
+      walletPassword: wallet.password,
+    });
+  });
+
   it('ejecuta la sentencia canónica con plazo, filas como arreglos y tipos de columna', async () => {
     const fake = fakeDriver((sql) =>
       sql.startsWith('ALTER SESSION')
@@ -262,6 +317,7 @@ describe('adaptador node-oracledb', () => {
       queueTimeout: 5000,
       poolMin: 0,
     });
+    expect(fake.poolAttributes[0]).not.toHaveProperty('walletContent');
     expect(fake.closed).toEqual([{ drop: false }]);
   });
 

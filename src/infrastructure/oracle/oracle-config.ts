@@ -5,6 +5,8 @@
  * Obligatorias: ORACLE_USER, ORACLE_PASSWORD y ORACLE_CONNECT_STRING (cuenta lectora).
  * Opcionales: ORACLE_SCHEMA (propietario de EMPLEADOS si no es la cuenta lectora),
  * ORACLE_POOL_MAX (10), ORACLE_QUEUE_MAX (60) y ORACLE_TIMEOUT_MS (5000).
+ * Para mTLS (Autonomous Database con cartera): ORACLE_WALLET_PEM_BASE64 (el `ewallet.pem`
+ * de la cartera en base64, en una sola línea) y ORACLE_WALLET_PASSWORD, siempre juntas.
  */
 
 export interface OracleConfig {
@@ -20,6 +22,8 @@ export interface OracleConfig {
   /** LAB_SPEC: límite de 100 filas y 100 KB por respuesta. */
   readonly maxRows: number;
   readonly maxBytes: number;
+  /** Cartera para mTLS: contenido PEM (cifrado) y su contraseña; `null` sin cartera. */
+  readonly wallet: { readonly content: string; readonly password: string } | null;
 }
 
 export type OracleConfigResult =
@@ -27,8 +31,17 @@ export type OracleConfigResult =
   | { readonly kind: 'unconfigured' }
   | { readonly kind: 'invalid'; readonly message: string };
 
-// Cuentas administrativas que nunca ejecutan SQL de estudiantes (LAB_SPEC, paso 5).
-const PRIVILEGED_ACCOUNTS = new Set(['SYS', 'SYSTEM', 'SYSBACKUP', 'SYSDG', 'SYSKM', 'SYSRAC']);
+// Cuentas administrativas que nunca ejecutan SQL de estudiantes (LAB_SPEC, paso 5). ADMIN
+// es la cuenta administrativa de Autonomous Database.
+const PRIVILEGED_ACCOUNTS = new Set([
+  'SYS',
+  'SYSTEM',
+  'SYSBACKUP',
+  'SYSDG',
+  'SYSKM',
+  'SYSRAC',
+  'ADMIN',
+]);
 const IDENTIFIER = /^[A-Za-z][A-Za-z0-9_$#]{0,127}$/;
 
 function integer(value: string | undefined, fallback: number, min: number, max: number) {
@@ -69,6 +82,20 @@ export function oracleConfigFromEnv(
         'La cuenta lectora no debe ser la propietaria de EMPLEADOS: deja ORACLE_SCHEMA vacío o usa otra cuenta.',
     };
   }
+  const walletBase64 = env.ORACLE_WALLET_PEM_BASE64?.trim() ?? '';
+  const walletPassword = env.ORACLE_WALLET_PASSWORD ?? '';
+  let wallet: OracleConfig['wallet'] = null;
+  if (walletBase64 || walletPassword) {
+    const content = walletBase64 ? Buffer.from(walletBase64, 'base64').toString('utf8') : '';
+    if (!walletPassword || !content.includes('-----BEGIN')) {
+      return {
+        kind: 'invalid',
+        message:
+          'La cartera de Oracle necesita ORACLE_WALLET_PEM_BASE64 (ewallet.pem en base64) y ORACLE_WALLET_PASSWORD.',
+      };
+    }
+    wallet = { content, password: walletPassword };
+  }
   const poolMax = integer(env.ORACLE_POOL_MAX, 10, 1, 50);
   const queueMax = integer(env.ORACLE_QUEUE_MAX, 60, 0, 500);
   const timeoutMs = integer(env.ORACLE_TIMEOUT_MS, 5000, 500, 30_000);
@@ -90,6 +117,7 @@ export function oracleConfigFromEnv(
       timeoutMs,
       maxRows: 100,
       maxBytes: 100 * 1024,
+      wallet,
     },
   };
 }
