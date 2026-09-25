@@ -14,7 +14,7 @@ Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 
 ## Estado del proyecto
 
-Cimientos técnicos, sistema de diseño y SQL Oracle Challenge interactivo implementados. Incluye Next.js App Router, TypeScript estricto, Bootstrap 5.3.8 compilado con Sass local, componentes accesibles dnd-kit para el arrastre y CodeMirror 6 como editor SQL. En `/challenge` se juegan las misiones M01–M09 como práctica individual, con arrastre, toque o teclado, corrección en el servidor y progreso guardado en el navegador. El Laboratorio (`/lab`) analiza consultas con el motor SQL educativo del curso (diagnóstico, vista previa rotulada, traducción y anatomía) y ejecuta la consulta en Oracle real mediante el adaptador del servidor; M10 también se califica en Oracle. Sin Oracle configurado lo indica y no simula nada (configuración en [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)). La Home, el Modo Estudio (nueve lecciones con efecto visual paso a paso y actividad), el Modo Exposición (dieciséis escenas 16:9 para proyector) y el buscador global Ctrl+K/Cmd+K están implementados sobre el mismo dataset y motor educativo. Recursos (chuleta imprimible, referencia rápida, ejemplos y fuentes) y el catálogo de módulos `/modules` también están implementados. La Sala en vivo funciona de extremo a extremo: el profesor crea la sala en `/presenter` (código y QR), los estudiantes entran desde el móvil en `/join/{codigo}` con un alias y el ranking se actualiza mientras juegan; los resultados están en `/results`. Usa Supabase en producción (configuración en [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) y `.env.example`), todavía sin validar contra un proyecto remoto, o memoria del servidor en desarrollo. Los videos están en preparación y se publicarán desde una configuración central. Estado detallado en [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) y [CHALLENGE_STATUS.md](docs/CHALLENGE_STATUS.md).
+Cimientos técnicos, sistema de diseño y SQL Oracle Challenge interactivo implementados. Incluye Next.js App Router, TypeScript estricto, Bootstrap 5.3.8 compilado con Sass local, componentes accesibles dnd-kit para el arrastre y CodeMirror 6 como editor SQL. En `/challenge` se juegan las misiones M01–M09 como práctica individual, con arrastre, toque o teclado, corrección en el servidor y progreso guardado en el navegador. El Laboratorio (`/lab`) analiza consultas con el motor SQL educativo del curso (diagnóstico, vista previa rotulada, traducción y anatomía) y ejecuta la consulta en Oracle real mediante el adaptador del servidor; M10 también se califica en Oracle. Sin Oracle configurado lo indica y no simula nada (configuración en [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)). La Home, el Modo Estudio (nueve lecciones con efecto visual paso a paso y actividad), el Modo Exposición (dieciséis escenas 16:9 para proyector) y el buscador global Ctrl+K/Cmd+K están implementados sobre el mismo dataset y motor educativo. Recursos (chuleta imprimible, referencia rápida, ejemplos y fuentes) y el catálogo de módulos `/modules` también están implementados. La Sala en vivo funciona de extremo a extremo: el profesor crea la sala en `/presenter` (código y QR), los estudiantes entran desde el móvil en `/join/{codigo}` con un alias y el ranking se actualiza mientras juegan; los resultados están en `/results`. Usa Supabase en producción (configuración en [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) y `.env.example`), todavía sin validar contra un proyecto remoto, o memoria del servidor en desarrollo. Los dos videos de la unidad (introducción y resumen) se sirven desde `public/media` con el reproductor accesible compartido. Estado detallado en [PROJECT_STATUS.md](docs/PROJECT_STATUS.md) y [CHALLENGE_STATUS.md](docs/CHALLENGE_STATUS.md).
 
 ## Desarrollo local
 
@@ -54,22 +54,24 @@ El alcance y los criterios de aceptación completos se encuentran en la document
 
 ## Documentación
 
-| Documento                                     | Contenido                                               |
-| --------------------------------------------- | ------------------------------------------------------- |
-| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md)       | Propósito, fuentes, alcance y aceptación por módulo.    |
-| [CONTENT_MAP.md](docs/CONTENT_MAP.md)         | Lecciones, escenas, ejemplos y vídeos.                  |
-| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)     | Identidad visual, componentes y accesibilidad.          |
-| [UX_FLOWS.md](docs/UX_FLOWS.md)               | Recorridos, navegación y estados.                       |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md)       | Capas, servicios y límites de confianza.                |
-| [LAB_SPEC.md](docs/LAB_SPEC.md)               | Subconjunto SQL y laboratorio Oracle.                   |
-| [GAME_SPEC.md](docs/GAME_SPEC.md)             | Diez misiones, evaluación y puntuación.                 |
-| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md)     | Salas, sincronización y reconexión.                     |
-| [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)   | Configurar Supabase para la sala en vivo.               |
-| [FINAL_AUDIT.md](docs/FINAL_AUDIT.md)         | Auditoría preproducción y prerrequisitos de despliegue. |
-| [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)       | Conectar el laboratorio y M10 a Oracle.                 |
-| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) | Dataset y modelo lógico de persistencia.                |
-| [TEST_PLAN.md](docs/TEST_PLAN.md)             | Plan de pruebas de la futura aplicación.                |
-| [ROADMAP.md](docs/ROADMAP.md)                 | Hitos, dependencias y condiciones de entrega.           |
+| Documento                                       | Contenido                                                   |
+| ----------------------------------------------- | ----------------------------------------------------------- |
+| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md)         | Propósito, fuentes, alcance y aceptación por módulo.        |
+| [CONTENT_MAP.md](docs/CONTENT_MAP.md)           | Lecciones, escenas, ejemplos y vídeos.                      |
+| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)       | Identidad visual, componentes y accesibilidad.              |
+| [UX_FLOWS.md](docs/UX_FLOWS.md)                 | Recorridos, navegación y estados.                           |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)         | Capas, servicios y límites de confianza.                    |
+| [LAB_SPEC.md](docs/LAB_SPEC.md)                 | Subconjunto SQL y laboratorio Oracle.                       |
+| [GAME_SPEC.md](docs/GAME_SPEC.md)               | Diez misiones, evaluación y puntuación.                     |
+| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md)       | Salas, sincronización y reconexión.                         |
+| [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)     | Configurar Supabase para la sala en vivo.                   |
+| [FINAL_AUDIT.md](docs/FINAL_AUDIT.md)           | Auditoría preproducción y prerrequisitos de despliegue.     |
+| [PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md) | Servicios, variables y alojamiento de producción.           |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md)             | Estado del despliegue en Vercel, procedimiento y reversión. |
+| [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)         | Conectar el laboratorio y M10 a Oracle.                     |
+| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)   | Dataset y modelo lógico de persistencia.                    |
+| [TEST_PLAN.md](docs/TEST_PLAN.md)               | Plan de pruebas de la futura aplicación.                    |
+| [ROADMAP.md](docs/ROADMAP.md)                   | Hitos, dependencias y condiciones de entrega.               |
 
 ## Estructura
 

@@ -114,3 +114,35 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - foco del Challenge como estado, con reintento en WebKit al cerrar el diálogo.
 
   Doce MINOR documentados. Regresiones en `tests/e2e/audit-regressions.spec.ts`. Verificado: lint, typecheck, format:check, 415 unitarias, build y E2E sobre el código final: 479/480, con el único fallo, M02 en WebKit por el reintento de foco, corregido y verificado 120/120. Después, 478/480 y 477/480 con la CPU al 100 % por procesos ajenos; todos esos fallos fueron plazos y pasaron al repetirlos. READY_FOR_DEPLOYMENT = true, con los prerrequisitos de despliegue de la auditoría. Sin deploy. Commit `chore: complete production readiness audit`, subido a `origin/claude-finish-20260923`.
+
+- 2026-09-25: Fase 10, integración final, en `claude-finish-20260923`.
+  - **Videos:** los dos MP4 del autor se sirven sin recodificar desde `public/media` (31 MB, H.264/AAC con `moov` al inicio).
+    - V01 «Introducción a SELECT en Oracle SQL»: 1:13, vertical 9:16, con subtítulos incrustados. Está en Home y al inicio de `/learn`.
+    - V02 «Fundamentos de Oracle SQL»: 4:51, 16:9. Está al final de `/learn`, en la escena 14 y en Recursos.
+    - `VideoPlayer` admite ahora la orientación vertical y la duración real. Usa `preload="none"` (F10-03) y detecta un error anterior a la hidratación (F10-02).
+  - **Activos:** favicon (ICO, SVG y Apple), OpenGraph sin el emblema, título de Home, `global-error.tsx` y `retry()` en `error.tsx`. Las URL de QR se parten entre partes.
+  - **QR en producción:** en Vercel usa el dominio de producción del proyecto (F10-09).
+  - **Documentación:**
+    - `docs/PRODUCTION_SETUP.md`, con las variables clasificadas REQUIRED/OPTIONAL y AVAILABLE/MISSING;
+    - `docs/DEPLOYMENT.md`, con el estado de Vercel y la reversión;
+    - `.vercelignore`, porque el CLI no lee `.gitignore`;
+    - corregido el puerto local 1522 en ORACLE_SETUP.
+  - **Vercel:**
+    - El CLI inició sesión con la cuenta del responsable. La sesión se guarda en `.vercel/cli/`, ignorado.
+    - Se creó el proyecto `sql-select-lab`.
+    - El primer `vercel deploy`, sin `--prod`, salió como producción y con preset «Other». Se retiró el alias `sql-select-lab.vercel.app` y se fijó el preset Next.js (F10-07).
+    - Se revirtieron los cambios de `vercel link` en `.gitignore` y `.env.local` (F10-08).
+    - Se lanzó una vista previa, pero el sistema de permisos bloqueó seguirla: no está verificada.
+  - **Verificado:**
+    - lint, typecheck, format:check, 421 unitarias (21 con Oracle real) y build desde cero;
+    - QA visual e interactiva con 0 hallazgos en 10 tamaños y zoom 200 %;
+    - E2E final completa 487/489 en 43,2 min con 1 worker y la CPU saturada por procesos ajenos; los dos plazos de Edge pasaron 15/15 al repetirlos;
+    - tras F10-09, 111/111 en sala, exposición y rutas.
+  - **Estado:** READY_FOR_DEPLOYMENT = true y PRODUCTION_READY = false.
+  - **Pendiente:**
+    - una instancia Oracle alcanzable desde Vercel;
+    - un proyecto Supabase;
+    - los subtítulos de V02 (F10-01): requiere autorizar la descarga de un modelo Whisper o subtítulos del autor;
+    - la vista previa y la prueba de humo;
+    - opcionalmente, pausar el despliegue de producción involuntario con `vercel project pause sql-select-lab`.
+  - **Commits:** `release: finalize production-ready learning platform` y los anteriores de la fase, subidos a `origin/claude-finish-20260923`.

@@ -1,0 +1,25 @@
+# Archivos que el CLI de Vercel no debe subir. El CLI no lee .gitignore: esta lista es la
+# que protege credenciales y artefactos locales en un «vercel deploy».
+
+# Credenciales y variables locales (la plantilla sí se sube).
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependencias y compilaciones: Vercel instala y compila en su propio entorno.
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Pruebas, capturas y registros generados en esta máquina.
+output/
+coverage/
+playwright-report/
+test-results/
+.playwright-cli/
+*.log

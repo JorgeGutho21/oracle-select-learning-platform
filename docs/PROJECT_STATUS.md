@@ -10,6 +10,23 @@ Esta auditoría no modifica código. Solo añade este archivo y [CHALLENGE_STATU
 
 **Actualización (Fase 3, Challenge interactivo):** M01–M09 del Challenge v2 son jugables en `/challenge` con arrastre (dnd-kit), toque y teclado. M10 queda bloqueada sin Oracle. La corrección se ejecuta en el servidor mediante Server Functions en una nueva raíz de composición (`src/composition`). Se corrigió un desbordamiento móvil del `DataTable` base. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md) y [Verificaciones tras la Fase 3](#verificaciones-tras-la-fase-3).
 
+**Actualización (Fase 10, integración final): READY_FOR_DEPLOYMENT = true · PRODUCTION_READY = false.** Hecho en esta fase:
+
+- Videos publicados en `public/media` con el reproductor existente: el introductorio en Home y al inicio de `/learn`; el resumen al final de `/learn`, en la escena 14 y en Recursos.
+- Favicon, OpenGraph y página de error global.
+- URL del QR que se parte sin cortar palabras.
+- Variables clasificadas en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md) y preparación de Vercel (`.vercelignore`, proyecto `sql-select-lab`).
+
+La QA visual, interactiva y de accesibilidad dio 0 hallazgos en 10 tamaños más el zoom 200 %.
+
+Bloquean producción:
+
+- una instancia Oracle alcanzable desde Vercel;
+- un proyecto Supabase;
+- los subtítulos del video resumen (F10-01, pendiente de autorización).
+
+El primer despliegue en Vercel salió como producción por comportamiento del CLI; se retiró su alias ([DEPLOYMENT.md](DEPLOYMENT.md)). Detalle y lista PASS / PASS WITH LIMITATION / BLOCKED en [FINAL_AUDIT.md](FINAL_AUDIT.md).
+
 **Actualización (Fase 9, auditoría preproducción): READY_FOR_DEPLOYMENT = true.** Auditoría completa en [FINAL_AUDIT.md](FINAL_AUDIT.md): ningún CRITICAL; seis MAJOR corregidos con prueba de regresión:
 
 - cabeceras de seguridad y CSP;

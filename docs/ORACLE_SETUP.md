@@ -46,7 +46,7 @@ Motor de contenedores: el script usa Docker si su motor responde. En Windows, si
 wsl -d Ubuntu -u root -- apt-get install -y podman
 ```
 
-WSL reenvía el puerto a `127.0.0.1:1521` de Windows. `ORACLE_LOCAL_ENGINE=docker` o `wsl-podman` fuerza un motor. Esta es la configuración con la que se validó la Fase 8.
+WSL reenvía el puerto a `127.0.0.1:1522` de Windows (1522 por defecto, para no chocar con un Oracle nativo en 1521; `ORACLE_LOCAL_PORT` lo cambia). `ORACLE_LOCAL_ENGINE=docker` o `wsl-podman` fuerza un motor. Esta es la configuración con la que se validó la Fase 8.
 
 ## Opción B — Instancia propia (universidad o nube)
 
