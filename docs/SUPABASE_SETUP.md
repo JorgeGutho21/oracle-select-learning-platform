@@ -1,17 +1,18 @@
 # SUPABASE_SETUP — Configurar la sala en vivo
 
-Versión 1.0 · Fase 7 · Relacionado con [REALTIME_SPEC.md](REALTIME_SPEC.md) 1.1 y [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
+Versión 1.1 · Fases 7 y 11 · Relacionado con [REALTIME_SPEC.md](REALTIME_SPEC.md) 1.1 y [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
 
 Supabase guarda las salas, los participantes, los intentos y los resultados, y avisa de los cambios en tiempo real. **No sustituye a Oracle**: el SQL de los estudiantes nunca se ejecuta en PostgreSQL.
 
 ## Estado de la verificación
 
-| Parte                                                               | Verificado                                                                                                                       |
-| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Migración, funciones, RLS y privilegios                             | Sí, en PostgreSQL embebido (PGlite) con los roles y privilegios por defecto de Supabase (`tests/integration`).                   |
-| Adaptador `SupabaseClassroomRepository` y reglas de sala            | Sí, la misma batería de contrato corre en memoria y contra esa base.                                                             |
-| Flujo completo en navegador (profesor y móviles)                    | Sí, con el almacenamiento en memoria (`CLASSROOM_BACKEND=memory`) en Chromium, Edge y WebKit.                                    |
-| Proyecto Supabase remoto, Realtime Broadcast y 50–60 móviles reales | **No.** El repositorio no tiene credenciales. Se requiere la prueba de la sección [Validación pendiente](#validación-pendiente). |
+| Parte                                                    | Verificado                                                                                                                                                                                                                         |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Migración, funciones, RLS y privilegios                  | Sí, en PostgreSQL embebido (`tests/integration`) y en el **proyecto real**, con la migración aplicada el 25 de septiembre de 2026. Con la clave publishable, las cinco tablas y las funciones responden `42501 permission denied`. |
+| Adaptador `SupabaseClassroomRepository` y reglas de sala | Sí: la misma batería de contrato corre en memoria y en PostgreSQL embebido.                                                                                                                                                        |
+| Flujo completo en navegador (profesor y móviles)         | Sí, contra el proyecto real: la suite de la sala da 15/15 en Chromium, Edge y WebKit, y la prueba de humo sobre la vista previa de Vercel también pasa.                                                                            |
+| Realtime Broadcast                                       | Sí, real: «Tiempo real conectado». Cada cambio llega al profesor en unos 2 s en local y en unos 3 s desde Vercel.                                                                                                                  |
+| 50–60 móviles físicos a la vez                           | **No medido.** Se probaron dos o tres navegadores móviles emulados por sala. El ensayo de carga sigue pendiente.                                                                                                                   |
 
 ## 1. Crear el proyecto
 
@@ -19,6 +20,8 @@ Supabase guarda las salas, los participantes, los intentos y los resultados, y a
 2. En **Project Settings → API** copiar la URL del proyecto, la clave `anon` (pública) y la clave `service_role` (secreta).
 
 ## 2. Aplicar la migración
+
+Nota de red: la conexión directa `db.<ref>.supabase.co:5432` es solo IPv6 en el plan gratuito. Desde una red sin IPv6 hay que usar el _session pooler_, que es IPv4: `aws-0-<región>.pooler.supabase.com:5432` con el usuario `postgres.<ref>`. El 25 de septiembre la migración se aplicó así, con `supabase db push --db-url` (CLI 2.118) a través del pooler de us-west-2.
 
 La migración es [`supabase/migrations/20260924120000_classroom.sql`](../supabase/migrations/20260924120000_classroom.sql). Dos formas:
 
@@ -31,15 +34,15 @@ Crea las tablas `rooms`, `participants`, `attempts`, `hints` y `results`, activa
 
 Copiar [`.env.example`](../.env.example) como `.env.local` (desarrollo) o definirlas en el panel del proveedor de despliegue:
 
-| Variable                        | Dónde              | Valor                                                        |
-| ------------------------------- | ------------------ | ------------------------------------------------------------ |
-| `SUPABASE_URL`                  | Solo servidor      | URL del proyecto.                                            |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Solo servidor      | Clave `service_role`. Nunca con prefijo `NEXT_PUBLIC_`.      |
-| `PRESENTER_ACCESS_CODE`         | Solo servidor      | Clave del profesor para crear salas (larga y no adivinable). |
-| `NEXT_PUBLIC_SITE_URL`          | Público (build)    | URL publicada, para que el QR no apunte a `localhost`.       |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Público (opcional) | URL del proyecto, para el aviso en tiempo real.              |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Público (opcional) | Clave `anon`. No abre ninguna tabla ni función de la sala.   |
-| `CLASSROOM_BACKEND`             | Solo servidor      | Vacío (usa Supabase) o `memory` (solo desarrollo y pruebas). |
+| Variable                               | Dónde              | Valor                                                                                                                                                                                    |
+| -------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUPABASE_URL`                         | Solo servidor      | URL del proyecto.                                                                                                                                                                        |
+| `SUPABASE_SECRET_KEY`                  | Solo servidor      | Clave secreta `sb_secret_…`. En proyectos antiguos, `SUPABASE_SERVICE_ROLE_KEY`. Nunca con prefijo `NEXT_PUBLIC_`.                                                                       |
+| `PRESENTER_ACCESS_CODE`                | Solo servidor      | Clave del profesor para crear salas (larga y no adivinable).                                                                                                                             |
+| `NEXT_PUBLIC_SITE_URL`                 | Público (build)    | URL publicada, para que el QR no apunte a `localhost`.                                                                                                                                   |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Público (opcional) | URL del proyecto, para el aviso en tiempo real.                                                                                                                                          |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Público (opcional) | Clave `sb_publishable_…`; en proyectos antiguos, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. No abre ninguna tabla ni función de la sala. Una clave secreta puesta aquí no se entrega al navegador. |
+| `CLASSROOM_BACKEND`                    | Solo servidor      | Vacío (usa Supabase) o `memory` (solo desarrollo y pruebas).                                                                                                                             |
 
 Las variables `NEXT_PUBLIC_*` se incrustan al compilar: tras cambiarlas hay que volver a desplegar. Las de servidor se leen al servir cada página.
 

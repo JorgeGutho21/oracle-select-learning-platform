@@ -1,6 +1,6 @@
 # ORACLE_SETUP — Conectar el laboratorio y M10 a Oracle
 
-Versión 1.0 · Fase 8 · Relacionado con [LAB_SPEC.md](LAB_SPEC.md), [ARCHITECTURE.md](ARCHITECTURE.md) y [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
+Versión 1.1 · Fases 8 y 11 · Relacionado con [LAB_SPEC.md](LAB_SPEC.md), [ARCHITECTURE.md](ARCHITECTURE.md) y [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
 
 El laboratorio (`/lab`) y la calificación final de M10 ejecutan SQL en una base **Oracle real** con el driver oficial `oracledb` (modo Thin, sin Oracle Client). Sin configuración, la plataforma informa «Oracle no conectado»: nunca simula una ejecución.
 
@@ -10,7 +10,7 @@ Solo en el servidor (`.env.local` en desarrollo o el panel del proveedor en desp
 
 | Variable                | Obligatoria | Valor                                                                                                |
 | ----------------------- | ----------- | ---------------------------------------------------------------------------------------------------- |
-| `ORACLE_USER`           | Sí          | Cuenta **lectora** del laboratorio. Se rechazan SYS, SYSTEM y demás cuentas administrativas.         |
+| `ORACLE_USER`           | Sí          | Cuenta **lectora** del laboratorio. Se rechazan SYS, SYSTEM, ADMIN y demás cuentas administrativas.  |
 | `ORACLE_PASSWORD`       | Sí          | Contraseña de esa cuenta.                                                                            |
 | `ORACLE_CONNECT_STRING` | Sí          | `host:puerto/servicio`, por ejemplo `db.universidad.edu:1521/FREEPDB1`.                              |
 | `ORACLE_SCHEMA`         | No          | Esquema propietario de `EMPLEADOS` si no es la cuenta lectora (recomendado). Se fija en cada sesión. |
@@ -53,6 +53,49 @@ WSL reenvía el puerto a `127.0.0.1:1522` de Windows (1522 por defecto, para no 
 1. Como administrador, ejecutar `oracle/empleados-select-v1.sql` en el esquema propietario.
 2. Crear la cuenta lectora y conceder solo `CREATE SESSION` y `READ ON <propietario>.EMPLEADOS`.
 3. Definir las variables de la tabla anterior en el servidor. El servicio que ejecuta la web necesita red hasta el puerto de Oracle; no se asume que un alojamiento serverless la tenga.
+
+## Opción C — Oracle Autonomous Database (Oracle Cloud), la del despliegue
+
+Es la instancia que usan la vista previa y la producción de Vercel:
+
+| Dato           | Valor                                                            |
+| -------------- | ---------------------------------------------------------------- |
+| Nombre         | SQLSelectLab (base `SQLSELECT`)                                  |
+| Plan y versión | Always Free, Oracle Database 19c (19.33), Transaction Processing |
+| Región         | sa-bogota-1                                                      |
+| Red            | Acceso seguro desde cualquier lugar, con mTLS obligatorio        |
+| Servicio       | `sqlselect_tp` (TCPS, puerto 1522)                               |
+
+Cómo se prepara:
+
+1. **Cartera.** En la consola, _Database connection → Download wallet_ (tipo Instance wallet), con una contraseña. El ZIP va a `.secrets/`, que Git y Vercel ignoran. Si hay varias, se usa la más reciente.
+2. **Contraseñas.** En `.env.oracle.local`, que también se ignora, se escriben `ORACLE_CLOUD_ADMIN_PASSWORD` y `ORACLE_CLOUD_WALLET_PASSWORD`.
+3. **`node scripts/oracle-cloud.mjs check`.** Comprueba que la contraseña descifra la cartera y que ADMIN inicia sesión. Lee el ZIP en memoria, sin descomprimirlo.
+4. **`node scripts/oracle-cloud.mjs setup`.** Crea `SQL_LAB_OWNER` sin inicio de sesión, con `EMPLEADOS` cargada desde `oracle/empleados-select-v1.sql`. Crea también `SQL_LAB_READER` con una contraseña aleatoria y solo `CREATE SESSION` y `READ ON SQL_LAB_OWNER.EMPLEADOS`. Guarda las variables `ORACLE_CLOUD_*` en `.env.oracle.local`. El esquema lo comparte con la opción A a través de `scripts/oracle-common.mjs`.
+5. **`node scripts/oracle-cloud.mjs verify`.** Consulta `EMPLEADOS` con la cuenta lectora y lista sus privilegios de sistema.
+
+Variables de la aplicación (servidor), idénticas en Production y Preview de Vercel:
+
+| Variable                   | Valor                                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `ORACLE_USER`              | `SQL_LAB_READER`                                                                                           |
+| `ORACLE_PASSWORD`          | `ORACLE_CLOUD_PASSWORD`                                                                                    |
+| `ORACLE_CONNECT_STRING`    | Descriptor completo del servicio `_tp` (`ORACLE_CLOUD_CONNECT_STRING`)                                     |
+| `ORACLE_SCHEMA`            | `SQL_LAB_OWNER`                                                                                            |
+| `ORACLE_WALLET_PEM_BASE64` | `ewallet.pem` en base64, en una línea. El servidor lo pasa a `oracledb` como `walletContent`, sin archivos |
+| `ORACLE_WALLET_PASSWORD`   | Contraseña de la cartera                                                                                   |
+| `ORACLE_POOL_MAX`          | `4` en Vercel: el plan Always Free admite pocas sesiones simultáneas                                       |
+
+Para probar en local contra la nube: `node scripts/with-oracle-cloud.mjs <comando>`, por ejemplo `node scripts/with-oracle-cloud.mjs npx vitest run tests/integration/oracle-real.test.ts`. Sustituye las variables `ORACLE_*` del proceso por las `ORACLE_CLOUD_*`, sin imprimirlas.
+
+ADMIN solo se usa para preparar el esquema; la aplicación lo rechaza como usuario.
+
+Verificado el 25 de septiembre de 2026:
+
+- 21/21 pruebas reales de integración contra la nube;
+- `/lab` en local y en Vercel responde «Oracle Database 19 (19.33.0.1.0) · 6 filas», con `ORA-01476` real;
+- M10 calificada en Oracle Cloud;
+- la cuenta lectora solo tiene `CREATE SESSION` como privilegio de sistema.
 
 ## Cómo se ejecuta una consulta
 

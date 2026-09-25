@@ -146,3 +146,37 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
     - la vista previa y la prueba de humo;
     - opcionalmente, pausar el despliegue de producción involuntario con `vercel project pause sql-select-lab`.
   - **Commits:** `release: finalize production-ready learning platform` y los anteriores de la fase, subidos a `origin/claude-finish-20260923`.
+- 2026-09-25: Fase 11, cierre con servicios reales, en `claude-finish-20260923`.
+  - **Secretos:**
+    - `PASSWORD.txt` y `.secrets/` quedaron fuera de Git y de `.vercelignore` antes de integrar (commit `38ddc02`).
+    - Ningún valor secreto aparece en el historial ni en producción.
+  - **Supabase real:**
+    - Migración aplicada con el CLI a través del pooler IPv4 de us-west-2; la conexión directa es solo IPv6.
+    - Con la clave publishable responde `42501`.
+    - Suite de la sala 15/15 contra el proyecto real; Realtime conectado.
+    - Código adaptado a las claves publishable y secret, y `.env.local` normalizado.
+  - **Oracle Cloud:**
+    - SQLSelectLab, 19.33, Always Free, sa-bogota-1, con mTLS.
+    - La cartera nueva en `.secrets/` y las contraseñas en `.env.oracle.local` las aportó el usuario.
+    - `scripts/oracle-cloud.mjs setup` creó `SQL_LAB_OWNER.EMPLEADOS` y `SQL_LAB_READER`.
+    - El adaptador lee `ORACLE_WALLET_PEM_BASE64` y `ORACLE_WALLET_PASSWORD`.
+    - 21/21 pruebas reales; `/lab` y M10 funcionan en la nube.
+  - **Subtítulos V02:** Whisper small local, revisado a mano; 110 subtítulos y transcripción.
+  - **Vercel:**
+    - 12 variables por entorno, cargadas por stdin y como _sensitive_. En Preview, la clave de profesor es de prueba.
+    - La CSP admite la barra de Vercel solo en vistas previas.
+    - Vista previa `sql-select-k0pfbzctk…`: 22/22.
+    - Producción `dpl_61KPNiQv…` en https://sql-select-lab.vercel.app: 24/24.
+  - **Verificado:**
+    - lint, typecheck, format y 426 unitarias;
+    - build en local y en Vercel;
+    - E2E 482/489 (los 7 fallos, plazos de WebKit con la CPU al 100 %; repetidos 40/42, sin fallo lógico);
+    - QA visual en producción con 0 hallazgos.
+  - **Estado:** PRODUCTION_READY = true.
+  - **Pendiente del usuario:**
+    - crear una sala en producción con su clave;
+    - cambiar la contraseña de ADMIN de Oracle Cloud, que se escribió en el chat;
+    - la escucha final de los subtítulos;
+    - validar el uso del emblema;
+    - opcional: ensayo con 50–60 móviles.
+  - **Commits:** `release: finalize production learning platform` y los anteriores de la fase, subidos a `origin/claude-finish-20260923`.

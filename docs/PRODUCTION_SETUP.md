@@ -1,148 +1,101 @@
 # PRODUCTION_SETUP — Servicios, variables y alojamiento
 
-Versión 1.0 · Fase 10 · 24 de septiembre de 2026. Relacionado con [DEPLOYMENT.md](DEPLOYMENT.md), [ORACLE_SETUP.md](ORACLE_SETUP.md), [SUPABASE_SETUP.md](SUPABASE_SETUP.md) y [FINAL_AUDIT.md](FINAL_AUDIT.md).
+Versión 1.1 · Fase 11 · 25 de septiembre de 2026. Relacionado con [DEPLOYMENT.md](DEPLOYMENT.md), [ORACLE_SETUP.md](ORACLE_SETUP.md), [SUPABASE_SETUP.md](SUPABASE_SETUP.md) y [FINAL_AUDIT.md](FINAL_AUDIT.md).
 
-Este documento no contiene secretos. Los valores reales se escriben en `.env.local` para desarrollo y en el panel del proveedor para despliegue. Ninguno de los dos se versiona.
+Este documento no contiene secretos. Los valores reales viven en archivos locales ignorados por Git y por Vercel, y en el panel de Vercel:
 
-## Qué necesita producción
+- `.env.local`: Supabase, clave del profesor y Oracle local.
+- `.env.oracle.local`: Oracle Cloud.
+- `.env.vercel-preview.local`: clave de prueba de las vistas previas y secreto de automatización.
+- `.secrets/`: cartera de Oracle.
 
-| Servicio              | Para qué                                                  | Estado en este equipo                                        | Estado para producción                                 |
-| --------------------- | --------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| Hosting Node (Vercel) | Páginas, Server Functions, videos y portadas              | El build de producción pasa                                  | Falta vincular un proyecto (requiere iniciar sesión)   |
-| Oracle alcanzable     | `/lab` y la calificación de M10                           | Oracle 23ai Free en Podman/WSL, solo en `127.0.0.1:1522`     | **Falta:** Vercel no puede llegar a la instancia local |
-| Supabase              | Sala en vivo: salas, participantes, intentos y resultados | Sin proyecto. Las pruebas usan memoria y PostgreSQL embebido | **Falta:** proyecto, migración y claves                |
-| Videos                | V01 y V02                                                 | En `public/media`, 31 MB                                     | Listos: viajan con el despliegue                       |
+## Servicios de producción
 
-Sin Oracle ni Supabase la plataforma se despliega y funciona. Home, Estudio, Exposición, buscador, módulos, recursos, videos y las misiones M01–M09 no dependen de ellos. En ese caso, `/lab` y M10 informan «Oracle no conectado» y `/presenter` informa que la sala no está configurada. Nunca se simula el servicio.
+| Servicio                                                  | Para qué                                                                    | Estado                                                                        |
+| --------------------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Vercel (Hobby, gratuito)                                  | Páginas, Server Functions, videos, subtítulos y portadas                    | En producción: <https://sql-select-lab.vercel.app>                            |
+| Oracle Autonomous Database 19c (Always Free, sa-bogota-1) | `/lab` y la calificación de M10                                             | Conectado con mTLS; 21/21 pruebas reales y prueba de humo en producción       |
+| Supabase (plan gratuito, us-west-2)                       | Sala en vivo: salas, participantes, intentos, pistas y resultados; Realtime | Migración aplicada, RLS verificado y sala completa probada en la vista previa |
+| Videos                                                    | V01 (introducción) y V02 (resumen, con subtítulos)                          | En `public/media`, viajan con el despliegue                                   |
+
+Si Oracle o Supabase fallan, la función afectada se declara no disponible («Oracle no conectado», «sala no configurada») y el resto sigue funcionando: Home, Estudio, Exposición, buscador, módulos, recursos, videos y M01–M09. Nunca se simula el servicio.
 
 ## Variables de entorno
 
-Lista obtenida del código (`process.env` en `src/`, `next.config.ts` y `scripts/`), no de suposiciones.
+Lista obtenida del código (`process.env` en `src/`, `next.config.ts` y `scripts/`).
 
 Tipos:
 
-- **REQUIRED:** imprescindible para que la función correspondiente exista en producción.
+- **REQUIRED:** imprescindible para su función.
 - **OPTIONAL:** tiene un valor por defecto o una alternativa.
 
 Estados:
 
-- **AVAILABLE:** existe un valor utilizable.
-- **MISSING:** falta.
-- **LOCAL:** existe en `.env.local`, pero solo sirve en esta máquina.
+- **AVAILABLE:** configurada en Vercel.
+- **LOCAL:** solo existe en archivos de esta máquina.
+- **NO USADA:** el código no la necesita en ese entorno.
 
-| Variable                        | Tipo                                         | Ámbito                       | Función                                                                                                                                                                          | Local                     | Producción                                                                 |
-| ------------------------------- | -------------------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------------------------------------------------------------------------- |
-| `ORACLE_USER`                   | REQUIRED                                     | Servidor                     | Cuenta lectora del laboratorio                                                                                                                                                   | LOCAL                     | MISSING                                                                    |
-| `ORACLE_PASSWORD`               | REQUIRED                                     | Servidor, secreta            | Contraseña de esa cuenta                                                                                                                                                         | LOCAL                     | MISSING                                                                    |
-| `ORACLE_CONNECT_STRING`         | REQUIRED                                     | Servidor                     | `host:puerto/servicio` o descriptor TLS                                                                                                                                          | LOCAL (`127.0.0.1:1522`)  | MISSING                                                                    |
-| `ORACLE_SCHEMA`                 | OPTIONAL                                     | Servidor                     | Propietario de `EMPLEADOS` si no es la cuenta lectora                                                                                                                            | LOCAL                     | MISSING (necesaria si se replica la instalación local)                     |
-| `ORACLE_POOL_MAX`               | OPTIONAL                                     | Servidor                     | Conexiones del grupo (10)                                                                                                                                                        | Por defecto               | Por defecto                                                                |
-| `ORACLE_QUEUE_MAX`              | OPTIONAL                                     | Servidor                     | Peticiones en espera (60)                                                                                                                                                        | Por defecto               | Por defecto                                                                |
-| `ORACLE_TIMEOUT_MS`             | OPTIONAL                                     | Servidor                     | Plazo total por consulta (5000 ms)                                                                                                                                               | Por defecto               | Por defecto; subir si la base está lejos                                   |
-| `SUPABASE_URL`                  | REQUIRED                                     | Servidor                     | URL del proyecto para la sala                                                                                                                                                    | MISSING                   | MISSING                                                                    |
-| `SUPABASE_SERVICE_ROLE_KEY`     | REQUIRED                                     | Servidor, secreta            | Clave de servicio. **Nunca** con prefijo `NEXT_PUBLIC_`                                                                                                                          | MISSING                   | MISSING                                                                    |
-| `PRESENTER_ACCESS_CODE`         | REQUIRED                                     | Servidor, secreta            | Clave del profesor para crear salas                                                                                                                                              | Solo la de las E2E        | MISSING                                                                    |
-| `NEXT_PUBLIC_SITE_URL`          | OPTIONAL en Vercel, REQUIRED fuera de Vercel | Pública, se fija en el build | Dirección de los QR y de OpenGraph. En un despliegue de producción de Vercel sin ella se usa el dominio de producción del proyecto (`NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL`) | No aplica (usa el origen) | MISSING. Hace falta si se usa un dominio propio o se aloja fuera de Vercel |
-| `NEXT_PUBLIC_SUPABASE_URL`      | OPTIONAL                                     | Pública, se fija en el build | Aviso en tiempo real; además abre ese origen en la CSP                                                                                                                           | MISSING                   | MISSING (sin ella, la sala consulta cada pocos segundos)                   |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | OPTIONAL                                     | Pública, se fija en el build | Clave `anon`: no da acceso a tablas ni funciones                                                                                                                                 | MISSING                   | MISSING                                                                    |
-| `CLASSROOM_BACKEND`             | OPTIONAL                                     | Servidor                     | Vacía en producción; `memory` solo en desarrollo y pruebas                                                                                                                       | `memory` en las E2E       | Vacía                                                                      |
+| Variable                                 | Tipo               | Ámbito                       | Función                                                     | Vercel Production                   | Vercel Preview                                |
+| ---------------------------------------- | ------------------ | ---------------------------- | ----------------------------------------------------------- | ----------------------------------- | --------------------------------------------- |
+| `ORACLE_USER`                            | REQUIRED           | Servidor                     | Cuenta lectora `SQL_LAB_READER`                             | AVAILABLE                           | AVAILABLE                                     |
+| `ORACLE_PASSWORD`                        | REQUIRED           | Servidor, secreta            | Contraseña de la cuenta lectora                             | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_CONNECT_STRING`                  | REQUIRED           | Servidor, secreta            | Descriptor TCPS del servicio `sqlselect_tp`                 | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_SCHEMA`                          | OPTIONAL           | Servidor                     | Propietario de `EMPLEADOS` (`SQL_LAB_OWNER`)                | AVAILABLE                           | AVAILABLE                                     |
+| `ORACLE_WALLET_PEM_BASE64`               | REQUIRED con mTLS  | Servidor, secreta            | `ewallet.pem` de la cartera, en base64                      | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_WALLET_PASSWORD`                 | REQUIRED con mTLS  | Servidor, secreta            | Contraseña de la cartera                                    | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_POOL_MAX`                        | OPTIONAL           | Servidor                     | Conexiones por instancia (10 por defecto)                   | `4`                                 | `4`                                           |
+| `ORACLE_QUEUE_MAX` / `ORACLE_TIMEOUT_MS` | OPTIONAL           | Servidor                     | Cola (60) y plazo (5000 ms)                                 | Por defecto                         | Por defecto                                   |
+| `SUPABASE_URL`                           | REQUIRED           | Servidor                     | URL del proyecto                                            | AVAILABLE                           | AVAILABLE                                     |
+| `SUPABASE_SECRET_KEY`                    | REQUIRED           | Servidor, secreta            | Clave `sb_secret_…`. **Nunca** `NEXT_PUBLIC_`               | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `SUPABASE_SERVICE_ROLE_KEY`              | OPTIONAL           | Servidor, secreta            | Nombre antiguo de la clave secreta                          | NO USADA                            | NO USADA                                      |
+| `NEXT_PUBLIC_SUPABASE_URL`               | OPTIONAL           | Pública, se fija en el build | Realtime en el navegador y origen de la CSP                 | AVAILABLE                           | AVAILABLE                                     |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`   | OPTIONAL           | Pública, se fija en el build | Clave `sb_publishable_…` para Realtime; sin acceso a tablas | AVAILABLE                           | AVAILABLE                                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`          | OPTIONAL           | Pública                      | Nombre antiguo de la clave publishable                      | NO USADA                            | NO USADA                                      |
+| `PRESENTER_ACCESS_CODE`                  | REQUIRED           | Servidor, secreta            | Clave del profesor para crear salas                         | AVAILABLE, la real (sensitive)      | AVAILABLE, una de prueba distinta (sensitive) |
+| `NEXT_PUBLIC_SITE_URL`                   | OPTIONAL en Vercel | Pública, se fija en el build | Dirección de los QR y de OpenGraph                          | `https://sql-select-lab.vercel.app` | NO USADA (usa la URL de la vista previa)      |
+| `CLASSROOM_BACKEND`                      | OPTIONAL           | Servidor                     | `memory` solo en desarrollo y pruebas                       | NO USADA (vacía)                    | NO USADA (vacía)                              |
 
 Variables que no se configuran a mano:
 
-- `NEXT_PUBLIC_VERCEL_URL`, `NEXT_PUBLIC_VERCEL_ENV` y `NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL` las inyecta Vercel en cada despliegue. El QR usa la segunda y la tercera en producción, y la primera en las vistas previas.
+- `NEXT_PUBLIC_VERCEL_URL`, `NEXT_PUBLIC_VERCEL_ENV`, `NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL` y `VERCEL_ENV` las inyecta Vercel. Los QR usan las tres primeras cuando falta `NEXT_PUBLIC_SITE_URL`. `VERCEL_ENV=preview` añade a la CSP los orígenes de la barra de Vercel, solo en vistas previas.
 - `NODE_ENV` y `NEXT_RUNTIME` las fija Next.
 - `CI` solo afecta a Playwright.
-- `ORACLE_LOCAL_ENGINE`, `ORACLE_LOCAL_PORT` y `ORACLE_LOCAL_WSL_DISTRO` solo las usa `scripts/oracle-local.mjs`.
+- `ORACLE_LOCAL_*` las usa `scripts/oracle-local.mjs`.
+- `ORACLE_CLOUD_*` las escribe y lee `scripts/oracle-cloud.mjs` en `.env.oracle.local`; nunca van a Vercel con ese nombre.
 
-Las variables `NEXT_PUBLIC_*` se incrustan al compilar: tras cambiarlas hay que volver a desplegar. En particular, la CSP solo permite conectar con Supabase si `NEXT_PUBLIC_SUPABASE_URL` existía durante el build.
+Las `NEXT_PUBLIC_*` se incrustan al compilar: tras cambiarlas hay que volver a desplegar.
 
 ## Alojamiento: Vercel
 
-La aplicación es compatible con Vercel sin archivos de configuración propios:
-
-- Next.js 16 con App Router.
-- Páginas estáticas donde es posible.
-- Server Functions en el runtime Node.js.
-- `oracledb` en modo Thin (JavaScript puro, sin Oracle Client) declarado en `serverExternalPackages`.
-
-Comprobaciones hechas en el repositorio:
-
-- **Node:** `engines` admite 22.12+ y 24; Vercel elige 24.x.
-- **Archivos subidos:** el CLI de Vercel no lee `.gitignore`. El archivo [`.vercelignore`](../.vercelignore) excluye `.env*`, compilaciones, capturas y registros. La subida queda en unos 34 MB, bajo el límite de 100 MB del plan Hobby.
-- **Cabeceras:** CSP, `X-Frame-Options`, HSTS y demás salen de `next.config.ts` y Vercel las respeta. `/media/*` usa `Cache-Control: public, max-age=86400, stale-while-revalidate=604800`.
-- **Mapas de código:** no se publican (`productionBrowserSourceMaps` conserva su valor por defecto, desactivado). El build no contiene valores de `.env.local`: se verificó buscándolos en `.next`.
-- **Región de funciones:** elegir la más cercana a Oracle y a Supabase (Project Settings → Functions). La latencia entre función y base cuenta dentro de `ORACLE_TIMEOUT_MS`.
-- **Arranque en frío:** `src/instrumentation.ts` precalienta Oracle y espera como máximo 8 s. Si Oracle está configurado pero caído, el primer arranque de cada instancia tarda esos 8 s.
+- **Compatibilidad:** Next.js 16 (App Router), Server Functions en Node 24 y `oracledb` en modo Thin (JavaScript puro) como `serverExternalPackages`. La cartera llega como `walletContent`, sin archivos.
+- **Subida:** el CLI de Vercel no lee `.gitignore`. [`.vercelignore`](../.vercelignore) excluye `.env*`, `.secrets/`, `PASSWORD.txt`, carteras, certificados, compilaciones, capturas y registros. La subida ronda los 36 MB, bajo el límite de 100 MB del plan Hobby.
+- **Cabeceras:** CSP, `X-Frame-Options: DENY`, `nosniff`, HSTS, `Referrer-Policy`, `Permissions-Policy` y COOP. `/media/*` tiene caché de un día; `.vtt` y `.txt` se sirven en UTF-8.
+- **Secretos:** ningún valor secreto aparece en los 31 archivos HTML, JS y CSS que sirve producción (búsqueda automatizada, 25 de septiembre). No hay mapas de código públicos, y `/.env*`, `/PASSWORD.txt`, `/.secrets/*` y `/.git/*` responden 404.
+- **Región de funciones:** `iad1` (Washington), a medio camino entre Oracle (Bogotá) y Supabase (Oregón). En la vista previa, un acierto tardó unos 3 s en llegar al ranking del profesor.
+- **Arranque en frío:** `src/instrumentation.ts` precalienta Oracle y espera como máximo 8 s.
 
 ### Videos
 
-Los dos MP4 del autor (H.264/AAC, índice `moov` al inicio, 9,5 MB y 21 MB) se sirven desde `public/media` como archivos estáticos del CDN, con rangos HTTP. Motivos para no usar un servicio externo:
+Los dos MP4 del autor (H.264/AAC, índice `moov` al inicio, 9,5 MB y 21 MB) se sirven desde `public/media` por el CDN de Vercel, con peticiones por rangos y `preload="none"`: nada se descarga hasta pulsar reproducir.
 
-- No hay cuenta de video contratada.
-- Una plataforma de terceros añadiría seguimiento y dominios a la CSP.
-- El tamaño está muy por debajo de los límites de Git (100 MB por archivo) y de Vercel.
-
-Cada reproducción completa consume unos 10 o 21 MB de la transferencia incluida. Si el tráfico crece, basta con cambiar `source` en `src/features/resources/domain/videos.ts` por una URL HTTPS externa.
-
-## Oracle en producción
-
-`ORACLE_CONNECT_STRING=127.0.0.1:1522/FREEPDB1` apunta a la máquina de desarrollo. Desde Vercel esa dirección es la propia función, así que el laboratorio mostraría «Oracle no conectado». No hay forma legítima de reutilizar la instancia local para producción: exponer este PC a Internet dependería de que esté encendido y abriría un puerto de administración.
-
-Requisitos de la instancia de producción:
-
-1. **Red:** un puerto TCP o TCPS alcanzable desde Internet. Las funciones de Vercel (plan Hobby) no tienen IP de salida fija, así que no sirve una lista de IP permitidas. La protección es la cuenta lectora sin privilegios y, preferiblemente, TLS.
-2. **Datos:** esquema propietario con `EMPLEADOS` cargada desde [`oracle/empleados-select-v1.sql`](../oracle/empleados-select-v1.sql).
-3. **Cuenta:** cuenta lectora con solo `CREATE SESSION` y `READ ON <propietario>.EMPLEADOS`. El servidor la verifica cada 30 s y se niega a ejecutar si tiene más privilegios o si los datos difieren del dataset.
-
-Opciones viables:
-
-- **Oracle Autonomous Database, nivel Always Free de Oracle Cloud.**
-  - Requiere una cuenta de Oracle Cloud; el registro pide verificar una tarjeta, aunque el nivel Always Free no genera cargos. Crear esa cuenta es una decisión del responsable.
-  - En la consola de la base, activar el acceso TLS sin cartera («mutual TLS not required»). Esa opción exige definir una lista de acceso; como Vercel no tiene IP fija, la lista debe admitir cualquier origen.
-  - Copiar la cadena de conexión **TLS** del panel tal cual en `ORACLE_CONNECT_STRING`. El modo Thin de `oracledb` acepta el descriptor completo y el certificado público de Oracle, sin cartera ni cambios de código.
-- **Instancia de la universidad** publicada en un puerto accesible desde Internet, con las mismas cuentas.
-
-Preparación de la base como administrador, desde SQL Developer Web o SQL\*Plus. En Autonomous Database el tablespace es `DATA`; en otras instalaciones, el tablespace permanente por defecto:
-
-```sql
-CREATE USER SQL_LAB_OWNER NO AUTHENTICATION DEFAULT TABLESPACE DATA QUOTA 10M ON DATA;
-ALTER SESSION SET CURRENT_SCHEMA = SQL_LAB_OWNER;
--- Pegar aquí el contenido de oracle/empleados-select-v1.sql (CREATE TABLE, 6 INSERT y COMMIT).
-ALTER SESSION SET CURRENT_SCHEMA = ADMIN;
-CREATE USER SQL_LAB_READER IDENTIFIED BY "<contraseña larga y aleatoria>";
-GRANT CREATE SESSION TO SQL_LAB_READER;
-GRANT READ ON SQL_LAB_OWNER.EMPLEADOS TO SQL_LAB_READER;
-```
-
-Después se configuran cuatro variables:
-
-- `ORACLE_USER=SQL_LAB_READER`
-- `ORACLE_PASSWORD`
-- `ORACLE_CONNECT_STRING`
-- `ORACLE_SCHEMA=SQL_LAB_OWNER`
-
-**M10 solo es plenamente funcional en producción cuando `/lab` muestra «Conectado» en ese despliegue.** Hasta entonces, M10 revisa la estructura sin puntuar y lo dice.
-
-## Supabase en producción
-
-Guía completa en [SUPABASE_SETUP.md](SUPABASE_SETUP.md): crear el proyecto (plan gratuito), aplicar `supabase/migrations/20260924120000_classroom.sql` y definir las variables.
-
-En Vercel **no** debe usarse `CLASSROOM_BACKEND=memory`: cada petición puede caer en una instancia distinta y la sala se perdería.
-
-`PRESENTER_ACCESS_CODE` es la clave que el profesor escribe en `/presenter`. Debe ser larga y no adivinable, y se configura solo en el servidor.
+V02 lleva además subtítulos WebVTT revisados y una transcripción. Cada reproducción completa consume unos 10 o 21 MB de la transferencia incluida en el plan.
 
 ## Seguridad en producción
 
-- **Secretos solo en el servidor:** `ORACLE_PASSWORD`, `SUPABASE_SERVICE_ROLE_KEY` y `PRESENTER_ACCESS_CODE`. Las únicas variables públicas son la URL del sitio y el par URL/anon de Supabase. La clave `anon` no abre ninguna tabla gracias a RLS sin políticas y a funciones ejecutables solo por `service_role`.
-- **Cookies de la sala:** `httpOnly`, `SameSite=Lax` y `Secure` fuera de `localhost`. Guardan un token de 256 bits; la base solo guarda su huella SHA-256.
+- **Secretos solo en el servidor:**
+  - `ORACLE_PASSWORD`, `ORACLE_WALLET_*`, `SUPABASE_SECRET_KEY` y `PRESENTER_ACCESS_CODE`.
+  - Públicas solo son la URL del sitio y el par URL/publishable de Supabase.
+  - La clave publishable no abre ninguna tabla ni función (`42501`, verificado en el proyecto real).
+  - Si por error se configura una clave secreta como publishable, el servidor no la entrega al navegador.
+- **Oracle:** la cuenta lectora solo tiene `CREATE SESSION` y `READ`; ADMIN se rechaza como usuario de la aplicación. La contraseña de ADMIN solo se usó para preparar el esquema y conviene cambiarla.
+- **Cookies de la sala:** `httpOnly`, `SameSite=Lax` y `Secure`, con un token de 256 bits; la base guarda su huella SHA-256.
 - **Códigos de sala:** se generan con `crypto.randomBytes`.
-- **Clave del profesor:** se compara en tiempo constante, con un límite de intentos por dirección y por instancia. En Vercel la dirección sale de `x-forwarded-for`, que fija la plataforma.
-- **Laboratorio:** sin límite de peticiones por usuario (MINOR M-03). Cada consulta pasa el analizador y usa la cuenta lectora, el grupo de 10 conexiones, la cola de 60 y el plazo de 5 s. Si hiciera falta frenar abusos, el firewall de Vercel permite reglas por IP sin tocar el código.
+- **Clave del profesor:** se compara en tiempo constante, con límite de intentos por dirección.
+- **Laboratorio:** sin límite de peticiones por IP a propósito (MINOR M-03). En un aula, todos los estudiantes salen por la misma IP pública y un límite por IP los bloquearía. Protegen la cuenta lectora, el analizador, el grupo de 4 conexiones por instancia, la cola y el plazo.
 
-## Lista previa a producción
+## Pendiente del responsable
 
-1. Instancia Oracle alcanzable preparada y las cuatro variables Oracle en Vercel (Production y Preview).
-2. Proyecto Supabase con la migración aplicada, sus variables y `PRESENTER_ACCESS_CODE`.
-3. Con un dominio propio, `NEXT_PUBLIC_SITE_URL` con ese dominio y un nuevo despliegue. Sin él, el QR de producción usa el dominio `*.vercel.app` del proyecto.
-4. Vista previa con la prueba de humo de [DEPLOYMENT.md](DEPLOYMENT.md): `/lab` «Conectado», M10 puntuado, sala creada, QR abierto desde dos móviles reales, ranking y resultados.
-5. Validación del uso público del emblema institucional por el responsable académico ([public/identity/README.md](../public/identity/README.md)). No bloquea técnicamente el sitio.
+1. Crear una sala en producción con la clave real en `/presenter` y abrir su QR con un móvil. Es la única parte de la sala que no se ejecutó en producción.
+2. Cambiar la contraseña de ADMIN de Oracle Cloud, que quedó escrita en una conversación; la aplicación no la usa.
+3. Validar el uso público del emblema institucional ([public/identity/README.md](../public/identity/README.md)).
+4. Opcional: ensayo de carga con 50–60 móviles ([SUPABASE_SETUP.md](SUPABASE_SETUP.md)).

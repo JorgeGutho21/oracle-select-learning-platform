@@ -19,7 +19,13 @@ SHA-256:
 **Subtítulos:**
 
 - El introductorio lleva subtítulos incrustados en la imagen. No tiene pista aparte, porque se verían duplicados.
-- El resumen no tiene subtítulos. Queda pendiente generar y revisar una pista WebVTT: [docs/FINAL_AUDIT.md](../../docs/FINAL_AUDIT.md).
+- El resumen tiene la pista `resumen-fundamentos-oracle-sql.es.vtt` (110 subtítulos) y la transcripción `resumen-fundamentos-oracle-sql.transcripcion.txt`. Salen de una transcripción automática local con Whisper small, revisada a mano:
+  - términos SQL escritos como en las lecciones;
+  - «salario hasta el disco 12» corregido a «SALARIO*12»;
+  - otras palabras mal reconocidas;
+  - una frase duplicada eliminada.
+
+  La revisión se hizo contra las diapositivas y la sincronía con los fotogramas. Conviene una escucha final del autor.
 
 **Contenido:** las tablas de ejemplo de ambos videos no son el dataset `empleados-select-v1`: tienen correo, saldo y otras filas. Las descripciones lo advierten. El resumen muestra además tres rótulos en inglés en su cierre.
 

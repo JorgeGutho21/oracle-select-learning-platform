@@ -85,7 +85,7 @@ Publicación (Fase 10, 24 de septiembre de 2026): los dos videos del autor se si
 | Video | Archivo | Duración | Formato | Subtítulos |
 |---|---|---|---|---|
 | V01, «Introducción a SELECT en Oracle SQL» | `introduccion-select-oracle-sql.mp4` | 1:13 | Vertical 9:16; el reproductor conserva la proporción | Incrustados |
-| V02, «Fundamentos de Oracle SQL» | `resumen-fundamentos-oracle-sql.mp4` | 4:51 | 16:9 | Pendientes |
+| V02, «Fundamentos de Oracle SQL» | `resumen-fundamentos-oracle-sql.mp4` | 4:51 | 16:9 | WebVTT revisado y transcripción (Fase 11) |
 
 Diferencias con este mapa:
 

@@ -10,6 +10,20 @@ Esta auditoría no modifica código. Solo añade este archivo y [CHALLENGE_STATU
 
 **Actualización (Fase 3, Challenge interactivo):** M01–M09 del Challenge v2 son jugables en `/challenge` con arrastre (dnd-kit), toque y teclado. M10 queda bloqueada sin Oracle. La corrección se ejecuta en el servidor mediante Server Functions en una nueva raíz de composición (`src/composition`). Se corrigió un desbordamiento móvil del `DataTable` base. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md) y [Verificaciones tras la Fase 3](#verificaciones-tras-la-fase-3).
 
+**Actualización (Fase 11, cierre con servicios reales): READY_FOR_DEPLOYMENT = true · PRODUCTION_READY = true.** Producción en <https://sql-select-lab.vercel.app>.
+
+- Oracle Cloud: Autonomous Database 19c Always Free, con mTLS y cartera en variables de servidor. El esquema y la cuenta lectora mínima se crearon con `scripts/oracle-cloud.mjs`.
+- Supabase real: migración aplicada, RLS verificado y Realtime conectado. El código acepta las claves publishable y secret.
+- Subtítulos revisados del video resumen.
+- Protección de secretos antes de integrar nada.
+- Vista previa 22/22 y producción 24/24. E2E completa 482/489: los 7 fallos fueron plazos de WebKit con la CPU saturada por procesos ajenos, sin fallo lógico reproducible. QA visual sobre producción: 0 hallazgos.
+
+Limitaciones (tabla completa en [FINAL_AUDIT.md](FINAL_AUDIT.md)):
+
+- falta crear una sala en producción con la clave real del profesor;
+- conviene una escucha final de los subtítulos;
+- no se ha medido la capacidad con 50–60 móviles.
+
 **Actualización (Fase 10, integración final): READY_FOR_DEPLOYMENT = true · PRODUCTION_READY = false.** Hecho en esta fase:
 
 - Videos publicados en `public/media` con el reproductor existente: el introductorio en Home y al inicio de `/learn`; el resumen al final de `/learn`, en la escena 14 y en Recursos.
