@@ -115,6 +115,50 @@ describe('configuración del servidor', () => {
       }),
     ).toEqual({ url: 'https://x.supabase.co', anonKey: 'anon' });
   });
+
+  it('prefiere las claves modernas publishable y secret sobre las antiguas', () => {
+    expect(
+      classroomBackend({
+        SUPABASE_URL: 'https://x.supabase.co',
+        SUPABASE_SECRET_KEY: 'sb_secret_nueva',
+        SUPABASE_SERVICE_ROLE_KEY: 'antigua',
+      }),
+    ).toEqual({
+      kind: 'supabase',
+      url: 'https://x.supabase.co',
+      serviceRoleKey: 'sb_secret_nueva',
+    });
+    expect(
+      classroomBackend({
+        SUPABASE_URL: 'https://x.supabase.co',
+        SUPABASE_SECRET_KEY: ' ',
+        SUPABASE_SERVICE_ROLE_KEY: 'antigua',
+      }),
+    ).toMatchObject({ serviceRoleKey: 'antigua' });
+    expect(
+      publicRealtimeConfig({
+        NEXT_PUBLIC_SUPABASE_URL: 'https://x.supabase.co',
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_nueva',
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: 'antigua',
+      }),
+    ).toEqual({ url: 'https://x.supabase.co', anonKey: 'sb_publishable_nueva' });
+  });
+
+  it('nunca entrega al navegador una clave con privilegios de servicio', () => {
+    const serviceJwt = [
+      Buffer.from('{"alg":"HS256"}').toString('base64url'),
+      Buffer.from('{"role":"service_role"}').toString('base64url'),
+      'firma',
+    ].join('.');
+    for (const key of ['sb_secret_equivocada', serviceJwt]) {
+      expect(
+        publicRealtimeConfig({
+          NEXT_PUBLIC_SUPABASE_URL: 'https://x.supabase.co',
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key,
+        }),
+      ).toBeNull();
+    }
+  });
 });
 
 describe('secretos y clave del profesor', () => {
