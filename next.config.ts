@@ -2,6 +2,9 @@ import type { NextConfig } from 'next';
 import path from 'node:path';
 
 const isDev = process.env.NODE_ENV === 'development';
+// Vercel inyecta su barra de herramientas (comentarios y avisos) solo en las vistas previas:
+// sus orígenes se permiten únicamente al compilar una vista previa, nunca en producción.
+const toolbar = process.env.VERCEL_ENV === 'preview';
 
 /** Origen HTTPS y WebSocket del proyecto Supabase para el aviso en tiempo real (opcional). */
 function supabaseOrigins(): string {
@@ -18,19 +21,19 @@ function supabaseOrigins(): string {
 /**
  * Política de contenido sin nonces (guía de Next «Without Nonces»): las páginas estáticas
  * siguen siéndolo. Los scripts solo salen del propio sitio; 'unsafe-inline' lo exigen los
- * scripts de hidratación de Next. Imagen, audio/video e iframes admiten HTTPS para el
- * proveedor de los videos de la unidad, que aún no está elegido (videos.ts). No se añade
+ * scripts de hidratación de Next. Imagen, audio/video e iframes admiten HTTPS por si los
+ * videos pasan a un alojamiento externo (hoy se sirven desde public/media). No se añade
  * upgrade-insecure-requests: la sala local por http en la red del aula dejaría de cargar.
  */
 const contentSecurityPolicy = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
-  "style-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}${toolbar ? ' https://vercel.live' : ''}`,
+  `style-src 'self' 'unsafe-inline'${toolbar ? ' https://vercel.live' : ''}`,
   "img-src 'self' data: blob: https:",
-  "font-src 'self'",
+  `font-src 'self'${toolbar ? ' https://vercel.live https://assets.vercel.com' : ''}`,
   "media-src 'self' https:",
   "frame-src 'self' https:",
-  `connect-src 'self'${supabaseOrigins()}${isDev ? ' ws:' : ''}`,
+  `connect-src 'self'${supabaseOrigins()}${isDev ? ' ws:' : ''}${toolbar ? ' https://vercel.live wss://ws-us3.pusher.com' : ''}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
