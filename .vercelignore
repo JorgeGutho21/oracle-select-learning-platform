@@ -1,12 +1,22 @@
 # Archivos que el CLI de Vercel no debe subir. El CLI no lee .gitignore: esta lista es la
 # que protege credenciales y artefactos locales en un «vercel deploy».
 
-# Credenciales y variables locales (la plantilla sí se sube).
+# Credenciales y variables locales (la plantilla sí se sube). Los secretos llegan a Vercel
+# como variables de entorno cifradas, nunca como archivos.
 .env
 .env.*
 !.env.example
 *.pem
 *.key
+.secrets/
+PASSWORD.txt
+*password*.txt
+*.p12
+*.pfx
+*.jks
+*.sso
+Wallet_*.zip
+.vercel/
 
 # Dependencias y compilaciones: Vercel instala y compila en su propio entorno.
 node_modules/
