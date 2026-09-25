@@ -169,8 +169,9 @@
   color: var(--color-inverse);
   font-size: clamp(0.95rem, 1.35vw, 1.2rem);
   line-height: 1.7;
-  white-space: pre;
-  overflow-x: auto;
+  // Ajusta las líneas en pantallas estrechas y con zoom alto, sin desplazamiento.
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .home-terminal__code b {
   color: var(--color-cyan);

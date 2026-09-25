@@ -53,6 +53,9 @@
   --scene-accent: var(--color-primary);
   --scene-muted: var(--color-muted);
   display: grid;
+  // Columna explícita: sin ella crece hasta el ancho mínimo del contenido y, con zoom
+  // alto, la escena quedaba más ancha que el lienzo (misma regla que la Fase 5.1).
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   gap: 1.3em;
   height: 100%;
@@ -85,6 +88,11 @@
   align-items: center;
   gap: 1em;
 }
+// El bloque de texto puede encogerse junto al número: con zoom alto las palabras largas
+// del título se parten en lugar de ensanchar la escena.
+.scene__header > :last-child {
+  min-width: 0;
+}
 .scene__number {
   display: inline-grid;
   flex-shrink: 0;
@@ -98,6 +106,7 @@
 }
 .scene__eyebrow {
   margin: 0 0 0.2em;
+  overflow-wrap: anywhere;
   color: var(--scene-accent);
   font-size: 0.62em;
   font-weight: 800;
@@ -110,6 +119,8 @@
   font-weight: 800;
   letter-spacing: -0.035em;
   line-height: 1.05;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 .scene__title:focus {
   outline: none;
@@ -173,9 +184,12 @@
 .scene-label--on {
   color: var(--scene-accent);
 }
+// El código de las escenas ajusta las líneas: en móvil y con zoom alto se lee sin una
+// región desplazable sin foco; en el lienzo 16:9 las líneas caben igual que antes.
 .scene-code pre {
   padding: 0.65em 0.95em;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   color: var(--color-inverse);
   background: var(--color-editor);
   border: 1px solid rgb(247 250 255 / 12%);
@@ -453,7 +467,8 @@
 }
 .scene-anatomy__code {
   padding: 0.8em 1em;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   background: var(--color-editor);
   border: 1px solid rgb(32 204 229 / 30%);
   border-radius: 0.6em;
@@ -901,6 +916,8 @@
     min-height: min(72dvh, 720px);
     padding: var(--space-5) var(--space-4);
     font-size: 17px;
+    // Con zoom alto, nombres y conceptos largos se parten en lugar de ensanchar la escena.
+    overflow-wrap: anywhere;
   }
   .scene__title {
     font-size: 1.9em;

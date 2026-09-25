@@ -47,8 +47,17 @@
   background: color-mix(in srgb, var(--color-cyan) 16%, var(--color-surface));
   font-weight: 650;
 }
+// Columnas no pedidas: se atenúan con color, peso y fondo, no con opacidad, para que el
+// texto conserve el contraste AA (WCAG 1.4.3). La opacidad dejaba 2,1:1.
 .hl-table .is-dim {
-  opacity: 0.45;
+  color: var(--color-muted);
+  font-weight: 400;
+}
+.hl-table th.is-dim {
+  background: var(--color-surface);
+}
+.hl-table td.is-dim {
+  background: color-mix(in srgb, var(--color-page) 60%, var(--color-surface));
 }
 .hl-table tr.is-row td {
   background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));

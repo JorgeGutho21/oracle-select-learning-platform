@@ -94,9 +94,11 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+// Como en Estudio: la sintaxis ajusta las líneas en lugar de desplazarse.
 .resource-syntax {
   padding: var(--space-3) var(--space-4);
-  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   color: var(--color-ink);
   background: var(--color-soft);
   border-radius: var(--radius-control);

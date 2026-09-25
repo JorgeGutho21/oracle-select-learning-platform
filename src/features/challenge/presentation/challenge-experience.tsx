@@ -30,6 +30,9 @@ function lastAttemptOutcome(state: MissionState): EvaluationOutcome | null {
   return { kind: last.correct ? 'correct' : 'incorrect', feedback: last.feedback };
 }
 
+/** Destino del foco: el título, un botón de la misión actual o el resumen. */
+type FocusTarget = 'title' | 'next' | 'submit' | 'hint' | 'summary';
+
 export interface ChallengeExperienceProps {
   engine: ChallengeEngine;
   /**
@@ -52,7 +55,16 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
   const [showSummary, setShowSummary] = useState(false);
   const [confirmFinish, setConfirmFinish] = useState(false);
   const [session, setSession] = useState(0);
-  const focusTarget = useRef<'mission' | 'summary' | null>(null);
+  // Destino del foco tras una acción. Es estado (no una referencia) para que siempre haya
+  // un render que lo aplique; se aplica cuando el elemento destino ya existe.
+  const [focusRequest, setFocusRequest] = useState<{
+    readonly target: FocusTarget;
+    readonly seq: number;
+  } | null>(null);
+  const appliedFocus = useRef(0);
+  const requestFocus = useCallback((target: FocusTarget) => {
+    setFocusRequest((current) => ({ target, seq: (current?.seq ?? 0) + 1 }));
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -98,15 +110,23 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
   }, [engine, state, currentId, explanations]);
 
   useEffect(() => {
-    const target = focusTarget.current;
-    if (!target) return;
-    focusTarget.current = null;
-    const element =
-      target === 'summary'
-        ? document.getElementById('summary-title')
-        : currentId && document.getElementById(`mission-${currentId}-title`);
-    element?.focus();
-  });
+    if (!focusRequest || focusRequest.seq === appliedFocus.current) return;
+    const id =
+      focusRequest.target === 'summary'
+        ? 'summary-title'
+        : currentId && `mission-${currentId}-${focusRequest.target}`;
+    const element = id ? document.getElementById(id) : null;
+    if (!element) return;
+    appliedFocus.current = focusRequest.seq;
+    element.focus();
+    // WebKit ignora el foco en el mismo turno en que se cierra un <dialog> modal (el resto de
+    // la página sigue inerte): se repite en el siguiente fotograma solo si el foco quedó
+    // perdido en la página, para no quitárselo a un control que la persona ya eligió.
+    window.requestAnimationFrame(() => {
+      const lost = !document.activeElement || document.activeElement === document.body;
+      if (lost && element.isConnected) element.focus();
+    });
+  }, [focusRequest, currentId, state, showSummary]);
 
   const run = useCallback(async (action: () => Promise<unknown>) => {
     setError(null);
@@ -127,14 +147,14 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
       setRestore('empty');
       setSession((value) => value + 1);
       await engine.reset();
-      focusTarget.current = 'mission';
+      requestFocus('title');
     });
 
   const open = (id: MissionId) =>
     run(async () => {
       setShowSummary(false);
       await engine.openMission(id);
-      focusTarget.current = 'mission';
+      requestFocus('title');
     });
 
   if (restore === 'loading') {
@@ -212,6 +232,10 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
         const answer = drafts[mission.id] ?? emptyAnswer(mission);
         const submitted = await engine.submit(answer);
         setOutcomes((items) => ({ ...items, [mission.id]: submitted.outcome }));
+        // Al acertar desaparece el botón de enviar: el foco pasa a «Siguiente misión». Si no,
+        // vuelve al botón de enviar, que se deshabilita mientras se corrige y pierde el foco.
+        // El resultado ya lo anuncia la región de estado.
+        requestFocus(submitted.mission.status === 'solved' ? 'next' : 'submit');
       } finally {
         setPending(null);
       }
@@ -228,20 +252,27 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
         } else {
           setError(delivered.message);
         }
+        requestFocus('hint');
       } finally {
         setPending(null);
       }
     });
 
-  const skip = () => run(() => engine.skip());
+  // Omitir cierra la misión: el botón que abrió el diálogo desaparece y el foco pasa a
+  // «Siguiente misión».
+  const skip = () =>
+    run(async () => {
+      await engine.skip();
+      requestFocus('next');
+    });
 
   const next = () =>
     run(async () => {
       const nextId = await engine.advance();
-      if (nextId) focusTarget.current = 'mission';
+      if (nextId) requestFocus('title');
       else {
         setShowSummary(true);
-        focusTarget.current = 'summary';
+        requestFocus('summary');
       }
     });
 
@@ -249,7 +280,7 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
     run(async () => {
       setConfirmFinish(false);
       await engine.finish();
-      focusTarget.current = 'summary';
+      requestFocus('summary');
     });
 
   return (

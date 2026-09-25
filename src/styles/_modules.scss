@@ -57,6 +57,7 @@
 }
 .module-card__header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -91,6 +92,7 @@
 .module-card__title {
   margin: 0;
   font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+  overflow-wrap: anywhere;
 }
 .module-card--current .module-card__title {
   font-size: clamp(1.75rem, 3vw, 2.5rem);

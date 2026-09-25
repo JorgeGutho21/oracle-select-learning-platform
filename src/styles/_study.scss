@@ -301,9 +301,11 @@ a[aria-current='page'] .study-toc__number {
 .study-card-block--syntax .study-eyebrow {
   color: var(--color-cyan);
 }
+// La sintaxis ajusta las líneas: se lee completa sin desplazar en ningún ancho ni zoom.
 .study-syntax {
   padding: var(--space-4);
-  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
   background: rgb(247 250 255 / 6%);
   border-radius: var(--radius-control);
   font-size: 1.0625rem;
@@ -381,12 +383,13 @@ a[aria-current='page'] .study-toc__number {
   display: block;
   margin-bottom: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  overflow-x: auto;
   color: var(--color-inverse);
   background: var(--color-editor);
   border-radius: var(--radius-control);
   font-size: 1rem;
-  white-space: pre;
+  // Ajusta las líneas: con zoom alto se lee sin una región desplazable sin foco.
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .study-visual__nav {
   display: flex;

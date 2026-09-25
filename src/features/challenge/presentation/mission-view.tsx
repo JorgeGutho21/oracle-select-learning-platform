@@ -171,6 +171,7 @@ export function MissionView({
       <div className="ch-actions">
         {state.status !== 'solved' && (
           <Button
+            id={`mission-${mission.id}-submit`}
             onClick={onSubmit}
             pending={pending === 'submit'}
             pendingLabel="Corrigiendo…"
@@ -181,6 +182,7 @@ export function MissionView({
         )}
         {!closed && (
           <Button
+            id={`mission-${mission.id}-hint`}
             variant="secondary"
             onClick={onHint}
             pending={pending === 'hint'}
@@ -191,7 +193,11 @@ export function MissionView({
           </Button>
         )}
         {closed && (
-          <Button onClick={onNext} variant={state.status === 'solved' ? 'primary' : 'secondary'}>
+          <Button
+            id={`mission-${mission.id}-next`}
+            onClick={onNext}
+            variant={state.status === 'solved' ? 'primary' : 'secondary'}
+          >
             {hasNext ? 'Siguiente misión' : 'Ver resultados'}
           </Button>
         )}

@@ -36,7 +36,12 @@ function HeroTerminal() {
         </code>
       </pre>
       {preview && (
-        <div className="home-terminal__result">
+        <div
+          className="home-terminal__result"
+          role="region"
+          aria-label={`Vista educativa · ${preview.rows.length} filas`}
+          tabIndex={0}
+        >
           <table>
             <caption>Vista educativa · {preview.rows.length} filas</caption>
             <thead>

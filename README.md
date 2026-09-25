@@ -54,21 +54,22 @@ El alcance y los criterios de aceptación completos se encuentran en la document
 
 ## Documentación
 
-| Documento                                     | Contenido                                            |
-| --------------------------------------------- | ---------------------------------------------------- |
-| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md)       | Propósito, fuentes, alcance y aceptación por módulo. |
-| [CONTENT_MAP.md](docs/CONTENT_MAP.md)         | Lecciones, escenas, ejemplos y vídeos.               |
-| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)     | Identidad visual, componentes y accesibilidad.       |
-| [UX_FLOWS.md](docs/UX_FLOWS.md)               | Recorridos, navegación y estados.                    |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md)       | Capas, servicios y límites de confianza.             |
-| [LAB_SPEC.md](docs/LAB_SPEC.md)               | Subconjunto SQL y laboratorio Oracle.                |
-| [GAME_SPEC.md](docs/GAME_SPEC.md)             | Diez misiones, evaluación y puntuación.              |
-| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md)     | Salas, sincronización y reconexión.                  |
-| [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)   | Configurar Supabase para la sala en vivo.            |
-| [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)       | Conectar el laboratorio y M10 a Oracle.              |
-| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) | Dataset y modelo lógico de persistencia.             |
-| [TEST_PLAN.md](docs/TEST_PLAN.md)             | Plan de pruebas de la futura aplicación.             |
-| [ROADMAP.md](docs/ROADMAP.md)                 | Hitos, dependencias y condiciones de entrega.        |
+| Documento                                     | Contenido                                               |
+| --------------------------------------------- | ------------------------------------------------------- |
+| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md)       | Propósito, fuentes, alcance y aceptación por módulo.    |
+| [CONTENT_MAP.md](docs/CONTENT_MAP.md)         | Lecciones, escenas, ejemplos y vídeos.                  |
+| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)     | Identidad visual, componentes y accesibilidad.          |
+| [UX_FLOWS.md](docs/UX_FLOWS.md)               | Recorridos, navegación y estados.                       |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)       | Capas, servicios y límites de confianza.                |
+| [LAB_SPEC.md](docs/LAB_SPEC.md)               | Subconjunto SQL y laboratorio Oracle.                   |
+| [GAME_SPEC.md](docs/GAME_SPEC.md)             | Diez misiones, evaluación y puntuación.                 |
+| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md)     | Salas, sincronización y reconexión.                     |
+| [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)   | Configurar Supabase para la sala en vivo.               |
+| [FINAL_AUDIT.md](docs/FINAL_AUDIT.md)         | Auditoría preproducción y prerrequisitos de despliegue. |
+| [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)       | Conectar el laboratorio y M10 a Oracle.                 |
+| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) | Dataset y modelo lógico de persistencia.                |
+| [TEST_PLAN.md](docs/TEST_PLAN.md)             | Plan de pruebas de la futura aplicación.                |
+| [ROADMAP.md](docs/ROADMAP.md)                 | Hitos, dependencias y condiciones de entrega.           |
 
 ## Estructura
 
