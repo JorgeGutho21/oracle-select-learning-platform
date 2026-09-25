@@ -27,7 +27,8 @@ export interface VideoPlayerProps {
   readonly compact?: boolean;
 }
 
-type LoadState = 'loading' | 'ready' | 'error';
+/** `idle`: portada visible, sin descarga; `loading`: esperando datos tras pedir reproducción. */
+type LoadState = 'idle' | 'loading' | 'ready' | 'error';
 
 /**
  * Video accesible, 16:9 o vertical: controles nativos, sin reproducción automática,
@@ -47,7 +48,8 @@ export function VideoPlayer({
   titleAs: Title = 'h3',
   compact = false,
 }: VideoPlayerProps) {
-  const [state, setState] = useState<LoadState>('loading');
+  // Un archivo no se descarga hasta que se pide reproducirlo; un iframe carga al montarse.
+  const [state, setState] = useState<LoadState>(source?.kind === 'embed' ? 'loading' : 'idle');
   const videoRef = useRef<HTMLVideoElement>(null);
   const titleId = useId();
   const descriptionId = useId();
@@ -59,13 +61,9 @@ export function VideoPlayer({
     .filter(Boolean)
     .join(' ');
 
-  // El navegador empieza a cargar el video del HTML antes de la hidratación: si los
-  // metadatos o el error llegaron antes que React, sus eventos ya no se repetirán.
+  // Un error de la fuente puede llegar antes de la hidratación, y ese evento no se repite.
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.error) setState('error');
-    else if (video.readyState >= HTMLMediaElement.HAVE_METADATA) setState('ready');
+    if (videoRef.current?.error) setState('error');
   }, []);
 
   let frame;
@@ -94,16 +92,18 @@ export function VideoPlayer({
             ref={videoRef}
             className="video-player__media"
             controls
-            preload="metadata"
+            // Nada se descarga hasta pulsar reproducir: ahorra datos en cada visita y no
+            // retrasa el evento «load» de la página (WebKit lo retenía 2–3 s por video).
+            // La portada y la duración escrita ocupan el lugar de los metadatos.
+            preload="none"
             playsInline
             src={source.url}
             poster={poster ?? undefined}
             aria-labelledby={titleId}
             aria-describedby={descriptionId}
-            onLoadedMetadata={() => setState('ready')}
-            // Si el navegador decide no descargar más (ahorro de datos, iOS), no hay nada
-            // que esperar: se muestra la portada con los controles.
-            onSuspend={() => setState((current) => (current === 'error' ? current : 'ready'))}
+            onWaiting={() => setState((current) => (current === 'error' ? current : 'loading'))}
+            onPlaying={() => setState((current) => (current === 'error' ? current : 'ready'))}
+            onCanPlay={() => setState((current) => (current === 'loading' ? 'ready' : current))}
             onError={() => setState('error')}
           >
             {captions && (

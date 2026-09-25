@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { getVideo, isSafeMediaUrl } from '@/features/resources/application/resources-api';
 import { VIDEO_LIBRARY } from '@/features/resources/domain/videos';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
@@ -47,10 +47,6 @@ describe('configuración central de videos', () => {
 });
 
 describe('VideoPlayer', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('sin fuente muestra «Video en preparación» y ningún reproductor ni iframe', () => {
     const { container } = render(<VideoPlayer {...base} source={null} />);
     expect(screen.getByText('Video en preparación')).toBeInTheDocument();
@@ -70,10 +66,14 @@ describe('VideoPlayer', () => {
     const video = container.querySelector('video')!;
     expect(video).toHaveAttribute('controls');
     expect(video).not.toHaveAttribute('autoplay');
-    expect(video).toHaveAttribute('preload', 'metadata');
+    // Sin descarga previa: la portada queda a la vista y no hay aviso de carga.
+    expect(video).toHaveAttribute('preload', 'none');
     expect(container.querySelector('track[kind="captions"][srclang="es"]')).not.toBeNull();
+    expect(screen.queryByRole('status')).toBeNull();
+    // Al pedir reproducción y esperar datos aparece el aviso; desaparece al reproducir.
+    fireEvent.waiting(video);
     expect(screen.getByRole('status')).toHaveTextContent('Cargando video…');
-    fireEvent.loadedMetadata(video);
+    fireEvent.playing(video);
     expect(screen.queryByRole('status')).toBeNull();
     expect(
       screen.getByRole('link', { name: 'Abrir el video en una pestaña nueva' }),
@@ -94,21 +94,20 @@ describe('VideoPlayer', () => {
     expect(screen.queryByText(/Duración prevista/)).toBeNull();
   });
 
-  it('si los metadatos llegaron antes de hidratar, no se queda «Cargando»', () => {
-    vi.spyOn(HTMLMediaElement.prototype, 'readyState', 'get').mockReturnValue(
-      HTMLMediaElement.HAVE_METADATA,
-    );
-    render(<VideoPlayer {...base} source={{ kind: 'file', url: '/v.mp4', type: 'video/mp4' }} />);
-    expect(screen.queryByRole('status')).toBeNull();
-  });
-
-  it('si el navegador no descarga por adelantado, muestra la portada sin «Cargando»', () => {
-    const { container } = render(
-      <VideoPlayer {...base} source={{ kind: 'file', url: '/v.mp4', type: 'video/mp4' }} />,
-    );
-    fireEvent(container.querySelector('video')!, new Event('suspend'));
-    expect(screen.queryByRole('status')).toBeNull();
-    expect(container.querySelector('video')).not.toBeNull();
+  it('si la fuente falló antes de hidratar, muestra el error igualmente', () => {
+    // jsdom no implementa MediaError: se simula el estado que deja el navegador.
+    const descriptor = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'error');
+    Object.defineProperty(HTMLMediaElement.prototype, 'error', {
+      configurable: true,
+      get: () => ({ code: 4, message: 'MEDIA_ERR_SRC_NOT_SUPPORTED' }),
+    });
+    try {
+      render(<VideoPlayer {...base} source={{ kind: 'file', url: '/v.mp4', type: 'video/mp4' }} />);
+      expect(screen.getByRole('alert')).toHaveTextContent('No se pudo cargar el video');
+    } finally {
+      if (descriptor) Object.defineProperty(HTMLMediaElement.prototype, 'error', descriptor);
+      else delete (HTMLMediaElement.prototype as { error?: unknown }).error;
+    }
   });
 
   it('si el archivo falla muestra el error y conserva el enlace alternativo', () => {

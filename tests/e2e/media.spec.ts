@@ -13,36 +13,52 @@ async function playsH264(page: Page): Promise<boolean> {
 }
 
 /**
- * Reproductor real: controles nativos, sin reproducción automática, portada y la
- * proporción del archivo. Si el navegador no decodifica H.264, debe mostrar el error y el
+ * Reproductor real: controles nativos, sin reproducción automática ni descarga previa,
+ * portada, duración y la proporción del archivo. Con `play`, reproduce silenciado y
+ * comprueba que avanza; si el navegador no decodifica H.264, debe mostrar el error y el
  * enlace alternativo en lugar de un marco vacío.
  */
 async function expectVideo(
   page: Page,
   player: Locator,
-  { url, ratio, duration }: { url: string; ratio: number; duration: string },
+  {
+    url,
+    ratio,
+    duration,
+    play = false,
+  }: { url: string; ratio: number; duration: string; play?: boolean },
 ) {
   await expect(player).not.toContainText('Video en preparación');
   await expect(
     player.getByRole('link', { name: 'Abrir el video en una pestaña nueva' }),
   ).toHaveAttribute('href', url);
+  const video = player.locator('video');
+  await expect(video).toHaveAttribute('src', url);
+  await expect(video).toHaveAttribute('controls', '');
+  await expect(video).toHaveAttribute('preload', 'none');
+  await expect(video).toHaveAttribute('poster', url.replace(/\.mp4$/, '.jpg'));
+  await expect(video).not.toHaveAttribute('autoplay');
+  await expect(player.getByRole('status')).toHaveCount(0);
+  await expect(player).toContainText(`Duración: ${duration}`);
+  const frame = await player.locator('.video-player__frame').boundingBox();
+  expect(frame!.width / frame!.height).toBeCloseTo(ratio, 1);
+  if (!play) return;
+  await video.evaluate((element: HTMLVideoElement) => {
+    element.muted = true;
+    void element.play().catch(() => undefined);
+  });
   if (await playsH264(page)) {
-    const video = player.locator('video');
-    await expect(video).toHaveAttribute('src', url);
-    await expect(video).toHaveAttribute('controls', '');
-    await expect(video).toHaveAttribute('poster', url.replace(/\.mp4$/, '.jpg'));
-    await expect(video).not.toHaveAttribute('autoplay');
     await expect
-      .poll(() => video.evaluate((v: HTMLVideoElement) => v.readyState))
-      .toBeGreaterThan(0);
+      .poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime), {
+        timeout: 15_000,
+      })
+      .toBeGreaterThan(0.2);
+    await video.evaluate((element: HTMLVideoElement) => element.pause());
     await expect(player.getByRole('status')).toHaveCount(0);
     await expect(player.getByRole('alert')).toHaveCount(0);
-    await expect(player).toContainText(`Duración: ${duration}`);
   } else {
     await expect(player.getByRole('alert')).toContainText('No se pudo cargar el video');
   }
-  const frame = await player.locator('.video-player__frame').boundingBox();
-  expect(frame!.width / frame!.height).toBeCloseTo(ratio, 1);
 }
 
 test.describe('Videos de la unidad', () => {
@@ -52,7 +68,7 @@ test.describe('Videos de la unidad', () => {
     await expectVideo(
       page,
       page.locator('.video-player').filter({ hasText: 'Video introductorio' }),
-      intro,
+      { ...intro, play: true },
     );
     await page.goto('/learn');
     const start = page.getByRole('region', { name: 'Antes de la primera lección' });
@@ -63,7 +79,7 @@ test.describe('Videos de la unidad', () => {
     const summary = { url: SUMMARY, ratio: 16 / 9, duration: '4:51' };
     await page.goto('/learn/consulta-completa');
     const closing = page.getByRole('region', { name: 'Repasa toda la unidad' });
-    await expectVideo(page, closing.locator('.video-player'), summary);
+    await expectVideo(page, closing.locator('.video-player'), { ...summary, play: true });
     await page.goto('/learn/distinct');
     await expect(page.getByRole('region', { name: 'Repasa toda la unidad' })).toHaveCount(0);
 
