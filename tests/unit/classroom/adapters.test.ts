@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
-import { resolvePublicBaseUrl } from '@/application/public-url';
+import { publicUrlFromEnvironment, resolvePublicBaseUrl } from '@/application/public-url';
 import { uuidV4 } from '@/composition/classroom/client-support';
 import {
   classroomBackend,
@@ -33,6 +33,35 @@ describe('URL pública para el QR', () => {
       source: 'current-origin',
       isLocal: false,
     });
+  });
+
+  it('en producción usa el dominio de producción antes que la URL protegida del despliegue', () => {
+    expect(
+      resolvePublicBaseUrl({
+        production: 'sql-select-lab.vercel.app',
+        preview: 'sql-select-abc123-equipo.vercel.app',
+      }),
+    ).toEqual({ url: 'https://sql-select-lab.vercel.app', source: 'production', isLocal: false });
+    expect(
+      resolvePublicBaseUrl({
+        configured: 'https://sql.ejemplo.edu',
+        production: 'sql-select-lab.vercel.app',
+      }).source,
+    ).toBe('configured');
+  });
+
+  it('solo toma el dominio de producción de Vercel en despliegues de producción', () => {
+    vi.stubEnv('NEXT_PUBLIC_SITE_URL', '');
+    vi.stubEnv('NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL', 'sql-select-lab.vercel.app');
+    vi.stubEnv('NEXT_PUBLIC_VERCEL_URL', 'sql-select-abc123-equipo.vercel.app');
+    try {
+      vi.stubEnv('NEXT_PUBLIC_VERCEL_ENV', 'production');
+      expect(publicUrlFromEnvironment().url).toBe('https://sql-select-lab.vercel.app');
+      vi.stubEnv('NEXT_PUBLIC_VERCEL_ENV', 'preview');
+      expect(publicUrlFromEnvironment().url).toBe('https://sql-select-abc123-equipo.vercel.app');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('marca como local 127.0.0.1 y localhost, e ignora valores mal formados', () => {
