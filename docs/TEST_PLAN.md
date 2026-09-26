@@ -173,6 +173,35 @@ Tamaños: 360 × 800, 390 × 844, 768 × 1024, 1024 × 768, 1440 × 900 y 1920 �
 
 Comprobar D01–D08: contraste de estados y sintaxis, orden de foco, ausencia de trampas, alternativa al arrastre, nombres de controles, subtítulos, tablas y anuncios de tiempo no invasivos. Registrar capturas de Home, lección, laboratorio, misión, sala y resultados. Corregir contenido cortado, scroll global accidental o SQL ilegible antes de cerrar aceptación.
 
+### Regresión visual y de desbordes (refinamiento final, 26 de septiembre de 2026)
+
+Suite E2E específica, sin comparación de píxeles: las fuentes de Windows, Linux y macOS darían falsos positivos. Comprueba invariantes de diseño y adjunta la captura de cada caso al informe de Playwright para la revisión humana.
+
+**Suites:**
+
+- `tests/e2e/visual-presentation.spec.ts`: 21 escenas clave a 1920×1080, 1366×768 y 390×844. Además, la pantalla completa: oculta la navegación del sitio y atenúa los controles.
+- `tests/e2e/visual-pages.spec.ts`: Home, Estudio (índice y cuatro lecciones), Laboratorio, Recursos y Ruta a 1366×768, 768×1024, 390×844 y 320×568. También cubre el orden de los paneles del laboratorio y un resultado de 12 columnas.
+- `tests/e2e/visual-responsive-data.spec.ts`:
+  - EMPLEADOS como tabla en escritorio y como fichas en móvil;
+  - la tabla de origen del Estudio entera;
+  - NULL como insignia accesible.
+
+**Ayudas** (`tests/e2e/support/layout.ts`):
+
+- `layoutReport` y `expectNoHorizontalScroll`: fallan si hay desplazamiento horizontal de la página, una tabla, código o región educativa con barra propia, texto recortado por `overflow: hidden` o texto visible de menos de 12 px;
+- `watchConsole`: falla ante `console.error`, excepciones sin capturar, avisos de hidratación o violaciones de CSP.
+
+La Exposición comprueba además que ningún bloque invade el título ni la idea clave (`spill ≤ 1 px`).
+
+**Pruebas unitarias nuevas:**
+
+- `tests/unit/concepts.test.ts`: definiciones de 25 palabras como máximo, categorías, ejemplos válidos y la misma definición en el Estudio, el buscador, la Exposición y los Recursos;
+- `tests/unit/sql/format.test.ts`: el formateador conserva los tokens y el resultado de todas las consultas del contenido, y es idempotente;
+- `tests/unit/data-view.test.tsx`: tabla y fichas, resumen, NULL, estado, encabezado de fila y columnas de código;
+- `tests/unit/presentation-scenes.test.tsx`: las 29 escenas con definición o propósito, notas del expositor y bloques.
+
+La auditoría de antes y después (615 mediciones y 123 capturas por pasada) está en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md).
+
 ## Salida a producción
 
 La entrega funcional se acepta cuando P01–P18 pasan, G01–G15 y LAB01–LAB16 están cubiertos, invariantes DB01–DB07 y reglas R01–R11 son verificadas, y C01–C05 y D01–D08 pasan revisión editorial/visual. U01–U08 y A01–A07 se verifican mediante flujos, seguridad y recuperación descritos aquí.

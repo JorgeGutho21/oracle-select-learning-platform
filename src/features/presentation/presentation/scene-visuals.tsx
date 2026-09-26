@@ -3,7 +3,11 @@
 import { Fragment, useId, useState, type ReactNode } from 'react';
 import type { FlowTable } from '@/features/laboratory/application/lab-api';
 import { formatNumber } from '@/presentation/components/data/cell-format';
-import { highlightSql, SqlLines } from '@/presentation/components/data/sql-code';
+import {
+  highlightSql,
+  SqlCode as SqlBlock,
+  SqlLines,
+} from '@/presentation/components/data/sql-code';
 
 /**
  * Visualizaciones propias de las escenas: cada una representa un concepto (un rango, una
@@ -247,6 +251,9 @@ export function LogicPanel({
       <p className="logic-panel__lead">
         <code>{operator}</code> {lead}
       </p>
+      <SqlBlock
+        sql={`WHERE ${conditions[0]}\n${operator === 'AND' ? '  AND' : '   OR'} ${conditions[1]}`}
+      />
       <table className="logic-panel__table">
         <caption className="visually-hidden">
           Cómo decide {operator} con dos condiciones, fila por fila

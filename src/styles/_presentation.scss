@@ -646,6 +646,9 @@
   .scene__title {
     font-size: 1.75em;
   }
+  .concept-intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .deck-notes {
     border-top: 4px solid var(--color-cyan);
     border-left: 0;
@@ -665,7 +668,9 @@
   }
   .deck-controls__tools {
     flex: 2;
+    flex-wrap: wrap;
     justify-content: center;
+    min-width: 0;
   }
   .deck-resume {
     position: static;
@@ -722,11 +727,21 @@
   align-items: start;
 }
 .presenter-stage {
+  position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
+}
+// Lienzo virtual de 1280×720 escalado al hueco (solo miniatura, nunca contenido principal).
+.presenter-stage__canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1280px;
+  height: 720px;
+  transform-origin: 0 0;
   container-type: inline-size;
 }
 .presenter-view__side {

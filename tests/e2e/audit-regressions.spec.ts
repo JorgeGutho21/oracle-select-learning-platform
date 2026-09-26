@@ -42,7 +42,7 @@ test('las respuestas llevan las cabeceras de seguridad y la CSP no bloquea nada'
 test('las columnas atenuadas de la tabla didáctica mantienen el contraste AA', async ({ page }) => {
   // La tabla de origen atenúa las columnas que la consulta no muestra (NOMBRE, DEPARTAMENTO).
   await page.goto('/learn/distinct');
-  await expect(page.locator('.hl-table .is-dim').first()).toBeVisible();
+  await expect(page.locator('.dv .is-dim').first()).toBeVisible();
   expect(await violations(page, ['color-contrast'])).toEqual([]);
 });
 

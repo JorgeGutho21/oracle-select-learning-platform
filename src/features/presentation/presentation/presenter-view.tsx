@@ -20,6 +20,48 @@ import { SceneStepContext } from './scene-kit';
  * funciona por sí sola.
  */
 
+/** Ancho del lienzo virtual de las miniaturas: la escena se compone como en el proyector. */
+const PREVIEW_WIDTH = 1280;
+
+/**
+ * Miniatura fiel de una escena: se compone en un lienzo de 1280×720 y se escala al hueco
+ * disponible, así los mínimos de letra del proyector no la desbordan. Es solo una vista.
+ */
+function ScenePreview({
+  scene,
+  small = false,
+}: {
+  readonly scene: number;
+  readonly small?: boolean;
+}) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.5);
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setScale(entry.contentRect.width / PREVIEW_WIDTH);
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <div
+      ref={frameRef}
+      className={`presenter-stage${small ? ' presenter-stage--small' : ''}`}
+      // Duplicado visual de la escena: fuera del foco y del lector de pantalla.
+      inert
+      aria-hidden="true"
+    >
+      <div className="presenter-stage__canvas" style={{ transform: `scale(${scale})` }}>
+        <SceneStepContext.Provider value={{ step: Number.POSITIVE_INFINITY }}>
+          {renderScene(scene)}
+        </SceneStepContext.Provider>
+      </div>
+    </div>
+  );
+}
+
 function formatTime(seconds: number): string {
   const minutes = Math.floor(seconds / 60);
   return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
@@ -119,11 +161,7 @@ export function PresenterView({ requestedScene }: { readonly requestedScene: num
 
       <div className="presenter-view__grid">
         <section className="presenter-view__current" aria-label="Escena actual">
-          <div className="presenter-stage" inert>
-            <SceneStepContext.Provider value={{ step: Number.POSITIVE_INFINITY }}>
-              {renderScene(scene)}
-            </SceneStepContext.Provider>
-          </div>
+          <ScenePreview scene={scene} />
         </section>
         <aside className="presenter-view__side">
           <section className="presenter-view__notes" aria-labelledby="presenter-notes-title">
@@ -160,11 +198,7 @@ export function PresenterView({ requestedScene }: { readonly requestedScene: num
                 <p>
                   {String(next.number).padStart(2, '0')} · {next.title}
                 </p>
-                <div className="presenter-stage presenter-stage--small" inert>
-                  <SceneStepContext.Provider value={{ step: Number.POSITIVE_INFINITY }}>
-                    {renderScene(next.number)}
-                  </SceneStepContext.Provider>
-                </div>
+                <ScenePreview scene={next.number} small />
               </>
             ) : (
               <p>Es la última escena.</p>

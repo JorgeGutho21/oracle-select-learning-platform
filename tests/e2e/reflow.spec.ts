@@ -69,9 +69,11 @@ test('con zoom 200 % el laboratorio sigue siendo usable', async ({ page }) => {
   await page.getByRole('button', { name: 'Analizar' }).click();
   await expect(page.getByRole('table').filter({ hasText: 'SALARIO_ANUAL' }).first()).toBeAttached();
   await page.getByRole('button', { name: 'Ejecutar en Oracle' }).click();
+  // A 180 px el resultado se lee como fichas (lista) en lugar de tabla: los mismos datos.
+  const oracle = /^Oracle \(Oracle Database/;
   await expect(
     ORACLE_CONFIGURED
-      ? page.getByRole('table', { name: /^Oracle \(Oracle Database/ })
+      ? page.getByRole('table', { name: oracle }).or(page.getByRole('list', { name: oracle }))
       : page.getByText('Servicio Oracle no disponible'),
   ).toBeVisible();
   expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);

@@ -26,7 +26,7 @@ test.describe('Laboratorio SQL', () => {
     await expect(feedback).toContainText('7 de 20 filas');
     await expect(feedback).toContainText('Columnas que lee: NOMBRE, SALARIO, CIUDAD');
     const schema = panel(page, 'Esquema disponible');
-    await expect(schema.locator('.lab-schema__used code')).toHaveText([
+    await expect(schema.locator('.schema-group li.is-used code')).toHaveText([
       'NOMBRE',
       'CIUDAD',
       'SALARIO',

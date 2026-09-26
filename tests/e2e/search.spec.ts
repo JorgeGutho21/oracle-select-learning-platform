@@ -153,7 +153,7 @@ test.describe('Buscador global', () => {
       .first()
       .click();
     await expect(page).toHaveURL('/resources#chuleta-asterisco');
-    await expect(page.locator('#chuleta-asterisco h3')).toBeFocused();
+    await expect(page.locator('#chuleta-asterisco h4')).toBeFocused();
   });
 
   test('sin coincidencias ofrece limpiar la búsqueda', async ({ page }) => {

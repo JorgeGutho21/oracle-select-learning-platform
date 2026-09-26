@@ -45,22 +45,49 @@ test.describe('Recursos', () => {
     ).toHaveAttribute('href', '/modules');
   });
 
-  test('la chuleta cubre los 18 conceptos con patrón, ejemplo y lección', async ({ page }) => {
+  test('la chuleta cubre los 18 conceptos por categorías, con definición, sintaxis y ejemplo', async ({
+    page,
+  }) => {
     await page.goto('/resources');
     await expect(page.locator('#chuleta .resource-card')).toHaveCount(CONCEPTS.length);
+    await expect(page.locator('#chuleta .resources-group__title')).toHaveText([
+      'Consultar',
+      'Transformar el resultado',
+      'Filtrar',
+      'Operadores de filtro',
+      'Valores ausentes',
+      'Ordenar',
+      'Futuro · Próximamente',
+    ]);
     for (const [slug, title] of CONCEPTS) {
       const card = page.locator(`#chuleta-${slug}`);
-      await expect(card.getByRole('heading', { level: 3 }), slug).toHaveText(title);
+      await expect(card.getByRole('heading', { level: 4 }), slug).toHaveText(title);
+      await expect(card.locator('.resource-card__definition'), slug).not.toBeEmpty();
       await expect(card.locator('.resource-syntax'), slug).not.toBeEmpty();
-      await expect(card.getByRole('link', { name: /Abrir en laboratorio/ })).toHaveAttribute(
+      await expect(card.getByRole('button', { name: /Copiar/ })).toBeVisible();
+      await expect(card.getByRole('link', { name: /Abrir en Lab/ })).toHaveAttribute(
         'href',
         new RegExp(`returnTo=%2Flearn%2F${slug}`),
       );
-      await expect(card.getByRole('link', { name: /Repasar la lección/ })).toHaveAttribute(
+      await expect(card.getByRole('link', { name: /Ver lección/ })).toHaveAttribute(
         'href',
         `/learn/${slug}`,
       );
     }
+    // El ejemplo se muestra formateado: una cláusula por línea, sin barra horizontal.
+    const where = page.locator('#chuleta-where .ds-code__pre .sql-line');
+    await expect(where).toHaveText([
+      'SELECT nombre, ciudad',
+      'FROM empleados',
+      "WHERE ciudad = 'Cali';",
+    ]);
+    const scrolled = await page.evaluate(
+      () =>
+        [...document.querySelectorAll<HTMLElement>('#chuleta pre, #ejemplos pre')].filter(
+          (element) => element.scrollWidth > element.clientWidth + 1,
+        ).length,
+    );
+    expect(scrolled).toBe(0);
     const warnings = page.getByRole('complementary', { name: 'Para recordar' });
     await expect(warnings.getByRole('listitem')).toHaveCount(8);
     await expect(warnings).toContainText(
@@ -89,7 +116,7 @@ test.describe('Recursos', () => {
     await expect(examples).toHaveCount(18);
     await examples
       .filter({ hasText: 'Ciudades sin repetir' })
-      .getByRole('link', { name: /Abrir en laboratorio/ })
+      .getByRole('link', { name: /Abrir en Lab/ })
       .click();
     await expect(page).toHaveURL(/\/lab\?sql=SELECT\+DISTINCT\+ciudad/);
   });

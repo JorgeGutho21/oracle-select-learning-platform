@@ -3,7 +3,9 @@
 // consulta de contenedor la sustituye por fichas. Nunca hay barra horizontal: la barra de
 // .dv__table es solo la red de seguridad de navegadores sin consultas de contenedor.
 
-$dv-buckets: 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 68, 74, 80, 88, 96, 104, 112, 120;
+$dv-buckets:
+  12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
+  60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120;
 
 .dv {
   container: dv / inline-size;
@@ -461,6 +463,8 @@ $dv-buckets: 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 68, 74, 80, 88,
   box-shadow: inset 0.2em 0 0 var(--color-primary);
 }
 .schema-group__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--color-ink);
   font-family: var(--font-mono);
   font-weight: 700;
@@ -536,7 +540,9 @@ $dv-buckets: 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 68, 74, 80, 88,
 }
 .dv-toggle__bar {
   display: inline-flex;
+  flex-wrap: wrap;
   justify-self: start;
+  max-width: 100%;
   padding: 3px;
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border-subtle);

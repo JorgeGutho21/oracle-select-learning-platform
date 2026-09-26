@@ -6,7 +6,7 @@ import type { DiagnosticCode } from '@/domain/sql/diagnostics';
  */
 
 export type LabExampleGroup =
-  'Proyección' | 'Filtros' | 'NULL y orden' | 'Integración' | 'Errores para analizar';
+  'Columnas y cálculos' | 'Filtros' | 'NULL y orden' | 'Integración' | 'Errores para analizar';
 
 export interface LabExample {
   readonly id: string;
@@ -16,7 +16,7 @@ export interface LabExample {
 }
 
 export const LAB_EXAMPLE_GROUPS: readonly LabExampleGroup[] = [
-  'Proyección',
+  'Columnas y cálculos',
   'Filtros',
   'NULL y orden',
   'Integración',
@@ -26,43 +26,43 @@ export const LAB_EXAMPLE_GROUPS: readonly LabExampleGroup[] = [
 export const LAB_EXAMPLES: readonly LabExample[] = Object.freeze([
   {
     id: 'LAB01',
-    group: 'Proyección',
+    group: 'Columnas y cálculos',
     title: 'Todas las columnas',
     sql: 'SELECT *\nFROM empleados;',
   },
   {
     id: 'LAB02',
-    group: 'Proyección',
+    group: 'Columnas y cálculos',
     title: 'Columnas en otro orden',
     sql: 'select ciudad, nombre\nfrom EMPLEADOS',
   },
   {
     id: 'LAB03',
-    group: 'Proyección',
+    group: 'Columnas y cálculos',
     title: 'Cálculo con alias',
     sql: 'SELECT nombre,\n       salario * 12 AS salario_anual\nFROM empleados;',
   },
   {
     id: 'LAB04',
-    group: 'Proyección',
+    group: 'Columnas y cálculos',
     title: 'Precedencia con paréntesis',
     sql: 'SELECT nombre, salario, bono,\n       (salario + bono) * 12 AS total_anual\nFROM empleados;',
   },
   {
     id: 'LAB05',
-    group: 'Proyección',
+    group: 'Columnas y cálculos',
     title: 'Nombre completo con ||',
     sql: "SELECT nombre || ' ' || apellido AS nombre_completo,\n       cargo\nFROM empleados;",
   },
   {
     id: 'LAB06',
-    group: 'Proyección',
+    group: 'Columnas y cálculos',
     title: 'Ciudades sin repetir',
     sql: 'SELECT DISTINCT ciudad\nFROM empleados;',
   },
   {
     id: 'LAB07',
-    group: 'Proyección',
+    group: 'Columnas y cálculos',
     title: 'Combinaciones únicas',
     sql: 'SELECT DISTINCT ciudad, departamento\nFROM empleados;',
   },

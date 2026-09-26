@@ -282,7 +282,7 @@
   justify-self: start;
   align-items: center;
   gap: 0.5em;
-  min-height: 2.3em;
+  min-height: max(2.3em, 44px);
   padding: 0.45em 1em;
   color: var(--color-inverse);
   background: var(--color-primary);
@@ -415,6 +415,8 @@
 .sql-clause {
   display: block;
   width: 100%;
+  // Objetivo táctil mínimo (WCAG 2.5.8): cada línea es un botón.
+  min-height: 24px;
   margin: 0 -0.25em;
   padding: 0 0.25em;
   color: inherit;
@@ -921,6 +923,8 @@
 .logic-panel {
   display: grid;
   gap: 0.5em;
+  min-width: 0;
+  container-type: inline-size;
   padding: 0.7em 0.9em;
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
@@ -957,6 +961,43 @@
 }
 .logic-panel__table th[scope='row'] {
   text-align: left;
+}
+// Muy estrecho (zoom 200 % en un teléfono): cada fila es una línea «Ana ✓ ✓ → ✓»; las
+// condiciones se leen en el código de arriba, en el mismo orden.
+@container (width < 17em) {
+  .logic-panel__table thead {
+    display: none;
+  }
+  .logic-panel__table,
+  .logic-panel__table tbody {
+    display: block;
+  }
+  .logic-panel__table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.4em;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .logic-panel__table tr > * {
+    border: 0;
+  }
+  .logic-panel__table th[scope='row'] {
+    flex: 1 1 100%;
+    padding-bottom: 0;
+  }
+  .logic-panel__result::before {
+    margin-right: 0.3em;
+    color: var(--color-muted);
+    content: '→';
+  }
+}
+// Encabezados de una palabra: no se parten letra a letra en pantallas estrechas.
+.logic-panel__table thead th:first-child,
+.logic-panel__table thead th:last-child,
+.logic-panel__table th[scope='row'] {
+  overflow-wrap: normal;
+  hyphens: none;
 }
 .logic-panel__table code {
   font-size: 0.9em;
@@ -1181,7 +1222,6 @@
   border-radius: var(--radius-pill);
   font-size: 0.82em;
   font-weight: 700;
-  white-space: nowrap;
 }
 .sort-badge--on {
   color: var(--color-night);
@@ -1745,6 +1785,9 @@
   .scene-versus {
     justify-self: center;
   }
+  .anatomy__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .scene-cover__logo {
     justify-self: start;
   }
@@ -1759,7 +1802,23 @@
     width: min(60vw, 240px);
   }
   .scene .schema-cards {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 10em), 1fr));
     font-size: 0.9em;
+  }
+  .linked-query--top .linked-query__side,
+  .linked-query--top .linked-query__data {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .linked-query--top .linked-query__side > :last-child:not(.linked-query__hint) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .linked-query--top .count-flow {
+    grid-auto-flow: row;
+    justify-content: center;
+  }
+  .linked-query--top .count-flow__via::before {
+    content: '↓';
   }
   .scene--practice .scene-grid--split:has(.scene-rules) {
     grid-template-columns: minmax(0, 1fr);

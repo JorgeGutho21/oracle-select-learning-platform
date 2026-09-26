@@ -62,7 +62,7 @@ export function HomeDemonstration() {
           )}
         </div>
         <Link className="hero-action hero-action--primary" href={labHref as Route}>
-          Abrir en el laboratorio <span aria-hidden="true">→</span>
+          Abrir en Lab <span aria-hidden="true">→</span>
         </Link>
       </div>
       <div className="home-demo__result">

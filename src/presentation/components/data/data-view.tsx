@@ -108,7 +108,8 @@ const STATE_TEXT: Readonly<Record<DataRowState, { symbol: string; label: string 
 
 /** Umbrales de ancho (em) con regla CSS propia en `_data-view.scss`. */
 export const DATA_VIEW_BUCKETS = [
-  14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 68, 74, 80, 88, 96, 104, 112, 120,
+  12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
+  60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120,
 ] as const;
 
 const STATUS_VALUES = new Set(['ACTIVO', 'INACTIVO']);
@@ -149,7 +150,9 @@ export function requiredTableWidth(
   });
   if (options.states) width += 7.6;
   if (options.duplicates) width += 5.4;
-  return Math.round(width * 10) / 10;
+  // Calibrado con el ancho real de las tablas del sitio (la estimación queda un 8–30 % por
+  // encima): 0,93 conserva un margen para no provocar nunca una barra horizontal.
+  return Math.round(width * 0.93 * 10) / 10;
 }
 
 export function widthBucket(width: number): number {

@@ -47,7 +47,7 @@ const TEMPLATE = [
   'Qué cambió',
   'Error frecuente',
   'Mini comprobación',
-  'Abrir en el laboratorio',
+  'Practicar en el laboratorio',
 ];
 
 function UnitVideo({ video }: { readonly video: VideoResource }) {
@@ -262,7 +262,7 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
               reading={content.example.reading}
             />
             <Link className="ds-button ds-button--primary study-lab-link" href={labHref}>
-              Abrir este ejemplo en el laboratorio <span aria-hidden="true">→</span>
+              Abrir en Lab <span aria-hidden="true">→</span>
             </Link>
           </section>
 
@@ -343,7 +343,7 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
                       className="inline-action"
                       href={lessonLabHref(comparison.sql, returnTo) as Route}
                     >
-                      Probar en el laboratorio <span aria-hidden="true">→</span>
+                      Abrir en Lab <span aria-hidden="true">→</span>
                     </Link>
                   </article>
                 ))}
@@ -428,14 +428,14 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
           </div>
 
           <section className="study-lab-cta" aria-labelledby="lab-cta-title">
-            <p className="study-part">Abrir en el laboratorio</p>
+            <p className="study-part">Practicar</p>
             <h2 id="lab-cta-title">Pruébalo tú</h2>
             <p>
               Cambia una columna, un valor o un operador y compara el resultado. El laboratorio
               explica cada error y ejecuta la consulta en Oracle.
             </p>
             <Link className="ds-button ds-button--primary" href={labHref}>
-              Abrir en el laboratorio <span aria-hidden="true">→</span>
+              Abrir en Lab <span aria-hidden="true">→</span>
             </Link>
           </section>
 

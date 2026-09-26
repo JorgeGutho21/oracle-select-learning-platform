@@ -264,7 +264,7 @@ export function ResourcesPage() {
             ];
           })}
           rowHeader={0}
-          wrapColumns={['QUÉ HACE']}
+          wrapColumns={['QUÉ HACE', 'SINTAXIS']}
           codeColumns={['SINTAXIS']}
           schema={{
             titleColumns: ['ELEMENTO'],

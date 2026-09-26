@@ -1,6 +1,6 @@
 # DESIGN_SYSTEM — Identidad y componentes
 
-Versión 1.0 · Relacionado con [UX_FLOWS.md](UX_FLOWS.md) y [CONTENT_MAP.md](CONTENT_MAP.md).
+Versión 2.0 · 26 de septiembre de 2026 · Relacionado con [UX_FLOWS.md](UX_FLOWS.md), [CONTENT_MAP.md](CONTENT_MAP.md) y [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md). La sección [Sistema final (2.0)](#sistema-final-20) prevalece sobre lo anterior cuando difieren.
 
 ## Dirección visual fundada en las referencias
 
@@ -31,12 +31,14 @@ Nombre público: **SQL SELECT LAB**. Sección lúdica: **SQL Oracle Challenge**.
 | Borde | subtle / control | #D4DEEF / #63738D; control con contraste verificable. |
 | Foco | focus | Anillo de 3 px #1746B8 en claro; #20CCE5 en oscuro, separado 2 px. |
 | Espaciado | escala | 4, 8, 12, 16, 24, 32, 48, 64 px. |
-| Radios | control / card / section | 10 / 20 / 28 px. |
-| Sombra | elevated | Suave, desplazamiento vertical 8 px, desenfoque 24 px, azul noche al 10 %. |
+| Radios | control / card / section · sm / md / lg / xl / pill | 10 / 20 / 28 px · 6 / 10 / 14 / 20 / 999 px. |
+| Sombra | elevated · xs / sm / md | Suave, azul noche: 8/24 px al 10 % · 1/2 px al 6 %, 2/8 px al 8 %, 12/32 px al 12 %. |
+| Marca y superficies | brand-navy / brand-blue / surface-alt | #0B1733 / #1746B8 / #F0F4FB (alias semánticos de la misma paleta). |
+| Valores especiales | null-bg / null-border · success-soft / warning-soft / danger-soft | #EEF2F8 / #8E9BB3 (insignia NULL) · fondos suaves de estado. |
 | Movimiento | feedback / transition | 150 / 250 ms; máximo 350 ms. Sin bucles decorativos. |
 | Capas | base / sticky / overlay / dialog | 0 / 100 / 200 / 300; tooltip de diálogo dentro de su contexto. |
 
-Tipografía: interfaz con pila de sistema sans-serif; código con pila monoespaciada del sistema. Evitar una descarga de fuentes como dependencia del contenido. Texto 18 px en lectura, mínimo 16 px en móvil y controles; línea 1,5–1,65. Encabezados 32–56 px según ancho. Código 17 px en Estudio y mínimo 26 px en Exposición. Encabezados de escena 40–48 px y cuerpo de proyección 26–30 px. No reducir letra para resolver una tabla demasiado ancha: dividir la explicación o permitir desplazamiento horizontal dentro de la tabla.
+Tipografía: interfaz con pila de sistema sans-serif; código con pila monoespaciada del sistema. Evitar una descarga de fuentes como dependencia del contenido. Texto 18 px en lectura, mínimo 16 px en móvil y controles; línea 1,5–1,65. Encabezados 32–56 px según ancho. Código 17 px en Estudio y mínimo 26 px en Exposición. Encabezados de escena 40–48 px y cuerpo de proyección 26–30 px. Escala fluida en `--type-*` (display, slide-title, section-title, body, code, small). Ningún texto visible baja de 12 px; los datos, de 14 px. No reducir letra para resolver una tabla demasiado ancha: **cambiar de representación** (vista de datos adaptable), nunca encoger ni añadir una barra horizontal.
 
 ## Retícula y composición
 
@@ -53,14 +55,14 @@ Estudio: índice lateral a partir de 992 px; en móvil, botón «Temario». Cent
 | Navegación | Identidad, modo actual, buscar y volver a Home. Estado activo visible por texto y forma. |
 | Botón | Primario, secundario y textual; normal, hover, foco, presionado, deshabilitado y enviando. El estado enviando conserva el ancho. |
 | Buscador | Etiqueta «Buscar tema o recurso», resultados agrupados, fragmento contextual, vacío y sin coincidencias. Reabre sin perder el contexto anterior. |
-| Bloque SQL | Monoespaciado, selección y copia sin números de línea, resaltado de sintaxis legible y botón «Abrir en laboratorio». |
+| Bloque SQL | Monoespaciado, una cláusula por línea (formateador sobre el analizador léxico), líneas largas con sangría francesa y sin barra horizontal. Acciones normalizadas: «Copiar», «Abrir en Lab» y «Ver lección». |
 | Editor | Etiqueta accesible, ayuda de atajos, estado pendiente/ejecutando/resultado/error y salida por Tab sin trampa de teclado. |
-| Tabla | Título, encabezados semánticos, columnas numéricas alineadas a la derecha, resaltado con borde y texto de apoyo. Scroll local con indicación visible. |
+| Vista de datos | `DataView`: rótulo de contexto (Tabla original, Vista educativa, Resultado, Resultado Oracle, Antes, Después), recuento, `caption`, encabezados semánticos, números a la derecha y tabulares, NULL como insignia con texto «valor nulo» y ESTADO con símbolo y texto. Tabla cuando cabe; fichas por registro con campos agrupados cuando no. |
 | Pieza arrastrable | Texto de la columna o fragmento SQL, estado disponible/seleccionado/ubicado y controles alternativos para insertar, mover y retirar. |
 | Feedback | «Correcto», «Revisa…» o «Servicio no disponible» con explicación específica. No usar solo verde/rojo. |
 | Temporizador | Tiempo restante o transcurrido y modo explícito. Avisos accesibles a 30 y 10 segundos; no anunciar cada segundo. |
 | Ranking | Posición, alias, puntos y tiempo; propia fila destacada. Actualizar sin arrebatar foco ni saltar el scroll. |
-| Vídeo | Portada, duración, controles, subtítulos, transcripción y alternativa de acceso. |
+| Vídeo | Portada, controles, subtítulos, transcripción y alternativa de acceso. Sin rótulo de duración manual. |
 | Ficha futura | «Próximamente», objetivo corto y prerrequisito. No fingir que el módulo ya funciona. |
 
 Los estados vacíos son específicos: «Escribe una consulta y pulsa Ejecutar», «Aún no hay participantes» y «No hay resultados para esta búsqueda». Los errores preservan el trabajo y ofrecen una acción concreta.
@@ -73,9 +75,71 @@ Objetivo: WCAG 2.2 AA en flujos críticos. Texto normal con contraste mínimo 4,
 - D02: todas las misiones se completan por teclado y mediante toque sin arrastrar.
 - D03: foco visible y orden lógico en búsqueda, editor, modales, QR y resultados; al cerrar un diálogo vuelve al activador.
 - D04: `prefers-reduced-motion` elimina desplazamientos y animaciones no esenciales; el resaltado estático conserva significado.
-- D05: a 360 × 800 px y zoom 200 %, no hay recortes ni scroll horizontal de página; solo tabla o código pueden tener scroll propio.
+- D05: a 320 × 568 px y zoom 200 %, no hay recortes ni desplazamiento horizontal de página, tablas ni código educativo. La única excepción son las tablas interactivas del Challenge, con controles en cada fila.
 - D06: a 1920 × 1080, código y tabla se leen con los tamaños de proyección especificados; el contenido largo se divide, no se encoge.
 - D07: lector de pantalla identifica títulos, encabezados, progreso, pieza movida y feedback, sin repetir toda la tabla tras cada acción.
 - D08: las superficies claras predominan en lectura; cian y fondos oscuros orientan atención sin brillo constante.
 
 Las referencias guían composición y jerarquía. La aceptación exige una identidad propia; no se pretende reproducir sus páginas píxel por píxel.
+
+## Sistema final (2.0)
+
+Resultado del refinamiento de producto del 26 de septiembre de 2026. Evidencia antes y después en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md).
+
+### Fuente conceptual única
+
+`src/domain/concepts/sql-concepts.ts` define 31 conceptos, cada uno con los mismos campos:
+
+- título, nombre y categoría;
+- definición (25 palabras como máximo) y qué hace;
+- para qué sirve, sintaxis y ejemplo;
+- lectura en español del ejemplo;
+- idea clave, error frecuente y matiz de Oracle.
+
+La Exposición, el Estudio, los Recursos y el buscador la presentan de formas distintas, pero nunca la reescriben. Las categorías distinguen, entre otras, cláusula, palabra clave, operador lógico, condición, comodín de SELECT o de LIKE, operador de concatenación y opción de ordenamiento.
+
+### Vista de datos adaptable
+
+`src/presentation/components/data/data-view.tsx` calcula el ancho, en em, que necesita la tabla. Una consulta de contenedor (`_data-view.scss`, umbrales de 14 a 120 em) decide la representación sin JavaScript ni saltos de diseño:
+
+| Espacio | Representación |
+| --- | --- |
+| Suficiente | Tabla completa: encabezado discreto, separadores suaves, hover, radio y sombra mínima. |
+| Medio, en resumen | Tabla con las columnas prioritarias; cada ficha abre «Ver registro completo». |
+| Tableta | Rejilla de fichas: dos o tres por fila, con los campos agrupados. |
+| Móvil | Una ficha por empleado: nombre y apellido, número, cargo y campos con rótulo. |
+
+- **Grupos de EMPLEADOS:** Identidad, Organización, Compensación, Empleo y Contacto.
+- **Resumen / Completa:** el selector `DataViewToggle` alterna entre ambos modos, sin barra horizontal en ninguno.
+- **Esquema:** `SchemaCards` muestra el esquema por grupos (nombre, tipo Oracle y NULL) y sustituye los diccionarios en tabla.
+- **Excepción:** en el lienzo 16:9 de la Exposición las tablas se diseñan para caber y se muestran siempre como tabla. Las pruebas visuales lo verifican a 1920, 1366, 1280 y 1024 píxeles.
+
+### Plantilla de escena
+
+Toda escena comparte la misma estructura, en este orden:
+
+1. número, bloque y categoría del término;
+2. título;
+3. bloque «Definición» (o «Propósito»), con la lectura en español cuando aporta;
+4. contenido;
+5. «Idea clave».
+
+- **Composiciones:** CONCEPT, COMPARISON, PIPELINE, TRANSFORMATION, STEPS, PRACTICE, SUMMARY, MEDIA y LIVE.
+- **Contenido centrado:** con `align-content: safe center`, para que nunca invada el título.
+- **Tipografía:** `clamp(14px, 1,72cqi, 52px)`, con mínimos en píxeles para el texto secundario.
+- **Flujo:** en móvil, en vertical y con poca altura (zoom de 150 % en adelante), la escena fluye con 17 px de base.
+
+### Controles de la Exposición
+
+- **Barra inferior:** bloque, número, título corto y paso; progreso segmentado por bloque.
+- **Botones:** Anterior, Escenas, Paso a paso, Notas, Pantalla completa y Siguiente, todos de al menos 44 × 44 px.
+- **Navegador de escenas:** diálogo modal con foco atrapado y Escape. Es un panel lateral derecho en escritorio y una hoja inferior en móvil, agrupado en Fundamentos, Consulta, Filtrado, Orden e integración, y Práctica y cierre.
+- **Pantalla completa:** solo el lienzo. Los controles se superponen y se atenúan tras 3 s sin actividad; vuelven con el puntero, un toque o el teclado.
+- **Notas del expositor:** tecla N; nunca se muestran dentro del lienzo ni en pantalla completa.
+- **Vista del presentador** (`/presentation/presentador`): escena actual y siguiente, notas, cronómetro y controles, sincronizados por BroadcastChannel.
+- **Paso a paso:** revela el contenido sin mover el diseño (`visibility` e `inert`) y respeta `prefers-reduced-motion`.
+- **Enlace código ↔ datos:** cada cláusula es un botón que resalta sus columnas y filas, también con el teclado.
+
+### Acciones normalizadas
+
+Estudiar · Abrir en Lab · Practicar SQL · Iniciar Challenge · Crear sala · Ver lección · Copiar.

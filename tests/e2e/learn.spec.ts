@@ -81,6 +81,8 @@ test.describe('Modo Estudio', () => {
       'DISTINCT: sin filas repetidas',
     );
     const lesson = page.locator('.study-lesson');
+    // «Qué cambió y qué no» está plegado (revelado progresivo): se abre al pedirlo.
+    await lesson.locator('.study-fold > summary', { hasText: 'Qué cambió y qué no' }).click();
     for (const part of [
       'En una frase',
       '¿Qué hace?',
@@ -88,11 +90,12 @@ test.describe('Modo Estudio', () => {
       'Sintaxis',
       'Cómo leerla',
       'Ejemplo',
+      'Predice',
       'Qué cambió',
       'Qué no cambió',
       'Error frecuente',
       'Mini comprobación',
-      'Abrir en el laboratorio',
+      'Practicar',
     ]) {
       await expect(lesson.getByText(part, { exact: true }).first(), part).toBeVisible();
     }
@@ -196,7 +199,7 @@ test.describe('Modo Estudio', () => {
 
   test('el ejemplo se abre en el laboratorio con el camino de vuelta', async ({ page }) => {
     await page.goto('/learn/alias');
-    const link = page.getByRole('link', { name: /Abrir este ejemplo en el laboratorio/ });
+    const link = page.locator('.study-example').getByRole('link', { name: /Abrir en Lab/ });
     await expect(link).toHaveAttribute('href', /returnTo=%2Flearn%2Falias/);
     await link.click();
     await expect(page).toHaveURL(/\/lab\?/);

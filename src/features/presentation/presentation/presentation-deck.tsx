@@ -416,6 +416,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
                     <button
                       type="button"
                       className="deck-navigator__scene"
+                      aria-label={`Escena ${member.number}: ${member.title}`}
                       aria-current={member.number === scene ? 'true' : undefined}
                       onClick={() => {
                         setNavigatorOpen(false);

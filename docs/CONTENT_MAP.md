@@ -1,6 +1,6 @@
 # CONTENT_MAP — Contenido y secuencia educativa
 
-Versión 2.0 (25 de septiembre de 2026) · Reingeniería descrita en [CONTENT_REDESIGN_PLAN.md](CONTENT_REDESIGN_PLAN.md) · Fuentes F1–F7 en [PROJECT_SPEC.md](PROJECT_SPEC.md).
+Versión 2.1 (26 de septiembre de 2026) · Reingeniería descrita en [CONTENT_REDESIGN_PLAN.md](CONTENT_REDESIGN_PLAN.md) · Refinamiento final en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md) · Fuentes F1–F7 en [PROJECT_SPEC.md](PROJECT_SPEC.md).
 
 Este mapa separa dos cosas que la plataforma nunca mezcla:
 
@@ -11,7 +11,11 @@ Este mapa separa dos cosas que la plataforma nunca mezcla:
 
 Comprender → visualizar → predecir → consultar → equivocarse → recibir feedback → corregir → combinar conceptos → resolver problemas.
 
-Cada idea se muestra con el mismo patrón visual: **tabla original → consulta → qué hace → resultado**. Las tablas, los recuentos y las respuestas de las comprobaciones no se escriben a mano: los calcula el motor educativo sobre el dataset canónico, y las pruebas de integración comprueban que Oracle real devuelve lo mismo. El recorrido «FROM, WHERE, SELECT, ORDER BY» se presenta como modelo lógico para entender la consulta, no como el plan físico del optimizador.
+Cada idea sigue la misma cadena: **necesidad → concepto → definición → SQL → qué hace → cambio sobre los datos → resultado → idea clave**.
+
+La definición de cada concepto es única. Está en `src/domain/concepts/sql-concepts.ts`, con 31 conceptos revisados contra Oracle 19c, y su categoría correcta: SELECT es una cláusula; AND, un operador lógico; BETWEEN, una condición; `%`, un comodín de LIKE. La Exposición, el Estudio, los Recursos y el buscador la muestran tal cual.
+
+NULL se define como «ausencia de valor: no es cero ni el texto “NULL”». No se dice que no sea una cadena vacía, porque Oracle guarda `''` como NULL. Ese matiz se explica aparte, en la escena 18 y en la nota de Oracle. Las tablas, los recuentos y las respuestas de las comprobaciones no se escriben a mano: los calcula el motor educativo sobre el dataset canónico, y las pruebas de integración comprueban que Oracle real devuelve lo mismo. El recorrido «FROM, WHERE, SELECT, ORDER BY» se presenta como modelo lógico para entender la consulta, no como el plan físico del optimizador.
 
 ## Dataset único: `empleados-select-v2`
 
@@ -102,7 +106,30 @@ La navegación entre lecciones cruza los bloques en orden: por ejemplo, de DISTI
 
 ## Modo Exposición: 29 escenas
 
-Ruta `/presentation`; `?scene=N` vuelve al mismo punto. Cada escena tiene una idea central, poco texto (una prueba lo limita a 95 palabras explicativas), código grande y como máximo 8 filas por tabla. Se ve en un lienzo 16:9 que no se desborda a 1920×1080, 1366×768 ni 1280×720 (prueba E2E). Se navega con los botones Anterior y Siguiente, las flechas, Av Pág/Re Pág, Inicio y Fin, y con el selector de escenas. Tiene pantalla completa y se puede reanudar la última escena.
+Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
+
+**Contenido de cada escena:**
+
+- una idea central;
+- un bloque «Definición» (o «Propósito» si no introduce un concepto) con la categoría del término;
+- la lectura en español cuando aporta;
+- la idea clave;
+- poco texto: una prueba lo limita a 95 palabras explicativas;
+- tablas de 8 filas como máximo, solo con las columnas del concepto.
+
+**Lienzo:** 16:9, sin desbordes a 1920×1080, 1366×768, 1280×720 ni 1024×768 (pruebas E2E y visuales).
+
+**Bloques:** Fundamentos (01–04), Consulta (05–10), Filtrado (11–18), Orden e integración (19–22), y Práctica y cierre (23–29).
+
+**Navegación y herramientas:**
+
+- botones Anterior y Siguiente, flechas, Av Pág/Re Pág, Inicio y Fin;
+- panel «Escenas» agrupado por bloque;
+- «Paso a paso» en las escenas 05, 10, 11 y 19;
+- notas del expositor con la tecla N;
+- vista del presentador en `/presentation/presentador`;
+- pantalla completa con controles que se atenúan;
+- reanudar la última escena.
 
 | Escena | Id | Título | Lecciones |
 |---|---|---|---|
@@ -136,19 +163,66 @@ Ruta `/presentation`; `?scene=N` vuelve al mismo punto. Cada escena tiene una id
 | 28 | proximos | Próximos temas (enlaza a la ruta) | — |
 | 29 | cierre | ¿Preguntas? | — |
 
-Las escenas de WHERE, AND/OR, BETWEEN, IN, LIKE, NULL y ORDER BY muestran siempre la tabla original con la marca de cada fila (✓ cumple, ✗ no cumple, ? desconocido por NULL), la consulta y el resultado. El reto de la escena 27 pregunta por `SELECT DISTINCT departamento FROM empleados WHERE ciudad = 'Bogotá';` (5 filas).
+Cada escena representa su concepto:
+
+| Escenas | Representación |
+| --- | --- |
+| 02 y 25 | Mapa de los 8 bloques (en la 25, completados). |
+| 03 | Persona → SQL → base de datos → resultado. |
+| 04 | Cifras, tabla representativa y los 12 campos agrupados por tipo. |
+| 05 | «¿Qué quieres?» y «¿De dónde?». |
+| 06 | Las 12 columnas por grupo. |
+| 07 | Mismos datos, distinto orden. |
+| 08 | Orden de cálculo de cada expresión. |
+| 09 | Antes y después del alias. |
+| 10 | 20 → 5 con las repetidas marcadas. |
+| 11 | Embudo de filas. |
+| 12 | Escala de comparadores con su recuento. |
+| 13 | Tabla de verdad con empleados reales. |
+| 14 | Empleados que cambian sin paréntesis. |
+| 15 | Recta de salarios con los límites. |
+| 16 | La lista como fichas. |
+| 17 | Patrones con ejemplos que cumplen y que no. |
+| 18 | NULL ≠ 0 ≠ 'NULL'. |
+| 19 | Antes y después de ORDER BY. |
+| 20 | Anatomía interactiva. |
+| 21 | Construcción en seis pasos desde la pregunta. |
+| 22 | Error, causa y corrección. |
+| 23 | Vista del laboratorio. |
+| 24 | Las diez misiones. |
+| 27 | Flujo de la sala en vivo. |
+| 28 | Niveles 2 a 7. |
+| 29 | La consulta integrada leída en español. |
+
+Las escenas de WHERE, IN, BETWEEN y NULL marcan cada fila: ✓ cumple, ✗ no cumple, ? desconocido por NULL.
+
+En las escenas 05 y 11, cada cláusula de la consulta es un botón que resalta sus columnas y filas.
+
+La consulta integrada (escenas 20, 21, 23 y 29) es `SELECT nombre, ciudad, salario FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' AND salario BETWEEN 4000000 AND 8000000 ORDER BY salario DESC;` y devuelve 3 filas.
+
+El reto de la escena 27 pregunta por `SELECT DISTINCT departamento FROM empleados WHERE ciudad = 'Bogotá';` (5 filas).
 
 ## Laboratorio: LAB01–LAB24 y diagnóstico
 
-Ruta `/lab`. Los ejemplos están en cinco grupos: Proyección (LAB01–LAB07), Filtros (LAB08–LAB14), NULL y orden (LAB15–LAB17), Integración (LAB18) y Errores para analizar (LAB19–LAB24). La especificación está en [LAB_SPEC.md](LAB_SPEC.md).
+Ruta `/lab`. El SQL es el protagonista, y los paneles van en este orden:
 
-Cada diagnóstico se muestra en uno de cinco grupos: SINTAXIS, SEMÁNTICA, ALCANCE EDUCATIVO, ORACLE o ADVERTENCIA. Incluye:
+1. editor y resultado;
+2. diagnóstico;
+3. lectura en español;
+4. anatomía;
+5. esquema.
 
-- La línea y la columna.
-- El fragmento encontrado y qué significa.
-- Una pista.
-- La posible corrección, plegada hasta que se pide, con el botón «Aplicar la corrección».
-- Un ejemplo mínimo correcto.
+El esquema se muestra agrupado. Los 20 registros se abren solo si se piden, con el selector «Resumen / Completa». Los resultados, de 2 a 12 columnas, usan la vista de datos adaptable. Los ejemplos están en cinco grupos: Columnas y cálculos (LAB01–LAB07), Filtros (LAB08–LAB14), NULL y orden (LAB15–LAB17), Integración (LAB18) y Errores para analizar (LAB19–LAB24). La especificación está en [LAB_SPEC.md](LAB_SPEC.md).
+
+Cada diagnóstico se muestra en uno de cinco grupos: SINTAXIS, SEMÁNTICA, ALCANCE EDUCATIVO, ORACLE o ADVERTENCIA. Sigue este orden:
+
+1. **Categoría y qué ocurrió.**
+2. **Dónde:** la línea y la columna, más lo encontrado.
+3. **Por qué:** la pista conceptual.
+4. **Cómo corregirlo:** plegado hasta que se pide, con «Aplicar la corrección».
+5. **Un ejemplo correcto.**
+
+Primero la pista, después la zona; la corrección no se regala.
 
 Un tema futuro se anuncia como SQL válido en Oracle que pertenece a otro nivel, con enlace a su ficha en Próximamente.
 
@@ -160,7 +234,11 @@ Un tema futuro se anuncia como SQL válido en Oracle que pertenece a otro nivel,
 
 `/resources` reúne cuatro cosas:
 
-- **Chuleta:** 18 conceptos, cada uno con significado, patrón, ejemplo y enlaces al laboratorio y a la lección.
+- **Chuleta:** 18 fichas en seis categorías, más «Futuro».
+  - Las categorías son Consultar, Transformar el resultado, Filtrar, Operadores de filtro, Valores ausentes y Ordenar.
+  - Cada ficha trae la definición canónica y los conceptos asociados (AS, OR y NOT, `%` y `_`, IS NULL, ASC y DESC).
+  - También trae la sintaxis y un ejemplo formateado, una cláusula por línea y sin barra horizontal.
+  - Acciones: «Copiar», «Abrir en Lab» y «Ver lección».
 - **Advertencias:** 8 recordatorios.
 - **Tabla de referencia:** el tamaño de cada resultado, calculado por el motor.
 - **Ejemplos y más:** los ejemplos LAB01–LAB18 (los de errores se estudian en el laboratorio y en L21), los dos videos y las fuentes.

@@ -102,13 +102,13 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
                 Iniciar clase <span aria-hidden="true">→</span>
               </Link>
               <Link href="/learn" className="hero-action">
-                Modo Estudio <span aria-hidden="true">→</span>
+                Estudiar <span aria-hidden="true">→</span>
               </Link>
               <Link href="/lab" className="hero-action">
-                Laboratorio SQL <span aria-hidden="true">→</span>
+                Practicar SQL <span aria-hidden="true">→</span>
               </Link>
               <Link href="/challenge" className="hero-action">
-                SQL Challenge <span aria-hidden="true">→</span>
+                Iniciar Challenge <span aria-hidden="true">→</span>
               </Link>
             </nav>
           </div>

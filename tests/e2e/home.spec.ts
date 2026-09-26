@@ -27,9 +27,9 @@ test.describe('Home', () => {
     const actions = page.getByRole('navigation', { name: 'Recorridos principales' });
     for (const [name, href] of [
       ['Iniciar clase', '/presentation'],
-      ['Modo Estudio', '/learn'],
-      ['Laboratorio SQL', '/lab'],
-      ['SQL Challenge', '/challenge'],
+      ['Estudiar', '/learn'],
+      ['Practicar SQL', '/lab'],
+      ['Iniciar Challenge', '/challenge'],
     ] as const) {
       await expect(actions.getByRole('link', { name })).toHaveAttribute('href', href);
     }
@@ -71,7 +71,7 @@ test.describe('Home', () => {
     await expect(table.locator('thead th')).toHaveText(['NOMBRE', 'CIUDAD', 'SALARIO']);
     await expect(table.locator('tbody tr')).toHaveCount(8);
     await expect(demo).toContainText('8 de 20 filas');
-    await expect(demo.getByRole('link', { name: /Abrir en el laboratorio/ })).toHaveAttribute(
+    await expect(demo.getByRole('link', { name: /Abrir en Lab/ })).toHaveAttribute(
       'href',
       /\/lab\?sql=SELECT\+nombre%2C\+ciudad%2C\+salario/,
     );

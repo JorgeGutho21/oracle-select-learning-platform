@@ -1,6 +1,6 @@
 # UX_FLOWS — Navegación y comportamiento
 
-Versión 1.1 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md). La 1.1 incorpora la sala en vivo implementada en la Fase 7 ([REALTIME_SPEC.md](REALTIME_SPEC.md) 1.1).
+Versión 1.2 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md). La 1.1 incorpora la sala en vivo implementada en la Fase 7 ([REALTIME_SPEC.md](REALTIME_SPEC.md) 1.1); la 1.2, los controles de la Exposición y el orden del laboratorio del refinamiento final.
 
 ## Arquitectura de información
 
@@ -35,6 +35,15 @@ Home no exige registro. Crear una sala requiere la clave del profesor configurad
 
 U01: un recorrido escena 12 → laboratorio → volver conserva escena y consulta. Las flechas solo navegan escenas cuando el foco está fuera de campos editables, reproductor y diálogos. Escape cierra primero el diálogo activo o sale de pantalla completa sin borrar progreso.
 
+### Exposición: controles del refinamiento final (26 de septiembre de 2026)
+
+- **Barra inferior:** muestra el bloque, el número, el título corto y, en «Paso a paso», el paso. El progreso está segmentado por bloque.
+- **«Escenas»:** abre un panel con las 29 escenas en cinco bloques. El foco va a la escena actual; Escape cierra y devuelve el foco. En móvil es una hoja inferior.
+- **«Paso a paso» (opcional):** las escenas 05, 10, 11 y 19 se revelan por partes y la flecha avanza el paso antes que la escena.
+- **Notas (tecla N):** panel privado junto al lienzo, nunca en pantalla completa. «Abrir la vista del presentador» lleva a `/presentation/presentador`, con la escena actual, la siguiente, las notas, un cronómetro y los controles, sincronizados con la exposición del mismo navegador.
+- **Pantalla completa:** solo el lienzo. Los controles se atenúan a los 3 s y vuelven con el puntero, un toque o el teclado.
+- **Enlace código ↔ datos:** en las escenas 05 y 11, señalar o enfocar una cláusula resalta sus columnas y filas.
+
 ## Flujo B — Estudiar por cuenta propia
 
 Home → Estudio → lección elegida → explicación y ejemplo → predicción o microactividad → feedback → siguiente lección. No hay cronómetro obligatorio de límite ni bloqueo de navegación.
@@ -63,6 +72,8 @@ U03: consultas con tildes o mayúsculas encuentran el mismo título; una búsque
 6. «Restablecer ejemplo» requiere confirmar únicamente si reemplaza cambios del usuario. No se elimina historial remoto porque no existe historial SQL remoto general.
 
 U04: `SELECT DISTINCT ciudad FROM empleados;` muestra tres filas reales. Una caída de Oracle conserva el editor y muestra servicio no disponible, sin presentar una tabla precalculada como ejecución.
+
+El laboratorio (refinamiento final) muestra primero el editor y el resultado, y debajo el diagnóstico, la lectura en español, la anatomía y el esquema. Los 20 registros se abren con «Ver los 20 registros», con el selector «Resumen / Completa». Un resultado que no cabe como tabla se muestra como fichas por registro, sin barra horizontal.
 
 ## Flujo E — Challenge individual
 
