@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 25 de septiembre de 2026 (reingeniería educativa, dataset v2). Punto de entrada para Codex u otra IA.
+Actualizado: 26 de septiembre de 2026 (producción v2 activa). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -190,4 +190,10 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - **Verificado:** lint, typecheck, format:check, `npm run test:unit` 632/632 (508 unitarias, 102 contra Oracle local v2 y la sala en PostgreSQL embebido), integración contra Oracle Cloud 102/102, build, E2E en Chromium 199/199, Edge y WebKit en las rutas afectadas (153/164 y las 11 restantes en verde al repetirlas) y QA visual de 42 capturas (1920×1080 a 180×400).
   - **Documentos:** CONTENT_MAP 2.0, DATABASE_SCHEMA 2.0, LAB_SPEC 2.0, GAME_SPEC 3.0, ORACLE_SETUP 2.0, README, PROJECT_STATUS, CONTENT_REDESIGN_PLAN y referencias en UX_FLOWS, PROJECT_SPEC, ROADMAP, TEST_PLAN, PRODUCTION_SETUP e IMPLEMENTATION_NOTES.
   - **No versionado a propósito:** `docs/Guia_herramientas_SQL_SELECT_LAB.docx` (documento personal, excluido también en `.vercelignore`).
-  - **Vercel:** variables Oracle de Preview en v2 y vista previa `sql-select-l0pnwv46e-jorge-gutierrez1.vercel.app` (commit `45c3a70`) con prueba de humo 19/19 sobre Oracle Cloud v2. **Producción sigue en v1**: el cambio de `ORACLE_USER`, `ORACLE_PASSWORD` y `ORACLE_SCHEMA` en Production lo bloqueó el sistema de permisos de la sesión. Siguiente acción: el responsable cambia esas tres variables (o autoriza hacerlo) y se despliega con `--prod` desde el commit v2; procedimiento y vuelta atrás en `docs/DEPLOYMENT.md`.
+  - **Vercel:** variables Oracle de Preview en v2 y vista previa `sql-select-l0pnwv46e-jorge-gutierrez1.vercel.app` (commit `45c3a70`) con prueba de humo 19/19 sobre Oracle Cloud v2. **Producción siguió en v1 ese día** (resuelto el 26 de septiembre, ver abajo): el cambio de `ORACLE_USER`, `ORACLE_PASSWORD` y `ORACLE_SCHEMA` en Production lo bloqueó el sistema de permisos de la sesión. Siguiente acción: el responsable cambia esas tres variables (o autoriza hacerlo) y se despliega con `--prod` desde el commit v2; procedimiento y vuelta atrás en `docs/DEPLOYMENT.md`.
+- 2026-09-26: **producción v2 activada** en `claude-finish-20260923`.
+  - Variables de Production `ORACLE_USER`, `ORACLE_PASSWORD` y `ORACLE_SCHEMA` cambiadas a la cuenta v2 por la entrada estándar. `NEXT_PUBLIC_SITE_URL` confirmada en `https://sql-select-lab.vercel.app`.
+  - Despliegue nuevo `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w` del commit `37a2271` (huellas verificadas), con el alias de producción.
+  - Prueba de humo 14/14 en el dominio público y sala en vivo contra el Supabase real 5/5 (servidor local, clave de prueba).
+  - Vuelta atrás: `vercel promote dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd` y variables `ORACLE_CLOUD_PREVIOUS_*`; v1 sigue intacta en Oracle.
+  - Pendiente del responsable: crear una sala en el dominio público con su clave (no se escribe en pruebas automáticas).

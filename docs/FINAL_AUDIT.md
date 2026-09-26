@@ -1,12 +1,38 @@
 # FINAL_AUDIT — Auditoría preproducción
 
-Versión 1.2 · Fase 11 · 25 de septiembre de 2026 · Rama `claude-finish-20260923`. Las fases 10 y 9 se conservan debajo.
+Versión 2.0 · Producción v2 · 26 de septiembre de 2026 · Rama `claude-finish-20260923`. La Fase 11 y las anteriores se conservan debajo.
 
-**READY_FOR_DEPLOYMENT = true · PRODUCTION_READY = true.**
+**CONTENT_REDESIGN_COMPLETE = true · PRODUCTION_V2_READY = true.**
 
 **URL pública final: <https://sql-select-lab.vercel.app>**
 
 Los servicios reales (Oracle Cloud, Supabase, Realtime y Vercel) funcionan y están verificados. No hay CRITICAL ni MAJOR reproducibles. Las limitaciones que quedan están listadas en la tabla final y en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md#pendiente-del-responsable).
+
+## Producción v2 (26 de septiembre de 2026)
+
+- **Despliegue:** `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w`, commit `37a2271` (huellas de archivos verificadas), en `https://sql-select-lab.vercel.app`.
+- **Oracle:** `SQL_LAB_V2_READER` sobre `SQL_LAB_V2_OWNER.EMPLEADOS` (12 columnas, 20 filas), en Oracle Cloud 19c. v1 intacta como vuelta atrás.
+- **Pruebas:**
+  - prueba de humo de producción: 14/14;
+  - sala en vivo contra el Supabase real: 5/5;
+  - integración real: 102/102 en local y en la nube;
+  - Vitest: 632/632;
+  - E2E: 199/199 en Chromium, además de las rutas afectadas en Edge y WebKit.
+- **Defectos:** ningún CRITICAL ni MAJOR reproducible. Los defectos de la reingeniería están en [CONTENT_REDESIGN_PLAN.md](CONTENT_REDESIGN_PLAN.md#4-ejecución-y-verificación-25-de-septiembre-de-2026). Procedimiento en [DEPLOYMENT.md](DEPLOYMENT.md).
+
+| Elemento                                              | Estado                                                                                                                                                                     |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home, Study, Presentation, Search, Modules, Resources | PASS                                                                                                                                                                       |
+| Videos y subtítulos                                   | PASS                                                                                                                                                                       |
+| Dataset v2 y Oracle Cloud v2                          | PASS                                                                                                                                                                       |
+| Lab (18 construcciones en Oracle y 10 diagnósticos)   | PASS                                                                                                                                                                       |
+| M01–M10 (M10 con Oracle real)                         | PASS                                                                                                                                                                       |
+| Presenter y crear sala                                | PASS WITH LIMITATION: probado contra el Supabase real desde un servidor local con la clave de prueba; en el dominio público falta crear una sala con la clave del profesor |
+| QR, Join, Supabase, Realtime, Ranking, Results        | PASS (Supabase real)                                                                                                                                                       |
+| Mobile, Desktop, Projector y Accessibility            | PASS                                                                                                                                                                       |
+| Security (cabeceras y ningún secreto en el cliente)   | PASS                                                                                                                                                                       |
+| Build, E2E y despliegue de producción                 | PASS                                                                                                                                                                       |
+| Prueba de humo de producción                          | PASS                                                                                                                                                                       |
 
 ## Fase 11: cierre con servicios reales
 

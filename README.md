@@ -12,7 +12,7 @@ Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 
 **Institución:** Universidad Popular del Cesar
 
-**En línea:** <https://sql-select-lab.vercel.app> (Vercel, con Oracle Autonomous Database y Supabase reales). Detalle en [DEPLOYMENT.md](docs/DEPLOYMENT.md).
+**En línea:** <https://sql-select-lab.vercel.app> (Vercel, con Oracle Autonomous Database v2 y Supabase reales; v2 activa desde el 26 de septiembre de 2026). Detalle en [DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Estado del proyecto
 

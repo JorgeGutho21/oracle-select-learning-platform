@@ -173,7 +173,7 @@ Después del segundo error sin acierto se muestra la estructura aproximada antes
 | Pruebas       | Motor, laboratorio, estudio, exposición, buscador, módulos, misiones y dataset: casi todas las expectativas numéricas cambian | Se reescriben con los valores v2 y se añaden pruebas de contenido (títulos, definiciones, ejemplos válidos, estados futuros, IDs únicos, destinos de búsqueda). |
 | Documentación | CONTENT_MAP, DATABASE_SCHEMA, LAB_SPEC, GAME_SPEC, README, CONTINUITY y PROJECT_STATUS                                        | Se actualizan con versión y fecha.                                                                                                                              |
 
-Riesgo principal: producción queda en la versión anterior hasta que el responsable active el esquema v2 y vuelva a desplegar. Mientras tanto, nada se rompe allí. Estado al cierre (25 de septiembre): la vista previa v2 pasó la prueba de humo 19/19 y la activación en producción espera ese paso ([DEPLOYMENT.md](DEPLOYMENT.md#activación-de-v2-en-producción-pendiente)).
+Riesgo principal: producción queda en la versión anterior hasta que el responsable active el esquema v2 y vuelva a desplegar. Mientras tanto, nada se rompe allí. Estado al cierre: v2 activa en producción desde el 26 de septiembre de 2026, con prueba de humo 14/14 ([DEPLOYMENT.md](DEPLOYMENT.md#activación-de-v2-en-producción-26-de-septiembre-de-2026)); v1 queda como vuelta atrás.
 
 ## 4. Ejecución y verificación (25 de septiembre de 2026)
 
