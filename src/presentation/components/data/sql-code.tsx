@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
+import { formatSql } from '@/application/sql-format';
 
 /**
  * Resaltado visual de SQL, compartido por Estudio, Exposición, Recursos y el Challenge.
@@ -95,20 +96,47 @@ export function highlightSql(code: string): ReactNode[] {
   return output;
 }
 
+/**
+ * Una línea por elemento: si una línea larga se parte, la continuación queda sangrada
+ * (sangría francesa) y se lee como parte de la misma cláusula, sin barra horizontal.
+ */
+export function SqlLines({ sql }: { readonly sql: string }) {
+  return (
+    <>
+      {sql.split('\n').map((line, index) => (
+        <span className="sql-line" key={index}>
+          {line.length > 0 ? highlightSql(line) : '\u00a0'}
+        </span>
+      ))}
+    </>
+  );
+}
+
 export interface SqlCodeProps {
   readonly sql: string;
   /** Rótulo visible encima del código («Consulta», «Con error»…). */
   readonly label?: string;
   readonly tone?: 'default' | 'error' | 'success';
   readonly size?: 'regular' | 'large';
+  /** Reformatea la consulta (una cláusula por línea) sin cambiar su significado. */
+  readonly format?: boolean;
 }
 
-export function SqlCode({ sql, label, tone = 'default', size = 'regular' }: SqlCodeProps) {
+export function SqlCode({
+  sql,
+  label,
+  tone = 'default',
+  size = 'regular',
+  format = false,
+}: SqlCodeProps) {
+  const text = format ? formatSql(sql) : sql;
   return (
     <figure className={`sql-code sql-code--${tone} sql-code--${size}`}>
       {label && <figcaption className="sql-code__label">{label}</figcaption>}
-      <pre className="sql-code__pre" tabIndex={0} aria-label={label ?? 'Consulta SQL'}>
-        <code>{highlightSql(sql)}</code>
+      <pre className="sql-code__pre" aria-label={label ?? 'Consulta SQL'}>
+        <code>
+          <SqlLines sql={text} />
+        </code>
       </pre>
     </figure>
   );

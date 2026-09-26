@@ -1,6 +1,7 @@
 import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
 import { analyzeSql } from '@/domain/sql/analyzer';
 import { runEducational } from '@/domain/sql/educational-run';
+import { PUBLIC_MISSIONS } from '../domain/missions/public-catalog';
 import { GAME_SPEC_SCORING_POLICY } from '../domain/scoring';
 
 /**
@@ -86,3 +87,10 @@ export function checkSql(sql: string): {
     })),
   };
 }
+
+/** Recorrido público de las diez misiones (identificador, título y dificultad), sin rúbricas. */
+export const MISSION_OVERVIEW: readonly {
+  readonly id: string;
+  readonly title: string;
+  readonly difficulty: 'facil' | 'media' | 'dificil';
+}[] = PUBLIC_MISSIONS.map(({ id, title, difficulty }) => ({ id, title, difficulty }));

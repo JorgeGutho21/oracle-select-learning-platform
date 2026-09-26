@@ -1,8 +1,21 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { clampScene, SCENE_TOTAL, SCENES, type SceneMemory } from '../application/presentation-api';
+import {
+  clampScene,
+  DECK_CHANNEL,
+  isDeckMessage,
+  SCENE_BLOCKS,
+  SCENE_TOTAL,
+  sceneBlock,
+  SCENES,
+  scenesOfBlock,
+  type DeckMessage,
+  type SceneMemory,
+} from '../application/presentation-api';
 import { renderScene } from './presentation-scenes';
+import { SceneStepContext } from './scene-kit';
+import { Dialog } from '@/presentation/components/ui/dialog';
 import { useHydrated } from '@/presentation/hooks/use-hydrated';
 
 interface PresentationDeckProps {
@@ -12,6 +25,8 @@ interface PresentationDeckProps {
 }
 
 const noSubscription = () => () => {};
+/** Tras este tiempo sin actividad, la pantalla completa atenúa los controles. */
+const IDLE_MS = 3000;
 
 /** Las teclas de la exposición no actúan mientras se escribe, se usa un control o hay un diálogo. */
 function isTypingTarget(target: EventTarget | null): boolean {
@@ -27,16 +42,22 @@ function isActivatable(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest('button, a, summary'));
 }
 
-function sceneTitle(scene: number): string {
-  return SCENES[scene - 1]?.title ?? '';
+function outlineOf(scene: number) {
+  return SCENES[scene - 1]!;
 }
 
 export function PresentationDeck({ requestedScene, memory }: PresentationDeckProps) {
   const [scene, setScene] = useState(() => clampScene(requestedScene ?? 1));
+  const [step, setStep] = useState(Number.POSITIVE_INFINITY);
+  const [stepMode, setStepMode] = useState(false);
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [navigatorOpen, setNavigatorOpen] = useState(false);
   const [resumeHandled, setResumeHandled] = useState(requestedScene !== null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [idle, setIdle] = useState(false);
   const [fullscreenNotice, setFullscreenNotice] = useState('');
   const deckRef = useRef<HTMLDivElement>(null);
+  const channelRef = useRef<BroadcastChannel | null>(null);
   const hydrated = useHydrated();
   const stored = useSyncExternalStore(
     noSubscription,
@@ -44,15 +65,19 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
     () => null,
   );
   const resumeScene = !resumeHandled && stored !== null && stored > 1 ? stored : null;
+  const outline = outlineOf(scene);
+  const steps = outline.steps;
+  const visibleStep = stepMode ? Math.min(step, steps) : Number.POSITIVE_INFINITY;
 
   useEffect(() => {
     if (requestedScene !== null) memory.save(clampScene(requestedScene));
   }, [memory, requestedScene]);
 
   const goTo = useCallback(
-    (target: number) => {
+    (target: number, targetStep: 'first' | 'last' = 'first') => {
       const next = clampScene(target);
       setResumeHandled(true);
+      setStep(targetStep === 'first' ? 1 : Number.POSITIVE_INFINITY);
       if (next === scene) return;
       // Sin entradas nuevas en el historial: «Atrás» sale de la exposición.
       window.history.replaceState(null, '', `/presentation?scene=${next}`);
@@ -61,6 +86,16 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
     },
     [memory, scene],
   );
+
+  const forward = useCallback(() => {
+    if (stepMode && visibleStep < steps) setStep(visibleStep + 1);
+    else if (scene < SCENE_TOTAL) goTo(scene + 1, 'first');
+  }, [goTo, scene, stepMode, steps, visibleStep]);
+
+  const backward = useCallback(() => {
+    if (stepMode && visibleStep > 1 && steps > 1) setStep(visibleStep - 1);
+    else if (scene > 1) goTo(scene - 1, 'last');
+  }, [goTo, scene, stepMode, steps, visibleStep]);
 
   const toggleFullscreen = useCallback(async () => {
     setFullscreenNotice('');
@@ -81,32 +116,89 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
     return () => document.removeEventListener('fullscreenchange', handleChange);
   }, []);
 
+  // En pantalla completa, los controles se atenúan sin actividad y vuelven con el puntero,
+  // un toque o el teclado.
+  useEffect(() => {
+    if (!isFullscreen) return;
+    let timer = window.setTimeout(() => setIdle(true), IDLE_MS);
+    const wake = () => {
+      setIdle(false);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setIdle(true), IDLE_MS);
+    };
+    const events = ['mousemove', 'pointerdown', 'touchstart', 'keydown', 'focusin'] as const;
+    events.forEach((name) => window.addEventListener(name, wake, { passive: true }));
+    return () => {
+      window.clearTimeout(timer);
+      events.forEach((name) => window.removeEventListener(name, wake));
+    };
+  }, [isFullscreen]);
+
+  // Vista del presentador en otra ventana: recibe el estado y puede mover la exposición.
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return;
+    const channel = new BroadcastChannel(DECK_CHANNEL);
+    channelRef.current = channel;
+    return () => {
+      channel.close();
+      channelRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const channel = channelRef.current;
+    if (!channel) return;
+    const post = () =>
+      channel.postMessage({
+        type: 'state',
+        scene,
+        step: Number.isFinite(visibleStep) ? visibleStep : steps,
+      } satisfies DeckMessage);
+    post();
+    const handle = (event: MessageEvent) => {
+      if (!isDeckMessage(event.data)) return;
+      if (event.data.type === 'request-state') post();
+      if (event.data.type === 'goto') {
+        const target = clampScene(event.data.scene);
+        if (target !== scene) goTo(target, 'first');
+        if (stepMode) setStep(Math.max(1, event.data.step));
+      }
+    };
+    channel.addEventListener('message', handle);
+    return () => channel.removeEventListener('message', handle);
+  }, [goTo, scene, stepMode, steps, visibleStep]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) return;
       if (isTypingTarget(event.target)) return;
       const key = event.key;
-      let target: number | null = null;
-      if (key === 'ArrowRight' || key === 'PageDown') target = scene + 1;
-      else if (key === 'ArrowLeft' || key === 'PageUp') target = scene - 1;
-      else if (key === 'Home') target = 1;
-      else if (key === 'End') target = SCENE_TOTAL;
+      let handled = true;
+      if (key === 'ArrowRight' || key === 'PageDown') forward();
+      else if (key === 'ArrowLeft' || key === 'PageUp') backward();
+      else if (key === 'Home') goTo(1);
+      else if (key === 'End') goTo(SCENE_TOTAL);
       else if (key === ' ' && !isActivatable(event.target)) {
-        target = event.shiftKey ? scene - 1 : scene + 1;
-      } else if (key === 'f' || key === 'F') {
-        event.preventDefault();
-        void toggleFullscreen();
-        return;
-      }
-      if (target === null) return;
-      event.preventDefault();
-      goTo(target);
+        if (event.shiftKey) backward();
+        else forward();
+      } else if (key === 'f' || key === 'F') void toggleFullscreen();
+      else if ((key === 'n' || key === 'N') && !isFullscreen) setNotesOpen((open) => !open);
+      else handled = false;
+      if (handled) event.preventDefault();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [goTo, scene, toggleFullscreen]);
+  }, [backward, forward, goTo, isFullscreen, toggleFullscreen]);
 
-  const percent = Math.round((scene / SCENE_TOTAL) * 100);
+  // Al abrir el navegador, el foco va a la escena actual.
+  useEffect(() => {
+    if (!navigatorOpen) return;
+    document.querySelector<HTMLButtonElement>('.deck-navigator [aria-current="true"]')?.focus();
+  }, [navigatorOpen]);
+
+  const block = sceneBlock(outline);
+  const notes = outline.notes;
+  const showNotes = notesOpen && !isFullscreen;
 
   return (
     <div
@@ -114,17 +206,21 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
       ref={deckRef}
       data-ready={hydrated}
       data-fullscreen={isFullscreen || undefined}
+      data-idle={(isFullscreen && idle) || undefined}
+      data-notes={showNotes || undefined}
     >
       <div className="deck__viewport">
         <div className="deck__stage" key={scene}>
-          {renderScene(scene)}
+          <SceneStepContext.Provider value={{ step: visibleStep }}>
+            {renderScene(scene)}
+          </SceneStepContext.Provider>
         </div>
         {resumeScene !== null && (
           <div className="deck-resume" role="region" aria-label="Reanudar la exposición">
             <p>
               Última escena proyectada en este navegador:{' '}
               <strong>
-                {resumeScene} · {sceneTitle(resumeScene)}
+                {resumeScene} · {outlineOf(resumeScene).title}
               </strong>
             </p>
             <div>
@@ -142,75 +238,159 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
           </div>
         )}
       </div>
+
+      {showNotes && (
+        <aside className="deck-notes" aria-labelledby="deck-notes-title">
+          <h2 id="deck-notes-title" className="deck-notes__title">
+            Notas del expositor · escena {scene}
+          </h2>
+          <p className="deck-notes__private">No se proyectan en pantalla completa.</p>
+          <dl className="deck-notes__list">
+            <div>
+              <dt>Qué explicar</dt>
+              <dd>{notes.explain}</dd>
+            </div>
+            {notes.mistake && (
+              <div>
+                <dt>Error frecuente</dt>
+                <dd>{notes.mistake}</dd>
+              </div>
+            )}
+            {notes.question && (
+              <div>
+                <dt>Pregunta para la clase</dt>
+                <dd>{notes.question}</dd>
+              </div>
+            )}
+            {notes.transition && (
+              <div>
+                <dt>Transición</dt>
+                <dd>{notes.transition}</dd>
+              </div>
+            )}
+          </dl>
+          <a
+            className="deck-notes__presenter"
+            href={`/presentation/presentador?scene=${scene}`}
+            target="_blank"
+            rel="noopener"
+          >
+            Abrir la vista del presentador <span aria-hidden="true">↗</span>
+          </a>
+        </aside>
+      )}
+
       <div className="deck-controls" role="group" aria-label="Controles de la exposición">
+        <ol className="deck-progress" aria-hidden="true">
+          {SCENE_BLOCKS.map((entry) => {
+            const members = scenesOfBlock(entry.id);
+            const done = members.filter((member) => member.number <= scene).length;
+            return (
+              <li key={entry.id} style={{ flexGrow: members.length }}>
+                <span style={{ width: `${(done / members.length) * 100}%` }} />
+              </li>
+            );
+          })}
+        </ol>
         <div
-          className="deck-progress"
+          className="visually-hidden"
           role="progressbar"
           aria-label="Avance de la exposición"
           aria-valuemin={1}
           aria-valuemax={SCENE_TOTAL}
           aria-valuenow={scene}
           aria-valuetext={`Escena ${scene} de ${SCENE_TOTAL}`}
-        >
-          <span style={{ width: `${percent}%` }} />
-        </div>
+        />
         <button
           type="button"
           className="deck-button"
-          onClick={() => goTo(scene - 1)}
-          disabled={!hydrated || scene === 1}
-          aria-label="Escena anterior"
+          onClick={backward}
+          disabled={!hydrated || (scene === 1 && !(stepMode && visibleStep > 1))}
+          aria-label={stepMode && visibleStep > 1 ? 'Paso anterior' : 'Escena anterior'}
           aria-keyshortcuts="ArrowLeft PageUp"
         >
           <span aria-hidden="true">←</span>
           <span className="deck-button__label">Anterior</span>
         </button>
-        <div className="deck-controls__center">
-          <span className="deck-counter" aria-hidden="true">
+        <p className="deck-status" aria-hidden="true">
+          <span className="deck-status__block">{block.title}</span>
+          <span className="deck-status__counter">
             <strong>{String(scene).padStart(2, '0')}</strong> / {SCENE_TOTAL}
           </span>
-          <label className="visually-hidden" htmlFor="deck-scene-select">
-            Ir a la escena
-          </label>
-          <select
-            id="deck-scene-select"
-            className="deck-select"
-            value={scene}
+          <span className="deck-status__title">{outline.shortTitle}</span>
+          {stepMode && steps > 1 && (
+            <span className="deck-status__step">
+              Paso {Math.min(visibleStep, steps)} de {steps}
+            </span>
+          )}
+        </p>
+        <div className="deck-controls__tools">
+          <button
+            type="button"
+            className="deck-button deck-button--ghost"
+            onClick={() => setNavigatorOpen(true)}
             disabled={!hydrated}
-            onChange={(event) => goTo(Number(event.target.value))}
+            aria-haspopup="dialog"
           >
-            {SCENES.map(({ number, title }) => (
-              <option key={number} value={number}>
-                {number} · {title}
-              </option>
-            ))}
-          </select>
+            <span aria-hidden="true">☰</span>
+            <span className="deck-button__label">Escenas</span>
+          </button>
+          <button
+            type="button"
+            className="deck-button deck-button--ghost deck-button--optional"
+            onClick={() => {
+              setStepMode((mode) => !mode);
+              setStep(1);
+            }}
+            disabled={!hydrated}
+            aria-pressed={stepMode}
+            title="Revela el contenido de algunas escenas en varios pasos"
+          >
+            <span aria-hidden="true">▸</span>
+            <span className="deck-button__label">Paso a paso</span>
+          </button>
+          {!isFullscreen && (
+            <button
+              type="button"
+              className="deck-button deck-button--ghost deck-button--optional"
+              onClick={() => setNotesOpen((open) => !open)}
+              disabled={!hydrated}
+              aria-pressed={notesOpen}
+              aria-keyshortcuts="N"
+            >
+              <span aria-hidden="true">✎</span>
+              <span className="deck-button__label">Notas</span>
+            </button>
+          )}
+          <button
+            type="button"
+            className="deck-button deck-button--ghost deck-button--compact"
+            onClick={() => void toggleFullscreen()}
+            disabled={!hydrated}
+            aria-pressed={isFullscreen}
+            aria-label={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
+            aria-keyshortcuts="F"
+          >
+            <span aria-hidden="true">{isFullscreen ? '⤡' : '⤢'}</span>
+            <span className="deck-button__label">
+              {isFullscreen ? 'Salir' : 'Pantalla completa'}
+            </span>
+          </button>
         </div>
         <button
           type="button"
-          className="deck-button deck-button--ghost"
-          onClick={() => void toggleFullscreen()}
-          disabled={!hydrated}
-          aria-pressed={isFullscreen}
-          aria-label="Pantalla completa"
-          aria-keyshortcuts="F"
-        >
-          <span aria-hidden="true">{isFullscreen ? '⤡' : '⤢'}</span>
-          <span className="deck-button__label">Pantalla completa</span>
-        </button>
-        <button
-          type="button"
           className="deck-button deck-button--primary"
-          onClick={() => goTo(scene + 1)}
-          disabled={!hydrated || scene === SCENE_TOTAL}
-          aria-label="Escena siguiente"
+          onClick={forward}
+          disabled={!hydrated || (scene === SCENE_TOTAL && !(stepMode && visibleStep < steps))}
+          aria-label={stepMode && visibleStep < steps ? 'Paso siguiente' : 'Escena siguiente'}
           aria-keyshortcuts="ArrowRight PageDown Space"
         >
           <span className="deck-button__label">Siguiente</span>
           <span aria-hidden="true">→</span>
         </button>
         <p className="visually-hidden" role="status">
-          Escena {scene} de {SCENE_TOTAL}: {sceneTitle(scene)}
+          Escena {scene} de {SCENE_TOTAL}: {outline.title}
+          {stepMode && steps > 1 ? `, paso ${Math.min(visibleStep, steps)} de ${steps}` : ''}
         </p>
         {fullscreenNotice && (
           <p className="deck-notice" role="status">
@@ -218,11 +398,47 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
           </p>
         )}
       </div>
-      <p className="deck-help">
-        <kbd>←</kbd> <kbd>→</kbd> o <kbd>Av Pág</kbd> cambian de escena · <kbd>Inicio</kbd>{' '}
-        <kbd>Fin</kbd> van al principio o al final · <kbd>F</kbd> pantalla completa · <kbd>Esc</kbd>{' '}
-        sale sin perder la escena
-      </p>
+
+      <Dialog
+        open={navigatorOpen}
+        onClose={() => setNavigatorOpen(false)}
+        title="Escenas"
+        description={`${SCENE_TOTAL} escenas en ${SCENE_BLOCKS.length} bloques.`}
+        className="deck-navigator"
+      >
+        <nav aria-label="Escenas de la exposición">
+          {SCENE_BLOCKS.map((entry) => (
+            <section key={entry.id} className="deck-navigator__block">
+              <h3 className="deck-navigator__block-title">{entry.title}</h3>
+              <ol>
+                {scenesOfBlock(entry.id).map((member) => (
+                  <li key={member.number}>
+                    <button
+                      type="button"
+                      className="deck-navigator__scene"
+                      aria-current={member.number === scene ? 'true' : undefined}
+                      onClick={() => {
+                        setNavigatorOpen(false);
+                        goTo(member.number);
+                      }}
+                    >
+                      <span className="deck-navigator__number">
+                        {String(member.number).padStart(2, '0')}
+                      </span>
+                      <span>{member.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
+        </nav>
+        <p className="deck-navigator__help">
+          <kbd>←</kbd> <kbd>→</kbd> o <kbd>Av Pág</kbd> cambian de escena · <kbd>Inicio</kbd>{' '}
+          <kbd>Fin</kbd> van al principio o al final · <kbd>F</kbd> pantalla completa · <kbd>N</kbd>{' '}
+          notas · <kbd>Esc</kbd> cierra este panel
+        </p>
+      </Dialog>
     </div>
   );
 }

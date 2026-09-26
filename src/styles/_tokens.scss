@@ -22,6 +22,15 @@ $colors: (
   code-string: #a8e6b8,
   code-number: #ffd08a,
   code-comment: #a2b1cb,
+  // Alias semánticos del sistema de diseño final (misma paleta, nombres de marca).
+  brand-navy: #0b1733,
+  brand-blue: #1746b8,
+  surface-alt: #f0f4fb,
+  success-soft: #e6f3ec,
+  warning-soft: #fbf1df,
+  danger-soft: #fbe9eb,
+  null-bg: #eef2f8,
+  null-border: #8e9bb3,
 );
 $spacing: (
   1: 4px,
@@ -37,9 +46,17 @@ $radii: (
   control: 10px,
   card: 20px,
   section: 28px,
+  sm: 6px,
+  md: 10px,
+  lg: 14px,
+  xl: 20px,
+  pill: 999px,
 );
 $shadows: (
   elevated: 0 8px 24px rgb(11 23 51 / 10%),
+  xs: 0 1px 2px rgb(11 23 51 / 6%),
+  sm: 0 2px 8px rgb(11 23 51 / 8%),
+  md: 0 12px 32px rgb(11 23 51 / 12%),
 );
 $transitions: (
   feedback: 150ms,
@@ -78,6 +95,16 @@ $typography: (
   line-body: 1.65,
   line-heading: 1.12,
 );
+// Escala tipográfica fluida. Nunca baja de lo legible: el mínimo de texto secundario es
+// 13 px y el de datos, 14 px (FINAL_UX_PEDAGOGICAL_AUDIT, G3).
+$type-scale: (
+  display: clamp(2.4rem, 4vw + 1rem, 4.5rem),
+  slide-title: clamp(2rem, 3vw + 0.5rem, 3.4rem),
+  section-title: clamp(1.5rem, 1.6vw + 0.8rem, 2.2rem),
+  body: clamp(1rem, 0.4vw + 0.9rem, 1.2rem),
+  code: clamp(0.95rem, 0.4vw + 0.85rem, 1.15rem),
+  small: max(0.8125rem, 13px),
+);
 
 @function color($name) {
   @return map.get($colors, $name);
@@ -99,6 +126,8 @@ $typography: (
     @include properties('z', $layers);
     @include properties('container', $containers);
     @include properties('text', $typography);
+    @include properties('type', $type-scale);
+    --focus-ring: 0 0 0 3px var(--color-surface), 0 0 0 6px var(--color-focus);
     --font-sans: #{$font-sans};
     --font-mono: #{$font-mono};
     --ease-standard: cubic-bezier(0.2, 0, 0, 1);

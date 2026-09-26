@@ -22,17 +22,24 @@ export function flowSummary(table: FlowTable): string {
 export function FlowTableView({
   table,
   caption,
+  label,
   size = 'regular',
   summary,
+  columnRoles,
 }: {
   readonly table: FlowTable;
   readonly caption: string;
+  /** Rótulo visible: «Tabla original», «Resultado»… */
+  readonly label?: string;
   readonly size?: 'regular' | 'large';
   readonly summary?: string;
+  readonly columnRoles?: ExplainedQuery['columnRoles'];
 }) {
   return (
     <HighlightTable
       caption={caption}
+      {...(label ? { label } : {})}
+      {...(columnRoles ? { columnRoles } : {})}
       size={size}
       columns={table.columns}
       rows={table.rows}
@@ -42,6 +49,8 @@ export function FlowTableView({
       {...(table.cellMarks ? { cellMarks: table.cellMarks } : {})}
       {...(table.duplicateRows ? { duplicateRows: table.duplicateRows } : {})}
       {...(table.sortedBy ? { sortedBy: table.sortedBy } : {})}
+      // Con más de 8 columnas (SELECT *), resumen por registro y el resto plegado.
+      detail={table.columns.length > 8 ? 'summary' : 'full'}
       summary={summary ?? flowSummary(table)}
     />
   );
@@ -78,26 +87,10 @@ export function QueryFlow({
   return (
     <div className="query-flow" id={id}>
       <ol className="query-flow__stages">
-        <li className="query-flow__stage query-flow__stage--source">
-          <Heading className="query-flow__title">
-            <span className="query-flow__number" aria-hidden="true">
-              1
-            </span>
-            Tabla original
-          </Heading>
-          <FlowTableView table={explained.source} caption="Tabla EMPLEADOS de origen" />
-          {explained.source.rowStates && (
-            <p className="query-flow__legend">
-              <span aria-hidden="true">✓</span> cumple la condición ·{' '}
-              <span aria-hidden="true">✗</span> se descarta · <span aria-hidden="true">?</span>{' '}
-              desconocido por NULL
-            </p>
-          )}
-        </li>
         <li className="query-flow__stage query-flow__stage--query">
           <Heading className="query-flow__title">
             <span className="query-flow__number" aria-hidden="true">
-              2
+              1
             </span>
             Consulta SQL
           </Heading>
@@ -116,7 +109,7 @@ export function QueryFlow({
         <li className="query-flow__stage query-flow__stage--steps">
           <Heading className="query-flow__title">
             <span className="query-flow__number" aria-hidden="true">
-              3
+              2
             </span>
             Qué hace
           </Heading>
@@ -127,7 +120,30 @@ export function QueryFlow({
             ))}
           </ol>
         </li>
-        <li className="query-flow__stage query-flow__stage--result">
+        <li className="query-flow__stage query-flow__stage--source">
+          <Heading className="query-flow__title">
+            <span className="query-flow__number" aria-hidden="true">
+              3
+            </span>
+            Tabla original
+          </Heading>
+          <FlowTableView
+            table={explained.source}
+            caption="Tabla EMPLEADOS de origen"
+            columnRoles={explained.columnRoles}
+          />
+          {explained.source.rowStates && (
+            <p className="query-flow__legend">
+              <span aria-hidden="true">✓</span> cumple la condición ·{' '}
+              <span aria-hidden="true">✗</span> se descarta · <span aria-hidden="true">?</span>{' '}
+              desconocido por NULL
+            </p>
+          )}
+        </li>
+        <li
+          className="query-flow__stage query-flow__stage--result"
+          id={id ? `${id}-resultado` : 'resultado'}
+        >
           <Heading className="query-flow__title">
             <span className="query-flow__number" aria-hidden="true">
               4
@@ -140,11 +156,16 @@ export function QueryFlow({
               <FlowTableView
                 table={explained.beforeDistinct}
                 caption="Resultado antes de quitar repetidas"
+                label="Antes"
               />
             </div>
           )}
           {explained.result ? (
-            <FlowTableView table={explained.result} caption="Resultado de la consulta" />
+            <FlowTableView
+              table={explained.result}
+              caption="Resultado de la consulta"
+              label={explained.beforeDistinct ? 'Después' : 'Resultado esperado'}
+            />
           ) : (
             <p className="query-flow__empty">
               La consulta no produce resultado: revisa el diagnóstico en el laboratorio.

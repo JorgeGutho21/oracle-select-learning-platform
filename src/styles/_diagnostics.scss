@@ -40,14 +40,15 @@
   font-weight: 800;
   letter-spacing: 0.06em;
 }
-.lab-diagnostic__position {
+.lab-diagnostic__kind {
+  flex: 1 1 16rem;
   color: var(--color-muted);
-  font-family: var(--font-mono);
   font-size: 0.875rem;
 }
 .lab-diagnostic__message {
   margin: 0;
-  font-weight: 650;
+  font-size: 1.0625rem;
+  font-weight: 700;
 }
 .lab-diagnostic__details {
   display: grid;
@@ -56,7 +57,7 @@
 }
 .lab-diagnostic__details div {
   display: grid;
-  grid-template-columns: 11rem minmax(0, 1fr);
+  grid-template-columns: 7rem minmax(0, 1fr);
   gap: var(--space-2);
   align-items: baseline;
 }
@@ -78,11 +79,6 @@
   background: var(--color-page);
   border-radius: 6px;
 }
-.lab-diagnostic__help {
-  margin: 0;
-  color: var(--color-muted);
-  font-size: 0.875rem;
-}
 .lab-diagnostic__example summary {
   min-block-size: 40px;
   color: var(--color-primary);
@@ -93,6 +89,14 @@
   display: grid;
   gap: var(--space-2);
   justify-items: start;
+}
+.lab-diagnostic__fix-label {
+  margin: 0;
+  color: var(--color-success);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 .lab-diagnostic__fix {
   display: inline-block;

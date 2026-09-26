@@ -198,8 +198,13 @@ export interface FlowTable {
   readonly sortedBy?: readonly { readonly column: number; readonly direction: 'ASC' | 'DESC' }[];
 }
 
+/** Papel de una columna en la consulta, para enlazar cada cláusula con sus datos. */
+export type FlowColumnRole = 'select' | 'where' | 'order';
+
 export interface ExplainedQuery {
   readonly sql: string;
+  /** Columnas (de la tabla y del resultado) que usa SELECT, WHERE u ORDER BY. */
+  readonly columnRoles: Readonly<Record<string, readonly FlowColumnRole[]>>;
   readonly ok: boolean;
   readonly source: FlowTable;
   /** Resultado antes de DISTINCT, con las repetidas marcadas; solo si hay DISTINCT. */
@@ -377,8 +382,28 @@ export function explainQuery(sql: string, options: ExplainOptions = {}): Explain
       }
     : null;
 
+  const columnRoles: Record<string, FlowColumnRole[]> = {};
+  const addRole = (name: string, role: FlowColumnRole) => {
+    const roles = (columnRoles[name] ??= []);
+    if (!roles.includes(role)) roles.push(role);
+  };
+  if (statement) {
+    sourceColumns(statement).forEach((name) => addRole(name, 'select'));
+    conditionColumns(statement).forEach((name) => addRole(name, 'where'));
+    for (const item of statement.orderBy?.items ?? []) {
+      const bare = unwrap(item.expression);
+      if (bare.kind === 'column') addRole(bare.name, 'order');
+    }
+  }
+  result?.columns.forEach((column) => addRole(column.name, 'select'));
+  result?.sortedBy?.forEach(({ column }) => {
+    const name = result.columns[column]?.name;
+    if (name) addRole(name, 'order');
+  });
+
   return {
     sql,
+    columnRoles,
     ok: analysis.status === 'valid',
     source,
     beforeDistinct,

@@ -11,6 +11,7 @@ import type {
   LessonContent,
   MiniCheck,
 } from '../domain/lesson-content';
+import { SQL_CONCEPTS, type SqlConcept } from '@/domain/concepts/sql-concepts';
 import { blockOf, type LessonOutline, type StudyBlock } from '../domain/lesson-outline';
 import { LESSON_INDEX } from './lesson-index';
 
@@ -58,6 +59,16 @@ export const LESSONS: readonly StudyLesson[] = LESSON_INDEX.map((entry) => {
   if (!content) throw new Error(`Falta el contenido de la lección ${entry.slug}.`);
   return { ...entry, content, blockInfo: blockOf(entry.block) };
 });
+
+/** Conceptos de la lección (el primero la define), tomados de la fuente conceptual única. */
+export function lessonConcepts(lesson: LessonOutline): readonly SqlConcept[] {
+  return lesson.concept ? lesson.concept.concepts.map((id) => SQL_CONCEPTS[id]) : [];
+}
+
+/** «En una frase»: la definición canónica del concepto o, sin concepto, la de la lección. */
+export function lessonDefinition(lesson: StudyLesson): string {
+  return lessonConcepts(lesson)[0]?.definition ?? lesson.content.oneLiner ?? lesson.summary;
+}
 
 export function getLesson(slug: string): StudyLesson | undefined {
   return LESSONS.find((lesson) => lesson.slug === slug);

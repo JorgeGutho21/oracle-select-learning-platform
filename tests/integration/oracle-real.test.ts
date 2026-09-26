@@ -158,7 +158,8 @@ function sceneQueries(): (readonly [string, string])[] {
   return (
     [...new Set(literals)]
       // Las consultas completas; «SELECT … FROM» es un patrón de sintaxis, no una consulta.
-      .filter((sql) => /\bFROM\b/i.test(sql) && !sql.includes('…'))
+      // Descarta rótulos de la ruta («SELECT · FROM · *…»), que no son consultas.
+      .filter((sql) => /\bFROM\b/i.test(sql) && !sql.includes('…') && !sql.includes(' · '))
       .map((sql, index) => [`escena ${index + 1}`, sql] as const)
   );
 }

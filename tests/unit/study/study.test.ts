@@ -4,6 +4,7 @@ import {
   checkView,
   LESSON_VERSIONS,
   LESSONS,
+  lessonDefinition,
   lessonLabHref,
   lessonNeighbors,
   lessonView,
@@ -102,8 +103,12 @@ describe('contenido del Modo Estudio', () => {
   it('cada lección tiene las doce partes de la plantilla', () => {
     for (const lesson of LESSONS) {
       const { content } = lesson;
-      expect(content.oneLiner.length, lesson.slug).toBeGreaterThan(20);
-      expect(content.oneLiner.length, lesson.slug).toBeLessThan(140);
+      // «En una frase»: la definición canónica (o, sin concepto propio, la de la lección).
+      const definition = lessonDefinition(lesson);
+      expect(definition.length, lesson.slug).toBeGreaterThan(20);
+      expect(definition.length, lesson.slug).toBeLessThan(140);
+      // Las lecciones con concepto no escriben otra definición: una sola fuente.
+      if (lesson.concept) expect(content.oneLiner, lesson.slug).toBeUndefined();
       expect(content.whatItDoes.length, lesson.slug).toBeGreaterThan(60);
       expect(content.purpose.length, lesson.slug).toBeGreaterThan(30);
       expect(content.syntax.length, lesson.slug).toBeGreaterThan(3);

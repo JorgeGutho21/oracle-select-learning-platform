@@ -153,9 +153,8 @@ export function LaboratoryWorkspace({
         <span className="eyebrow">Practicar</span>
         <h1>Laboratorio SQL</h1>
         <p className="readable muted">
-          Escribe consultas SELECT sobre la tabla EMPLEADOS, con WHERE, ORDER BY y sus operadores.
-          El diagnóstico señala dónde está cada problema y cómo corregirlo; la ejecución real se
-          hace en Oracle.
+          Escribe una consulta SELECT sobre EMPLEADOS y compárala con su resultado. El diagnóstico
+          explica qué ocurrió, dónde y por qué; la ejecución real se hace en Oracle.
         </p>
       </header>
 
@@ -177,15 +176,9 @@ export function LaboratoryWorkspace({
       )}
 
       <div className="lab-grid">
-        <SchemaPanel
-          highlighted={
-            analysis && !stale ? [...analysis.sourceColumns, ...analysis.conditionColumns] : []
-          }
-        />
-
         <Panel
           id="lab-editor"
-          number={2}
+          number={1}
           title="Editor SQL"
           aside={stale ? <Chip tone="warning">Sin analizar</Chip> : null}
         >
@@ -253,6 +246,13 @@ export function LaboratoryWorkspace({
           </div>
         </Panel>
 
+        <ResultPanel
+          analysis={analysis}
+          stale={stale}
+          oracleStatus={oracleStatus}
+          execution={execution}
+          executing={executing}
+        />
         <FeedbackPanel
           analysis={analysis}
           stale={stale}
@@ -261,15 +261,13 @@ export function LaboratoryWorkspace({
             setAnalysis(analyzeLabQuery(fixed));
           }}
         />
-        <ResultPanel
-          analysis={analysis}
-          stale={stale}
-          oracleStatus={oracleStatus}
-          execution={execution}
-          executing={executing}
-        />
         <TranslationPanel analysis={analysis} stale={stale} />
         <AnatomyPanel analysis={analysis} stale={stale} />
+        <SchemaPanel
+          highlighted={
+            analysis && !stale ? [...analysis.sourceColumns, ...analysis.conditionColumns] : []
+          }
+        />
       </div>
       <Dialog
         open={replacement !== null}

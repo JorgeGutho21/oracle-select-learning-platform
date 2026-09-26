@@ -72,8 +72,11 @@ export interface BuildStep {
 
 export interface LessonContent {
   readonly slug: string;
-  /** 1. En una frase. */
-  readonly oneLiner: string;
+  /**
+   * 1. En una frase, solo en las lecciones sin concepto propio (EMPLEADOS, la consulta
+   * completa, los errores). Las demás muestran la definición canónica de `sql-concepts`.
+   */
+  readonly oneLiner?: string;
   /** 2. ¿Qué hace? */
   readonly whatItDoes: string;
   /** 3. ¿Para qué sirve? */

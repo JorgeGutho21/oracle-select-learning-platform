@@ -16,7 +16,6 @@ ORDER BY salario DESC;`;
 export const LESSON_CONTENT_B: readonly LessonContent[] = [
   {
     slug: 'where',
-    oneLiner: 'WHERE decide qué filas quieres conservar.',
     whatItDoes:
       'WHERE va después de FROM y lleva una condición. Oracle la comprueba en cada fila: las que la cumplen pasan al resultado y las demás se descartan.',
     purpose:
@@ -63,8 +62,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'comparaciones',
-    oneLiner:
-      'Los operadores de comparación preguntan si un valor es igual, distinto, mayor o menor que otro.',
     whatItDoes:
       '= igual · <> y != distinto (Oracle también acepta ^=) · > mayor · >= mayor o igual · < menor · <= menor o igual. Los números se escriben sin comillas ni separadores; los textos, entre comillas simples y tal como están en la tabla.',
     purpose: "Filtrar por umbrales (salario > 5000000) o excluir un valor (ciudad <> 'Bogotá').",
@@ -143,7 +140,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'and-or',
-    oneLiner: 'AND exige que se cumplan todas las condiciones; OR, que se cumpla al menos una.',
     whatItDoes:
       'AND y OR unen condiciones completas. Con AND, una fila pasa solo si cumple las dos. Con OR, pasa si cumple una, la otra o ambas. NOT, delante de una condición, la invierte.',
     purpose:
@@ -195,7 +191,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'parentesis',
-    oneLiner: 'Oracle evalúa AND antes que OR; los paréntesis dejan clara la intención.',
     whatItDoes:
       'En una condición se aplica primero NOT, luego AND y al final OR, igual que la multiplicación va antes que la suma. Lo que está entre paréntesis se evalúa primero. NOT invierte la condición que le sigue.',
     purpose:
@@ -264,7 +259,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'between',
-    oneLiner: 'BETWEEN conserva los valores de un rango, con los dos límites incluidos.',
     whatItDoes:
       'columna BETWEEN a AND b equivale a columna >= a AND columna <= b. El primer límite es el menor. NOT BETWEEN deja los valores que quedan fuera del rango.',
     purpose:
@@ -319,7 +313,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'in',
-    oneLiner: 'IN comprueba si un valor está en una lista: es un atajo de varios OR.',
     whatItDoes:
       'columna IN (v1, v2, v3) equivale a columna = v1 OR columna = v2 OR columna = v3. La lista va entre paréntesis y separada por comas. NOT IN deja las filas cuyo valor no está en la lista.',
     purpose:
@@ -396,8 +389,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'like',
-    oneLiner:
-      'LIKE busca textos que siguen un patrón: % es cualquier cantidad de caracteres y _ exactamente uno.',
     whatItDoes:
       "El patrón es un texto entre comillas simples con comodines. 'A%' empieza por A; '%a' termina en a; '%ar%' contiene ar; '_o%' tiene una o en la segunda posición. LIKE distingue mayúsculas, minúsculas y tildes. NOT LIKE deja lo que no sigue el patrón.",
     purpose:
@@ -475,7 +466,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'null',
-    oneLiner: 'NULL significa que no hay valor; se pregunta por él con IS NULL.',
     whatItDoes:
       'NULL no es 0, ni un texto con espacios, ni la palabra «desconocido»: es la ausencia de valor. Cualquier comparación con NULL (=, <>, >…) da un resultado desconocido, que WHERE trata como no cumplido. Para preguntar si falta un valor se usa IS NULL, y para lo contrario, IS NOT NULL.',
     purpose:
@@ -561,7 +551,6 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
   },
   {
     slug: 'order-by',
-    oneLiner: 'ORDER BY ordena las filas del resultado.',
     whatItDoes:
       'Va al final de la consulta. ASC ordena de menor a mayor (A→Z, fechas antiguas primero) y es el valor por defecto; DESC ordena al revés. Con varias columnas, la segunda solo decide cuando la primera empata.',
     purpose:

@@ -5,6 +5,8 @@
  * propósito: el buscador lo incluye en el navegador.
  */
 
+import { SQL_CONCEPTS, type ConceptId } from '@/domain/concepts/sql-concepts';
+
 export type LessonId =
   | 'L00'
   | 'L01'
@@ -97,12 +99,14 @@ export const STUDY_BLOCKS: readonly StudyBlock[] = [
   },
 ];
 
-/** Ficha de la chuleta imprimible y del buscador («Conceptos»). */
+/**
+ * Ficha de la chuleta y del buscador («Conceptos»). Las definiciones, la sintaxis y los
+ * ejemplos no se escriben aquí: salen de la fuente conceptual única (`sql-concepts`).
+ */
 export interface ConceptCard {
   readonly title: string;
-  readonly meaning: string;
-  readonly pattern: string;
-  readonly example: string;
+  /** Conceptos de la ficha: el primero la define y los demás se explican dentro. */
+  readonly concepts: readonly [ConceptId, ...ConceptId[]];
   readonly keywords: readonly string[];
 }
 
@@ -114,14 +118,17 @@ export interface LessonOutline {
   readonly shortTitle: string;
   /** Sintaxis corta que identifica la lección en tarjetas y en la ruta. */
   readonly badge: string;
-  /** Una frase: qué se aprende. */
+  /** Una frase: qué se aprende. En las lecciones con concepto es su definición canónica. */
   readonly summary: string;
   /** Términos de búsqueda sin tildes. */
   readonly keywords: readonly string[];
   readonly concept: ConceptCard | null;
 }
 
-export const LESSON_OUTLINE: readonly LessonOutline[] = [
+/** Las lecciones con concepto no escriben su resumen: lo toman de la definición. */
+type LessonOutlineInput = Omit<LessonOutline, 'summary'> & { readonly summary?: string };
+
+const OUTLINE: readonly LessonOutlineInput[] = [
   {
     id: 'L00',
     slug: 'introduccion',
@@ -162,13 +169,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'SELECT: qué columnas mostrar',
     shortTitle: 'SELECT',
     badge: 'SELECT',
-    summary: 'SELECT indica qué columnas quieres ver en el resultado.',
     keywords: ['select', 'seleccionar', 'mostrar', 'consultar', 'columnas', 'proyeccion'],
     concept: {
       title: 'SELECT',
-      meaning: 'Elige qué columnas mostrar.',
-      pattern: 'SELECT columna FROM tabla;',
-      example: 'SELECT nombre FROM empleados;',
+      concepts: ['select'],
       keywords: ['select', 'seleccionar', 'mostrar columnas'],
     },
   },
@@ -179,13 +183,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'FROM: de qué tabla salen los datos',
     shortTitle: 'FROM',
     badge: 'FROM',
-    summary: 'FROM indica la tabla de la que salen las filas.',
     keywords: ['from', 'tabla', 'origen', 'de donde'],
     concept: {
       title: 'FROM',
-      meaning: 'Indica la tabla de origen.',
-      pattern: 'SELECT … FROM tabla;',
-      example: 'SELECT cargo FROM empleados;',
+      concepts: ['from'],
       keywords: ['from', 'tabla de origen'],
     },
   },
@@ -196,13 +197,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'SELECT *: todas las columnas',
     shortTitle: 'SELECT *',
     badge: '*',
-    summary: 'El asterisco pide todas las columnas de la tabla, en su orden.',
     keywords: ['asterisco', 'todas las columnas', 'select *', 'estrella', '*'],
     concept: {
       title: 'SELECT *',
-      meaning: 'Todas las columnas, en el orden de la tabla.',
-      pattern: 'SELECT * FROM tabla;',
-      example: 'SELECT * FROM empleados;',
+      concepts: ['star'],
       keywords: ['asterisco', '*', 'todas las columnas'],
     },
   },
@@ -213,13 +211,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Columnas específicas y comas',
     shortTitle: 'Columnas',
     badge: 'a, b',
-    summary: 'Pide solo las columnas que necesitas, separadas por comas y en el orden que quieras.',
     keywords: ['columnas', 'lista de columnas', 'coma', 'orden de columnas', 'especificas'],
     concept: {
       title: 'Lista de columnas',
-      meaning: 'Columnas separadas por comas, en el orden pedido.',
-      pattern: 'SELECT columna1, columna2 FROM tabla;',
-      example: 'SELECT nombre, ciudad FROM empleados;',
+      concepts: ['column-list'],
       keywords: ['coma', 'columnas', 'orden'],
     },
   },
@@ -230,13 +225,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Expresiones aritméticas',
     shortTitle: 'Expresiones',
     badge: '+ - * /',
-    summary: 'Calcula valores nuevos en cada fila con + - * /, sin cambiar la tabla.',
     keywords: ['expresiones', 'calculos', 'aritmetica', 'operadores', 'suma', 'multiplicar'],
     concept: {
       title: 'Expresiones',
-      meaning: 'Un cálculo por fila; la tabla no cambia.',
-      pattern: 'SELECT columna * número FROM tabla;',
-      example: 'SELECT nombre, salario * 12 FROM empleados;',
+      concepts: ['expression'],
       keywords: ['expresion', 'calculo', 'aritmetica'],
     },
   },
@@ -247,13 +239,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Precedencia y paréntesis',
     shortTitle: 'Precedencia',
     badge: '( )',
-    summary: '* y / se calculan antes que + y -; los paréntesis cambian ese orden.',
     keywords: ['precedencia', 'parentesis', 'orden de operaciones', 'prioridad'],
     concept: {
       title: 'Precedencia aritmética',
-      meaning: '* y / antes que + y -; los paréntesis mandan.',
-      pattern: '(a + b) * c',
-      example: 'SELECT (salario + bono) * 12 FROM empleados;',
+      concepts: ['arithmetic-precedence'],
       keywords: ['precedencia', 'parentesis'],
     },
   },
@@ -264,13 +253,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Alias de columna con AS',
     shortTitle: 'Alias con AS',
     badge: 'AS',
-    summary: 'AS le pone un nombre temporal y más claro a una columna del resultado.',
     keywords: ['alias', 'as', 'encabezado', 'renombrar', 'nombre de columna'],
     concept: {
       title: 'Alias con AS',
-      meaning: 'Cambia el encabezado del resultado, no la tabla.',
-      pattern: 'SELECT expresión AS alias FROM tabla;',
-      example: 'SELECT salario * 12 AS salario_anual FROM empleados;',
+      concepts: ['alias', 'as'],
       keywords: ['alias', 'as', 'encabezado'],
     },
   },
@@ -281,13 +267,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Textos fijos y concatenación con ||',
     shortTitle: 'Concatenación',
     badge: '||',
-    summary: 'Escribe textos entre comillas simples y únelos con ||.',
     keywords: ['concatenacion', 'concatenar', '||', 'literal', 'texto', 'unir textos', 'comillas'],
     concept: {
       title: 'Concatenación ||',
-      meaning: 'Une textos; los textos van entre comillas simples.',
-      pattern: "SELECT a || ' ' || b AS alias FROM tabla;",
-      example: "SELECT nombre || ' ' || apellido AS nombre_completo FROM empleados;",
+      concepts: ['concat'],
       keywords: ['||', 'concatenar', 'literal'],
     },
   },
@@ -298,13 +281,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'DISTINCT: sin filas repetidas',
     shortTitle: 'DISTINCT',
     badge: 'DISTINCT',
-    summary: 'DISTINCT quita del resultado las filas repetidas.',
     keywords: ['distinct', 'duplicados', 'repetidos', 'unicos', 'sin repetir'],
     concept: {
       title: 'DISTINCT',
-      meaning: 'Una sola vez cada fila repetida del resultado.',
-      pattern: 'SELECT DISTINCT columna FROM tabla;',
-      example: 'SELECT DISTINCT ciudad FROM empleados;',
+      concepts: ['distinct'],
       keywords: ['distinct', 'sin repetir'],
     },
   },
@@ -315,13 +295,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'WHERE: filtrar filas',
     shortTitle: 'WHERE',
     badge: 'WHERE',
-    summary: 'WHERE decide qué filas quieres conservar.',
     keywords: ['where', 'filtrar', 'filtro', 'condicion', 'filas', 'igual', '='],
     concept: {
       title: 'WHERE',
-      meaning: 'Conserva solo las filas que cumplen la condición.',
-      pattern: 'SELECT … FROM tabla WHERE condición;',
-      example: "SELECT nombre FROM empleados WHERE ciudad = 'Cali';",
+      concepts: ['where'],
       keywords: ['where', 'filtrar'],
     },
   },
@@ -332,7 +309,6 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Operadores de comparación',
     shortTitle: 'Comparaciones',
     badge: '= <> > <',
-    summary: 'Compara con =, <>, !=, >, >=, < y <=; los textos van entre comillas simples.',
     keywords: [
       'comparaciones',
       'operadores de comparacion',
@@ -347,9 +323,7 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     ],
     concept: {
       title: 'Comparaciones',
-      meaning: '= <> != > >= < <=; textos entre comillas simples.',
-      pattern: "columna > valor · columna = 'texto'",
-      example: 'SELECT nombre FROM empleados WHERE salario >= 5000000;',
+      concepts: ['comparison'],
       keywords: ['comparacion', 'mayor', 'menor', 'distinto'],
     },
   },
@@ -360,13 +334,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'AND y OR: combinar condiciones',
     shortTitle: 'AND y OR',
     badge: 'AND · OR',
-    summary: 'AND exige que se cumplan todas las condiciones; OR, al menos una.',
     keywords: ['and', 'or', 'y', 'o', 'combinar condiciones', 'logica', 'operadores logicos'],
     concept: {
       title: 'AND y OR',
-      meaning: 'AND: todas se cumplen. OR: al menos una.',
-      pattern: 'WHERE condición1 AND condición2',
-      example: "SELECT nombre FROM empleados WHERE ciudad = 'Cali' AND estado = 'ACTIVO';",
+      concepts: ['and', 'or', 'not'],
       keywords: ['and', 'or'],
     },
   },
@@ -377,14 +348,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'Precedencia lógica y paréntesis',
     shortTitle: 'Paréntesis',
     badge: '( OR ) AND',
-    summary: 'AND se evalúa antes que OR: los paréntesis dejan clara la intención. NOT invierte.',
     keywords: ['parentesis', 'precedencia logica', 'and antes que or', 'not', 'negacion'],
     concept: {
       title: 'Paréntesis en condiciones',
-      meaning: 'NOT, luego AND, luego OR; los paréntesis agrupan.',
-      pattern: 'WHERE (c1 OR c2) AND c3',
-      example:
-        "SELECT nombre FROM empleados WHERE (ciudad = 'Cali' OR ciudad = 'Bogotá') AND salario > 5000000;",
+      concepts: ['logical-precedence'],
       keywords: ['parentesis', 'precedencia', 'not'],
     },
   },
@@ -395,13 +362,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'BETWEEN: rangos',
     shortTitle: 'BETWEEN',
     badge: 'BETWEEN',
-    summary: 'BETWEEN a AND b conserva los valores del rango, con los dos límites incluidos.',
     keywords: ['between', 'rango', 'entre', 'intervalo', 'not between', 'limites'],
     concept: {
       title: 'BETWEEN',
-      meaning: 'Entre dos valores, límites incluidos (= >= AND <=).',
-      pattern: 'WHERE columna BETWEEN menor AND mayor',
-      example: 'SELECT nombre FROM empleados WHERE salario BETWEEN 3000000 AND 6000000;',
+      concepts: ['between'],
       keywords: ['between', 'rango'],
     },
   },
@@ -412,13 +376,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'IN: listas de valores',
     shortTitle: 'IN',
     badge: 'IN',
-    summary: 'IN compara con una lista de valores: es un atajo de varios OR.',
     keywords: ['in', 'lista', 'lista de valores', 'not in', 'varios valores'],
     concept: {
       title: 'IN',
-      meaning: 'Igual a alguno de la lista (atajo de OR).',
-      pattern: "WHERE columna IN ('a', 'b')",
-      example: "SELECT nombre FROM empleados WHERE ciudad IN ('Bogotá', 'Cali');",
+      concepts: ['in'],
       keywords: ['in', 'lista'],
     },
   },
@@ -429,13 +390,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'LIKE: patrones de texto',
     shortTitle: 'LIKE',
     badge: 'LIKE',
-    summary: 'LIKE busca textos con un patrón: % es cualquier cantidad de caracteres y _ uno solo.',
     keywords: ['like', 'patron', 'comodin', '%', '_', 'empieza por', 'contiene', 'not like'],
     concept: {
       title: 'LIKE',
-      meaning: '% cualquier cantidad de caracteres; _ exactamente uno.',
-      pattern: "WHERE columna LIKE 'A%'",
-      example: "SELECT nombre FROM empleados WHERE nombre LIKE '%ar%';",
+      concepts: ['like', 'percent', 'underscore'],
       keywords: ['like', 'comodin', 'patron'],
     },
   },
@@ -446,13 +404,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'NULL, IS NULL e IS NOT NULL',
     shortTitle: 'NULL',
     badge: 'IS NULL',
-    summary: 'NULL es la ausencia de valor; se pregunta con IS NULL, nunca con = NULL.',
     keywords: ['null', 'is null', 'is not null', 'nulo', 'vacio', 'sin valor', '= null'],
     concept: {
       title: 'IS NULL',
-      meaning: 'NULL no es 0: se pregunta con IS NULL.',
-      pattern: 'WHERE columna IS NULL',
-      example: 'SELECT nombre FROM empleados WHERE bono IS NULL;',
+      concepts: ['null', 'is-null'],
       keywords: ['null', 'is null'],
     },
   },
@@ -463,13 +418,10 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     title: 'ORDER BY: ordenar el resultado',
     shortTitle: 'ORDER BY',
     badge: 'ORDER BY',
-    summary: 'ORDER BY ordena las filas del resultado: ASC de menor a mayor y DESC al revés.',
     keywords: ['order by', 'ordenar', 'orden', 'asc', 'desc', 'ascendente', 'descendente'],
     concept: {
       title: 'ORDER BY',
-      meaning: 'Ordena el resultado; ASC por defecto, DESC al revés.',
-      pattern: 'ORDER BY columna DESC',
-      example: 'SELECT nombre, salario FROM empleados ORDER BY salario DESC;',
+      concepts: ['order-by', 'asc', 'desc'],
       keywords: ['order by', 'asc', 'desc'],
     },
   },
@@ -503,6 +455,13 @@ export const LESSON_OUTLINE: readonly LessonOutline[] = [
     concept: null,
   },
 ];
+
+export const LESSON_OUTLINE: readonly LessonOutline[] = OUTLINE.map((lesson) => ({
+  ...lesson,
+  summary: lesson.concept
+    ? SQL_CONCEPTS[lesson.concept.concepts[0]].definition
+    : (lesson.summary ?? lesson.title),
+}));
 
 export function findLessonOutline(slug: string): LessonOutline | undefined {
   return LESSON_OUTLINE.find((lesson) => lesson.slug === slug);

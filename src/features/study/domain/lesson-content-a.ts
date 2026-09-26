@@ -1,3 +1,4 @@
+import { SQL_CONCEPTS } from '@/domain/concepts/sql-concepts';
 import type { LessonContent } from './lesson-types';
 
 /**
@@ -8,7 +9,7 @@ import type { LessonContent } from './lesson-types';
 export const LESSON_CONTENT_A: readonly LessonContent[] = [
   {
     slug: 'introduccion',
-    oneLiner: 'SQL es el lenguaje con el que se le piden datos a una base de datos.',
+    oneLiner: SQL_CONCEPTS.sql.definition,
     whatItDoes:
       'Una base de datos guarda la información en tablas. Cada tabla tiene filas (un registro: por ejemplo, un empleado) y columnas (un mismo dato de todos: por ejemplo, la ciudad). Con SQL describes qué datos quieres y la base de datos te los devuelve como una tabla de resultado.',
     purpose:
@@ -128,7 +129,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'select',
-    oneLiner: 'SELECT indica qué columnas quieres ver en el resultado.',
     whatItDoes:
       'Después de SELECT escribes los nombres de las columnas. Oracle arma un resultado con esas columnas, en ese orden, y con todas las filas de la tabla mientras no haya un filtro.',
     purpose:
@@ -183,7 +183,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'from',
-    oneLiner: 'FROM indica de qué tabla salen los datos.',
     whatItDoes:
       'FROM va después de la lista de columnas y nombra la tabla de origen. Sin FROM, Oracle no sabe dónde buscar las columnas.',
     purpose:
@@ -219,7 +218,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'asterisco',
-    oneLiner: 'SELECT * pide todas las columnas de la tabla, en el orden en que están definidas.',
     whatItDoes:
       'Oracle reemplaza el asterisco por la lista completa de columnas: en EMPLEADOS, las 12. En esta posición * no multiplica: significa «todas».',
     purpose:
@@ -259,8 +257,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'columnas',
-    oneLiner:
-      'Escribe las columnas que necesitas separadas por comas: el resultado respeta ese orden.',
     whatItDoes:
       'Cada coma separa un elemento de la lista. El orden en que escribes las columnas es el orden de las columnas del resultado, aunque en la tabla estén en otro.',
     purpose:
@@ -320,7 +316,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'expresiones',
-    oneLiner: 'Una expresión calcula un valor nuevo en cada fila, sin cambiar la tabla.',
     whatItDoes:
       'Puedes operar columnas numéricas con + (suma), - (resta), * (multiplicación) y / (división), y combinarlas con números. Oracle calcula fila por fila y muestra el resultado como una columna más.',
     purpose:
@@ -372,8 +367,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'precedencia',
-    oneLiner:
-      'Oracle multiplica y divide antes de sumar y restar; los paréntesis cambian ese orden.',
     whatItDoes:
       'En una expresión con varios operadores, * y / se calculan primero, y + y - después, de izquierda a derecha. Lo que está entre paréntesis se calcula antes que todo lo demás.',
     purpose:
@@ -440,8 +433,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'alias',
-    oneLiner:
-      'Un alias es un nombre temporal para una columna o expresión del resultado; AS es la palabra que lo asigna.',
     whatItDoes:
       'Alias: nombre temporal para una columna o expresión dentro del resultado. AS: palabra opcional que hace explícita esa asignación. AS no renombra la columna, no modifica la tabla ni sus datos: solo cambia cómo aparece el encabezado en esa consulta.',
     purpose:
@@ -519,7 +510,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   },
   {
     slug: 'concatenacion',
-    oneLiner: 'Los textos se escriben entre comillas simples y se unen con ||.',
     whatItDoes:
       "Un literal es un valor fijo escrito en la consulta: un número como 12 o un texto como 'Empleado'. El operador || une dos textos en uno; si uno de los lados es un número, Oracle lo convierte en texto.",
     purpose:
@@ -584,7 +574,6 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
   {
     slug: 'distinct',
     fullTable: true,
-    oneLiner: 'DISTINCT quita del resultado las filas repetidas.',
     whatItDoes:
       'Va justo después de SELECT. Oracle compara las filas completas del resultado y deja una sola de cada combinación repetida. Con varias columnas, dos filas son repetidas solo si coinciden en todas.',
     purpose:

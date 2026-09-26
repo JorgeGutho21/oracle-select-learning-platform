@@ -1,6 +1,7 @@
 /**
  * Formato de presentación único para las tablas de la plataforma: números con separador de
- * miles colombiano (sin cambiar su valor), fechas 'AAAA-MM-DD' tal cual y NULL visible.
+ * miles colombiano (sin cambiar su valor), fechas 'AAAA-MM-DD' tal cual (el formato de la sesión Oracle,
+ * `NLS_DATE_FORMAT='YYYY-MM-DD'`) y NULL visible.
  */
 
 const numberFormat = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 4 });
@@ -17,10 +18,11 @@ export function formatCell(value: string | number | null): string {
     : String(value);
 }
 
+/** NULL como insignia neutra, con texto accesible («valor nulo»). */
 export function NullValue() {
   return (
-    <span className="hl-null">
-      NULL<span className="visually-hidden"> (sin valor)</span>
+    <span className="dv-null">
+      NULL<span className="visually-hidden"> (valor nulo)</span>
     </span>
   );
 }

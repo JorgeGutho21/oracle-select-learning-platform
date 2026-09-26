@@ -3,12 +3,17 @@ import Link from 'next/link';
 import {
   LESSON_COUNT,
   LESSONS,
+  lessonConcepts,
+  lessonDefinition,
   lessonLabHref,
   lessonNeighbors,
   STUDY_BLOCKS,
   STUDY_DATASET,
   type LessonView,
 } from '../application/study-api';
+import { CONCEPT_CATEGORY_LABEL } from '@/application/sql-concepts';
+import { EMPLEADOS_FIELD_GROUP_LIST, EMPLEADOS_SCHEMA_COLUMNS } from '@/application/dataset-view';
+import { SchemaCards } from '@/presentation/components/data/schema-cards';
 import { getVideo, type VideoResource } from '@/features/resources/application/resources-api';
 import {
   FlowTableView,
@@ -112,44 +117,50 @@ export function StudyIndexPage() {
   );
 }
 
+/** Diccionario de datos: las 12 columnas agrupadas, con tipo, NULL y qué guardan. */
 function Dictionary() {
   return (
     <section className="study-dictionary" aria-labelledby="dictionary-title">
       <p className="study-eyebrow">Diccionario de datos</p>
-      <h2 id="dictionary-title">Las 12 columnas de EMPLEADOS</h2>
-      <div
-        className="study-dictionary__scroll"
-        role="region"
-        aria-label="Columnas de EMPLEADOS"
-        tabIndex={0}
-      >
-        <table className="study-dictionary__table">
-          <caption className="visually-hidden">Columnas, tipos y reglas de EMPLEADOS</caption>
-          <thead>
-            <tr>
-              <th scope="col">Columna</th>
-              <th scope="col">Tipo Oracle</th>
-              <th scope="col">¿Admite NULL?</th>
-              <th scope="col">Qué guarda</th>
-            </tr>
-          </thead>
-          <tbody>
-            {STUDY_DATASET.columns.map((column) => (
-              <tr key={column.name}>
-                <th scope="row">
-                  <code>{column.name}</code>
-                </th>
-                <td>
-                  <code>{column.oracleType}</code>
-                </td>
-                <td>{column.nullable ? 'Sí' : 'No'}</td>
-                <td>{column.description}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <h2 id="dictionary-title">Las {STUDY_DATASET.columns.length} columnas de EMPLEADOS</h2>
+      <SchemaCards
+        label="Columnas, tipos y reglas de EMPLEADOS"
+        groups={EMPLEADOS_FIELD_GROUP_LIST}
+        columns={EMPLEADOS_SCHEMA_COLUMNS}
+        describe
+      />
     </section>
+  );
+}
+
+/** Índice de la lección: salta a sus partes (fijo arriba en escritorio). */
+const ON_PAGE = [
+  ['definicion', 'En una frase'],
+  ['sintaxis', 'Sintaxis'],
+  ['ejemplo', 'Ejemplo'],
+  ['resultado', 'Resultado'],
+  ['error', 'Error'],
+  ['practica', 'Práctica'],
+] as const;
+
+function Predict({ view }: { readonly view: LessonView }) {
+  const { example } = view;
+  const rows = example.counts.result;
+  const columns = example.counts.columns;
+  return (
+    <details className="study-predict">
+      <summary>
+        <span className="study-part">Predice</span> Antes de mirar el resultado: ¿cuántas filas y
+        cuántas columnas devolverá el ejemplo?
+      </summary>
+      <p>
+        <strong>
+          {rows} {rows === 1 ? 'fila' : 'filas'} y {columns}{' '}
+          {columns === 1 ? 'columna' : 'columnas'}.
+        </strong>{' '}
+        Compruébalo en el resultado de abajo.
+      </p>
+    </details>
   );
 }
 
@@ -157,6 +168,7 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
   const { lesson, example, comparisons, steps, check } = view;
   const { content } = lesson;
   const { previous, next } = lessonNeighbors(lesson.slug);
+  const concept = lessonConcepts(lesson)[0];
   const returnTo = `/learn/${lesson.slug}`;
   const labHref = lessonLabHref(content.example.sql, returnTo) as Route;
   const errorLab = content.error.wrong
@@ -169,15 +181,37 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
         <LessonToc current={lesson.slug} />
         <article className="study-lesson">
           <header className="study-lesson__header">
-            <p className="study-eyebrow">
-              Bloque {lesson.blockInfo.letter} · {lesson.blockInfo.title} · Lección {lesson.number}{' '}
-              de {LESSONS.length}
-            </p>
+            <nav className="study-crumbs" aria-label="Ubicación en el recorrido">
+              <p className="study-eyebrow">
+                Bloque {lesson.blockInfo.letter} · {lesson.blockInfo.title}
+              </p>
+              <span className="study-crumbs__lesson" aria-hidden="true">
+                › {lesson.shortTitle}
+              </span>
+              <span className="study-crumbs__progress">
+                Lección {lesson.number} de {LESSONS.length}
+                <span className="study-crumbs__bar" aria-hidden="true">
+                  <span style={{ width: `${(lesson.number / LESSONS.length) * 100}%` }} />
+                </span>
+              </span>
+            </nav>
             <h1>{lesson.title}</h1>
-            <p className="study-one-liner">
-              <span className="study-part">En una frase</span>
-              {content.oneLiner}
+            <p className="study-one-liner" id="definicion">
+              <span className="study-part">
+                En una frase
+                {concept && (
+                  <span className="study-category">{CONCEPT_CATEGORY_LABEL[concept.category]}</span>
+                )}
+              </span>
+              {lessonDefinition(lesson)}
             </p>
+            <nav className="study-onpage" aria-label="En esta lección">
+              {ON_PAGE.map(([id, label]) => (
+                <a key={id} href={`#${id}`}>
+                  {label}
+                </a>
+              ))}
+            </nav>
           </header>
           <StudyAlerts />
 
@@ -198,7 +232,7 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
             </section>
           </div>
 
-          <section className="study-syntax-block" aria-labelledby="syntax-title">
+          <section className="study-syntax-block" id="sintaxis" aria-labelledby="syntax-title">
             <div>
               <p className="study-part">Sintaxis</p>
               <h2 id="syntax-title" className="visually-hidden">
@@ -210,16 +244,18 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
               <p className="study-part">Cómo leerla</p>
               <p className="study-reading">{content.syntaxReading}</p>
               {content.terminology && (
-                <p className="study-terminology">
-                  <strong>Término técnico:</strong> {content.terminology}
-                </p>
+                <details className="study-fold study-fold--inline">
+                  <summary>Término técnico</summary>
+                  <p className="study-terminology">{content.terminology}</p>
+                </details>
               )}
             </div>
           </section>
 
-          <section className="study-example" aria-labelledby="example-title">
+          <section className="study-example" id="ejemplo" aria-labelledby="example-title">
             <p className="study-part">Ejemplo</p>
             <h2 id="example-title">De la pregunta al resultado</h2>
+            <Predict view={view} />
             <QueryFlow
               explained={example}
               question={content.example.question}
@@ -230,27 +266,32 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
             </Link>
           </section>
 
-          <section className="study-changes" aria-labelledby="changes-title">
-            <h2 id="changes-title" className="visually-hidden">
-              Qué cambió y qué no
-            </h2>
-            <div className="study-changes__col study-changes__col--changed">
-              <p className="study-part">Qué cambió</p>
-              <ul>
-                {content.changed.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="study-changes__col study-changes__col--kept">
-              <p className="study-part">Qué no cambió</p>
-              <ul>
-                {content.unchanged.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </section>
+          <details className="study-fold">
+            <summary>
+              <span className="study-part">Qué cambió y qué no</span> en el resultado
+            </summary>
+            <section className="study-changes" aria-labelledby="changes-title">
+              <h2 id="changes-title" className="visually-hidden">
+                Qué cambió y qué no
+              </h2>
+              <div className="study-changes__col study-changes__col--changed">
+                <p className="study-part">Qué cambió</p>
+                <ul>
+                  {content.changed.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="study-changes__col study-changes__col--kept">
+                <p className="study-part">Qué no cambió</p>
+                <ul>
+                  {content.unchanged.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          </details>
 
           {content.dictionary && <Dictionary />}
 
@@ -340,17 +381,23 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
           )}
 
           {content.notes && content.notes.length > 0 && (
-            <section className="study-notes" aria-label="Notas sobre Oracle">
-              {content.notes.map((note) => (
-                <aside key={note.title} className="study-note">
-                  <h3>{note.title}</h3>
-                  <p>{note.text}</p>
-                </aside>
-              ))}
-            </section>
+            <details className="study-fold">
+              <summary>
+                <span className="study-part">Detalles técnicos</span> {content.notes.length}{' '}
+                {content.notes.length === 1 ? 'nota' : 'notas'} sobre Oracle
+              </summary>
+              <section className="study-notes" aria-label="Notas sobre Oracle">
+                {content.notes.map((note) => (
+                  <aside key={note.title} className="study-note">
+                    <h3>{note.title}</h3>
+                    <p>{note.text}</p>
+                  </aside>
+                ))}
+              </section>
+            </details>
           )}
 
-          <section className="study-error" aria-labelledby="error-title">
+          <section className="study-error" id="error" aria-labelledby="error-title">
             <span className="study-error__mark" aria-hidden="true">
               !
             </span>
@@ -376,7 +423,9 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
             </div>
           </section>
 
-          <LessonCheck lessonId={lesson.id} check={check} />
+          <div id="practica" className="study-anchor">
+            <LessonCheck lessonId={lesson.id} check={check} />
+          </div>
 
           <section className="study-lab-cta" aria-labelledby="lab-cta-title">
             <p className="study-part">Abrir en el laboratorio</p>

@@ -1,4 +1,6 @@
-// Laboratorio SQL: esquema y editor en dos columnas en escritorio; paneles apilados en móvil.
+// Laboratorio SQL: el SQL es el protagonista. Editor y resultado en dos columnas en
+// escritorio; debajo, diagnóstico, lectura, anatomía y el esquema. En móvil, apilados en ese
+// orden: el editor aparece primero.
 
 .lab-grid {
   display: grid;
@@ -76,8 +78,8 @@
   border-radius: var(--radius-control);
 }
 .lab-hint {
-  margin: var(--space-1) 0 0;
-  color: var(--color-muted);
+  margin: 0;
+  color: var(--color-ink);
 }
 .lab-stale {
   margin: 0;
@@ -90,6 +92,26 @@
 }
 
 /* ---------- Esquema ---------- */
+.lab-schema__summary {
+  margin: 0;
+  color: var(--color-muted);
+}
+.lab-schema__summary strong {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+}
+.lab-schema__data {
+  display: grid;
+  gap: var(--space-3);
+}
+.lab-schema__data > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
 .lab-schema {
   display: flex;
   flex-wrap: wrap;

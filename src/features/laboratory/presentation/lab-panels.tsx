@@ -3,9 +3,15 @@
 import type { Route } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { Alert, Chip, DataTable } from '@/presentation/components/ui';
-import { CellValueView } from '@/presentation/components/data/cell-format';
-import { DatasetTable } from '@/presentation/components/data/dataset-table';
+import {
+  EMPLEADOS_FIELD_GROUP_LIST,
+  EMPLEADOS_SCHEMA_COLUMNS,
+  EMPLEADOS_VIEW_SCHEMA,
+} from '@/application/dataset-view';
+import { Alert, Chip } from '@/presentation/components/ui';
+import { DataView } from '@/presentation/components/data/data-view';
+import { DataViewToggle } from '@/presentation/components/data/data-view-toggle';
+import { SchemaCards } from '@/presentation/components/data/schema-cards';
 import { SqlCode } from '@/presentation/components/data/sql-code';
 import {
   EMPLEADOS,
@@ -20,8 +26,6 @@ import {
 import type { LabExecution } from '../application/execute-on-oracle';
 
 /** Paneles del laboratorio. Solo presentan el análisis; no contienen reglas SQL. */
-
-const TYPE_LABEL = { number: 'número', text: 'texto', date: 'fecha' } as const;
 
 export function Panel({
   id,
@@ -64,37 +68,39 @@ function StaleNote({ stale }: { stale: boolean }) {
   );
 }
 
-/* ---------- 1. Esquema ---------- */
+/* ---------- 6. Esquema y datos ---------- */
 
+/**
+ * El esquema primero (12 columnas agrupadas, las que usa la consulta resaltadas); los 20
+ * registros, solo si se piden. El protagonista del laboratorio es el SQL, no la tabla.
+ */
 export function SchemaPanel({ highlighted }: { highlighted: readonly string[] }) {
   return (
-    <Panel id="lab-schema" number={1} title="Esquema disponible">
-      <ul className="lab-schema" aria-label="Columnas de EMPLEADOS">
-        {EMPLEADOS.columns.map((column) => (
-          <li
-            key={column.name}
-            className={highlighted.includes(column.name) ? 'lab-schema__used' : undefined}
-          >
-            <code>{column.name}</code>
-            <span>
-              {TYPE_LABEL[column.type]}
-              {column.nullable ? ' · admite NULL' : ''}
-            </span>
-            {highlighted.includes(column.name) && (
-              <span className="ds-sr-only"> (usada por la consulta)</span>
-            )}
-          </li>
-        ))}
-      </ul>
-      <DatasetTable<EmpleadoRow>
-        caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.id}`}
-        columns={EMPLEADOS.columns}
-        rows={EMPLEADOS.rows}
-        rowKey={(row) => String(row.ID_EMPLEADO)}
+    <Panel id="lab-schema" number={6} title="Esquema disponible" className="lab-panel--wide">
+      <p className="lab-schema__summary">
+        <strong>EMPLEADOS</strong> · {EMPLEADOS.columns.length} columnas · {EMPLEADOS.rows.length}{' '}
+        registros · {EMPLEADOS.id}
+      </p>
+      <SchemaCards
+        label="Columnas de EMPLEADOS"
+        groups={EMPLEADOS_FIELD_GROUP_LIST}
+        columns={EMPLEADOS_SCHEMA_COLUMNS}
         highlighted={highlighted}
-        highlightNote="El borde azul marca las columnas que lee la consulta."
-        formatted={['SALARIO', 'BONO']}
       />
+      <details className="lab-schema__data">
+        <summary>Ver los {EMPLEADOS.rows.length} registros</summary>
+        <DataViewToggle
+          caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.id}`}
+          label="Tabla original"
+          summary={`${EMPLEADOS.rows.length} filas · ${EMPLEADOS.columns.length} columnas`}
+          columns={EMPLEADOS.columns.map(({ name, type }) => ({ name, type }))}
+          rows={EMPLEADOS.rows.map((row) =>
+            EMPLEADOS.columns.map(({ name }) => row[name as keyof EmpleadoRow] ?? null),
+          )}
+          schema={EMPLEADOS_VIEW_SCHEMA}
+          highlightedColumns={highlighted}
+        />
+      </details>
     </Panel>
   );
 }
@@ -117,6 +123,10 @@ const GROUP_HELP: Record<DiagnosticGroup, string> = {
   ADVERTENCIA: 'Se puede ejecutar, pero el resultado quizá no es el que buscas.',
 };
 
+/**
+ * Un diagnóstico en el orden en que ayuda a aprender: categoría y qué ocurrió; dónde (el
+ * editor lo subraya); por qué. La corrección no se regala: se abre solo si se pide.
+ */
 function DiagnosticItem({
   item,
   onApply,
@@ -133,25 +143,34 @@ function DiagnosticItem({
         <span className="lab-diagnostic__group">
           <span aria-hidden="true">{item.severity === 'error' ? '✗' : '!'}</span> {item.group}
         </span>
-        <span className="lab-diagnostic__position">
-          Línea {item.line}, columna {item.column}
-        </span>
+        <span className="lab-diagnostic__kind">{GROUP_HELP[item.group]}</span>
       </header>
       <p className="lab-diagnostic__message">{item.message}</p>
       <dl className="lab-diagnostic__details">
+        <div>
+          <dt>Dónde</dt>
+          <dd>
+            Línea {item.line}, columna {item.column}
+          </dd>
+        </div>
         <div>
           <dt>Encontrado</dt>
           <dd>
             <code>{item.found}</code>
           </dd>
         </div>
+        {item.hint && (
+          <div>
+            <dt>Por qué</dt>
+            <dd className="lab-hint">{item.hint}</dd>
+          </div>
+        )}
       </dl>
-      {item.hint && <p className="lab-hint">{item.hint}</p>}
-      <p className="lab-diagnostic__help">{GROUP_HELP[item.group]}</p>
       {/* Primero la pista; la corrección se abre solo si el estudiante la pide. */}
       {item.correction && (
         <details className="lab-diagnostic__example lab-diagnostic__correction">
           <summary>Ver la posible corrección</summary>
+          <p className="lab-diagnostic__fix-label">Cómo corregirlo</p>
           <code className="lab-diagnostic__fix">{item.correction}</code>
           {item.fixedSql && onApply && (
             <button
@@ -200,7 +219,7 @@ export function FeedbackPanel({
   onApply?: (sql: string) => void;
 }) {
   return (
-    <Panel id="lab-feedback" number={6} title="Diagnóstico" className="lab-panel--feedback">
+    <Panel id="lab-feedback" number={3} title="Diagnóstico" className="lab-panel--feedback">
       <div aria-live="polite" className="lab-stack">
         {!analysis ? (
           <p className="lab-empty">Escribe una consulta y pulsa «Analizar».</p>
@@ -237,29 +256,29 @@ export function FeedbackPanel({
 
 /* ---------- 3. Resultado ---------- */
 
-type ResultRow = { key: string; values: readonly CellValue[] };
-
+/** Resultado de cualquier forma (2, 4 o 12 columnas) con la vista de datos adaptable. */
 function ResultTableView({
   caption,
+  label,
   columns,
   rows,
 }: {
   caption: string;
+  label: string;
   columns: readonly { name: string; type: 'number' | 'text' | 'date' }[];
   rows: readonly (readonly CellValue[])[];
 }) {
-  const data: ResultRow[] = rows.map((values, index) => ({ key: String(index), values }));
   return (
-    <DataTable<ResultRow>
+    <DataView
       caption={caption}
-      rowKey={(row) => row.key}
-      rows={data}
-      columns={columns.map((column, index) => ({
-        id: `${column.name}-${index}`,
-        header: column.name,
-        numeric: column.type === 'number',
-        cell: (row) => <CellValueView value={row.values[index] ?? null} />,
-      }))}
+      label={label}
+      summary={`${rows.length} ${rows.length === 1 ? 'fila' : 'filas'} · ${columns.length} ${
+        columns.length === 1 ? 'columna' : 'columnas'
+      }`}
+      columns={columns}
+      rows={rows}
+      schema={EMPLEADOS_VIEW_SCHEMA}
+      detail={columns.length > 8 ? 'summary' : 'full'}
     />
   );
 }
@@ -278,7 +297,7 @@ export function ResultPanel({
   executing: boolean;
 }) {
   return (
-    <Panel id="lab-result" number={3} title="Resultado">
+    <Panel id="lab-result" number={2} title="Resultado">
       <div className="lab-result__block">
         <div className="lab-result__heading">
           <h3>Vista previa educativa</h3>
@@ -294,6 +313,7 @@ export function ResultPanel({
         ) : analysis.preview ? (
           <ResultTableView
             caption={`Vista previa: ${analysis.preview.rows.length} filas, ${analysis.preview.columns.length} columnas`}
+            label="Vista educativa"
             columns={analysis.preview.columns}
             rows={analysis.preview.rows}
           />
@@ -342,6 +362,7 @@ function OracleOutcome({
       {result.status === 'ok' && (
         <ResultTableView
           caption={`Oracle (${result.engine}) · ${result.rows.length} filas · ${result.elapsedMs} ms`}
+          label="Resultado Oracle"
           columns={result.columns}
           rows={result.rows}
         />
@@ -443,7 +464,7 @@ export function AnatomyPanel({
   if (cursor < source.length) segments.push(source.slice(cursor));
 
   return (
-    <Panel id="lab-anatomy" number={5} title="Anatomía de la consulta" className="lab-panel--wide">
+    <Panel id="lab-anatomy" number={5} title="Anatomía de la consulta">
       <StaleNote stale={stale} />
       {parts.length === 0 ? (
         <p className="lab-empty">La anatomía aparece cuando la consulta es válida.</p>

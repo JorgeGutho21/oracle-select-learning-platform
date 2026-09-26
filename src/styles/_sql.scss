@@ -28,8 +28,16 @@
   line-height: 1.6;
   // Ajusta las líneas: se lee completo con zoom alto sin una región desplazable.
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  // Parte por espacios; solo corta una palabra si no cabe sola en la línea.
+  overflow-wrap: break-word;
   tab-size: 2;
+}
+// Cada línea del código es un bloque con sangría francesa: si se parte, la continuación
+// queda sangrada y se lee como parte de la misma cláusula.
+.sql-line {
+  display: block;
+  padding-left: 2ch;
+  text-indent: -2ch;
 }
 .sql-code__pre code {
   color: inherit;

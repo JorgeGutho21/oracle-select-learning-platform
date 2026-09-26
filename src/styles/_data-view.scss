@@ -1,0 +1,557 @@
+// Vista de datos adaptable (data-view.tsx). La tabla se muestra cuando cabe; si el
+// contenedor es más estrecho que el ancho que necesita (clase .dv--need-N, en em), una
+// consulta de contenedor la sustituye por fichas. Nunca hay barra horizontal: la barra de
+// .dv__table es solo la red de seguridad de navegadores sin consultas de contenedor.
+
+$dv-buckets: 14, 18, 22, 26, 30, 34, 38, 42, 46, 50, 54, 58, 62, 68, 74, 80, 88, 96, 104, 112, 120;
+
+.dv {
+  container: dv / inline-size;
+  display: grid;
+  gap: 0.5em;
+  min-width: 0;
+}
+.dv__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2em 1em;
+}
+.dv__label {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: max(0.72em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.dv__summary {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: max(0.8em, 13px);
+  font-variant-numeric: tabular-nums;
+}
+
+// Tabla.
+.dv__table {
+  overflow-x: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+.dv table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+.dv th,
+.dv td {
+  padding: 0.55em 0.95em;
+  text-align: left;
+  white-space: nowrap;
+  transition:
+    background var(--duration-transition),
+    color var(--duration-transition),
+    box-shadow var(--duration-transition);
+}
+.dv th {
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-family: var(--font-mono);
+  font-size: max(0.78em, 12px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.dv td {
+  color: var(--color-ink);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.dv tbody tr:first-child td {
+  border-top: 0;
+}
+.dv tbody tr:hover td {
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-surface));
+}
+.dv .is-number {
+  text-align: right;
+}
+.dv--large th,
+.dv--large td {
+  padding: 0.42em 0.8em;
+}
+
+// Columnas pedidas y atenuadas (contraste AA: color y peso, nunca opacidad).
+.dv th.is-on {
+  color: var(--color-night);
+  background: var(--color-cyan);
+}
+.dv td.is-on {
+  background: color-mix(in srgb, var(--color-cyan) 14%, var(--color-surface));
+  font-weight: 650;
+}
+.dv .is-dim {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+.dv th.is-dim {
+  background: var(--color-surface);
+}
+.dv td.is-dim {
+  background: color-mix(in srgb, var(--color-page) 60%, var(--color-surface));
+}
+.dv tr.is-row td {
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+  box-shadow:
+    inset 0 2px 0 var(--color-primary),
+    inset 0 -2px 0 var(--color-primary);
+  font-weight: 650;
+}
+.dv tr.is-duplicate td {
+  color: var(--color-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 5%, var(--color-surface));
+}
+.dv__badge {
+  display: inline-block;
+  margin-left: 0.75em;
+  padding: 0.05em 0.6em;
+  color: var(--color-danger);
+  background: var(--color-surface);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font-size: max(0.75em, 12px);
+  font-weight: 750;
+  text-decoration: none;
+  vertical-align: middle;
+}
+
+// Estado frente a WHERE: símbolo y texto, además del color.
+.dv__state {
+  width: 1%;
+  font-weight: 700;
+}
+.dv th.dv__state {
+  color: var(--color-muted);
+}
+.dv tr.is-kept .dv__state {
+  color: var(--color-success);
+}
+.dv tr.is-discarded .dv__state {
+  color: var(--color-danger);
+}
+.dv tr.is-unknown .dv__state {
+  color: var(--color-warning);
+}
+.dv tr.is-kept td {
+  background: color-mix(in srgb, var(--color-success) 7%, var(--color-surface));
+}
+.dv tr.is-discarded td:not(.dv__state) {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-page) 70%, var(--color-surface));
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
+}
+.dv tr.is-unknown td:not(.dv__state) {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-warning) 6%, var(--color-surface));
+}
+.dv__state-label {
+  font-size: max(0.85em, 12px);
+}
+.dv td.is-match {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+  font-weight: 700;
+}
+.dv th.is-sorted {
+  color: var(--color-night);
+  background: color-mix(in srgb, var(--color-cyan) 55%, var(--color-soft));
+}
+.dv__sort {
+  font-size: 1.1em;
+}
+
+// Valores especiales.
+.dv-null {
+  display: inline-block;
+  padding: 0.05em 0.5em;
+  color: var(--color-muted);
+  background: var(--color-null-bg);
+  border: 1px dashed var(--color-null-border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: max(0.78em, 12px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+.dv .is-match .dv-null,
+.dv-field.is-match .dv-null {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  border-style: solid;
+}
+.dv-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.05em 0.6em;
+  border-radius: var(--radius-pill);
+  font-size: max(0.82em, 12px);
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+.dv-status--on {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+.dv-status--off {
+  color: var(--color-muted);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-subtle);
+}
+.dv-like__literal {
+  padding: 0 1px;
+  color: var(--color-night);
+  background: var(--color-cyan);
+  border-radius: 3px;
+  font-weight: 800;
+}
+.dv-like__one {
+  text-decoration: underline dotted var(--color-primary) 2px;
+  text-underline-offset: 3px;
+}
+
+// Enlace código ↔ datos: la cláusula activa de la consulta resalta sus columnas.
+[data-active-clause='select'] .dv .dv-col--select,
+[data-active-clause='where'] .dv .dv-col--where,
+[data-active-clause='order'] .dv .dv-col--order {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+}
+[data-active-clause='select'] .dv th.dv-col--select,
+[data-active-clause='where'] .dv th.dv-col--where,
+[data-active-clause='order'] .dv th.dv-col--order {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+}
+[data-active-clause='where'] .dv tr.is-kept td {
+  background: color-mix(in srgb, var(--color-success) 16%, var(--color-surface));
+}
+
+// Fichas.
+.dv__records {
+  display: none;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15em), 1fr));
+  gap: 0.6em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dv-record {
+  display: grid;
+  align-content: start;
+  gap: 0.45em;
+  min-width: 0;
+  padding: 0.75em 0.9em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+}
+.dv-record__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25em 0.6em;
+  min-width: 0;
+}
+.dv-record__title {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 1.05em;
+  font-weight: 750;
+  line-height: 1.25;
+}
+.dv-record__id {
+  margin-left: 0.5em;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: max(0.75em, 12px);
+  font-weight: 600;
+}
+.dv-record__subtitle {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.92em;
+}
+.dv-record__state {
+  flex-basis: 100%;
+  font-size: max(0.82em, 12px);
+  font-weight: 750;
+}
+.dv-record__state--kept {
+  color: var(--color-success);
+}
+.dv-record__state--discarded {
+  color: var(--color-danger);
+}
+.dv-record__state--unknown {
+  color: var(--color-warning);
+}
+.dv-record__fields {
+  display: grid;
+  margin: 0;
+}
+.dv-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.1em 1em;
+  padding: 0.28em 0;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.dv-field dt {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: max(0.74em, 12px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.dv-field dd {
+  min-width: 0;
+  margin: 0 0 0 auto;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.dv-field.is-on dt {
+  color: var(--color-primary);
+}
+.dv-field.is-on dd {
+  font-weight: 700;
+}
+.dv-field.is-match dd {
+  padding: 0 0.3em;
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+  border-radius: 4px;
+  font-weight: 700;
+}
+.dv-record__name.is-match {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+  border-radius: 4px;
+}
+.dv-record.is-kept {
+  border-color: color-mix(in srgb, var(--color-success) 45%, var(--color-border-subtle));
+  box-shadow: inset 0.25em 0 0 var(--color-success);
+}
+.dv-record.is-discarded {
+  color: var(--color-muted);
+  background: var(--color-surface-alt);
+}
+.dv-record.is-discarded .dv-record__title {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
+}
+.dv-record.is-unknown {
+  box-shadow: inset 0.25em 0 0 var(--color-warning);
+}
+.dv-record.is-duplicate {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-danger) 5%, var(--color-surface));
+}
+.dv-record.is-duplicate .dv-record__title {
+  text-decoration: line-through;
+  text-decoration-color: var(--color-danger);
+}
+.dv-record.is-row {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+}
+.dv-record__group {
+  display: grid;
+  gap: 0.2em;
+  margin-top: 0.3em;
+}
+.dv-record__group-title {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: max(0.7em, 11.5px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.dv-record__more > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+// Cambio de representación por contenedor.
+.dv--mode-records > .dv__records {
+  display: grid;
+}
+@each $bucket in $dv-buckets {
+  @container dv (width < #{$bucket}em) {
+    .dv--need-#{$bucket}.dv--mode-auto > .dv__table {
+      display: none;
+    }
+    .dv--need-#{$bucket}.dv--mode-auto > .dv__records {
+      display: grid;
+    }
+  }
+}
+
+// Esquema como fichas agrupadas (schema-cards.tsx).
+.schema-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5em), 1fr));
+  gap: 0.6em;
+  min-width: 0;
+}
+.schema-cards--described {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18em), 1fr));
+}
+.schema-group {
+  display: grid;
+  align-content: start;
+  gap: 0.35em;
+  min-width: 0;
+  padding: 0.6em 0.75em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-top: 0.25em solid var(--group-color, var(--color-primary));
+  border-radius: var(--radius-md);
+}
+.schema-group__title {
+  margin: 0;
+  color: var(--group-color, var(--color-primary));
+  font-size: max(0.72em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.schema-group__list {
+  display: grid;
+  gap: 0.2em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.schema-group__list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1em 0.5em;
+  padding: 0.15em 0.3em;
+  border-radius: 0.3em;
+}
+.schema-group__list li.is-used {
+  background: color-mix(in srgb, var(--color-cyan) 16%, var(--color-surface));
+  box-shadow: inset 0.2em 0 0 var(--color-primary);
+}
+.schema-group__name {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.schema-group__type {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: max(0.8em, 12px);
+}
+.schema-group__null {
+  padding: 0 0.45em;
+  color: var(--color-muted);
+  background: var(--color-null-bg);
+  border: 1px dashed var(--color-null-border);
+  border-radius: var(--radius-pill);
+  font-size: max(0.72em, 12px);
+  font-weight: 700;
+}
+.schema-group__description {
+  flex-basis: 100%;
+  color: var(--color-muted);
+  font-size: max(0.85em, 13px);
+  line-height: 1.4;
+}
+// Colores de grupo también fuera de la Exposición.
+.group--identidad {
+  --group-color: #1746b8;
+}
+.group--organizacion {
+  --group-color: #0b7f94;
+}
+.group--compensacion {
+  --group-color: #855500;
+}
+.group--empleo {
+  --group-color: #176b45;
+}
+.group--contacto {
+  --group-color: #7a3db8;
+}
+
+// Columnas de texto largo y código dentro de la vista de datos.
+.dv td.is-wrap,
+.dv th.is-wrap {
+  min-width: 12em;
+  white-space: normal;
+}
+.dv tbody th[scope='row'] {
+  color: var(--color-ink);
+  background: transparent;
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 0;
+  font-family: var(--font-sans);
+  font-size: 1em;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+.dv tbody tr:first-child th[scope='row'] {
+  border-top: 0;
+}
+.dv-code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+// Selector «Resumen / Completa».
+.dv-toggle {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.dv-toggle__bar {
+  display: inline-flex;
+  justify-self: start;
+  padding: 3px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+}
+.dv-toggle__bar button {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  color: var(--color-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+}
+.dv-toggle__bar button[aria-pressed='true'] {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+}

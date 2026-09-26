@@ -2,10 +2,12 @@
 
 .query-flow__stages {
   display: grid;
+  // Necesidad → SQL → qué hace → cambio sobre los datos → resultado. Las tablas usan todo
+  // el ancho: así caben enteras y no necesitan barra horizontal.
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
   grid-template-areas:
-    'source query'
-    'source steps'
+    'query steps'
+    'source source'
     'result result';
   gap: var(--space-4);
   padding: 0;
@@ -107,7 +109,7 @@
 @media (max-width: 991px) {
   .query-flow__stages {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'query' 'source' 'steps' 'result';
+    grid-template-areas: 'query' 'steps' 'source' 'result';
   }
 }
 
