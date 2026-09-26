@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useMemo, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import type { CheckView } from '@/features/study/application/study-api';
 import { SqlCode } from '@/presentation/components/data/sql-code';
 import { SequenceBuilder } from './sequence-builder';
@@ -37,7 +37,10 @@ export function MiniCheck({
 }) {
   const id = useId();
   const [choice, setChoice] = useState<number | null>(null);
-  const [text, setText] = useState('');
+  // Campo no controlado: lo escrito antes de que la página termine de cargar también cuenta
+  // (en WebKit, un campo controlado perdía ese texto al hidratar).
+  const numberRef = useRef<HTMLInputElement>(null);
+  const readNumber = () => parseNumber(numberRef.current?.value ?? '');
   const [order, setOrder] = useState<string[]>([]);
   const [attempts, setAttempts] = useState(0);
   const [outcome, setOutcome] = useState<Outcome>({ kind: 'idle' });
@@ -63,7 +66,7 @@ export function MiniCheck({
       }
       case 'count':
       case 'number': {
-        const value = parseNumber(text);
+        const value = readNumber();
         if (value === null) return { kind: 'wrong', detail: 'Escribe un número, sin letras.' };
         if (value === check.answer) return { kind: 'correct' };
         return {
@@ -92,7 +95,7 @@ export function MiniCheck({
     const incomplete =
       next.kind === 'wrong' &&
       ((check.kind === 'choice' && choice === null) ||
-        (check.kind !== 'choice' && check.kind !== 'order' && parseNumber(text) === null) ||
+        (check.kind !== 'choice' && check.kind !== 'order' && readNumber() === null) ||
         (check.kind === 'order' && order.length < check.answer.length));
     setOutcome(next);
     if (next.kind === 'correct') {
@@ -171,9 +174,9 @@ export function MiniCheck({
             type="text"
             inputMode="numeric"
             autoComplete="off"
-            value={text}
+            ref={numberRef}
+            defaultValue=""
             disabled={done}
-            onChange={(event) => setText(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
                 event.preventDefault();

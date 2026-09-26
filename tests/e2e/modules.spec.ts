@@ -98,6 +98,9 @@ test.describe('Ruta de aprendizaje', () => {
   // del equipo saturada (FINAL_AUDIT, Fase 10).
   for (const width of [1440, 390]) {
     test(`cumple WCAG 2 AA y no desborda a ${width} px`, async ({ page }) => {
+      // Con 46 fichas (y sus bloques SQL) el análisis completo de axe tarda más de 30 s en Edge
+      // con la CPU del equipo ocupada; en Chromium tarda unos 10 s.
+      test.setTimeout(90_000);
       await page.setViewportSize({ width, height: 900 });
       await page.goto('/modules');
       await expect(page.locator('#nivel-1')).toBeVisible();

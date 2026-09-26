@@ -96,7 +96,10 @@ test.describe('Modo Exposición', () => {
     page,
   }) => {
     // WHERE, AND y OR, BETWEEN, IN, LIKE, NULL y ORDER BY: evidencia visual del cambio.
-    for (const scene of [11, 13, 15, 16, 17, 18, 19]) {
+    const scenes = [11, 13, 15, 16, 17, 18, 19];
+    // Una carga por escena: unos 6 s cada una en WebKit con la CPU del equipo ocupada.
+    test.setTimeout(scenes.length * 8_000);
+    for (const scene of scenes) {
       await openDeck(page, `/presentation?scene=${scene}`);
       const node = page.locator(`[data-scene="${scene}"]`);
       await expect(node.locator('.scene-code, .sql-code').first(), `escena ${scene}`).toBeVisible();
@@ -236,7 +239,9 @@ test.describe('Modo Exposición', () => {
 
   test('en móvil la escena fluye sin desplazamiento horizontal', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    for (const scene of [1, 5, 9, 10, 14, 17, 19, 21, 27]) {
+    const scenes = [1, 5, 9, 10, 14, 17, 19, 21, 27];
+    test.setTimeout(scenes.length * 8_000);
+    for (const scene of scenes) {
       await openDeck(page, `/presentation?scene=${scene}`);
       await expect(page.locator(`[data-scene="${scene}"]`)).toBeVisible();
       const overflow = await page.evaluate(

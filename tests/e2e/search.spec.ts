@@ -104,6 +104,8 @@ test.describe('Buscador global', () => {
   test('cada tema futuro aparece como Próximamente y abre su ficha de la ruta', async ({
     page,
   }) => {
+    // Siete aperturas de /modules (46 fichas): unos 6 s cada una en WebKit con la CPU ocupada.
+    test.setTimeout(FUTURE.length * 8_000);
     await page.goto('/');
     for (const [query, title, anchor] of FUTURE) {
       await openWithShortcut(page);

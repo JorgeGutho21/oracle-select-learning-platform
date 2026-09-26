@@ -1,20 +1,20 @@
 # DEPLOYMENT — Estado del despliegue, procedimiento y reversión
 
-Versión 1.1 · Fase 11 · 25 de septiembre de 2026. Requisitos y variables en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md).
+Versión 1.2 · Reingeniería v2 · 25 de septiembre de 2026. Requisitos y variables en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md).
 
 ## Estado actual
 
 **URL pública de producción: <https://sql-select-lab.vercel.app>**
 
-| Elemento            | Estado                                                                                                                                                                                                    |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rama y código       | `claude-finish-20260923`, sin fusionar con `main`. El código desplegado corresponde al commit `ebf8555`; los commits posteriores solo cambian documentación.                                              |
-| Proyecto Vercel     | `sql-select-lab` en el equipo personal `jorge-gutierrez1` (plan Hobby, gratuito). Preset Next.js, Node 24.x y funciones en `iad1` (Washington, D.C.).                                                     |
-| Producción          | `dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd` (`sql-select-4n3tg9rsx-jorge-gutierrez1.vercel.app`), publicada en `sql-select-lab.vercel.app`. Prueba de humo: 24/24.                                                 |
-| Vista previa        | `sql-select-k0pfbzctk-jorge-gutierrez1.vercel.app`, protegida por la autenticación de Vercel. Prueba de humo: 22/22, con la sala completa sobre el Supabase real.                                         |
-| Oracle              | Oracle Autonomous Database 19c (Always Free, sa-bogota-1), con mTLS y cartera en variables de servidor ([ORACLE_SETUP.md](ORACLE_SETUP.md), opción C).                                                    |
-| Supabase            | Proyecto real con la migración aplicada, RLS verificado y Realtime conectado ([SUPABASE_SETUP.md](SUPABASE_SETUP.md)).                                                                                    |
-| Variables en Vercel | 12 por entorno (Production y Preview) más `NEXT_PUBLIC_SITE_URL` en Production. Los secretos son variables _sensitive_. Clasificación en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md#variables-de-entorno). |
+| Elemento            | Estado                                                                                                                                                                                                                                                                                    |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rama y código       | `claude-finish-20260923`, sin fusionar con `main`. El código desplegado corresponde al commit `ebf8555`; los commits posteriores solo cambian documentación.                                                                                                                              |
+| Proyecto Vercel     | `sql-select-lab` en el equipo personal `jorge-gutierrez1` (plan Hobby, gratuito). Preset Next.js, Node 24.x y funciones en `iad1` (Washington, D.C.).                                                                                                                                     |
+| Producción          | `dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd` (`sql-select-4n3tg9rsx-jorge-gutierrez1.vercel.app`), publicada en `sql-select-lab.vercel.app`. Prueba de humo: 24/24.                                                                                                                                 |
+| Vista previa        | **v2:** `sql-select-l0pnwv46e-jorge-gutierrez1.vercel.app` (`dpl_GpSFNR32nxPh8RXZPrXgDQJMudbB`), código del commit `45c3a70` con Oracle Cloud v2. Prueba de humo: 19/19. Protegida por la autenticación de Vercel.                                                                        |
+| Oracle              | Oracle Autonomous Database 19c (Always Free, sa-bogota-1), con mTLS y cartera en variables de servidor ([ORACLE_SETUP.md](ORACLE_SETUP.md), opción C). Esquemas v1 (`SQL_LAB_OWNER`/`SQL_LAB_READER`, producción actual) y v2 (`SQL_LAB_V2_OWNER`/`SQL_LAB_V2_READER`, Preview) conviven. |
+| Supabase            | Proyecto real con la migración aplicada, RLS verificado y Realtime conectado ([SUPABASE_SETUP.md](SUPABASE_SETUP.md)).                                                                                                                                                                    |
+| Variables en Vercel | 12 por entorno (Production y Preview) más `NEXT_PUBLIC_SITE_URL` en Production. Los secretos son variables _sensitive_. Clasificación en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md#variables-de-entorno).                                                                                 |
 
 ### Despliegues
 
@@ -25,6 +25,7 @@ Versión 1.1 · Fase 11 · 25 de septiembre de 2026. Requisitos y variables en [
 | 25 sep.      | `sql-select-9shg68ptn-jorge-gutierrez1.vercel.app` | Preview    | 20/22: la barra de Vercel chocaba con la CSP y había un error en el guion de prueba.       |
 | 25 sep.      | `sql-select-k0pfbzctk-jorge-gutierrez1.vercel.app` | Preview    | 22/22.                                                                                     |
 | 25 sep.      | `dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd`                 | Producción | 24/24 en `sql-select-lab.vercel.app`.                                                      |
+| 25 sep.      | `dpl_GpSFNR32nxPh8RXZPrXgDQJMudbB`                 | Preview    | v2 (commit `45c3a70`, variables Oracle de Preview en v2): 19/19.                           |
 
 ### Prueba de humo de producción (25 de septiembre)
 
@@ -53,6 +54,35 @@ Medidas tomadas:
 - Desde entonces, cada vista previa lleva `--target preview`.
 
 El 25 de septiembre, el despliegue de producción correcto recuperó el alias.
+
+### Activación de v2 en producción (pendiente)
+
+La vista previa v2 pasó la prueba de humo completa:
+
+- las 12 rutas;
+- 22 lecciones, 29 escenas y 46 fichas;
+- el buscador con temas futuros;
+- el QR;
+- el laboratorio con SELECT, DISTINCT, WHERE, AND, OR, BETWEEN, IN, LIKE, IS NULL, DATE y ORDER BY en Oracle Database 19, más `ORA-01476` real y DELETE rechazado;
+- M01, y M10 calificada con la salida real de Oracle;
+- la sala por código;
+- las cabeceras de seguridad.
+
+Producción sigue sirviendo v1 (`dpl_61KPNiQv…` con `SQL_LAB_READER`). El cambio de las variables de Production no se ejecutó: el sistema de permisos de la sesión lo bloqueó. Pasos para activarla, en este orden:
+
+1. Cambiar en Production `ORACLE_USER`, `ORACLE_PASSWORD` y `ORACLE_SCHEMA` por los valores v2 (`ORACLE_CLOUD_USER`, `ORACLE_CLOUD_PASSWORD` y `ORACLE_CLOUD_SCHEMA` de `.env.oracle.local`), por la entrada estándar, como en «Cómo se despliega»:
+   - `ORACLE_USER` y `ORACLE_SCHEMA` como configuración;
+   - `ORACLE_PASSWORD` con `--sensitive`.
+2. Desplegar en producción desde el commit v2: `npx vercel@60.0.1 --global-config .vercel/cli deploy --prod`.
+3. Repetir la prueba de humo sobre `https://sql-select-lab.vercel.app`.
+
+El código v2 exige EMPLEADOS v2 en su salud, así que variables y despliegue van juntos. No desplegar v2 con las variables v1.
+
+Volver atrás:
+
+- `vercel promote dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd`: cada despliegue conserva las variables con que se creó.
+- Restaurar las tres variables con `ORACLE_CLOUD_PREVIOUS_*` para futuros despliegues.
+- No se borra ningún esquema.
 
 ## Cómo se despliega
 
