@@ -9,6 +9,7 @@ import type { LabDraftRepository } from '../application/lab-draft';
 import {
   analyzeLabQuery,
   DEFAULT_LAB_SQL,
+  LAB_EXAMPLE_GROUPS,
   LAB_EXAMPLES,
   type LabAnalysis,
   type OracleServiceStatus,
@@ -152,8 +153,9 @@ export function LaboratoryWorkspace({
         <span className="eyebrow">Practicar</span>
         <h1>Laboratorio SQL</h1>
         <p className="readable muted">
-          Escribe consultas SELECT sobre la tabla EMPLEADOS. El análisis educativo explica tu
-          consulta paso a paso; la ejecución real necesita el servicio Oracle.
+          Escribe consultas SELECT sobre la tabla EMPLEADOS, con WHERE, ORDER BY y sus operadores.
+          El diagnóstico señala dónde está cada problema y cómo corregirlo; la ejecución real se
+          hace en Oracle.
         </p>
       </header>
 
@@ -175,7 +177,11 @@ export function LaboratoryWorkspace({
       )}
 
       <div className="lab-grid">
-        <SchemaPanel highlighted={analysis && !stale ? analysis.sourceColumns : []} />
+        <SchemaPanel
+          highlighted={
+            analysis && !stale ? [...analysis.sourceColumns, ...analysis.conditionColumns] : []
+          }
+        />
 
         <Panel
           id="lab-editor"
@@ -199,10 +205,14 @@ export function LaboratoryWorkspace({
               <option value="" disabled>
                 Elige un ejemplo…
               </option>
-              {LAB_EXAMPLES.map((example) => (
-                <option key={example.id} value={example.id}>
-                  {example.id} · {example.title}
-                </option>
+              {LAB_EXAMPLE_GROUPS.map((group) => (
+                <optgroup key={group} label={group}>
+                  {LAB_EXAMPLES.filter((example) => example.group === group).map((example) => (
+                    <option key={example.id} value={example.id}>
+                      {example.id} · {example.title}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </div>
@@ -243,7 +253,14 @@ export function LaboratoryWorkspace({
           </div>
         </Panel>
 
-        <FeedbackPanel analysis={analysis} stale={stale} />
+        <FeedbackPanel
+          analysis={analysis}
+          stale={stale}
+          onApply={(fixed) => {
+            setSql(fixed);
+            setAnalysis(analyzeLabQuery(fixed));
+          }}
+        />
         <ResultPanel
           analysis={analysis}
           stale={stale}

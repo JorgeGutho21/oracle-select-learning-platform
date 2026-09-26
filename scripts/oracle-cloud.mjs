@@ -1,7 +1,7 @@
 // Oracle Autonomous Database (Oracle Cloud) para el despliegue (docs/ORACLE_SETUP.md, opción C).
 //
 //   node scripts/oracle-cloud.mjs check   comprueba la contraseña de la cartera y la de ADMIN
-//   node scripts/oracle-cloud.mjs setup   crea SQL_LAB_OWNER.EMPLEADOS y SQL_LAB_READER
+//   node scripts/oracle-cloud.mjs setup   crea SQL_LAB_V2_OWNER.EMPLEADOS y SQL_LAB_V2_READER
 //   node scripts/oracle-cloud.mjs verify  consulta EMPLEADOS con la cuenta lectora
 //
 // Lee la cartera (ZIP de .secrets/) sin descomprimirla y las contraseñas de
@@ -128,9 +128,22 @@ async function setup() {
   const connection = await connect('ADMIN', admin, w, effectiveWallet);
   try {
     const readerPassword = await createLabSchema(connection, { adminSchema: 'ADMIN' });
+    // La cuenta de una versión anterior del dataset se conserva con otro nombre: la
+    // producción anterior la sigue usando y así se puede volver atrás.
+    const env = readEnv(SECRETS_ENV);
+    const previous = env.get('ORACLE_CLOUD_USER');
+    const kept =
+      previous && previous !== READER
+        ? [
+            ['ORACLE_CLOUD_PREVIOUS_USER', previous],
+            ['ORACLE_CLOUD_PREVIOUS_PASSWORD', env.get('ORACLE_CLOUD_PASSWORD') ?? ''],
+            ['ORACLE_CLOUD_PREVIOUS_SCHEMA', env.get('ORACLE_CLOUD_SCHEMA') ?? ''],
+          ]
+        : [];
     writeEnv(
       SECRETS_ENV,
       new Map([
+        ...kept,
         ['ORACLE_CLOUD_USER', READER],
         ['ORACLE_CLOUD_PASSWORD', readerPassword],
         ['ORACLE_CLOUD_SCHEMA', OWNER],
@@ -141,7 +154,7 @@ async function setup() {
       '# Oracle (no versionar).',
     );
     console.log(
-      `Listo en ${w.service}: ${OWNER}.EMPLEADOS con 6 filas y ${READER} con CREATE SESSION y READ. Variables ORACLE_CLOUD_* en ${SECRETS_ENV}.`,
+      `Listo en ${w.service}: ${OWNER}.EMPLEADOS con 20 filas y ${READER} con CREATE SESSION y READ. Variables ORACLE_CLOUD_* en ${SECRETS_ENV}.`,
     );
   } finally {
     await connection.close();

@@ -71,6 +71,7 @@
 }
 .resource-card {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: var(--space-3);
   min-width: 0;
@@ -208,6 +209,12 @@
   .resources-warnings,
   .resources-sources li {
     padding: var(--space-3);
+  }
+  // «Comparaciones» o «Concatenación» no caben enteras en 124 px: se parten.
+  .resource-card h3,
+  .resource-card p,
+  .resources-warnings li {
+    overflow-wrap: anywhere;
   }
 }
 

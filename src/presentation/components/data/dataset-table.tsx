@@ -1,16 +1,15 @@
 import type { ReactNode } from 'react';
 import { DataTable, type DataTableColumn } from '@/presentation/components/ui';
+import { CellValueView, formatCell } from './cell-format';
 
 /** Tabla de un dataset educativo, con resaltado opcional de columnas. No modifica los datos. */
 
 export interface DatasetColumn {
   readonly name: string;
-  readonly type: 'number' | 'text';
+  readonly type: 'number' | 'text' | 'date';
 }
 
-export type DatasetRow = Readonly<Record<string, string | number>>;
-
-const numberFormat = new Intl.NumberFormat('es-CO');
+export type DatasetRow = { readonly [column: string]: string | number | null };
 
 export interface DatasetTableProps<Row extends DatasetRow> {
   caption: string;
@@ -41,10 +40,11 @@ export function DatasetTable<Row extends DatasetRow>({
       numeric: column.type === 'number',
       highlighted: highlighted.includes(column.name),
       cell: (row: Row): ReactNode => {
-        const value = row[column.name];
+        const value = row[column.name] ?? null;
+        if (value === null) return <CellValueView value={null} />;
         return typeof value === 'number' && formatted.includes(column.name)
-          ? numberFormat.format(value)
-          : value;
+          ? formatCell(value)
+          : String(value);
       },
     })),
     ...extraColumns,

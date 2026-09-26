@@ -16,6 +16,28 @@ async function openWithShortcut(page: Page, shortcut = 'Control+k') {
   await expect(field(page)).toBeFocused();
 }
 
+// Términos del encargo: los actuales llevan a una lección; los futuros, a su ficha.
+const CURRENT = [
+  ['alias', 'Alias de columna con AS'],
+  ['as', 'Alias de columna con AS'],
+  ['distinct', 'DISTINCT: sin filas repetidas'],
+  ['where', 'WHERE: filtrar filas'],
+  ['between', 'BETWEEN: rangos'],
+  ['in', 'IN: listas de valores'],
+  ['like', 'LIKE: patrones de texto'],
+  ['null', 'NULL, IS NULL e IS NOT NULL'],
+  ['order by', 'ORDER BY: ordenar el resultado'],
+] as const;
+const FUTURE = [
+  ['upper', 'UPPER', 'tema-upper'],
+  ['round', 'ROUND', 'tema-round'],
+  ['group by', 'GROUP BY', 'tema-group-by'],
+  ['join', 'INNER JOIN', 'tema-inner-join'],
+  ['insert', 'INSERT INTO', 'tema-insert'],
+  ['update', 'UPDATE', 'tema-update'],
+  ['delete', 'DELETE', 'tema-delete'],
+] as const;
+
 test.describe('Buscador global', () => {
   test('Ctrl+K abre la paleta, Enter navega y enfoca el título del destino', async ({ page }) => {
     await page.goto('/');
@@ -23,16 +45,20 @@ test.describe('Buscador global', () => {
     await field(page).fill('alias');
     const options = palette(page).getByRole('option');
     // Conceptos se muestra primero; la flecha baja lleva a la lección.
-    await expect(options.first()).toContainText('AS · alias de columna');
+    await expect(options.first()).toContainText('Alias con AS');
     await expect(options.first()).toHaveAttribute('aria-selected', 'true');
     await expect(palette(page).getByRole('group', { name: 'Lecciones' })).toContainText(
-      'Alias con AS',
+      'Alias de columna con AS',
     );
     await page.keyboard.press('ArrowDown');
-    await expect(palette(page).locator('[aria-selected="true"]')).toContainText('Alias con AS');
+    await expect(palette(page).locator('[aria-selected="true"]')).toContainText(
+      'Alias de columna con AS',
+    );
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL('/learn/alias');
-    await expect(page.getByRole('heading', { level: 1, name: 'Alias con AS' })).toBeFocused();
+    await expect(
+      page.getByRole('heading', { level: 1, name: 'Alias de columna con AS' }),
+    ).toBeFocused();
   });
 
   test('Cmd+K también abre la paleta y las flechas recorren los resultados', async ({ page }) => {
@@ -60,6 +86,38 @@ test.describe('Buscador global', () => {
     await expect(palette(page)).toBeVisible();
     await palette(page).getByRole('button', { name: 'Cerrar diálogo' }).click();
     await expect(palette(page)).toBeHidden();
+  });
+
+  test('cada tema actual del encargo lleva a su lección', async ({ page }) => {
+    await page.goto('/');
+    await openWithShortcut(page);
+    for (const [query, lesson] of CURRENT) {
+      await field(page).fill(query);
+      const group = palette(page).getByRole('group', { name: 'Lecciones' });
+      await expect(group, query).toContainText(lesson);
+      await expect(group.getByRole('option', { name: new RegExp(lesson) }), query).toContainText(
+        'Abrir',
+      );
+    }
+  });
+
+  test('cada tema futuro aparece como Próximamente y abre su ficha de la ruta', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    for (const [query, title, anchor] of FUTURE) {
+      await openWithShortcut(page);
+      await field(page).fill(query);
+      const group = palette(page).getByRole('group', { name: 'Próximamente' });
+      const option = group.getByRole('option', { name: new RegExp(`^${title}\\b`) }).first();
+      await expect(option, query).toContainText('Próximamente');
+      await expect(palette(page).getByRole('group', { name: 'Lecciones' })).toHaveCount(0);
+      await option.click();
+      await expect(page).toHaveURL(new RegExp(`/modules#${anchor}$`));
+      await expect(page.locator(`#${anchor}`)).toBeVisible();
+      await expect(page.locator(`#${anchor} h4`)).toBeFocused();
+      await expect(page.locator(`#${anchor}`)).toContainText('Próximamente');
+    }
   });
 
   test('agrupa conceptos, lecciones, práctica y recursos sin tildes ni mayúsculas', async ({
@@ -94,15 +152,6 @@ test.describe('Buscador global', () => {
       .click();
     await expect(page).toHaveURL('/resources#chuleta-asterisco');
     await expect(page.locator('#chuleta-asterisco h3')).toBeFocused();
-  });
-
-  test('WHERE aparece como «Próximamente» y sin destino', async ({ page }) => {
-    await page.goto('/');
-    await openWithShortcut(page);
-    await field(page).fill('WHERE');
-    const option = palette(page).getByRole('option', { name: /WHERE y comparaciones/ });
-    await expect(option).toContainText('Próximamente');
-    await expect(option).toHaveAttribute('aria-disabled', 'true');
   });
 
   test('sin coincidencias ofrece limpiar la búsqueda', async ({ page }) => {
@@ -143,7 +192,7 @@ test.describe('Buscador global', () => {
   test('la paleta abierta cumple WCAG 2 AA', async ({ page }) => {
     await page.goto('/');
     await openWithShortcut(page);
-    await field(page).fill('select');
+    await field(page).fill('join');
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(results.violations).toEqual([]);
   });

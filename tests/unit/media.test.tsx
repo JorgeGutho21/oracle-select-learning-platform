@@ -9,7 +9,6 @@ import { VideoPlayer } from '@/presentation/components/media/video-player';
 const base = {
   title: 'Video de prueba',
   description: 'Descripción del video.',
-  plannedDuration: '1:30–2:00',
 };
 
 describe('configuración central de videos', () => {
@@ -74,7 +73,7 @@ describe('VideoPlayer', () => {
   it('sin fuente muestra «Video en preparación» y ningún reproductor ni iframe', () => {
     const { container } = render(<VideoPlayer {...base} source={null} />);
     expect(screen.getByText('Video en preparación')).toBeInTheDocument();
-    expect(screen.getByText('Duración prevista: 1:30–2:00')).toBeInTheDocument();
+    expect(screen.queryByText(/Duración/)).toBeNull();
     expect(container.querySelector('video, iframe')).toBeNull();
     expect(screen.getByRole('heading', { level: 3, name: 'Video de prueba' })).toBeInTheDocument();
   });
@@ -104,18 +103,16 @@ describe('VideoPlayer', () => {
     ).toHaveAttribute('href', '/v.mp4');
   });
 
-  it('un video vertical conserva 9:16 y muestra la duración real', () => {
+  it('un video vertical conserva 9:16 y no muestra rótulos de duración', () => {
     const { container } = render(
       <VideoPlayer
         {...base}
-        duration="1:13"
         orientation="portrait"
         source={{ kind: 'file', url: '/v.mp4', type: 'video/mp4' }}
       />,
     );
     expect(container.querySelector('figure')).toHaveClass('video-player--portrait');
-    expect(screen.getByText('Duración: 1:13')).toBeInTheDocument();
-    expect(screen.queryByText(/Duración prevista/)).toBeNull();
+    expect(screen.queryByText(/Duración/)).toBeNull();
   });
 
   it('si la fuente falló antes de hidratar, muestra el error igualmente', () => {

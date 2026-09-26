@@ -25,8 +25,6 @@ export interface VideoResource {
   readonly code: 'V01' | 'V02';
   readonly title: string;
   readonly description: string;
-  /** Duración prevista en la planificación, no medida. */
-  readonly plannedDuration: string;
   /** Duración medida del archivo publicado (m:ss); `null` mientras no haya video. */
   readonly duration: string | null;
   readonly orientation: VideoOrientation;
@@ -43,7 +41,6 @@ export const VIDEO_LIBRARY: Readonly<Record<VideoId, VideoResource>> = {
     title: 'Video introductorio: ¿cómo encontrar un dato?',
     description:
       'Por qué consultamos datos y cómo SELECT y FROM eligen qué columnas ver y de qué tabla salen, con un adelanto de *, cálculos, AS y DISTINCT. Lleva subtítulos incrustados; su tabla es un ejemplo, no la EMPLEADOS del laboratorio.',
-    plannedDuration: '1:30–2:00',
     duration: '1:13',
     orientation: 'portrait',
     source: { kind: 'file', url: '/media/introduccion-select-oracle-sql.mp4', type: 'video/mp4' },
@@ -58,7 +55,6 @@ export const VIDEO_LIBRARY: Readonly<Record<VideoId, VideoResource>> = {
     title: 'Video resumen: fundamentos de Oracle SQL',
     description:
       'Repaso de la unidad: SELECT elige las columnas y FROM la tabla, * frente a columnas concretas, cálculos que no cambian la tabla original, alias con AS y DISTINCT. Sus tablas de ejemplo no son la EMPLEADOS del laboratorio.',
-    plannedDuration: '3:00–4:00',
     duration: '4:51',
     orientation: 'landscape',
     source: { kind: 'file', url: '/media/resumen-fundamentos-oracle-sql.mp4', type: 'video/mp4' },

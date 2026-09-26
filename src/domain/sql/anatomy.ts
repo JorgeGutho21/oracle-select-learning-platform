@@ -1,5 +1,7 @@
-import type { SelectStatement } from './ast';
+import { unwrap, type Condition, type SelectStatement } from './ast';
+import { EMPLEADOS_SCHEMA, type TableSchema } from './schema';
 import type { Span } from './source';
+import { conditionInWords, orderInWords } from './translator';
 
 /** Partes de una consulta válida, en el orden del texto, para la «anatomía de consulta». */
 
@@ -13,6 +15,11 @@ export type AnatomyRole =
   | 'separator'
   | 'from'
   | 'table'
+  | 'where'
+  | 'condition'
+  | 'logical'
+  | 'order'
+  | 'order-item'
   | 'terminator';
 
 export interface AnatomyPart {
@@ -23,14 +30,27 @@ export interface AnatomyPart {
   readonly span: Span;
 }
 
-export function describeAnatomy(statement: SelectStatement, source: string): AnatomyPart[] {
+const LOGICAL_EXPLANATION = {
+  AND: 'Une dos condiciones: la fila pasa solo si se cumplen ambas.',
+  OR: 'Une dos condiciones: la fila pasa si se cumple al menos una.',
+} as const;
+
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+export function describeAnatomy(
+  statement: SelectStatement,
+  source: string,
+  schema: TableSchema = EMPLEADOS_SCHEMA,
+): AnatomyPart[] {
   const text = (span: Span) => source.slice(span.start, span.end);
   const parts: AnatomyPart[] = [
     {
       role: 'select',
       label: 'SELECT',
       text: text(statement.selectKeyword),
-      explanation: 'Indica qué se va a mostrar.',
+      explanation: 'Indica qué columnas se van a mostrar.',
       span: statement.selectKeyword,
     },
   ];
@@ -39,7 +59,7 @@ export function describeAnatomy(statement: SelectStatement, source: string): Ana
       role: 'distinct',
       label: 'DISTINCT',
       text: text(statement.distinct),
-      explanation: 'Elimina del resultado las filas repetidas.',
+      explanation: 'Quita del resultado las filas repetidas.',
       span: statement.distinct,
     });
   }
@@ -55,20 +75,32 @@ export function describeAnatomy(statement: SelectStatement, source: string): Ana
       continue;
     }
     const expression = item.expression;
+    const bare = unwrap(expression);
+    const literal =
+      bare.kind === 'string' ||
+      bare.kind === 'number' ||
+      bare.kind === 'null' ||
+      bare.kind === 'date';
     parts.push(
-      expression.kind === 'column'
+      bare.kind === 'column'
         ? {
             role: 'column',
             label: 'Columna',
             text: text(expression.span),
-            explanation: `Copia el valor de ${expression.name} en cada fila.`,
+            explanation: `Copia el valor de ${bare.name} en cada fila.`,
             span: expression.span,
           }
         : {
             role: 'expression',
-            label: 'Expresión calculada',
+            label: literal
+              ? 'Valor fijo'
+              : bare.kind === 'binary' && bare.operator === '||'
+                ? 'Concatenación'
+                : 'Expresión calculada',
             text: text(expression.span),
-            explanation: 'Se calcula fila por fila; no modifica la tabla.',
+            explanation: literal
+              ? 'Se repite igual en todas las filas del resultado.'
+              : 'Se calcula fila por fila; no modifica la tabla.',
             span: expression.span,
           },
     );
@@ -82,12 +114,13 @@ export function describeAnatomy(statement: SelectStatement, source: string): Ana
       });
     }
   }
-  for (const comma of statement.commas) {
+  const commas = [...statement.commas, ...(statement.orderBy?.commas ?? [])];
+  for (const comma of commas) {
     parts.push({
       role: 'separator',
       label: 'Coma',
       text: ',',
-      explanation: 'Separa los elementos de la lista de SELECT.',
+      explanation: 'Separa los elementos de una lista.',
       span: comma,
     });
   }
@@ -105,6 +138,74 @@ export function describeAnatomy(statement: SelectStatement, source: string): Ana
     explanation: `${statement.table.name}: sus filas son la fuente del resultado.`,
     span: statement.table.span,
   });
+  if (statement.where) {
+    parts.push({
+      role: 'where',
+      label: 'WHERE',
+      text: text(statement.where.keyword),
+      explanation: 'Decide qué filas se conservan.',
+      span: statement.where.keyword,
+    });
+    const visit = (condition: Condition) => {
+      switch (condition.kind) {
+        case 'logical':
+          visit(condition.left);
+          parts.push({
+            role: 'logical',
+            label: condition.operator,
+            text: text(condition.operatorSpan),
+            explanation: LOGICAL_EXPLANATION[condition.operator],
+            span: condition.operatorSpan,
+          });
+          visit(condition.right);
+          return;
+        case 'not':
+          parts.push({
+            role: 'logical',
+            label: 'NOT',
+            text: text(condition.keywordSpan),
+            explanation: 'Invierte la condición que le sigue.',
+            span: condition.keywordSpan,
+          });
+          visit(condition.condition);
+          return;
+        case 'condition-group':
+          visit(condition.condition);
+          return;
+        default:
+          parts.push({
+            role: 'condition',
+            label: 'Condición',
+            text: text(condition.span),
+            explanation: `Pasan las filas ${conditionInWords(condition, schema).replace(/^en los que/, 'en las que')}.`,
+            span: condition.span,
+          });
+      }
+    };
+    visit(statement.where.condition);
+  }
+  if (statement.orderBy) {
+    parts.push({
+      role: 'order',
+      label: 'ORDER BY',
+      text: text(statement.orderBy.keyword),
+      explanation: 'Ordena las filas del resultado.',
+      span: statement.orderBy.keyword,
+    });
+    statement.orderBy.items.forEach((item) => {
+      const single: SelectStatement = {
+        ...statement,
+        orderBy: { ...statement.orderBy!, items: [item], commas: [] },
+      };
+      parts.push({
+        role: 'order-item',
+        label: item.direction ? `Criterio (${item.direction})` : 'Criterio (ASC por defecto)',
+        text: text(item.span),
+        explanation: `${capitalize(orderInWords(single, schema)?.replace(/^ordenados /, 'Ordena ') ?? 'Ordena el resultado')}.`,
+        span: item.span,
+      });
+    });
+  }
   if (statement.terminator) {
     parts.push({
       role: 'terminator',

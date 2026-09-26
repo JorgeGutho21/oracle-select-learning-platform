@@ -3,7 +3,7 @@
 import { useId } from 'react';
 import { SequenceBuilder } from '@/presentation/components/interaction/sequence-builder';
 import { CodeBlock } from '@/presentation/components/ui';
-import { EMPLEADOS } from '../../application/challenge-api';
+import { EMPLEADOS, type EmpleadosColumn } from '../../application/challenge-api';
 import { SourceTable } from '../source-table';
 import type { InteractionProps } from './types';
 
@@ -15,7 +15,7 @@ export function PredictInteraction({
   disabled,
 }: InteractionProps<'predict-result'>) {
   const countId = useId();
-  const { query, headerOptions, asks } = mission.publicData;
+  const { query, headerOptions, asks, sourceColumns } = mission.publicData;
   const pieces = headerOptions.map((header) => ({ id: header, text: header, role: 'column' }));
   const set = (patch: Partial<typeof answer>) => onChange({ ...answer, ...patch });
   const toggleRow = (id: number) =>
@@ -30,6 +30,7 @@ export function PredictInteraction({
       {asks.rowSelection ? (
         <SourceTable
           caption="Marca las filas de EMPLEADOS que aparecen en el resultado"
+          {...(sourceColumns ? { columns: sourceColumns as EmpleadosColumn[] } : {})}
           extraColumns={[
             {
               id: 'incluir',
@@ -38,8 +39,8 @@ export function PredictInteraction({
                 <label className="ch-check">
                   <input
                     type="checkbox"
-                    checked={answer.sourceRowIds.includes(row.ID)}
-                    onChange={() => toggleRow(row.ID)}
+                    checked={answer.sourceRowIds.includes(row.ID_EMPLEADO)}
+                    onChange={() => toggleRow(row.ID_EMPLEADO)}
                     disabled={disabled}
                   />
                   <span className="ds-sr-only">Incluir a {row.NOMBRE}</span>

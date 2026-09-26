@@ -5,8 +5,11 @@
 import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
-export const OWNER = 'SQL_LAB_OWNER';
-export const READER = 'SQL_LAB_READER';
+// Dataset v2 en esquemas propios: el esquema v1 (SQL_LAB_OWNER / SQL_LAB_READER) sigue
+// intacto mientras la producción anterior lo use.
+export const DATASET_FILE = 'oracle/empleados-select-v2.sql';
+export const OWNER = 'SQL_LAB_V2_OWNER';
+export const READER = 'SQL_LAB_V2_READER';
 
 /** Letras y dígitos, con mayúscula, minúscula y número: válida sin comillas en Oracle. */
 export function password() {
@@ -39,9 +42,9 @@ export function writeEnv(path, values, header) {
   writeFileSync(path, `${lines.join('\n')}\n`, { mode: 0o600 });
 }
 
-/** Sentencias de `oracle/empleados-select-v1.sql`, sin comentarios. */
+/** Sentencias del script del dataset vigente, sin comentarios. */
 export function datasetStatements() {
-  return readFileSync('oracle/empleados-select-v1.sql', 'utf8')
+  return readFileSync(DATASET_FILE, 'utf8')
     .split(/\r?\n/)
     .filter((line) => !line.trim().startsWith('--'))
     .join('\n')
@@ -52,8 +55,8 @@ export function datasetStatements() {
 
 /**
  * Crea desde cero el esquema del laboratorio con una conexión administrativa:
- * - SQL_LAB_OWNER sin inicio de sesión, dueño de EMPLEADOS (dataset versionado);
- * - SQL_LAB_READER con solo CREATE SESSION y READ sobre EMPLEADOS (READ impide
+ * - OWNER sin inicio de sesión, dueño de EMPLEADOS (dataset versionado);
+ * - READER con solo CREATE SESSION y READ sobre EMPLEADOS (READ impide
  *   SELECT … FOR UPDATE).
  * Devuelve la contraseña nueva de la cuenta lectora.
  */

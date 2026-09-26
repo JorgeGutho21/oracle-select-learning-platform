@@ -1,6 +1,8 @@
 # GAME_SPEC — SQL Oracle Challenge
 
-Versión 2.0 · Diez misiones · Dataset `empleados-select-v1` · Catálogo `select-challenge-v2`.
+Versión 3.0 · Diez misiones · Dataset `empleados-select-v2` · Catálogo `select-challenge-v3`.
+
+La versión 3 (25 de septiembre de 2026) acompaña la unidad ampliada con WHERE y ORDER BY y el dataset de 20 filas. Se conservan las diez posiciones, los tipos de interacción, la puntuación, los intentos, las pistas, el tiempo, la sala en vivo y el ranking. Cambian el contenido y la versión de M02, M04, M05, M07, M09 y M10. M01, M03, M06 y M08 conservan su pedido; se ajustaron sus datos (12 columnas, 20 filas). La partida guardada con una versión anterior de una misión se descarta.
 
 La versión 2 (23 de septiembre de 2026) redefine M01–M09 por decisión del responsable del proyecto: pedidos en lenguaje natural, SELECT *, predicción de resultado, columna calculada, alias, DISTINCT sobre una columna, detección de una coma ausente y traducción de un pedido a bloques. M10, la puntuación, el tiempo y las estadísticas no cambian. Las partidas guardadas con la versión 1 se descartan.
 
@@ -35,47 +37,47 @@ Las duraciones corresponden a la sala con perfil estándar. Estudio no impone l�
 
 ### M01 — Columnas a la vista
 
-- Pedido: «Muéstrame solamente nombre y salario». L01, L04. Fácil; 45 s.
+- Pedido: «Muéstrame solamente nombre y salario». L02, L05. Fácil; 45 s.
 - Acción: arrastrar columnas de EMPLEADOS a la lista de SELECT, o pulsarlas; reordenar con arrastre o botones.
 - Solución: `SELECT nombre, salario FROM empleados;`.
-- Aceptación G01: resultado con NOMBRE y SALARIO en ese orden y seis filas. Incluir ID, * u otras columnas no cumple el pedido.
+- Aceptación G01: resultado con NOMBRE y SALARIO en ese orden y 20 filas. Incluir ID_EMPLEADO, * u otras columnas no cumple el pedido.
 - Pista: el pedido menciona dos datos; el orden de la lista es el orden de las columnas. Feedback: las columnas restantes siguen en la tabla.
 
 ### M02 — El orden de SQL
 
-- Pedido: «Muéstrame el nombre y la ciudad de cada empleado». L02, L04. Fácil; 60 s.
-- Acción: ordenar todas las piezas SELECT, nombre, coma, ciudad, FROM y empleados. Terminador opcional.
-- Solución: `SELECT nombre, ciudad FROM empleados;`.
-- Aceptación G02: se evalúa el resultado de la consulta armada; columnas invertidas, una columna después de FROM o piezas sin usar no cumplen.
-- Pista: primero qué mostrar, después de dónde. Feedback: FROM recibe el nombre de la tabla, no una columna.
+- Pedido: «Muéstrame el nombre y la ciudad de los empleados de TI». L03, L11. Fácil; 60 s. Versión 3.
+- Acción: ordenar todas las piezas SELECT, nombre, coma, ciudad, FROM, empleados, WHERE y `departamento = 'TI'`. Terminador opcional.
+- Solución: `SELECT nombre, ciudad FROM empleados WHERE departamento = 'TI';` (5 filas).
+- Aceptación G02: se evalúa el resultado de la consulta armada; columnas invertidas, una columna después de FROM, WHERE antes de FROM o piezas sin usar no cumplen.
+- Pista: primero qué mostrar (SELECT), después de dónde (FROM) y al final qué filas (WHERE).
 
 ### M03 — ¿Qué trae el asterisco?
 
-- Pedido: «Muéstrame todo lo que guarda la tabla EMPLEADOS». L03. Fácil; 60 s.
-- Acción: construir los seis encabezados del resultado de `SELECT * FROM empleados;` en orden e introducir el número de filas.
-- Solución: ID, NOMBRE, EDAD, CIUDAD, SALARIO, DEPTO; seis filas.
-- Aceptación G03: los seis encabezados en el orden del esquema y el número 6. No se interpreta * como una columna.
+- Pedido: «Muéstrame todo lo que guarda la tabla EMPLEADOS». L04. Fácil; 60 s.
+- Acción: construir los 12 encabezados del resultado de `SELECT * FROM empleados;` en orden (entre las opciones hay un distractor `*`) e introducir el número de filas.
+- Solución: ID_EMPLEADO, NOMBRE, APELLIDO, CARGO, DEPARTAMENTO, CIUDAD, SALARIO, BONO, FECHA_INGRESO, ESTADO, CORREO, ID_JEFE; 20 filas.
+- Aceptación G03: los 12 encabezados en el orden del esquema y el número 20. No se interpreta * como una columna.
 - Pista: observa el esquema completo. Feedback: * expande todas las columnas visibles del dataset.
 
-### M04 — Predice el resultado
+### M04 — Predice las filas
 
-- Pedido: «¿Qué tabla devuelve esta consulta?» sobre `SELECT nombre, salario FROM empleados;`. L01, L04. Media; 75 s.
-- Acción: construir los encabezados del resultado y marcar en la tabla fuente qué empleados aparecen.
-- Solución: NOMBRE, SALARIO y los seis empleados.
-- Aceptación G04: encabezados en el orden de SELECT y las seis filas. Omitir empleados es incorrecto porque la proyección no filtra filas.
-- Pista: la consulta elige columnas, no filas. Feedback: sin una condición de filtro se devuelven todas las filas.
+- Pedido: «¿Qué tabla devuelve esta consulta?» sobre `SELECT nombre, salario FROM empleados WHERE ciudad = 'Cali';`. L11, L12. Media; 75 s. Versión 3.
+- Acción: construir los encabezados del resultado y marcar en la tabla de origen (ID_EMPLEADO, NOMBRE, CIUDAD, SALARIO) qué empleados cumplen la condición.
+- Solución: NOMBRE, SALARIO y los 5 empleados de Cali: Jorge, Oscar, Valentina, Camila y Julián.
+- Aceptación G04: encabezados en el orden de SELECT (CIUDAD no se muestra aunque WHERE la use) y exactamente esas 5 filas. Marcar a alguien de otra ciudad o dejar fuera a alguien de Cali es incorrecto y el feedback lo nombra.
+- Pista: WHERE conserva solo las filas cuya ciudad es Cali; SELECT decide qué columnas se ven.
 
 ### M05 — Columnas calculadas
 
 - Pedido: «Muéstrame el salario mensual de cada empleado y cuánto gana al año», sobre `SELECT nombre, salario, ▢ FROM empleados;`. L05. Media; 90 s.
-- Acción: construir la tercera columna con piezas reutilizables (salario, edad, 12, 100, *, +) y escribir el valor calculado para Ana, Pedro y María.
-- Solución: `salario * 12` (también `12 * salario`); Ana 36000000, Pedro 21600000, María 44400000.
-- Aceptación G05: expresión equivalente evaluada sobre las seis filas, basada en SALARIO, y los tres valores exactos. `salario + 12` o `salario * 100` no cumplen.
+- Acción: construir la tercera columna con piezas reutilizables (salario, bono, 12, 100, *, +) y escribir el valor calculado para Ana, Sofía y Felipe. Versión 3.
+- Solución: `salario * 12` (también `12 * salario`); Ana 108000000, Sofía 36000000, Felipe 25200000.
+- Aceptación G05: expresión equivalente evaluada sobre las 20 filas, basada en SALARIO, y los tres valores exactos. `salario + 12`, `salario * 100` o `bono * 12` no cumplen.
 - Pista: un año tiene doce meses. Feedback: señala el empleado cuyo valor es incorrecto; la columna SALARIO no cambia.
 
 ### M06 — Encabezados con AS
 
-- Pedido: «Muestra el nombre y el salario anual con el encabezado SALARIO_ANUAL». L06. Media; 90 s.
+- Pedido: «Muestra el nombre y el salario anual con el encabezado SALARIO_ANUAL». L08. Media; 90 s.
 - Acción: ordenar las piezas, incluido `AS salario_anual`. La interfaz muestra los encabezados del resultado junto a las columnas intactas de EMPLEADOS.
 - Solución: `SELECT nombre, salario * 12 AS salario_anual FROM empleados;`.
 - Aceptación G06: alias asociado a la expresión, no a NOMBRE ni a EMPLEADOS; resultado anual intacto. La misión exige AS explícito y lo anuncia.
@@ -83,37 +85,37 @@ Las duraciones corresponden a la sala con perfil estándar. Estudio no impone l�
 
 ### M07 — Valores únicos con DISTINCT
 
-- Pedido: «¿En qué ciudades hay empleados? Sin repetir ninguna». L07. Media; 90 s.
-- Acción: partir de las seis filas de `SELECT ciudad FROM empleados;` (antes) y retirar repeticiones hasta obtener el resultado de `SELECT DISTINCT ciudad FROM empleados;` (después).
-- Solución: Bogotá, Cali y Medellín, una vez cada una.
-- Aceptación G07: multiconjunto exacto de tres ciudades; cualquier fila conservada de cada ciudad es válida. Dejar repeticiones o eliminar una ciudad por completo no cumple.
-- Pista: cada ciudad debe aparecer una vez. Feedback: DISTINCT conserva un ejemplar de cada valor.
+- Pedido: «¿Qué departamentos tienen empleados en Bogotá? Sin repetir ninguno». L10, L11. Media; 90 s. Versión 3.
+- Acción: partir de las 7 filas de `SELECT departamento FROM empleados WHERE ciudad = 'Bogotá';` (antes) y retirar repeticiones hasta obtener el resultado de `SELECT DISTINCT departamento FROM empleados WHERE ciudad = 'Bogotá';` (después).
+- Solución: Operaciones, TI, Recursos Humanos, Ventas y Finanzas, una vez cada uno.
+- Aceptación G07: multiconjunto exacto de 5 departamentos; cualquier fila conservada de cada uno es válida. Dejar repeticiones o eliminar un departamento por completo no cumple.
+- Pista: cada departamento debe aparecer una vez. Feedback: DISTINCT conserva un ejemplar de cada valor.
 
 ### M08 — Detecta el error
 
-- Pedido: «Muéstrame el nombre y el salario de cada empleado», con la consulta `SELECT nombre salario FROM empleados;`. L04, L06. Difícil; 90 s.
+- Pedido: «Muéstrame el nombre y el salario de cada empleado», con la consulta `SELECT nombre salario FROM empleados;`. L05, L08. Difícil; 90 s.
 - Acción: seleccionar en la consulta el hueco donde falta la coma (hotspot); no se ofrecen opciones de respuesta.
 - Solución: coma entre nombre y salario.
-- Aceptación G08: la consulta reparada devuelve NOMBRE y SALARIO. Conforme a LAB10, la consulta original es SQL válido: sin coma, SALARIO es un alias implícito de NOMBRE. El feedback describe un incumplimiento del pedido, no un error de sintaxis.
+- Aceptación G08: la consulta reparada devuelve NOMBRE y SALARIO. Conforme a LAB19, la consulta original es SQL válido: sin coma, SALARIO es un alias implícito de NOMBRE. El feedback describe un incumplimiento del pedido, no un error de sintaxis.
 - Pista: cuenta cuántas columnas pide el pedido y cuántas separa la lista. Feedback: explica el alias implícito.
 
 ### M09 — Del lenguaje al SQL
 
-- Pedido: «Muéstrame el nombre, ciudad y salario de todos los empleados». L02, L04, L08. Difícil; 120 s.
-- Acción: construir la consulta con bloques, entre ellos distractores (edad, depto, *, DISTINCT) y dos comas intercambiables.
-- Solución de referencia: `SELECT nombre, ciudad, salario FROM empleados;`.
-- Aceptación G09: se analiza la estructura de los bloques y se compara su resultado; no se compara una cadena exacta. DISTINCT se rechaza porque el pedido dice «todos los empleados»; una coma ausente se explica como alias implícito.
-- Pista: cada dato mencionado es una columna, en ese orden. Feedback: columnas de más, faltantes o desordenadas.
+- Pedido: «Muéstrame el nombre, la ciudad y el salario de todos los empleados, del salario más alto al más bajo». L05, L19. Difícil; 120 s. Versión 3.
+- Acción: construir la consulta con bloques, entre ellos distractores (bono, *, DISTINCT, ASC), dos comas intercambiables y dos bloques `salario` (uno para la lista y otro para el orden).
+- Solución de referencia: `SELECT nombre, ciudad, salario FROM empleados ORDER BY salario DESC;`.
+- Aceptación G09: se analiza la estructura de los bloques y se compara su resultado y su orden (entre salarios empatados cualquier orden vale); no se compara una cadena exacta. DISTINCT se rechaza porque el pedido dice «todos los empleados». Sin ORDER BY el feedback explica que Oracle no garantiza el orden; con ASC, que el orden está invertido.
+- Pista: cada dato mencionado es una columna, en ese orden; el orden de las filas se pide al final.
 
 ### M10 — Final Boss: Query Master
 
-- Objetivo: escribir una consulta completa desde un pedido. L01–L08. Difícil; 180 s.
-- Enunciado: «Para cada empleado, muestra NOMBRE, CIUDAD y su salario anual proyectado tras aumentar 100000 al salario mensual. Usa AS para llamar PROYECCION_ANUAL a la tercera columna. Conserva a todos los empleados y ese orden de columnas».
-- Acción: editor vacío, sin bloques ni solución inicial. Enviar para evaluar ejecuta realmente en Oracle. La rúbrica anuncia AS y una expresión basada en SALARIO.
-- Solución de referencia: `SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados;`.
-- Resultado: Ana 37200000; Carlos 61200000; Laura 51600000; Pedro 22800000; María 45600000; Jorge 34800000, con su ciudad respectiva.
-- Aceptación G10: seis filas, tres columnas en el orden requerido, encabezado PROYECCION_ANUAL y valores correctos; AS explícito y cálculo que referencia SALARIO. Expresiones equivalentes se aceptan. No se requiere DISTINCT porque este pedido no busca eliminar duplicados.
-- Pista: calcula primero el nuevo salario mensual. Feedback: explica proyección, origen, cálculo y etiqueta; remite a la lección del error encontrado.
+- Objetivo: escribir una consulta completa desde un pedido, con filtro, cálculo, alias y orden. L07, L08, L11, L13, L19, L20. Difícil; 180 s. Versión 2.
+- Enunciado: «Para los empleados ACTIVOS de Bogotá, muestra NOMBRE, CARGO y su salario anual proyectado tras aumentar 100000 al salario mensual, con el encabezado PROYECCION_ANUAL, de la proyección más alta a la más baja».
+- Acción: editor vacío, sin bloques ni solución inicial. «Revisar sintaxis» no puntúa; «Enviar para evaluar» ejecuta realmente en Oracle. La rúbrica anuncia WHERE, AS explícito, una expresión basada en SALARIO y ORDER BY.
+- Solución de referencia: `SELECT nombre, cargo, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY proyeccion_anual DESC;`.
+- Resultado (6 filas): Ana 109200000, Carlos 91200000, Laura 70800000, Andrés 51600000, Mario 43200000 y Felipe 26400000, con su cargo.
+- Aceptación G10: la salida real de Oracle tiene las 6 filas, las tres columnas en el orden requerido, el encabezado PROYECCION_ANUAL, los valores correctos y el orden descendente. Se aceptan expresiones, filtros y órdenes equivalentes (`12 * (100000 + salario)`, `ciudad IN ('Bogotá')`, `ORDER BY 3 DESC`). Con OR en lugar de AND o sin ORDER BY no cumple. Sin Oracle disponible no se simula la corrección: es un fallo técnico que no consume intento.
+- Pista: filtra primero las filas (activos y de Bogotá), calcula el nuevo salario mensual antes de multiplicar por 12 y ordena por la proyección.
 
 ## Intentos, pistas y puntaje
 

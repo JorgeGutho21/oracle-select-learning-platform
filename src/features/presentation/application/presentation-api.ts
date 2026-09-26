@@ -3,6 +3,7 @@ export {
   isSceneNumber,
   parseSceneParam,
   SCENE_TOTAL,
+  sceneNumber,
   SCENES,
   type SceneOutline,
 } from '../domain/scenes';

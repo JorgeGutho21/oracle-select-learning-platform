@@ -73,33 +73,60 @@ test.describe('Challenge M01–M03', () => {
     await expect(mapScore(page)).toContainText('80');
   });
 
-  test('M02: el orden de SQL, con retroalimentación de FROM', async ({ page }) => {
+  test('M02: SELECT, FROM y WHERE en su orden, con retroalimentación', async ({ page }) => {
     await startChallenge(page);
     await openMission(page, 2, 'El orden de SQL');
-    for (const piece of ['SELECT', 'nombre', ',', 'empleados', 'FROM', 'ciudad'])
+    await expect(
+      page.getByText('«Muéstrame el nombre y la ciudad de los empleados de TI.»'),
+    ).toBeVisible();
+    // Sin WHERE la consulta queda incompleta: se piden todas las piezas.
+    for (const piece of ['SELECT', 'nombre', ',', 'ciudad', 'FROM', 'empleados'])
       await addPiece(page, piece);
     await submit(page);
-    await expectFeedback(page, 'es el nombre de la tabla');
+    await expectFeedback(page, 'Usa todas las piezas');
     for (let index = 0; index < 6; index++) {
       await page.locator('.ch-zone--target .ch-piece').first().click();
       await page.getByRole('button', { name: 'Quitar' }).click();
     }
-    for (const piece of ['SELECT', 'nombre', ',', 'ciudad', 'FROM', 'empleados', ';'])
+    for (const piece of [
+      'SELECT',
+      'nombre',
+      ',',
+      'ciudad',
+      'FROM',
+      'empleados',
+      'WHERE',
+      "departamento = 'TI'",
+      ';',
+    ])
       await addPiece(page, piece);
     await submit(page);
     await expectCorrect(page);
   });
 
-  test('M03: el asterisco se expande en las seis columnas del esquema', async ({ page }) => {
+  test('M03: el asterisco se expande en las doce columnas del esquema', async ({ page }) => {
     await startChallenge(page);
     await openMission(page, 3, '¿Qué trae el asterisco?');
     await addPiece(page, '*');
-    await page.getByLabel('¿Cuántas filas devuelve?').fill('6');
+    await page.getByLabel('¿Cuántas filas devuelve?').fill('20');
     await submit(page);
     await expectFeedback(page, 'El asterisco no es una columna del resultado');
     await page.getByRole('button', { name: '*, posición 1' }).click();
     await page.getByRole('button', { name: 'Quitar' }).click();
-    for (const header of ['ID', 'NOMBRE', 'EDAD', 'CIUDAD', 'SALARIO', 'DEPTO'])
+    for (const header of [
+      'ID_EMPLEADO',
+      'NOMBRE',
+      'APELLIDO',
+      'CARGO',
+      'DEPARTAMENTO',
+      'CIUDAD',
+      'SALARIO',
+      'BONO',
+      'FECHA_INGRESO',
+      'ESTADO',
+      'CORREO',
+      'ID_JEFE',
+    ])
       await addPiece(page, header);
     await submit(page);
     await expectCorrect(page);

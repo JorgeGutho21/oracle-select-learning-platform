@@ -1,7 +1,17 @@
-import { MODULE_CATALOG } from '@/features/modules/domain/catalog';
+import {
+  CURRICULUM_LEVELS,
+  FUTURE_TOPICS,
+  topicAnchor,
+} from '@/features/modules/domain/curriculum';
 import { LESSON_OUTLINE } from '@/features/study/domain/lesson-outline';
 
-export const searchGroups = ['Conceptos', 'Lecciones', 'Práctica', 'Recursos'] as const;
+export const searchGroups = [
+  'Conceptos',
+  'Lecciones',
+  'Práctica',
+  'Recursos',
+  'Próximamente',
+] as const;
 
 export type SearchGroup = (typeof searchGroups)[number];
 
@@ -36,7 +46,7 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
   {
     id: 'learn',
     title: 'Modo Estudio',
-    description: 'Recorrido de estudio con las nueve lecciones de esta unidad.',
+    description: 'Recorrido de estudio de la unidad: 22 lecciones en 8 bloques.',
     group: 'Lecciones',
     href: '/learn',
     aliases: ['aprender', 'estudio', 'modo estudio', 'curso', 'lecciones'],
@@ -63,7 +73,8 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
   {
     id: 'lab',
     title: 'Laboratorio SQL',
-    description: 'Escribe consultas del subconjunto SELECT y revisa su análisis.',
+    description:
+      'Escribe consultas SELECT con WHERE y ORDER BY, revisa su diagnóstico y ejecútalas en Oracle.',
     group: 'Práctica',
     href: '/lab',
     aliases: ['laboratorio', 'lab', 'editor', 'oracle', 'ejecutar consulta'],
@@ -154,23 +165,33 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
   ),
   {
     id: 'modules',
-    title: 'Catálogo de módulos',
-    description: 'La unidad actual y los módulos que llegarán después de SELECT.',
+    title: 'Ruta de aprendizaje',
+    description:
+      'El nivel actual y los niveles que llegan después: funciones, agrupación, JOIN y más.',
     group: 'Recursos',
     href: '/modules',
-    aliases: ['modulos', 'catalogo', 'unidades', 'temario', 'proximos modulos'],
+    aliases: ['modulos', 'catalogo', 'ruta', 'roadmap', 'temario', 'proximamente', 'niveles'],
     available: true,
   },
-  // Módulos futuros: fichas «Próximamente», sin destino, derivadas del catálogo académico.
-  ...MODULE_CATALOG.filter((entry) => entry.status === 'COMING_SOON').map(
-    (entry): PublicCatalogEntry => ({
-      id: `future-${entry.id}`,
-      title: entry.title,
-      description: `${entry.description} Llegará en un módulo futuro.`,
-      group: 'Conceptos',
-      href: null,
-      aliases: entry.keywords,
+  // Niveles futuros y sus temas: fichas «Próximamente» con destino en la ruta (/modules).
+  ...CURRICULUM_LEVELS.filter((level) => level.stage !== 'AHORA').map(
+    (level): PublicCatalogEntry => ({
+      id: `level-${level.id}`,
+      title: `Nivel ${level.number}: ${level.title}`,
+      description: level.summary,
+      group: 'Próximamente',
+      href: `/modules#nivel-${level.number}`,
+      aliases: [level.id, level.title, 'nivel', `nivel ${level.number}`],
       available: false,
     }),
   ),
+  ...FUTURE_TOPICS.map((topic): PublicCatalogEntry => ({
+    id: `future-${topic.id}`,
+    title: topic.title,
+    description: `Nivel ${topic.level} · ${topic.shortDefinition}`,
+    group: 'Próximamente',
+    href: `/modules#${topicAnchor(topic)}`,
+    aliases: topic.keywords,
+    available: false,
+  })),
 ];

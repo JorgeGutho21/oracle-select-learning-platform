@@ -133,9 +133,21 @@ async function setup() {
   }
   try {
     const readerPassword = await createLabSchema(connection, { adminSchema: 'SYSTEM' });
+    // La cuenta de una versión anterior del dataset se conserva con otro nombre para volver atrás.
+    const env = readEnv(APP_ENV);
+    const previous = env.get('ORACLE_USER');
+    const kept =
+      previous && previous !== READER
+        ? [
+            ['ORACLE_PREVIOUS_USER', previous],
+            ['ORACLE_PREVIOUS_PASSWORD', env.get('ORACLE_PASSWORD') ?? ''],
+            ['ORACLE_PREVIOUS_SCHEMA', env.get('ORACLE_SCHEMA') ?? ''],
+          ]
+        : [];
     writeEnv(
       APP_ENV,
       new Map([
+        ...kept,
         ['ORACLE_USER', READER],
         ['ORACLE_PASSWORD', readerPassword],
         ['ORACLE_CONNECT_STRING', CONNECT_STRING],
@@ -144,7 +156,7 @@ async function setup() {
       '# Variables locales (no versionar). Ver .env.example.',
     );
     console.log(
-      `Listo: ${OWNER}.EMPLEADOS con 6 filas y ${READER} con CREATE SESSION y READ. Variables en ${APP_ENV}.`,
+      `Listo: ${OWNER}.EMPLEADOS con 20 filas y ${READER} con CREATE SESSION y READ. Variables en ${APP_ENV}.`,
     );
   } finally {
     await connection.close();

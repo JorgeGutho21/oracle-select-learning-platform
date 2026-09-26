@@ -1,29 +1,58 @@
 import {
-  isAvailableModule,
-  MODULE_CATALOG,
-  type AcademicModule,
-  type ModuleStatus,
-} from '../domain/catalog';
+  CURRICULUM_LEVELS,
+  FUTURE_TOPICS,
+  findFutureTopic,
+  levelOf,
+  topicAnchor,
+  topicsOfLevel,
+  type CurriculumLevel,
+  type CurriculumTopic,
+  type LevelStage,
+} from '../domain/curriculum';
 
-export type { AcademicModule, ModuleStatus } from '../domain/catalog';
-export { isAvailableModule, MODULE_CATALOG } from '../domain/catalog';
+export type { CurriculumLevel, CurriculumTopic, LevelStage } from '../domain/curriculum';
+export {
+  CURRICULUM_LEVELS,
+  FUTURE_TOPICS,
+  findFutureTopic,
+  levelOf,
+  topicAnchor,
+  topicsOfLevel,
+} from '../domain/curriculum';
 
-export const MODULE_STATUS_LABEL: Readonly<Record<ModuleStatus, string>> = {
-  AVAILABLE: 'Disponible',
-  CURRENT: 'Unidad actual',
-  COMING_SOON: 'Próximamente',
+export const STAGE_LABEL: Readonly<Record<LevelStage, string>> = {
+  AHORA: 'Ahora',
+  'SIGUIENTE NIVEL': 'Siguiente nivel',
+  'MÁS ADELANTE': 'Más adelante',
 };
 
-export function currentModule(): AcademicModule {
-  const entry = MODULE_CATALOG.find(({ status }) => status === 'CURRENT');
-  if (!entry) throw new Error('El catálogo necesita una unidad actual.');
-  return entry;
+/** Estado visible de un tema. */
+export function topicStatusLabel(topic: Pick<CurriculumTopic, 'status'>): string {
+  return topic.status === 'current' ? 'Disponible' : 'Próximamente';
 }
 
-export function upcomingModules(): readonly AcademicModule[] {
-  return MODULE_CATALOG.filter((entry) => !isAvailableModule(entry));
+/** Destino real de un tema futuro: su ficha en `/modules`. */
+export function futureTopicHref(slug: string): string | null {
+  const topic = findFutureTopic(slug);
+  return topic ? `/modules#${topicAnchor(topic)}` : null;
 }
 
-export function moduleAnchor(entry: Pick<AcademicModule, 'id'>): string {
-  return `modulo-${entry.id}`;
+export function currentLevel(): CurriculumLevel {
+  return levelOf(1);
 }
+
+/** Niveles futuros con sus temas, en orden. */
+export function upcomingLevels(): readonly (CurriculumLevel & {
+  readonly topics: readonly CurriculumTopic[];
+})[] {
+  return CURRICULUM_LEVELS.filter((level) => level.stage !== 'AHORA').map((level) => ({
+    ...level,
+    topics: topicsOfLevel(level.number),
+  }));
+}
+
+export function levelAnchor(level: Pick<CurriculumLevel, 'number'>): string {
+  return `nivel-${level.number}`;
+}
+
+export const FUTURE_TOPIC_COUNT = FUTURE_TOPICS.length;

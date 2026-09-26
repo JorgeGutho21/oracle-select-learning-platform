@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import type { Route } from 'next';
-import { Fragment, useState, type ReactNode } from 'react';
+import { useState } from 'react';
+import { highlightSql } from '@/presentation/components/data/sql-code';
 import { Button } from './button';
 
 export interface CodeBlockProps {
@@ -10,36 +11,6 @@ export interface CodeBlockProps {
   label?: string;
   labHref?: Route;
   labDisabled?: boolean;
-}
-
-// Visual highlighting only: this never validates or executes SQL.
-function highlightSql(code: string): ReactNode[] {
-  const tokens =
-    /--[^\n]*|"(?:[^"]|"")*"|'(?:[^']|'')*'|\b(?:SELECT|FROM|AS|DISTINCT)\b|\b\d+(?:\.\d+)?\b/gi;
-  const output: ReactNode[] = [];
-  let position = 0;
-  for (const match of code.matchAll(tokens)) {
-    const start = match.index;
-    const value = match[0];
-    if (start > position)
-      output.push(<Fragment key={`text-${position}`}>{code.slice(position, start)}</Fragment>);
-    const tone = value.startsWith('--')
-      ? 'comment'
-      : /^["']/.test(value)
-        ? 'string'
-        : /^\d/.test(value)
-          ? 'number'
-          : 'keyword';
-    output.push(
-      <span className={`ds-code__${tone}`} key={`token-${start}`}>
-        {value}
-      </span>,
-    );
-    position = start + value.length;
-  }
-  if (position < code.length)
-    output.push(<Fragment key={`text-${position}`}>{code.slice(position)}</Fragment>);
-  return output;
 }
 
 export function CodeBlock({

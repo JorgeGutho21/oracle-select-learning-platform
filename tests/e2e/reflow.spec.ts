@@ -23,10 +23,13 @@ const ROUTES = [
   '/',
   '/learn',
   '/learn/alias',
+  '/learn/like',
   '/presentation?scene=9',
+  '/presentation?scene=17',
   '/lab',
   '/challenge',
   '/resources',
+  '/modules',
 ] as const;
 
 async function horizontalOverflow(page: Page) {
@@ -39,6 +42,8 @@ for (const viewport of ZOOMED) {
   test(`con zoom 200 % (${viewport.width}×${viewport.height}) ninguna ruta desborda`, async ({
     page,
   }) => {
+    // Diez rutas por prueba: unos 5 s por ruta con la CPU del equipo ocupada.
+    test.setTimeout(ROUTES.length * 6_000);
     await page.setViewportSize(viewport);
     for (const route of ROUTES) {
       await page.goto(route);
@@ -84,7 +89,7 @@ test('con zoom 200 % las diez misiones del Challenge caben y se juegan', async (
   const titles = [
     'El orden de SQL',
     '¿Qué trae el asterisco?',
-    'Predice el resultado',
+    'Predice las filas',
     'Columnas calculadas',
     'Encabezados con AS',
     'Valores únicos con DISTINCT',

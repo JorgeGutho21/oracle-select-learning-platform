@@ -8,7 +8,7 @@ const footerLinks = [
   { href: '/lab', label: 'Laboratorio SQL' },
   { href: '/challenge', label: 'SQL Challenge' },
   { href: '/resources', label: 'Recursos y chuleta' },
-  { href: '/modules', label: 'Catálogo de módulos' },
+  { href: '/modules', label: 'Ruta de aprendizaje' },
 ] as const;
 
 export function SiteFooter() {

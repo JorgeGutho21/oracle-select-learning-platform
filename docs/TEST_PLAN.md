@@ -20,8 +20,8 @@ Herramientas propuestas para implementación: Vitest para reglas, Playwright par
 | T04 | P04 Búsqueda | Probar Ctrl+K, Cmd+K, lupa, teclado y Escape; buscar alias, AS, *, asterisco, video, quiz, WHERE y texto inexistente. | Destinos y etiquetas correctos; futuras unidades separadas; foco restaurado; ninguna solución privada indexada. |
 | T05 | P05 Introducción | Reproducir, pausar, omitir, activar subtítulos y abrir transcripción; bloquear proveedor de vídeo. | Duración 90–120 s; sin autoplay con audio; alternativa útil ante fallo. |
 | T06 | P06 Explicaciones | Revisar L01–L08 con sus tablas y avanzar cada transformación. | Consulta, traducción y resultado concordantes; animación no se presenta como ejecución física del motor. |
-| T07 | P07 Tablas | Seleccionar columnas por ratón, toque y teclado; navegar seis filas y usar zoom. | Fuente intacta, encabezados asociados y ningún dato de otra versión. |
-| T08 | P08 Laboratorio | Ejecutar LAB01–LAB10 contra Oracle, luego provocar fallo de red. | Resultados reales, errores diferenciados, consulta preservada y ninguna sustitución silenciosa por simulación. |
+| T07 | P07 Tablas | Seleccionar columnas por ratón, toque y teclado; navegar las 20 filas y usar zoom. | Fuente intacta, encabezados asociados y ningún dato de otra versión. |
+| T08 | P08 Laboratorio | Ejecutar LAB01–LAB24 contra Oracle, luego provocar fallo de red. | Resultados reales, errores diferenciados, consulta preservada y ninguna sustitución silenciosa por simulación. |
 | T09 | P09 Challenge | Completar M01–M10, repetir y crear una nueva práctica. | Diez misiones; progreso correcto; nueva partida no cambia resultados de sala. |
 | T10 | P10 Bloques | Resolver M01, M02, M06 y M09 mediante arrastre, teclado y toque sin arrastre. | Respuesta evaluada y puntaje iguales para las tres modalidades. |
 | T11 | P11 Predicción | Resolver M03, M04 y M07; probar valores y duplicados incorrectos. | No revela resultado antes del intento; evalúa encabezados, multiplicidad y combinaciones correctamente. |
@@ -37,7 +37,7 @@ Herramientas propuestas para implementación: Vitest para reglas, Playwright par
 
 G01–G10 se verifican una a una con las soluciones de GAME_SPEC. Cada misión debe incluir al menos un caso correcto, uno incorrecto con sentido pedagógico, una respuesta incompleta y la interacción alternativa accesible. Para G05 y G10 verificar expresiones equivalentes. Para G07 comprobar que conservar cualquier ejemplar de cada ciudad es válido y que eliminar una ciudad por completo no lo es. Para G02, G06 y G09 comprobar que se corrige el resultado de la consulta armada y no una cadena exacta (por ejemplo, comas intercambiables en M09).
 
-La misión M08 (Challenge v2) parte de `SELECT nombre salario FROM empleados;`, pero no la presenta como error sintáctico: LAB10 confirma que ese SQL expresa un alias implícito. El estudiante localiza el hueco de la coma y el feedback explica que falla el objetivo de dos columnas, no la sintaxis.
+La misión M08 (Challenge v3) parte de `SELECT nombre salario FROM empleados;`, pero no la presenta como error sintáctico: LAB19 confirma que ese SQL expresa un alias implícito. El estudiante localiza el hueco de la coma y el feedback explica que falla el objetivo de dos columnas, no la sintaxis.
 
 G11–G15 cubren puntuación, reenvío, empates, accesibilidad y revelación de soluciones. En ronda abierta inspeccionar respuestas y recursos enviados al navegador para verificar que no incluyen rúbrica privada ni soluciones futuras; las soluciones visibles en materiales de estudio son referencias de aprendizaje, no secretos de examen.
 
@@ -50,7 +50,7 @@ G11–G15 cubren puntuación, reenvío, empates, accesibilidad y revelación de 
 | S03 | Multiplicidad | CIUDAD tiene seis valores, aunque solo tres distintos. |
 | S04 | DISTINCT compuesto | Cinco pares ciudad/depto, no tres ni seis. |
 | S05 | Alias | AS no cambia nombre ni valores de la tabla de origen. |
-| S06 | Alias implícito | LAB10 devuelve una columna y puede fallar un pedido de dos columnas. |
+| S06 | Alias implícito | LAB19 devuelve una columna y puede fallar un pedido de dos columnas. |
 | S07 | Precedencia | Ana: 4200000 para suma sin paréntesis, 37200000 con paréntesis. |
 | S08 | Equivalencia | SALARIO * 12 y 12 * SALARIO coinciden en resultados con rúbrica compatible. |
 | S09 | Comparación de filas | Permutar filas conserva igualdad; quitar una repetición cambia el multiconjunto. |
@@ -108,11 +108,11 @@ Luis supera a Eva por resolver más misiones con igual puntuación. Eva y Sol co
 
 ## Oracle real: pruebas automatizadas (Fase 8)
 
-Instancia de verificación: Oracle Database 23ai Free 23.26.3 en el contenedor oficial `container-registry.oracle.com/database/free:latest-lite`, con `EMPLEADOS` cargada desde `oracle/empleados-select-v1.sql` y la cuenta `SQL_LAB_READER` (solo `CREATE SESSION` y `READ`). Instalación reproducible con `npm run oracle:up` y `npm run oracle:setup` ([ORACLE_SETUP.md](ORACLE_SETUP.md)). Las pruebas contra Oracle se omiten sin la cuenta lectora; nunca hay secretos en el repositorio.
+Instancia de verificación: Oracle Database 23ai Free 23.26.3 en el contenedor oficial `container-registry.oracle.com/database/free:latest-lite`, y Oracle Autonomous Database 19c (Oracle Cloud), con `EMPLEADOS` v2 cargada desde `oracle/empleados-select-v2.sql` y la cuenta `SQL_LAB_V2_READER` (solo `CREATE SESSION` y `READ`). Instalación reproducible con `npm run oracle:up` y `npm run oracle:setup` ([ORACLE_SETUP.md](ORACLE_SETUP.md)). Las pruebas contra Oracle se omiten sin la cuenta lectora; nunca hay secretos en el repositorio.
 
 | ID | Cobertura | Dónde |
 |---|---|---|
-| LAB11 | LAB01–LAB10 ejecutados en Oracle: mismas columnas, filas (multiconjunto) y tipos que el análisis educativo; valores de LAB03 y LAB06–LAB10. | `tests/integration/oracle-real.test.ts` |
+| LAB11 | LAB01–LAB24, 64 consultas por concepto y todas las consultas del Estudio y de la Exposición ejecutadas en Oracle: mismos encabezados, tipos, filas (multiconjunto) y orden (entre empates) que el motor educativo; 102 casos. | `tests/integration/oracle-real.test.ts` |
 | LAB12 | Espacios, caja, comentarios de línea y terminador no cambian el resultado. | Integración. |
 | LAB13 | DML, varias sentencias, otra tabla y WHERE se rechazan antes de Oracle; un `UPDATE` enviado directamente con la cuenta lectora lo rechaza Oracle; los datos siguen intactos. | Integración. |
 | LAB14 | Un plazo agotado (800 ms) devuelve «no disponible» y el grupo de una conexión sigue sirviendo; errores de conexión sin detalles internos. | Integración y unitarias. |

@@ -289,7 +289,19 @@ describe('Resultado de la partida', () => {
       total: 60,
     });
     expect(summary.missions[1]!.timeMs).toBe(2000);
-    // M03 fallida y M04–M10 omitidas; M10 abarca L01–L08. Sin duplicados y ordenadas.
-    expect(summary.reviewLessons).toEqual(['L01', 'L02', 'L03', 'L04', 'L05', 'L06', 'L07', 'L08']);
+    // M03 fallida y M04–M10 omitidas: sus lecciones, sin duplicados y ordenadas.
+    expect(summary.reviewLessons).toEqual([
+      'L04',
+      'L05',
+      'L06',
+      'L07',
+      'L08',
+      'L10',
+      'L11',
+      'L12',
+      'L13',
+      'L19',
+      'L20',
+    ]);
   });
 });

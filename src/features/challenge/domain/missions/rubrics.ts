@@ -2,6 +2,7 @@ import { EMPLEADOS_COLUMNS, EMPLEADOS_DATASET } from '@/domain/dataset/empleados
 import {
   compareResults,
   distinctRows,
+  isSortedBy,
   normalizeIdentifier,
   projectRows,
   sameRowMultiset,
@@ -26,10 +27,11 @@ import type {
 import { findPublicMission } from './public-catalog';
 
 /**
- * PRIVADO. Rúbricas, pistas y explicaciones del Challenge v2. Solo debe componerse en el
+ * PRIVADO. Rúbricas, pistas y explicaciones del Challenge v3. Solo debe componerse en el
  * servicio de corrección; nunca importarse desde aplicación ni presentación.
  * Toda consulta se analiza con el motor SQL compartido (el mismo del laboratorio) y se
- * corrige por su resultado sobre el dataset canónico, no por su texto.
+ * corrige por su resultado sobre el dataset canónico, no por su texto. Con ORDER BY se
+ * comprueba el orden pedido, admitiendo cualquier orden entre filas empatadas.
  */
 
 const correct = (feedback: string): EvaluationOutcome => ({ kind: 'correct', feedback });
@@ -37,8 +39,14 @@ const incorrect = (feedback: string): EvaluationOutcome => ({ kind: 'incorrect',
 const invalid = (message: string): EvaluationOutcome => ({ kind: 'invalid-input', message });
 
 const rows = EMPLEADOS_DATASET.rows;
-const nameOf = (id: number) => rows.find((row) => row.ID === id)?.NOMBRE ?? `ID ${id}`;
+const TOTAL = rows.length;
+const nameOf = (id: number) => {
+  const row = rows.find((entry) => entry.ID_EMPLEADO === id);
+  return row ? `${row.NOMBRE} ${row.APELLIDO}` : `ID ${id}`;
+};
 const sortedKey = (values: readonly string[]) => [...values].sort().join();
+const listWords = (items: readonly string[]) =>
+  items.length <= 1 ? items.join('') : `${items.slice(0, -1).join(', ')} y ${items.at(-1)}`;
 
 function define<T extends InteractionType>(
   missionId: MissionId,
@@ -68,6 +76,13 @@ function reference(sql: string): ResultTable {
   const run = runEducational(sql);
   if (!run.result) throw new Error(`Consulta de referencia inválida: ${sql}`);
   return run.result.table;
+}
+
+/** ID_EMPLEADO de las filas que conserva una consulta de referencia. */
+function keptIds(sql: string): number[] {
+  const run = runEducational(sql);
+  if (!run.result) throw new Error(`Consulta de referencia inválida: ${sql}`);
+  return run.result.trace.keptRows.map((index) => rows[index]!.ID_EMPLEADO);
 }
 
 function publicDataOf<T extends InteractionType>(missionId: MissionId, type: T) {
@@ -113,26 +128,75 @@ function explainResult(
   const missing = wanted.filter((column) => !got.includes(column));
   if (extra.length > 0) return incorrect(`Sobran columnas: ${extra.join(', ')} no se pidió.`);
   if (missing.length > 0) return incorrect(`Falta mostrar ${missing.join(', ')}.`);
-  if (comparison.difference === 'row-count')
-    return incorrect('El resultado no tiene todas las filas pedidas.');
+  if (comparison.difference === 'row-count') {
+    return incorrect(
+      actual.rows.length > expected.rows.length
+        ? 'El resultado tiene filas de más: revisa la condición que las filtra.'
+        : 'El resultado no tiene todas las filas pedidas.',
+    );
+  }
   return incorrect('La consulta es válida, pero sus valores no responden al pedido.');
 }
 
+type Judged =
+  | { readonly outcome: EvaluationOutcome; readonly statement: null; readonly result: null }
+  | {
+      readonly outcome: EvaluationOutcome;
+      readonly statement: SelectStatement;
+      readonly result: ResultTable;
+    };
+
 /** Analiza con el motor compartido y corrige por resultado. */
-function judge(sql: string | null, expected: ResultTable, success: string): EvaluationOutcome {
+function judgeRun(sql: string | null, expected: ResultTable, success: string): Judged {
+  const fail = (outcome: EvaluationOutcome): Judged => ({ outcome, statement: null, result: null });
   if (sql === null)
-    return incorrect('La consulta contiene piezas que no pertenecen a esta misión.');
+    return fail(incorrect('La consulta contiene piezas que no pertenecen a esta misión.'));
   const run = runEducational(sql);
   const error = run.analysis.errors[0] ?? run.runtimeError;
-  if (error) return incorrect(describeDiagnostic(error));
-  if (!run.analysis.statement || !run.result) return incorrect('La consulta no es válida.');
-  return explainResult(
-    run.analysis.statement,
-    run.result.table,
-    expected,
-    success,
-    run.analysis.warnings,
-  );
+  if (error) return fail(incorrect(describeDiagnostic(error)));
+  if (!run.analysis.statement || !run.result) return fail(incorrect('La consulta no es válida.'));
+  return {
+    outcome: explainResult(
+      run.analysis.statement,
+      run.result.table,
+      expected,
+      success,
+      run.analysis.warnings,
+    ),
+    statement: run.analysis.statement,
+    result: run.result.table,
+  };
+}
+
+function judge(sql: string | null, expected: ResultTable, success: string): EvaluationOutcome {
+  return judgeRun(sql, expected, success).outcome;
+}
+
+/** Comprueba que las filas sigan el orden pedido por una columna del resultado. */
+function orderOutcome(
+  statement: SelectStatement | null,
+  result: ResultTable,
+  column: string,
+  direction: 'ASC' | 'DESC',
+  success: string,
+): EvaluationOutcome {
+  const index = result.columns.map(normalizeIdentifier).indexOf(column);
+  if (statement && !statement.orderBy) {
+    return incorrect(
+      'El pedido indica un orden, y sin ORDER BY Oracle no garantiza ninguno: añade el criterio de orden.',
+    );
+  }
+  if (index === -1) return incorrect(`Falta la columna ${column} en el resultado.`);
+  if (isSortedBy(result.rows, [{ column: index, direction }])) return correct(success);
+  const reverse = direction === 'DESC' ? 'ASC' : 'DESC';
+  if (isSortedBy(result.rows, [{ column: index, direction: reverse }])) {
+    return incorrect(
+      direction === 'DESC'
+        ? 'Las filas quedaron del valor más bajo al más alto; el pedido es del más alto al más bajo.'
+        : 'Las filas quedaron del valor más alto al más bajo; el pedido es del más bajo al más alto.',
+    );
+  }
+  return incorrect(`Las filas no siguen el orden de ${column} que pide el enunciado.`);
 }
 
 /* ---------- M01 ---------- */
@@ -140,26 +204,25 @@ const m01Expected = reference('SELECT nombre, salario FROM empleados');
 
 const m01 = define('M01', 'drag-column', {
   hint: 'El pedido menciona dos datos de cada empleado. El orden de la lista es el orden de las columnas.',
-  explanation:
-    'SELECT nombre, salario FROM empleados; proyecta dos columnas en ese orden para los seis empleados. Las demás columnas siguen en la tabla; solo no se muestran.',
+  explanation: `SELECT nombre, salario FROM empleados; proyecta dos columnas en ese orden para los ${TOTAL} empleados. Las demás columnas siguen en la tabla; solo no se muestran.`,
   validate: ({ columns }) => {
     if (columns.length === 0) return invalid('Arrastra al menos una columna a la lista de SELECT.');
     return judge(
       `SELECT ${columns.join(', ')} FROM empleados`,
       m01Expected,
-      'Correcto: seis empleados con NOMBRE y SALARIO, en ese orden.',
+      `Correcto: ${TOTAL} empleados con NOMBRE y SALARIO, en ese orden.`,
     );
   },
 });
 
 /* ---------- M02 ---------- */
 const m02Pieces = pieceMap(publicDataOf('M02', 'reorder-sql').pieces);
-const m02Expected = reference('SELECT nombre, ciudad FROM empleados');
+const m02Expected = reference("SELECT nombre, ciudad FROM empleados WHERE departamento = 'TI'");
 
 const m02 = define('M02', 'reorder-sql', {
-  hint: 'Primero indica qué mostrar (SELECT y las columnas) y después de dónde (FROM y la tabla).',
+  hint: 'Primero qué mostrar (SELECT y las columnas), después de dónde (FROM y la tabla) y al final qué filas (WHERE y la condición).',
   explanation:
-    'SELECT nombre, ciudad FROM empleados; enumera las columnas en el orden pedido, separadas por coma, y después FROM indica la tabla de origen.',
+    "SELECT nombre, ciudad FROM empleados WHERE departamento = 'TI'; — las columnas en el orden pedido, la tabla después de FROM y la condición después de WHERE.",
   validate: ({ pieceIds }) => {
     if (pieceIds.length === 0) return invalid('Coloca las piezas antes de comprobar.');
     const required = [...m02Pieces.keys()].filter((id) => id !== 'm02-end');
@@ -169,7 +232,7 @@ const m02 = define('M02', 'reorder-sql', {
     return judge(
       sqlFromPieces(pieceIds, m02Pieces),
       m02Expected,
-      'Correcto: cláusulas y columnas en el orden de SQL.',
+      'Correcto: SELECT, FROM y WHERE en el orden de SQL.',
     );
   },
 });
@@ -177,7 +240,7 @@ const m02 = define('M02', 'reorder-sql', {
 /* ---------- M03 ---------- */
 const m03 = define('M03', 'predict-result', {
   hint: 'Observa el esquema completo de EMPLEADOS: el asterisco no deja ninguna columna fuera.',
-  explanation: `SELECT * expande todas las columnas visibles de la tabla, en el orden del esquema: ${EMPLEADOS_COLUMNS.join(', ')}. Sin filtros, devuelve las ${rows.length} filas.`,
+  explanation: `SELECT * expande todas las columnas de la tabla, en el orden del esquema: ${EMPLEADOS_COLUMNS.join(', ')}. Sin filtros, devuelve las ${TOTAL} filas.`,
   validate: ({ headers, rowCount }) => {
     if (headers.length === 0 && rowCount === null) {
       return invalid('Construye los encabezados e indica el número de filas.');
@@ -191,22 +254,27 @@ const m03 = define('M03', 'predict-result', {
     if (names.join() !== EMPLEADOS_COLUMNS.join()) {
       return sortedKey(names) === sortedKey(EMPLEADOS_COLUMNS)
         ? incorrect('Están todas las columnas, pero no en el orden del esquema.')
-        : incorrect('Revisa los encabezados: * devuelve cada columna de EMPLEADOS.');
+        : incorrect(
+            `Revisa los encabezados: * devuelve las ${EMPLEADOS_COLUMNS.length} columnas de EMPLEADOS.`,
+          );
     }
-    if (rowCount !== rows.length) {
+    if (rowCount !== TOTAL) {
       return incorrect('Los encabezados son correctos; revisa cuántas filas tiene EMPLEADOS.');
     }
-    return correct('Correcto: seis encabezados en el orden del esquema y seis filas.');
+    return correct(
+      `Correcto: ${EMPLEADOS_COLUMNS.length} encabezados en el orden del esquema y ${TOTAL} filas.`,
+    );
   },
 });
 
 /* ---------- M04 ---------- */
-const m04Expected = reference('SELECT nombre, salario FROM empleados');
+const m04Query = publicDataOf('M04', 'predict-result').query;
+const m04Expected = reference(m04Query);
+const m04Ids = keptIds(m04Query);
 
 const m04 = define('M04', 'predict-result', {
-  hint: 'La consulta elige columnas, no filas: piensa si algún empleado podría quedar fuera.',
-  explanation:
-    'SELECT nombre, salario FROM empleados; devuelve dos columnas, NOMBRE y SALARIO, y conserva a los seis empleados: proyectar columnas no elimina filas.',
+  hint: 'WHERE conserva solo las filas cuya ciudad es Cali; SELECT decide qué columnas se ven.',
+  explanation: `${m04Query.replace(/\s+/g, ' ')} devuelve NOMBRE y SALARIO de los ${m04Ids.length} empleados de Cali: ${listWords(m04Ids.map(nameOf))}.`,
   validate: ({ headers, sourceRowIds }) => {
     if (headers.length === 0 && sourceRowIds.length === 0) {
       return invalid('Construye los encabezados y marca las filas del resultado.');
@@ -219,16 +287,22 @@ const m04 = define('M04', 'predict-result', {
             'Las columnas son correctas, pero el resultado respeta el orden escrito en SELECT.',
           )
         : incorrect(
-            'Revisa los encabezados: el resultado solo tiene las columnas escritas después de SELECT.',
+            'Revisa los encabezados: el resultado solo tiene las columnas escritas después de SELECT, aunque WHERE use otra.',
           );
     }
-    const selected = rows.filter((row) => sourceRowIds.includes(row.ID));
+    const selected = rows.filter((row) => sourceRowIds.includes(row.ID_EMPLEADO));
     if (compareResults(projectRows(selected, ['NOMBRE', 'SALARIO']), m04Expected).equal) {
-      return correct('Correcto: dos columnas y los seis empleados.');
+      return correct(`Correcto: dos columnas y los ${m04Ids.length} empleados de Cali.`);
     }
-    const missing = rows.length - selected.length;
+    const extra = selected.filter((row) => !m04Ids.includes(row.ID_EMPLEADO));
+    if (extra.length > 0) {
+      return incorrect(
+        `Sobran filas: ${listWords(extra.map((row) => row.NOMBRE))} no ${extra.length === 1 ? 'trabaja' : 'trabajan'} en Cali, así que WHERE las descarta.`,
+      );
+    }
+    const missing = m04Ids.length - selected.length;
     return incorrect(
-      `Faltan ${missing} empleado${missing === 1 ? '' : 's'}: sin una condición que filtre filas, la consulta devuelve todas.`,
+      `Falta${missing === 1 ? '' : 'n'} ${missing} empleado${missing === 1 ? '' : 's'} de Cali: WHERE conserva todas las filas que cumplen la condición.`,
     );
   },
 });
@@ -249,11 +323,14 @@ function columnValues(expression: Expression): number[] | null {
 
 const m05Reference = analyzeExpression('salario * 12').expression;
 const m05Expected = m05Reference ? columnValues(m05Reference) : null;
+const m05Examples = m05Data.predictionEmployeeIds.map((id) => {
+  const index = rows.findIndex((row) => row.ID_EMPLEADO === id);
+  return `${nameOf(id)} ${m05Expected?.[index] ?? '?'}`;
+});
 
 const m05 = define('M05', 'expression-builder', {
   hint: 'Un año tiene doce meses: la expresión parte del salario mensual.',
-  explanation:
-    'SELECT nombre, salario, salario * 12 FROM empleados; añade una columna calculada fila por fila: Ana 36000000, Pedro 21600000 y María 44400000. La columna SALARIO de la tabla no cambia.',
+  explanation: `SELECT nombre, salario, salario * 12 FROM empleados; añade una columna calculada fila por fila: ${listWords(m05Examples)}. La columna SALARIO de la tabla no cambia.`,
   validate: ({ pieceIds, predictions }) => {
     const filled = predictions.filter((prediction) => prediction.value !== null);
     if (pieceIds.length === 0 && filled.length === 0) {
@@ -280,13 +357,13 @@ const m05 = define('M05', 'expression-builder', {
       );
     }
     const wrong = m05Data.predictionEmployeeIds.filter((id) => {
-      const index = rows.findIndex((row) => row.ID === id);
+      const index = rows.findIndex((row) => row.ID_EMPLEADO === id);
       const prediction = predictions.find((item) => item.employeeId === id)?.value ?? null;
       return index === -1 || prediction !== m05Expected[index];
     });
     if (wrong.length > 0) {
       return incorrect(
-        `La expresión es correcta; revisa el valor calculado para ${wrong.map(nameOf).join(', ')}.`,
+        `La expresión es correcta; revisa el valor calculado para ${listWords(wrong.map(nameOf))}.`,
       );
     }
     return correct('Correcto: la columna calculada multiplica el salario de cada fila por 12.');
@@ -337,29 +414,36 @@ const m06 = define('M06', 'alias-builder', {
 });
 
 /* ---------- M07 ---------- */
-const m07Source = projectRows(rows, ['CIUDAD']);
+const m07Data = publicDataOf('M07', 'distinct-result');
+const m07Source = {
+  columns: [m07Data.column],
+  rows: m07Data.candidateValues.map((value) => [value]),
+};
 const m07Expected = distinctRows(m07Source);
-const m07Cities = m07Expected.rows.map(([city]) => String(city));
+const m07Values = m07Expected.rows.map(([value]) => String(value));
+if (!compareResults(m07Expected, reference(m07Data.query)).equal) {
+  throw new Error('La lista de partida de M07 no corresponde a su consulta.');
+}
 
 const m07 = define('M07', 'distinct-result', {
-  hint: 'Cada ciudad debe aparecer una vez: ni repetida ni eliminada del todo.',
-  explanation: `SELECT ciudad FROM empleados; devuelve ${m07Source.rows.length} filas con repeticiones. Con DISTINCT quedan ${m07Cities.length}: ${m07Cities.join(', ')}.`,
+  hint: 'Cada departamento debe aparecer una vez: ni repetido ni eliminado del todo.',
+  explanation: `${m07Data.sourceQuery} devuelve ${m07Source.rows.length} filas con repeticiones. Con DISTINCT quedan ${m07Values.length}: ${listWords(m07Values)}.`,
   validate: ({ keptIndexes }) => {
     if (keptIndexes.length === 0) return invalid('Conserva al menos una fila.');
     const kept = [...new Set(keptIndexes)]
       .filter((index) => Number.isInteger(index) && index >= 0 && index < m07Source.rows.length)
       .map((index) => m07Source.rows[index]!);
     if (sameRowMultiset(kept, m07Expected.rows)) {
-      return correct('Correcto: DISTINCT deja cada ciudad una sola vez.');
+      return correct('Correcto: DISTINCT deja cada departamento una sola vez.');
     }
-    const present = new Set(kept.map(([city]) => String(city)));
-    const missing = m07Cities.filter((city) => !present.has(city));
+    const present = new Set(kept.map(([value]) => String(value)));
+    const missing = m07Values.filter((value) => !present.has(value));
     if (missing.length > 0) {
       return incorrect(
-        `Retiraste todas las filas de ${missing.join(', ')}: DISTINCT conserva un ejemplar de cada valor.`,
+        `Retiraste todas las filas de ${listWords(missing)}: DISTINCT conserva un ejemplar de cada valor.`,
       );
     }
-    return incorrect('Todavía hay ciudades repetidas: DISTINCT deja cada valor una sola vez.');
+    return incorrect('Todavía hay departamentos repetidos: DISTINCT deja cada valor una sola vez.');
   },
 });
 
@@ -393,12 +477,13 @@ const m08 = define('M08', 'hotspot-error', {
 
 /* ---------- M09 ---------- */
 const m09Pieces = pieceMap(publicDataOf('M09', 'build-query').pieces);
-const m09Expected = reference('SELECT nombre, ciudad, salario FROM empleados');
+const m09Expected = reference(
+  'SELECT nombre, ciudad, salario FROM empleados ORDER BY salario DESC',
+);
 
 const m09 = define('M09', 'build-query', {
-  hint: 'Cada dato mencionado en el pedido es una columna, en ese orden. Algunos bloques sobran.',
-  explanation:
-    'SELECT nombre, ciudad, salario FROM empleados; responde al pedido: tres columnas en el orden mencionado y los seis empleados. Se acepta cualquier construcción con el mismo resultado.',
+  hint: 'Cada dato mencionado es una columna, en ese orden; el orden de las filas se pide al final. Algunos bloques sobran.',
+  explanation: `SELECT nombre, ciudad, salario FROM empleados ORDER BY salario DESC; responde al pedido: tres columnas en el orden mencionado, los ${TOTAL} empleados y el salario más alto primero. Se acepta cualquier construcción con el mismo resultado y el mismo orden.`,
   validate: ({ pieceIds }) => {
     if (pieceIds.length === 0) return invalid('Coloca los bloques antes de comprobar.');
     const sql = sqlFromPieces(pieceIds, m09Pieces);
@@ -407,23 +492,22 @@ const m09 = define('M09', 'build-query', {
         'El pedido dice «todos los empleados»: DISTINCT eliminaría filas repetidas y no se pidió.',
       );
     }
-    return judge(
-      sql,
-      m09Expected,
-      'Correcto: tres columnas en el orden del pedido para todos los empleados.',
-    );
+    const success =
+      'Correcto: tres columnas, todos los empleados y del salario más alto al más bajo.';
+    const judged = judgeRun(sql, m09Expected, success);
+    if (judged.outcome.kind !== 'correct' || !judged.result) return judged.outcome;
+    return orderOutcome(judged.statement, judged.result, 'SALARIO', 'DESC', success);
   },
 });
 
 /* ---------- M10 ---------- */
-const m10Expected = reference(
-  'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados',
-);
+const M10_REFERENCE =
+  "SELECT nombre, cargo, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY proyeccion_anual DESC";
+const m10Expected = reference(M10_REFERENCE);
 
 const m10 = define('M10', 'write-query', {
-  hint: 'Calcula primero el nuevo salario mensual y después multiplícalo por 12.',
-  explanation:
-    'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados; conserva a los seis empleados, proyecta tres columnas y etiqueta el cálculo.',
+  hint: 'Filtra primero las filas (activos y de Bogotá), calcula el nuevo salario mensual antes de multiplicar por 12 y ordena por la proyección.',
+  explanation: `${M10_REFERENCE}; — WHERE deja a los ${m10Expected.rows.length} empleados activos de Bogotá, los paréntesis suman los 100000 antes de multiplicar, AS nombra la columna y ORDER BY la ordena de mayor a menor.`,
   // Capas 1 y 2 de LAB_SPEC (estructura y requisitos) con el motor compartido; la capa 3,
   // la salida real, exige ejecutar en Oracle.
   validate: ({ sql }) => {
@@ -436,11 +520,11 @@ const m10 = define('M10', 'write-query', {
       return incorrect('El pedido indica tres columnas concretas: el asterisco mostraría todas.');
     }
     if (statement.distinct) {
-      return incorrect('El pedido conserva a todos los empleados: DISTINCT no se pidió.');
+      return incorrect('El pedido no busca quitar repetidas: DISTINCT no se pidió.');
     }
     if (statement.items.length !== 3) {
       return incorrect(
-        `El pedido tiene tres columnas (NOMBRE, CIUDAD y la proyección anual); tu consulta tiene ${statement.items.length}.`,
+        `El pedido tiene tres columnas (NOMBRE, CARGO y la proyección anual); tu consulta tiene ${statement.items.length}.`,
       );
     }
     const third = statement.items[2]!;
@@ -461,20 +545,41 @@ const m10 = define('M10', 'write-query', {
         `El encabezado de la tercera columna debe ser PROYECCION_ANUAL, no ${third.alias.header}.`,
       );
     }
+    if (!statement.where) {
+      return incorrect(
+        'El pedido es solo para los empleados activos de Bogotá: falta la condición que filtra las filas.',
+      );
+    }
+    if (!statement.orderBy) {
+      return incorrect(
+        'El pedido indica un orden, de la proyección más alta a la más baja: falta ordenar el resultado.',
+      );
+    }
     return { kind: 'requires-execution', statement: renderStatement(statement) };
   },
   gradeExecution: (result) => {
     const comparison = compareResults(result, m10Expected);
-    if (comparison.equal) {
-      return correct('Correcto: Oracle devolvió seis filas con NOMBRE, CIUDAD y PROYECCION_ANUAL.');
-    }
-    if (comparison.difference === 'columns') {
+    if (!comparison.equal) {
+      if (comparison.difference === 'columns') {
+        return incorrect(
+          `Oracle devolvió las columnas ${result.columns.join(', ')}; el pedido es NOMBRE, CARGO, PROYECCION_ANUAL.`,
+        );
+      }
+      if (comparison.difference === 'row-count') {
+        return incorrect(
+          `Oracle devolvió ${result.rows.length} filas; los empleados activos de Bogotá son ${m10Expected.rows.length}. Revisa las condiciones y cómo las unes.`,
+        );
+      }
       return incorrect(
-        `Oracle devolvió las columnas ${result.columns.join(', ')}; el pedido es NOMBRE, CIUDAD, PROYECCION_ANUAL.`,
+        'La consulta se ejecutó, pero los valores no corresponden al salario anual tras sumar 100000.',
       );
     }
-    return incorrect(
-      'La consulta se ejecutó, pero los valores no corresponden al salario anual tras sumar 100000.',
+    return orderOutcome(
+      null,
+      result,
+      'PROYECCION_ANUAL',
+      'DESC',
+      `Correcto: Oracle devolvió los ${m10Expected.rows.length} empleados activos de Bogotá con NOMBRE, CARGO y PROYECCION_ANUAL, de mayor a menor.`,
     );
   },
 });

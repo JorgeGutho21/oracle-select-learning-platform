@@ -1,0 +1,428 @@
+// Piezas de las escenas nuevas del Modo Exposición (guion de 29 escenas). Las medidas
+// están en em para escalar con el lienzo 16:9 (1.7cqi por escena).
+
+.scene .sql-code__pre {
+  padding: 0.55em 0.85em;
+  border-radius: 0.5em;
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+.scene .sql-code__label {
+  font-size: 0.6em;
+}
+.scene .sql-code {
+  gap: 0.3em;
+}
+.scene .hl-table th,
+.scene .hl-table td {
+  padding: 0.32em 0.65em;
+}
+.scene .hl-table__state-label {
+  font-size: 0.8em;
+}
+.scene-split--flow {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: start;
+}
+.scene-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.8em;
+  align-items: start;
+  min-width: 0;
+}
+.scene-what {
+  padding: 0.55em 0.8em;
+  background: var(--color-soft);
+  border-left: 0.25em solid var(--scene-accent);
+  border-radius: 0.4em;
+  font-size: 0.8em;
+}
+.scene--night .scene-what,
+.scene--tech .scene-what {
+  color: var(--color-ink);
+}
+.scene-what span {
+  display: block;
+  color: var(--color-primary);
+  font-size: 0.75em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.scene-count {
+  font-size: 0.85em;
+}
+.scene-count strong {
+  color: var(--scene-accent);
+  font-size: 1.6em;
+  font-weight: 800;
+}
+
+// 02 Ruta.
+.scene-blocks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7em;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.scene-blocks li {
+  display: grid;
+  gap: 0.25em;
+  align-content: start;
+  padding: 0.7em 0.8em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.6em;
+}
+.scene-blocks__letter {
+  display: inline-grid;
+  place-items: center;
+  width: 1.8em;
+  height: 1.8em;
+  color: var(--color-night);
+  background: var(--color-cyan);
+  border-radius: 0.45em;
+  font: 800 0.9em var(--font-mono);
+}
+.scene-blocks strong {
+  font-size: 0.95em;
+}
+.scene-blocks__badges {
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  font-weight: 700;
+}
+
+// 06 SELECT *.
+.scene-pros,
+.scene-quotes,
+.scene-null,
+.scene-patterns,
+.scene-facts {
+  display: grid;
+  gap: 0.45em;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 0.85em;
+}
+.scene-pros li,
+.scene-quotes li,
+.scene-null li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45em;
+  align-items: baseline;
+  padding: 0.4em 0.7em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.45em;
+}
+.scene-pros__yes > span:first-child {
+  color: var(--color-success);
+  font-weight: 800;
+}
+.scene-pros__no > span:first-child {
+  color: var(--color-danger);
+  font-weight: 800;
+}
+.scene-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45em;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.scene-columns li {
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
+  padding: 0.45em 0.6em;
+  background: var(--color-soft);
+  border-radius: 0.45em;
+  font-size: 0.72em;
+}
+.scene-columns li span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.6em;
+  color: var(--color-inverse);
+  background: var(--color-primary);
+  border-radius: 0.35em;
+  font-size: 0.8em;
+  font-weight: 800;
+}
+
+// 09 Alias.
+.scene-split--compare {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr);
+}
+.scene-facts li {
+  padding: 0.5em 0.7em;
+  background: var(--color-soft);
+  border-radius: 0.45em;
+}
+.scene-facts strong {
+  color: var(--color-primary);
+}
+.scene-arrow em {
+  font-size: 0.7em;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+// 12 Comparaciones.
+.scene-operators {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45em;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.scene-operators li {
+  display: grid;
+  gap: 0.1em;
+  padding: 0.45em 0.6em;
+  background: var(--color-soft);
+  border-radius: 0.45em;
+  font-size: 0.8em;
+}
+.scene-operators code {
+  color: var(--color-primary);
+  font-size: 1.25em;
+  font-weight: 800;
+}
+
+// 17 LIKE.
+.scene-patterns li {
+  display: flex;
+  gap: 0.6em;
+  align-items: baseline;
+}
+.scene-patterns code {
+  min-width: 4.5em;
+  padding: 0.1em 0.4em;
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-radius: 0.3em;
+  font-weight: 800;
+}
+
+// 20 Anatomía.
+.anatomy-part--where,
+.anatomy-part--order,
+.anatomy-part--logical {
+  color: var(--color-cyan);
+  font-weight: 800;
+}
+.anatomy-part--condition {
+  color: #0b1733;
+  background: #a8e6b8;
+}
+.anatomy-part--order-item {
+  color: #0b1733;
+  background: #ffd08a;
+}
+.anatomy-legend--where {
+  border-color: #a8e6b8;
+}
+.anatomy-legend--order {
+  border-color: #ffd08a;
+}
+.scene-anatomy__legend {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.scene-orders {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6em;
+  font-size: 0.85em;
+}
+.scene-orders p {
+  padding: 0.5em 0.8em;
+  background: rgb(247 250 255 / 8%);
+  border-radius: 0.45em;
+  font-family: var(--font-mono);
+}
+.scene-orders span {
+  display: block;
+  color: var(--color-cyan);
+  font-family: var(--font-sans);
+  font-size: 0.75em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.scene-orders__note {
+  grid-column: 1 / -1;
+  color: rgb(247 250 255 / 80%);
+  font-family: var(--font-sans) !important;
+  font-size: 0.85em;
+}
+
+// 21 Paso a paso.
+.scene-stepper {
+  display: grid;
+  gap: 0.8em;
+}
+.scene-stepper__track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.scene-stepper__track button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 2em;
+  padding: 0.2em 0.7em;
+  color: var(--color-ink);
+  background: var(--color-page);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 999px;
+  font-size: 0.7em;
+  font-weight: 750;
+}
+.scene-stepper__track span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  color: var(--color-inverse);
+  background: var(--color-muted);
+  border-radius: 50%;
+  font-size: 0.85em;
+}
+.scene-stepper__track .is-done span {
+  background: var(--color-success);
+}
+.scene-stepper__track .is-current button {
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-color: var(--color-primary);
+}
+.scene-stepper__track .is-current span {
+  background: var(--color-primary);
+}
+.scene-stepper__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+.scene-button:disabled {
+  opacity: 0.45;
+}
+
+// 22 Errores frecuentes.
+.scene-errors {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7em;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.scene-errors li {
+  display: grid;
+  gap: 0.35em;
+  align-content: start;
+  padding: 0.7em 0.8em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.6em;
+}
+.scene-errors code {
+  padding: 0.3em 0.5em;
+  border-radius: 0.35em;
+  font-size: 0.75em;
+  overflow-wrap: anywhere;
+}
+.scene-errors__wrong {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 8%, var(--color-surface));
+  text-decoration: line-through;
+}
+.scene-errors__right {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface));
+  font-weight: 800;
+}
+.scene-errors li > span {
+  font-size: 0.72em;
+  font-weight: 650;
+}
+
+// 28 Próximos temas.
+.scene-roadmap {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8em;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.scene-roadmap li {
+  display: grid;
+  gap: 0.35em;
+  align-content: start;
+  padding: 0.9em 1em;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-control);
+  border-radius: 0.6em;
+}
+.scene-roadmap li:first-child {
+  background: var(--color-soft);
+  border: 2px solid var(--color-primary);
+}
+.scene-roadmap__stage {
+  color: var(--color-primary);
+  font-size: 0.62em;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.scene-roadmap strong {
+  font-size: 1.05em;
+}
+.scene-roadmap li > span:last-child {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.66em;
+  line-height: 1.5;
+}
+
+// 25 Qué aprendimos: más conceptos en la misma rejilla.
+.scene-summary {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 767px), (orientation: portrait) {
+  .scene-split--flow,
+  .scene-pair,
+  .scene-split--compare,
+  .scene-blocks,
+  .scene-errors,
+  .scene-roadmap,
+  .scene-orders,
+  .scene-anatomy__legend {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .scene-columns,
+  .scene-operators {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .scene-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

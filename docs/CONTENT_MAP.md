@@ -1,128 +1,223 @@
 # CONTENT_MAP — Contenido y secuencia educativa
 
-Versión 1.0 · Fuentes F1–F7 definidas en [PROJECT_SPEC.md](PROJECT_SPEC.md).
+Versión 2.0 (25 de septiembre de 2026) · Reingeniería descrita en [CONTENT_REDESIGN_PLAN.md](CONTENT_REDESIGN_PLAN.md) · Fuentes F1–F7 en [PROJECT_SPEC.md](PROJECT_SPEC.md).
+
+Este mapa separa dos cosas que la plataforma nunca mezcla:
+
+- **Contenido actual (Nivel 1, SELECT fundamental):** 22 lecciones en 8 bloques, 29 escenas, laboratorio LAB01–LAB24 y Challenge M01–M10. Todo usa el dataset `empleados-select-v2`.
+- **Próximos niveles (2 a 7):** 46 temas con ficha completa y estado «Próximamente». No tienen lecciones, ni escenas, ni misiones, ni cuentan en el progreso.
 
 ## Principio de enseñanza
 
-Primero formular una necesidad cotidiana, después observar la tabla, leer la consulta, anticipar el resultado y comprobarlo. La animación ilustra una transformación lógica; no afirma mostrar el plan físico del optimizador de Oracle.
+Comprender → visualizar → predecir → consultar → equivocarse → recibir feedback → corregir → combinar conceptos → resolver problemas.
 
-Cada lección contiene objetivo, explicación breve, ejemplo copiable, tabla fuente, resultado, traducción, error frecuente, interacción y comprobación. Se evita introducir terminología técnica antes de mostrar su significado.
+Cada idea se muestra con el mismo patrón visual: **tabla original → consulta → qué hace → resultado**. Las tablas, los recuentos y las respuestas de las comprobaciones no se escriben a mano: los calcula el motor educativo sobre el dataset canónico, y las pruebas de integración comprueban que Oracle real devuelve lo mismo. El recorrido «FROM, WHERE, SELECT, ORDER BY» se presenta como modelo lógico para entender la consulta, no como el plan físico del optimizador.
 
-## Mapa de lecciones
+## Dataset único: `empleados-select-v2`
 
-| ID y ruta de estudio | Objetivo y ejemplo | Fuentes primarias | Interacción, error y aceptación |
+Una tabla EMPLEADOS de 12 columnas y 20 filas, definida en `src/domain/dataset/empleados.ts` y cargada en Oracle desde `oracle/empleados-select-v2.sql`. Una prueba unitaria exige que ambos coincidan fila a fila. El detalle de columnas, tipos y restricciones está en [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md).
+
+Cada fila tiene un propósito pedagógico:
+
+| Rasgo del dataset | Para qué concepto | Dato |
+|---|---|---|
+| 5 ciudades con repeticiones | DISTINCT, IN, WHERE | Bogotá 7, Cali 5, Medellín 5, Barranquilla 2, Valledupar 1 |
+| 5 departamentos | DISTINCT, AND/OR | 16 combinaciones distintas de ciudad y departamento |
+| Salarios en los límites de un rango | BETWEEN (límites incluidos) | María 6000000 y Sofía 3000000: `BETWEEN 3000000 AND 6000000` da 12 filas |
+| Salarios empatados | ORDER BY con empates | Andrés y Paula 4200000; Mario y Ricardo 3500000 |
+| BONO NULL y un BONO 0 | NULL frente a 0 | 6 filas con `bono IS NULL`; Mario tiene bono 0, que sí es un valor |
+| Jefe NULL | IS NULL en otra columna | Ana (gerente general) y Esteban no tienen ID_JEFE |
+| 3 empleados INACTIVO | AND, NOT | Oscar, Diego y Alicia |
+| Fechas DATE entre 2012 y 2025 | comparaciones y BETWEEN con fechas | literales `DATE 'AAAA-MM-DD'` |
+| Nombres con tildes y mayúsculas | comparación exacta de textos, LIKE | `'bogota'` no encuentra «Bogotá»; `'_o%'` da Rojas, Mora, Soto y Torres (Gómez y López no, porque ó no es o) |
+
+Recuentos de referencia (verificados en Oracle local 23ai y Oracle Cloud 19c):
+
+| Consulta | Filas |
+|---|---:|
+| `WHERE ciudad = 'Bogotá'` | 7 |
+| `WHERE estado = 'ACTIVO'` | 17 |
+| `WHERE salario BETWEEN 3000000 AND 6000000` | 12 |
+| `WHERE ciudad IN ('Bogotá', 'Medellín', 'Cali')` | 17 |
+| `WHERE nombre LIKE '%ar%'` / `'A%'` / `'%a'` | 6 / 3 / 10 |
+| `WHERE bono IS NULL` / `bono = NULL` | 6 / 0 |
+| `SELECT DISTINCT ciudad` / `DISTINCT ciudad, departamento` | 5 / 16 |
+| `ciudad = 'Bogotá' OR ciudad = 'Medellín' AND salario > 5000000` | 9 |
+| `(ciudad = 'Bogotá' OR ciudad = 'Medellín') AND salario > 5000000` | 6 |
+| Consulta integradora (activos de Bogotá con salario entre 3 y 6 millones, del mayor al menor) | 3: Laura, Andrés, Mario |
+
+Importes sin separadores en SQL y con formato colombiano en pantalla. Sin ORDER BY no se garantiza el orden de las filas: la evaluación compara filas sin depender de su posición, salvo cuando el pedido exige un orden.
+
+## Modo Estudio: 22 lecciones en 8 bloques
+
+Ruta `/learn`. Cada lección sigue la misma plantilla de 12 partes:
+
+1. En una frase.
+2. ¿Qué hace?
+3. ¿Para qué sirve?
+4. Sintaxis.
+5. Cómo leerla en español.
+6. Ejemplo: pregunta → SQL → lectura.
+7. Tabla de origen.
+8. Resultado.
+9. Qué cambió y qué no.
+10. Error frecuente, con la versión con error, la corregida y el enlace al diagnóstico del laboratorio.
+11. Mini comprobación.
+12. Abrir en el laboratorio.
+
+Las partes 7 y 8 salen del SQL del ejemplo. Algunas lecciones añaden comparaciones («Sin DISTINCT» frente a «Con dos columnas»), notas de Oracle, el término técnico, la construcción paso a paso (L20) o el catálogo de 12 errores (L21).
+
+**Mini comprobación.** Hay cuatro tipos: elegir, contar filas o columnas, calcular un valor y ordenar piezas. La respuesta se calcula con el motor. Tras un fallo aparece la pista 1, conceptual; tras el segundo, la pista 2, más concreta, y el botón «Ver la respuesta»; al tercero se revela. Visitar no completa una lección: se completa al resolverla o al ver la respuesta.
+
+| Lección y ruta | Bloque | Título y contenido | Ejemplo → resultado | Comprobación |
+|---|---|---|---|---|
+| L00 `/learn/introduccion` | A · Fundamentos | Bases de datos, tablas y SQL | `SELECT nombre FROM empleados;` → 20 filas | elegir |
+| L01 `/learn/empleados` | A · Fundamentos | Nuestra tabla EMPLEADOS (diccionario de 12 columnas) | `SELECT * FROM empleados;` → 20 filas | elegir |
+| L02 `/learn/select` | B · Primera consulta | SELECT: qué columnas mostrar | `SELECT nombre, correo FROM empleados;` | elegir |
+| L03 `/learn/from` | B · Primera consulta | FROM: de qué tabla salen los datos | `SELECT nombre, cargo FROM empleados;` | ordenar |
+| L04 `/learn/asterisco` | B · Primera consulta | SELECT *: todas las columnas | `SELECT * FROM empleados;` | contar |
+| L05 `/learn/columnas` | B · Primera consulta | Columnas específicas y comas | `SELECT ciudad, nombre, cargo FROM empleados;` | elegir |
+| L06 `/learn/expresiones` | B · Primera consulta | Expresiones aritméticas: +, -, *, / | `SELECT nombre, salario, salario * 12 FROM empleados;` | valor |
+| L07 `/learn/precedencia` | B · Primera consulta | Precedencia y paréntesis | `(salario + bono) * 12 AS total_anual` | elegir |
+| L08 `/learn/alias` | B · Primera consulta | Alias de columna con AS | `salario * 12 AS salario_anual` | elegir |
+| L09 `/learn/concatenacion` | B · Primera consulta | Textos fijos y concatenación con \|\| | `nombre \|\| ' ' \|\| apellido AS nombre_completo` | elegir |
+| L10 `/learn/distinct` | C · Duplicados | DISTINCT: sin filas repetidas | `SELECT DISTINCT ciudad FROM empleados;` → 5 de 20 | contar |
+| L11 `/learn/where` | D · Filtrar filas | WHERE: filtrar filas | `WHERE ciudad = 'Cali'` → 5 de 20 | contar |
+| L12 `/learn/comparaciones` | D · Filtrar filas | Operadores de comparación: =, <>, !=, >, >=, <, <= y textos | `WHERE salario >= 5000000` → 7 de 20 | elegir |
+| L13 `/learn/and-or` | D · Filtrar filas | AND y OR: combinar condiciones; NOT invierte una condición | `WHERE ciudad = 'Bogotá' AND salario > 5000000` → 4 de 20 | contar |
+| L14 `/learn/parentesis` | D · Filtrar filas | Precedencia lógica (NOT, AND, OR) y paréntesis | `(ciudad = 'Bogotá' OR ciudad = 'Medellín') AND salario > 5000000` → 6 | elegir |
+| L15 `/learn/between` | E · Operadores de filtro | BETWEEN y NOT BETWEEN: rangos | `WHERE salario BETWEEN 3000000 AND 6000000` → 12 | contar |
+| L16 `/learn/in` | E · Operadores de filtro | IN y NOT IN: listas de valores | `WHERE ciudad IN ('Bogotá', 'Medellín', 'Cali')` → 17 | elegir |
+| L17 `/learn/like` | E · Operadores de filtro | LIKE y NOT LIKE: patrones con % y _ | `WHERE nombre LIKE '%ar%'` → 6 | elegir |
+| L18 `/learn/null` | F · NULL | NULL, IS NULL e IS NOT NULL | `WHERE bono IS NULL` → 6 | elegir |
+| L19 `/learn/order-by` | G · Ordenar resultados | ORDER BY: ASC, DESC, varias columnas, posición y alias | `ORDER BY salario DESC` → 20 | ordenar |
+| L20 `/learn/consulta-completa` | H · Integración | La consulta completa, paso a paso (FROM → SELECT → WHERE → AND → BETWEEN → ORDER BY) | integradora → 3 de 20 | ordenar |
+| L21 `/learn/errores-frecuentes` | H · Integración | Errores frecuentes (catálogo de 12) | `SELECT nombre salario FROM empleados;` (coma olvidada) | elegir |
+
+**Alias y AS (L08).** Un alias es un nombre temporal para una columna o expresión dentro del resultado. AS es la palabra, opcional, que hace explícita esa asignación. AS no renombra la columna, no modifica la tabla ni sus datos: solo cambia el encabezado en esa consulta (`SALARIO*12` sin alias, `SALARIO_ANUAL` con alias).
+
+**DISTINCT (L10).** Elimina filas repetidas del resultado. No borra filas de la tabla, no ordena y, con varias columnas, compara la combinación completa.
+
+La navegación entre lecciones cruza los bloques en orden: por ejemplo, de DISTINCT (bloque C) se pasa a WHERE (bloque D). La última lección lleva al SQL Challenge. El progreso guardado de la versión anterior (9 lecciones) se detecta y se ofrece reiniciar; no se mezcla con el actual.
+
+## Modo Exposición: 29 escenas
+
+Ruta `/presentation`; `?scene=N` vuelve al mismo punto. Cada escena tiene una idea central, poco texto (una prueba lo limita a 95 palabras explicativas), código grande y como máximo 8 filas por tabla. Se ve en un lienzo 16:9 que no se desborda a 1920×1080, 1366×768 ni 1280×720 (prueba E2E). Se navega con los botones Anterior y Siguiente, las flechas, Av Pág/Re Pág, Inicio y Fin, y con el selector de escenas. Tiene pantalla completa y se puede reanudar la última escena.
+
+| Escena | Id | Título | Lecciones |
 |---|---|---|---|
-| L00 `/learn/introduccion` | SQL permite trabajar con bases de datos; hoy consultamos datos. Distinguir tabla, fila y columna. | F1: 3–4; F2: 2–3 | Señalar una fila, una columna y su encabezado. Completa al acertar los tres. Error: afirmar que todo SQL es solo lectura. |
-| L01 `/learn/select` | Elegir qué mostrar: `SELECT nombre, salario FROM empleados;`. | F1: 4; F2: 4, 6 | Resaltar NOMBRE y SALARIO sin quitar empleados. Aceptación: seis filas y dos columnas; la fuente permanece igual. |
-| L02 `/learn/from` | Identificar el origen EMPLEADOS; completar `SELECT nombre FROM empleados;`. | F1: 5; F2: 4 | Ubicar FROM y tabla después de la lista. Aceptación: orden sintáctico correcto y reconocimiento de tabla frente a columna. |
-| L03 `/learn/asterisco` | `SELECT * FROM empleados;` muestra todas las columnas del dataset visible. | F1: 6; F2: 5 | Expandir * en los seis encabezados. Aceptación: seis columnas y seis filas. Error: interpretar * como multiplicación en esta posición. |
-| L04 `/learn/columnas` | `SELECT ciudad, nombre FROM empleados;`; columnas separadas por coma y en el orden solicitado. | F1: 7; F2: 6 | Reordenar encabezados. Aceptación: CIUDAD antes de NOMBRE con seis filas. Error: creer que proyectar elimina filas duplicadas automáticamente. |
-| L05 `/learn/expresiones` | `SELECT nombre, salario * 12 FROM empleados;`. Aritmética +, -, *, / y paréntesis. | F1: 8; F2: 8 | Completar salario anual y comparar `salario + 100000 * 12` con `(salario + 100000) * 12`. Aceptación para Ana: 4200000 frente a 37200000. |
-| L06 `/learn/alias` | `SELECT nombre, salario * 12 AS salario_anual FROM empleados;`. | F1: 9; F2: 8 como motivación del cálculo | Asignar etiquetas a resultados. Aceptación: encabezado SALARIO_ANUAL, Ana 36000000 y fuente SALARIO intacta. Error: confundir alias con renombrar la columna almacenada. |
-| L07 `/learn/distinct` | `SELECT DISTINCT ciudad FROM empleados;` y luego `SELECT DISTINCT ciudad, depto FROM empleados;`. | F1: 10; F2: 7 | Agrupar duplicados de la proyección. Aceptación: tres ciudades y cinco pares ciudad/depto. Error: eliminar por una sola columna cuando se seleccionan dos. |
-| L08 `/learn/consulta-completa` | Traducir un pedido a `SELECT nombre, ciudad, salario * 12 AS salario_anual FROM empleados;`. | F1: 4, 7–9 y estrategia 26; F2: 17, 20, adaptadas | Construir sin piezas y explicar qué cambia en el resultado. Aceptación: seis filas, tres columnas en ese orden, alias correcto y valores anuales válidos. |
+| 01 | portada | SELECT en Oracle SQL (portada) | — |
+| 02 | ruta | Ruta de aprendizaje | — |
+| 03 | que-es-sql | Qué es SQL | L00 |
+| 04 | empleados | Conoce EMPLEADOS | L01 |
+| 05 | select-from | SELECT y FROM | L02, L03 |
+| 06 | asterisco | SELECT * | L04 |
+| 07 | columnas | Columnas específicas | L05 |
+| 08 | expresiones | Expresiones y precedencia | L06, L07 |
+| 09 | alias | Alias con AS | L08, L09 |
+| 10 | distinct | DISTINCT | L10 |
+| 11 | where | WHERE | L11 |
+| 12 | comparaciones | Comparaciones | L12 |
+| 13 | and-or | AND y OR | L13 |
+| 14 | parentesis | Paréntesis y precedencia lógica | L14 |
+| 15 | between | BETWEEN | L15 |
+| 16 | in | IN | L16 |
+| 17 | like | LIKE | L17 |
+| 18 | null | NULL e IS NULL | L18 |
+| 19 | order-by | ORDER BY | L19 |
+| 20 | anatomia | Anatomía de una consulta | L20 |
+| 21 | paso-a-paso | Construimos una consulta (seis pasos) | L20 |
+| 22 | errores | Errores frecuentes | L21 |
+| 23 | laboratorio | Laboratorio (abre el ejemplo y vuelve a la escena) | — |
+| 24 | challenge | SQL Challenge | — |
+| 25 | aprendimos | Qué aprendimos | — |
+| 26 | video | Video resumen | — |
+| 27 | reto | Reto en vivo: revelar respuesta, QR y sala en vivo | — |
+| 28 | proximos | Próximos temas (enlaza a la ruta) | — |
+| 29 | cierre | ¿Preguntas? | — |
 
-Tiempo orientativo de estudio: 45–60 minutos con prácticas. No se bloquean lecciones por orden. Se recomiendan L00–L08 secuencialmente, con revisión libre posterior.
+Las escenas de WHERE, AND/OR, BETWEEN, IN, LIKE, NULL y ORDER BY muestran siempre la tabla original con la marca de cada fila (✓ cumple, ✗ no cumple, ? desconocido por NULL), la consulta y el resultado. El reto de la escena 27 pregunta por `SELECT DISTINCT departamento FROM empleados WHERE ciudad = 'Bogotá';` (5 filas).
 
-## Dataset único y resultados de referencia
+## Laboratorio: LAB01–LAB24 y diagnóstico
 
-La tabla completa y tipos están en [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md), dataset `empleados-select-v1`. Se adopta F1, diapositiva 6: María tiene 30 años; Jorge, 22 y departamento Sistemas. F2 y el juego muestran María 31, Jorge 29 y Ventas. Es una decisión editorial explícita a favor del PPT principal; no se mezclan versiones.
+Ruta `/lab`. Los ejemplos están en cinco grupos: Proyección (LAB01–LAB07), Filtros (LAB08–LAB14), NULL y orden (LAB15–LAB17), Integración (LAB18) y Errores para analizar (LAB19–LAB24). La especificación está en [LAB_SPEC.md](LAB_SPEC.md).
 
-Se usan seis columnas: ID, NOMBRE, EDAD, CIUDAD, SALARIO, DEPTO. TELEFONO queda para una futura versión sobre NULL. La etiqueta Departamento puede acompañar a DEPTO, pero los ejemplos usan el identificador DEPTO. Importes numéricos en SQL sin separadores de miles; presentación visual en formato colombiano. Se conservan Bogotá, Medellín y María con sus tildes.
+Cada diagnóstico se muestra en uno de cinco grupos: SINTAXIS, SEMÁNTICA, ALCANCE EDUCATIVO, ORACLE o ADVERTENCIA. Incluye:
 
-| Nombre | Salario mensual | Resultado de salario × 12 |
-|---|---:|---:|
-| Ana | 3000000 | 36000000 |
-| Carlos | 5000000 | 60000000 |
-| Laura | 4200000 | 50400000 |
-| Pedro | 1800000 | 21600000 |
-| María | 3700000 | 44400000 |
-| Jorge | 2800000 | 33600000 |
+- La línea y la columna.
+- El fragmento encontrado y qué significa.
+- Una pista.
+- La posible corrección, plegada hasta que se pide, con el botón «Aplicar la corrección».
+- Un ejemplo mínimo correcto.
 
-DISTINCT CIUDAD produce Bogotá, Cali y Medellín. DISTINCT CIUDAD, DEPTO produce (Bogotá, Ventas), (Cali, Sistemas), (Bogotá, Sistemas), (Medellín, Ventas), (Cali, Contabilidad). Las listas aquí tienen orden expositivo; sin ORDER BY no se garantiza el orden de las filas. La evaluación compara filas sin depender de su posición y sí respeta el orden de columnas.
+Un tema futuro se anuncia como SQL válido en Oracle que pertenece a otro nivel, con enlace a su ficha en Próximamente.
 
-## Exposición: dieciséis escenas
+## SQL Challenge v3
 
-Ruta `/presentation`; el número de escena (`?scene=N`) permite volver al mismo punto. La exposición principal propuesta dura unos 20 minutos, sin contar el Challenge ni la discusión. Como no existe una duración exacta confirmada, se permite omitir vídeos o demostraciones sin alterar el contenido del modo Estudio.
+`select-challenge-v3`: M01–M10 conservan la puntuación, los intentos, las pistas, la sala en vivo y el ranking ([GAME_SPEC.md](GAME_SPEC.md)). M02, M04, M07, M09 y M10 incorporan WHERE u ORDER BY. M10 se califica con la salida real de Oracle.
 
-Versión 1.1 (23 de septiembre de 2026): el responsable del proyecto fijó un guion de dieciséis escenas que sustituye a E01–E14. El vídeo introductorio pasa a ser un bloque omitible de la escena 02, la consulta completa se presenta como anatomía (11) y se añaden la tabla EMPLEADOS (04), el Challenge (13), el reto con QR (15) y el cierre (16).
+## Chuleta y recursos
 
-| Escena | Contenido | Antes | Duración orientativa | Acción del expositor |
-|---|---|---|---:|---|
-| 01 | Portada: unidad, asignatura, autor, profesor y logotipo | E01 | 0:30 | Explicar qué podrá hacer la clase. |
-| 02 | Qué aprenderemos: la ruta L00–L08 y el vídeo introductorio (omitible) | E02 | 1:00 | Presentar el recorrido. |
-| 03 | Qué es SQL: tabla, fila y columna, L00 | E03 | 1:00 | Señalar un registro y un encabezado. |
-| 04 | La tabla EMPLEADOS completa | — | 0:30 | Presentar la única fuente de datos. |
-| 05 | SELECT y FROM, L01–L02 | E04 | 1:30 | Traducir «qué» y «de dónde». |
-| 06 | SELECT *, L03 | E05 | 1:00 | Expandir todas las columnas. |
-| 07 | Columnas específicas y su orden, L04 | E06 | 1:30 | Comparar dos órdenes de la misma proyección. |
-| 08 | Expresiones y precedencia, L05 | E07 | 2:00 | Calcular el salario anual y comprobar Ana. |
-| 09 | Alias con AS, L06 | E08 | 1:30 | Comparar el encabezado sin y con alias. |
-| 10 | DISTINCT, L07 | E09 | 2:00 | Marcar repetidas: seis filas, tres ciudades, cinco pares. |
-| 11 | Anatomía de una consulta completa, L08 | E10 | 2:00 | Nombrar cada parte de la consulta. |
-| 12 | Laboratorio | E11 | 2:00 | Abrir el ejemplo y volver a la escena. |
-| 13 | SQL Challenge | — | 0:30 | Presentar reglas y misiones. |
-| 14 | Resumen y acceso al vídeo resumen | E12 | 0:30 | Repasar los siete conceptos. |
-| 15 | Reto rápido y QR | E13 | 1:00 | Revelar la respuesta; proyectar el QR de la práctica individual. |
-| 16 | Cierre y recursos | E14 | Flexible | Invitar a Estudio, laboratorio y chuleta. |
+`/resources` reúne cuatro cosas:
 
-Mientras no existan salas en vivo (R6), el QR de la escena 15 abre la práctica individual del Challenge en la dirección actual y la escena lo dice. No se muestran códigos de sala ni participantes inventados.
+- **Chuleta:** 18 conceptos, cada uno con significado, patrón, ejemplo y enlaces al laboratorio y a la lección.
+- **Advertencias:** 8 recordatorios.
+- **Tabla de referencia:** el tamaño de cada resultado, calculado por el motor.
+- **Ejemplos y más:** los ejemplos LAB01–LAB18 (los de errores se estudian en el laboratorio y en L21), los dos videos y las fuentes.
 
-Las diez rondas suman 15 minutos de respuesta con tiempos base, más transiciones y explicación. Una sesión completa requiere aproximadamente 40–45 minutos; es una planificación, no un dato confirmado del horario. El cronómetro de exposición, que puede pausarse, es independiente de la cuenta regresiva de sala.
+Al imprimir quedan solo la chuleta y la referencia.
 
 ## Vídeos
 
-**V01 — Introducción, 90–120 segundos.** Guion de contenido: 0:00–0:20, una tabla de empleados y la necesidad de consultar; 0:20–0:45, qué es SQL y qué aprenderemos; 0:45–1:15, SELECT elige información y FROM indica el origen; 1:15–1:40, vista de columnas y un cálculo; cierre hasta 2:00, invitación a predecir resultados. No explicar filtros ni resolver las misiones finales.
+| Video | Archivo | Duración medida | Formato | Subtítulos | Ubicación |
+|---|---|---|---|---|---|
+| V01 Introducción | `introduccion-select-oracle-sql.mp4` | 1:13 | Vertical 9:16 | Incrustados | Home, índice de `/learn`, `/resources` |
+| V02 Resumen | `resumen-fundamentos-oracle-sql.mp4` | 4:51 | 16:9 | WebVTT revisado y transcripción | Final del recorrido (L21), escena 26, `/resources` |
 
-**V02 — Resumen, 3–4 minutos.** Recapitular en este orden: SELECT/FROM; * frente a columnas; cálculo; alias; DISTINCT; lectura de una consulta completa. Usar exactamente `empleados-select-v1`. Terminar con una invitación al Challenge o al repaso, según el contexto de entrada. El vídeo debe poder verse después de la clase.
+La interfaz no muestra rótulos de duración (el reproductor nativo ya la indica). Los videos cubren la primera parte de la unidad (SELECT, FROM, *, cálculos, AS y DISTINCT) y usan tablas de ejemplo que no son EMPLEADOS; sus descripciones lo advierten. Detalle en `public/media/README.md`.
 
-Ambos: voz en español, subtítulos revisados, transcripción accesible, imagen de portada, controles nativos y ningún autoplay con sonido. NotebookLM es la herramienta de producción sugerida por el usuario; revisar sus resultados contra este mapa. Vídeos alojados externamente, con enlace alternativo si falla la inserción. No están producidos en esta entrega.
+## Próximos niveles (roadmap)
 
-Implementación (Fase 6): las URLs viven en una sola configuración, `src/features/resources/domain/videos.ts`, junto con título, descripción, duración prevista (1:30–2:00 y 3:00–4:00), portada, subtítulos y transcripción. Sin URL, el componente `VideoPlayer` muestra «Video en preparación» y nunca un reproductor vacío. Ubicación: el introductorio en Home y al inicio de `/learn`; el resumen al final de L08 y en la escena 14 de la Exposición; ambos en `/resources`. Solo se aceptan direcciones HTTPS o rutas propias.
+`/modules` presenta la ruta completa. El Nivel 1 es el actual; los niveles 2 a 7 están en estado «Próximamente». Fuente única: `src/features/modules/domain/curriculum.ts`, que alimenta la ruta, la Home, la escena 28, el buscador y los enlaces «Ver en Próximamente» del laboratorio.
 
-Publicación (Fase 10, 24 de septiembre de 2026): los dos videos del autor se sirven desde `public/media`, sin volver a codificarlos. Se descartó alojarlos fuera porque son MP4 H.264 con `moov` al inicio y suman 31 MB. Las ubicaciones no cambian.
+| Nivel | Título | Etapa | Temas |
+|---|---|---|---|
+| 1 | SELECT fundamental | Ahora | 22 lecciones (arriba) |
+| 2 | Funciones SQL | Siguiente nivel | 16: UPPER, LOWER, INITCAP, LENGTH, SUBSTR, ROUND, TRUNC, MOD, SYSDATE, operaciones con fechas, ADD_MONTHS, TO_CHAR, TO_DATE, TO_NUMBER, NVL, COALESCE |
+| 3 | Resumen y agrupación | Siguiente nivel | 6: COUNT, SUM, AVG, MIN y MAX, GROUP BY, HAVING |
+| 4 | Relacionar tablas (JOIN) | Más adelante | 7: relacionar tablas, INNER JOIN, LEFT/RIGHT/FULL OUTER JOIN, CROSS JOIN, ON y USING |
+| 5 | Subconsultas | Más adelante | 4: subconsulta, en WHERE, IN con subconsulta, comparación con un valor escalar |
+| 6 | Modificar datos | Más adelante | 4: INSERT INTO, UPDATE, DELETE, COMMIT y ROLLBACK |
+| 7 | Estructura de datos (DDL) | Más adelante | 9: CREATE TABLE, ALTER TABLE, DROP TABLE, PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, CHECK, DEFAULT |
 
-| Video | Archivo | Duración | Formato | Subtítulos |
-|---|---|---|---|---|
-| V01, «Introducción a SELECT en Oracle SQL» | `introduccion-select-oracle-sql.mp4` | 1:13 | Vertical 9:16; el reproductor conserva la proporción | Incrustados |
-| V02, «Fundamentos de Oracle SQL» | `resumen-fundamentos-oracle-sql.mp4` | 4:51 | 16:9 | WebVTT revisado y transcripción (Fase 11) |
+Cada ficha tiene lo siguiente:
 
-Diferencias con este mapa:
+- Título, definición y para qué sirve.
+- Sintaxis mínima y ejemplo sobre EMPLEADOS o sobre las tablas anunciadas.
+- Prerrequisitos, errores frecuentes, nivel y estado «Próximamente».
+- En Modificar datos (DML), además: antes, después y advertencia (UPDATE y DELETE sin WHERE; DDL y COMMIT implícito).
 
-- Las duraciones no coinciden con lo previsto.
-- Las tablas de ejemplo no son `empleados-select-v1`, y las descripciones lo advierten.
-- V01 menciona «los empleados de Bogotá», sin mostrar WHERE.
-- V02 muestra tres rótulos en inglés en su cierre.
-
-Detalle en `public/media/README.md`.
-
-## Chuleta
-
-Una página web imprimible con significado, patrón y ejemplo para SELECT, FROM, *, lista de columnas, expresiones, AS y DISTINCT. Añadir las advertencias: SELECT no altera el dataset del laboratorio; AS cambia la etiqueta; DISTINCT compara la fila proyectada; no hay orden garantizado de filas sin una cláusula de ordenamiento. No incluir una pared de filtros futuros ni exigir descargar un PDF.
-
-Implementación (Fase 6): `/resources` reúne la chuleta (conceptos, patrón y ejemplo derivados de L01–L07), una tabla de referencia rápida con el tamaño del resultado calculado por el motor, los ejemplos LAB01–LAB09 del laboratorio, los dos videos y las fuentes (referencia oficial F7 y material del curso). La impresión deja solo la chuleta y la tabla de referencia.
+Ningún tema futuro tiene lección, escena, misión ni progreso. El buscador los marca «Próximamente» y lleva a `/modules#tema-<slug>`, que siempre existe (prueba unitaria y E2E).
 
 ## Correcciones editoriales de las fuentes
 
-| Evidencia | Tratamiento requerido |
+| Evidencia | Tratamiento |
 |---|---|
-| F1: 3; F2: 2, «SQL no modifica» | Precisar que las consultas SELECT permitidas aquí son de lectura. SQL también tiene operaciones de escritura. |
-| F1: 5; F2: 4, consulta básica con tres partes | No enseñar WHERE como obligatorio. El núcleo actual consulta una tabla con SELECT y FROM. |
-| F2: 4 y 17 contienen anotaciones con `//` | Pasarlas a texto explicativo fuera del editor. No enseñar `//` como comentario Oracle SQL. |
-| F1: 6 frente a F2: 3 y juego | Resolver edades, DEPTO y TELEFONO conforme al dataset elegido; no extraer datos al azar de cada pantalla. |
-| F1: 18 muestra a Ana como coincidencia de `A_` y luego lo niega | Registrar corrección para el módulo futuro: Ana tiene tres caracteres. No importar la diapositiva como contenido válido. |
-| F1: 27 muestra inicialmente a Carlos aunque su teléfono es NULL | Mantener como advertencia editorial del módulo futuro, nunca como resultado de referencia actual. |
-| F2: 11 repite SALARIO en el ejemplo BETWEEN | Corregir antes de reutilizar en una unidad posterior. |
-| Sitio compañero presenta fases como orden físico y antepone DISTINCT a proyección | Tomar solo estructura didáctica. La visualización propia deduplica los valores proyectados y se identifica como modelo conceptual. |
+| F1: 3; F2: 2, «SQL no modifica» | Se precisa que las consultas SELECT de esta unidad son de lectura; SQL también escribe (Nivel 6). |
+| F1: 5; F2: 4, consulta con tres partes | WHERE no es obligatorio: se enseña después de SELECT y FROM. |
+| F2: 4 y 17, anotaciones con `//` | No se enseña `//` como comentario de Oracle; los comentarios son `--`. |
+| F1: 6 frente a F2: 3 y el juego | Se sustituyen por el dataset v2, diseñado para la unidad ampliada. |
+| F1: 18, Ana como coincidencia de `A_` | Ana tiene tres caracteres: `'A_'` no la encuentra. LIKE usa `'A%'` y `'_o%'` en v2. |
+| F1: 27, teléfono NULL | NULL se enseña con BONO e ID_JEFE en v2. |
+| F2: 11, SALARIO repetido en BETWEEN | Corregido: `salario BETWEEN 3000000 AND 6000000`. |
+| Sitio compañero, orden físico de fases | Solo se toma la estructura didáctica; el paso a paso se presenta como modelo lógico. |
 
-Oracle documenta que AS es opcional para alias de columna y DISTINCT compara todas las expresiones seleccionadas. Enseñamos AS explícito por claridad, sin declarar inválido el alias implícito. [Referencia oficial](https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SELECT.html).
+Oracle documenta que AS es opcional en alias de columna y que DISTINCT compara todas las expresiones seleccionadas. La unidad enseña AS explícito por claridad, sin declarar inválido el alias implícito. [Referencia oficial](https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/SELECT.html).
 
-## Extensión futura y aceptación editorial
+## Aceptación editorial
 
-Catálogo `/modules` (versión 1.1, decidida por el responsable del proyecto): 01 SELECT en Oracle SQL (unidad actual) y siete módulos futuros, 02 WHERE, 03 BETWEEN, 04 IN, 05 LIKE, 06 JOIN, 07 GROUP BY y 08 Funciones. Cada ficha futura muestra número, título, propósito, prerrequisitos y el estado «Próximamente», sin lecciones ni actividades. La fuente única es `src/features/modules/domain/catalog.ts`, que también alimenta Home y el buscador. Los temas de lógica, NULL y ordenamiento quedan para una revisión posterior del catálogo.
-
-- C01: las nueve lecciones tienen objetivo, fuente, ejemplo, feedback y comprobación observable.
-- C02: todos los ejemplos y resultados coinciden con el dataset canónico y el motor Oracle objetivo antes de publicar.
-- C03: cero misiones obligatorias requieren cláusulas futuras.
-- C04: vídeo, tabla interactiva, juego y chuleta muestran los mismos nombres, importes y resultados.
-- C05: corregir errores de las fuentes no modifica sus archivos originales; el contenido de plataforma es una adaptación independiente.
+- C01: las 22 lecciones tienen las 12 partes y una comprobación observable.
+- C02: todos los ejemplos del Estudio, de la Exposición y del laboratorio dan en Oracle real el mismo resultado que el motor educativo (`tests/integration/oracle-real.test.ts`, 102 casos).
+- C03: ninguna misión exige temas de niveles futuros.
+- C04: la Home, el Estudio, la Exposición, el laboratorio, el Challenge y la chuleta usan los mismos nombres, importes y resultados.
+- C05: corregir las fuentes no modifica sus archivos originales.

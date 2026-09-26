@@ -14,7 +14,7 @@ export function ExpressionInteraction({
   disabled,
 }: InteractionProps<'expression-builder'>) {
   const { query, palette, predictionEmployeeIds } = mission.publicData;
-  const employees = EMPLEADOS.rows.filter((row) => predictionEmployeeIds.includes(row.ID));
+  const employees = EMPLEADOS.rows.filter((row) => predictionEmployeeIds.includes(row.ID_EMPLEADO));
   const valueOf = (id: number) =>
     answer.predictions.find((item) => item.employeeId === id)?.value ?? null;
   const setPrediction = (employeeId: number, text: string) =>
@@ -42,7 +42,7 @@ export function ExpressionInteraction({
         <p className="ch-builder__label">¿Qué valor mostrará la columna calculada?</p>
         <div className="ch-predictions__grid">
           {employees.map((row) => (
-            <label key={row.ID} className="ch-prediction">
+            <label key={row.ID_EMPLEADO} className="ch-prediction">
               <span>
                 <strong>{row.NOMBRE}</strong>
                 <span className="ch-muted"> · SALARIO {formatNumber(row.SALARIO)}</span>
@@ -52,8 +52,8 @@ export function ExpressionInteraction({
                 inputMode="numeric"
                 autoComplete="off"
                 placeholder="Valor calculado"
-                defaultValue={valueOf(row.ID)?.toString() ?? ''}
-                onChange={(event) => setPrediction(row.ID, event.target.value)}
+                defaultValue={valueOf(row.ID_EMPLEADO)?.toString() ?? ''}
+                onChange={(event) => setPrediction(row.ID_EMPLEADO, event.target.value)}
                 disabled={disabled}
                 aria-label={`Valor calculado para ${row.NOMBRE}`}
               />

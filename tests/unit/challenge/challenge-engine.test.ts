@@ -171,7 +171,7 @@ describe('Motor de partida individual', () => {
 
   const M10_OK: MissionAnswer = {
     type: 'write-query',
-    sql: 'SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados;',
+    sql: "SELECT nombre, cargo, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY proyeccion_anual DESC;",
   };
 
   it('M10 con estructura correcta y sin Oracle es técnico y no consume intento', async () => {
@@ -197,18 +197,18 @@ describe('Motor de partida individual', () => {
 
   it('M10 se califica con el resultado real cuando Oracle responde', async () => {
     const rows = [
-      ['Ana', 'Bogotá', 37200000],
-      ['Carlos', 'Cali', 61200000],
-      ['Laura', 'Bogotá', 51600000],
-      ['Pedro', 'Medellín', 22800000],
-      ['María', 'Cali', 45600000],
-      ['Jorge', 'Bogotá', 34800000],
+      ['Ana', 'Gerente general', 109200000],
+      ['Carlos', 'Líder de área', 91200000],
+      ['Laura', 'Líder de área', 70800000],
+      ['Andrés', 'Analista', 51600000],
+      ['Mario', 'Representante comercial', 43200000],
+      ['Felipe', 'Asistente', 26400000],
     ];
     const execute = vi.fn().mockResolvedValue({
       status: 'ok',
       columns: [
         { name: 'NOMBRE', type: 'text' },
-        { name: 'CIUDAD', type: 'text' },
+        { name: 'CARGO', type: 'text' },
         { name: 'PROYECCION_ANUAL', type: 'number' },
       ],
       rows,
@@ -222,7 +222,7 @@ describe('Motor de partida individual', () => {
     const result = await engine.submit(M10_OK);
     expect(execute).toHaveBeenCalledWith({
       statement:
-        'SELECT NOMBRE, CIUDAD, (SALARIO + 100000) * 12 AS PROYECCION_ANUAL FROM EMPLEADOS',
+        "SELECT NOMBRE, CARGO, (SALARIO + 100000) * 12 AS PROYECCION_ANUAL FROM EMPLEADOS WHERE ESTADO = 'ACTIVO' AND CIUDAD = 'Bogotá' ORDER BY PROYECCION_ANUAL DESC",
     });
     expect(result).toMatchObject({ outcome: { kind: 'correct' }, closedNow: true });
     expect(engine.getResult()?.missions[9]?.score.total).toBe(100);

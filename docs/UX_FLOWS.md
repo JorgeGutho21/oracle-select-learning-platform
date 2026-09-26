@@ -7,7 +7,7 @@ Versión 1.1 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md). La 1
 | Ruta propuesta | Público y propósito | Salida principal |
 |---|---|---|
 | `/` | Todos: identidad, objetivo y elección de recorrido. | Exposición o Estudio. |
-| `/presentation` | Expositor: dieciséis escenas 16:9 para proyector, sin autenticación para enseñar. | Laboratorio, sala o cierre. |
+| `/presentation` | Expositor: 29 escenas 16:9 para proyector, sin autenticación para enseñar. | Laboratorio, sala o cierre. |
 | `/learn` y `/learn/{leccion}` | Estudiante: L00–L08 con progreso local. | Siguiente lección o practicar. |
 | `/lab` | Todos: escribir y ejecutar el subconjunto permitido. | Resultado y explicación. |
 | `/challenge` | Práctica individual de M01–M10. | `/results` local. |

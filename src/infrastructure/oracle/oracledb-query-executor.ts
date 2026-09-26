@@ -5,7 +5,7 @@ import type {
   OracleQueryExecutor,
   OracleServiceStatus,
 } from '@/application/oracle-executor';
-import { EMPLEADOS_DATASET, type CellValue } from '@/domain/dataset/empleados';
+import { EMPLEADOS_DATASET, rowValues, type CellValue } from '@/domain/dataset/empleados';
 import type { OracleConfig } from './oracle-config';
 import { classifyOracleError } from './oracle-errors';
 
@@ -56,13 +56,24 @@ const NUMERIC_TYPES = new Set([
   'BINARY_DOUBLE',
   'BINARY_INTEGER',
 ]);
+const DATE_TYPES = new Set(['DATE', 'TIMESTAMP']);
+/**
+ * Sesión con fechas 'AAAA-MM-DD' y comparación y orden binarios de textos: la misma
+ * semántica que la vista educativa (DATABASE_SCHEMA, dataset v2). Se aplica a cada sesión
+ * nueva del grupo.
+ */
+export const SESSION_NLS =
+  "ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD' NLS_SORT = BINARY NLS_COMP = BINARY";
 const HEALTH_OK_MS = 30_000;
 const HEALTH_RETRY_MS = 5_000;
 // Privilegios de sistema que puede tener la cuenta lectora; cualquier otro la invalida.
 const ALLOWED_SYSTEM_PRIVILEGES = new Set(['CREATE SESSION']);
 const ALLOWED_TABLE_PRIVILEGES = new Set(['SELECT', 'READ']);
 
-/** Texto decimal de Oracle a número de JavaScript solo si no pierde precisión. */
+/**
+ * Texto decimal de Oracle a número de JavaScript solo si no pierde precisión. Oracle escribe
+ * los decimales menores que 1 sin cero inicial (`.1`, `-.5`).
+ */
 function decimalCell(text: string): CellValue {
   const value = Number(text);
   if (!Number.isFinite(value)) return text;
@@ -70,15 +81,28 @@ function decimalCell(text: string): CellValue {
     const negative = raw.startsWith('-');
     let digits = raw.replace(/^[-+]/, '');
     if (digits.includes('.')) digits = digits.replace(/0+$/, '').replace(/\.$/, '');
-    digits = digits.replace(/^0+(?=\d)/, '');
+    digits = digits.replace(/^0+(?=\d)/, '').replace(/^\./, '0.');
     return `${negative && digits !== '0' ? '-' : ''}${digits}`;
   };
   const roundTrip = /e/i.test(String(value)) ? null : String(value);
   return roundTrip !== null && canonical(roundTrip) === canonical(text) ? value : text;
 }
 
+const pad = (value: number) => String(value).padStart(2, '0');
+
+/**
+ * Fecha de Oracle (sin zona horaria) a 'AAAA-MM-DD'. El driver la entrega como Date en la
+ * zona local del proceso; los componentes locales devuelven la fecha escrita en Oracle.
+ */
+function dateCell(value: Date): string {
+  const day = `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}`;
+  const time = [value.getHours(), value.getMinutes(), value.getSeconds()];
+  return time.some(Boolean) ? `${day} ${time.map(pad).join(':')}` : day;
+}
+
 function toCell(value: unknown, numeric: boolean): CellValue {
-  if (value === null || value === undefined) return '';
+  if (value === null || value === undefined) return null;
+  if (value instanceof Date) return dateCell(value);
   if (numeric && typeof value === 'string') return decimalCell(value);
   if (typeof value === 'number' || typeof value === 'string') return value;
   return String(value);
@@ -121,20 +145,22 @@ export class OracledbQueryExecutor implements OracleQueryExecutor {
                 walletPassword: this.config.wallet.password,
               }
             : {}),
-          ...(this.config.schema
-            ? {
-                sessionCallback: (
-                  connection: OracleConnectionLike,
-                  _tag: string,
-                  done: (error?: unknown) => void,
-                ) => {
-                  // El nombre se validó como identificador en la configuración.
-                  connection
-                    .execute(`ALTER SESSION SET CURRENT_SCHEMA = ${this.config.schema}`, [], {})
-                    .then(() => done(), done);
-                },
-              }
-            : {}),
+          sessionCallback: (
+            connection: OracleConnectionLike,
+            _tag: string,
+            done: (error?: unknown) => void,
+          ) => {
+            const schema = this.config.schema;
+            connection
+              .execute(SESSION_NLS, [], {})
+              .then(() =>
+                // El nombre se validó como identificador en la configuración.
+                schema
+                  ? connection.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${schema}`, [], {})
+                  : undefined,
+              )
+              .then(() => done(), done);
+          },
         }),
       )
       .catch((error: unknown) => {
@@ -184,10 +210,17 @@ export class OracledbQueryExecutor implements OracleQueryExecutor {
       fetchTypeHandler: (metadata: OracleColumnMetadata) =>
         metadata.dbType === driver.DB_TYPE_NUMBER ? { type: driver.STRING } : undefined,
     });
-    const columns: OracleColumn[] = (result.metaData ?? []).map((column) => ({
-      name: column.name,
-      type: NUMERIC_TYPES.has((column.dbTypeName ?? '').toUpperCase()) ? 'number' : 'text',
-    }));
+    const columns: OracleColumn[] = (result.metaData ?? []).map((column) => {
+      const type = (column.dbTypeName ?? '').toUpperCase();
+      return {
+        name: column.name,
+        type: NUMERIC_TYPES.has(type)
+          ? 'number'
+          : DATE_TYPES.has(type.split('(')[0]!.split(' ')[0]!)
+            ? 'date'
+            : 'text',
+      };
+    });
     const numeric = columns.map(({ type }) => type === 'number');
     const rows = (result.rows ?? []).map((row) =>
       row.map((value, index) => toCell(value, numeric[index] ?? false)),
@@ -276,20 +309,14 @@ export class OracledbQueryExecutor implements OracleQueryExecutor {
               'La cuenta de Oracle del laboratorio tiene más permisos que la lectura de EMPLEADOS. Por seguridad no se ejecutan consultas.',
           };
         }
+        const names = EMPLEADOS_DATASET.columns.map(({ name }) => name);
         const table = await this.query(
           connection,
           driver,
-          'SELECT ID, NOMBRE, EDAD, CIUDAD, SALARIO, DEPTO FROM EMPLEADOS ORDER BY ID',
+          `SELECT ${names.join(', ')} FROM EMPLEADOS ORDER BY ${names[0]}`,
           EMPLEADOS_DATASET.rows.length + 1,
         );
-        const expected = EMPLEADOS_DATASET.rows.map((row) => [
-          row.ID,
-          row.NOMBRE,
-          row.EDAD,
-          row.CIUDAD,
-          row.SALARIO,
-          row.DEPTO,
-        ]);
+        const expected = EMPLEADOS_DATASET.rows.map((row) => rowValues(EMPLEADOS_DATASET, row));
         if (JSON.stringify(table.rows) !== JSON.stringify(expected)) {
           return {
             available: false,

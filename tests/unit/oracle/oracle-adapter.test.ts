@@ -1,12 +1,13 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
-import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
+import { EMPLEADOS_DATASET, rowValues } from '@/domain/dataset/empleados';
 import { analyzeSql } from '@/domain/sql/analyzer';
 import { renderStatement } from '@/domain/sql/render';
 import { oracleConfigFromEnv, type OracleConfig } from '@/infrastructure/oracle/oracle-config';
 import { classifyOracleError } from '@/infrastructure/oracle/oracle-errors';
 import {
   OracledbQueryExecutor,
+  SESSION_NLS,
   type OracleConnectionLike,
   type OracleDriver,
 } from '@/infrastructure/oracle/oracledb-query-executor';
@@ -34,6 +35,8 @@ function fakeDriver(replies: (sql: string) => Reply) {
     async execute(sql, _binds, options) {
       executed.push(sql);
       callTimeouts.push(this.callTimeout);
+      // Las sentencias de sesión (NLS y esquema) siempre funcionan, como en Oracle.
+      if (sql.startsWith('ALTER SESSION')) return { metaData: [], rows: [] };
       const reply = replies(sql);
       if (reply instanceof Error) throw reply;
       const handler = options.fetchTypeHandler as
@@ -44,7 +47,9 @@ function fakeDriver(replies: (sql: string) => Reply) {
         metaData: reply.metaData,
         rows: reply.rows
           .slice(0, maxRows)
-          .map((row) => row.map((value, index) => (asText[index] ? String(value) : value))),
+          .map((row) =>
+            row.map((value, index) => (asText[index] && value !== null ? String(value) : value)),
+          ),
       };
     },
     // Igual que node-oracledb: con un argumento, debe ser un objeto (NJS-005 si no).
@@ -114,14 +119,12 @@ function canonical(sql: string): string {
   return renderStatement(analysis.statement);
 }
 
-const DATASET_ROWS = EMPLEADOS_DATASET.rows.map((row) => [
-  row.ID,
-  row.NOMBRE,
-  row.EDAD,
-  row.CIUDAD,
-  row.SALARIO,
-  row.DEPTO,
-]);
+const date = (name: string) => ({ name, dbTypeName: 'DATE' });
+
+const DATASET_ROWS = EMPLEADOS_DATASET.rows.map((row) => rowValues(EMPLEADOS_DATASET, row));
+const DATASET_META = EMPLEADOS_DATASET.columns.map(({ name, type }) =>
+  type === 'number' ? number(name) : type === 'date' ? date(name) : text(name),
+);
 
 function healthyReplies(sql: string): Reply {
   if (sql.includes('session_privs'))
@@ -130,17 +133,7 @@ function healthyReplies(sql: string): Reply {
   if (sql.includes('user_tab_privs_recd'))
     return { rows: [['READ']], metaData: [text('PRIVILEGE')] };
   if (sql.includes('ORDER BY ID')) {
-    return {
-      rows: DATASET_ROWS,
-      metaData: [
-        number('ID'),
-        text('NOMBRE'),
-        number('EDAD'),
-        text('CIUDAD'),
-        number('SALARIO'),
-        text('DEPTO'),
-      ],
-    };
+    return { rows: DATASET_ROWS, metaData: DATASET_META };
   }
   return { rows: [], metaData: [] };
 }
@@ -306,6 +299,7 @@ describe('adaptador node-oracledb', () => {
       engine: 'Oracle Database 23 (23.9.0.25.07)',
     });
     expect(fake.executed).toEqual([
+      SESSION_NLS,
       'ALTER SESSION SET CURRENT_SCHEMA = SQL_LAB_OWNER',
       'SELECT NOMBRE, SALARIO * 12 AS SALARIO_ANUAL FROM EMPLEADOS',
     ]);
@@ -321,9 +315,52 @@ describe('adaptador node-oracledb', () => {
     expect(fake.closed).toEqual([{ drop: false }]);
   });
 
+  it('lee DATE como AAAA-MM-DD, NULL como null y fija NLS en cada sesión nueva', async () => {
+    const fake = fakeDriver((sql) =>
+      sql.startsWith('ALTER SESSION')
+        ? { rows: [], metaData: [] }
+        : {
+            rows: [
+              ['Ana', new Date(2012, 1, 1), null],
+              ['Jorge', new Date(2016, 8, 12), '0'],
+            ],
+            metaData: [text('NOMBRE'), date('FECHA_INGRESO'), number('BONO')],
+          },
+    );
+    const executor = new OracledbQueryExecutor(
+      { ...CONFIG, schema: null },
+      async () => fake.driver,
+    );
+    const result = await executor.execute({
+      statement: 'SELECT NOMBRE, FECHA_INGRESO, BONO FROM EMPLEADOS',
+    });
+    expect(result).toMatchObject({
+      status: 'ok',
+      columns: [
+        { name: 'NOMBRE', type: 'text' },
+        { name: 'FECHA_INGRESO', type: 'date' },
+        { name: 'BONO', type: 'number' },
+      ],
+      rows: [
+        ['Ana', '2012-02-01', null],
+        ['Jorge', '2016-09-12', 0],
+      ],
+    });
+    expect(fake.executed[0]).toBe(SESSION_NLS);
+    expect(SESSION_NLS).toContain("NLS_DATE_FORMAT = 'YYYY-MM-DD'");
+    expect(SESSION_NLS).toContain('NLS_SORT = BINARY');
+  });
+
   it('conserva la precisión decimal: número exacto si cabe, texto decimal si no', async () => {
     const fake = fakeDriver(() => ({
-      rows: [['1500000'], ['0.1'], ['1000000.33333333333333333333333333333333']],
+      rows: [
+        ['1500000'],
+        ['0.1'],
+        ['.1'],
+        ['-.5'],
+        ['.0833333333333333333333333333333333333333'],
+        ['1000000.33333333333333333333333333333333'],
+      ],
       metaData: [number('MITAD')],
     }));
     const executor = new OracledbQueryExecutor(
@@ -335,7 +372,14 @@ describe('adaptador node-oracledb', () => {
     });
     expect(result).toMatchObject({
       status: 'ok',
-      rows: [[1500000], [0.1], ['1000000.33333333333333333333333333333333']],
+      rows: [
+        [1500000],
+        [0.1],
+        [0.1],
+        [-0.5],
+        ['.0833333333333333333333333333333333333333'],
+        ['1000000.33333333333333333333333333333333'],
+      ],
     });
   });
 
@@ -430,22 +474,15 @@ describe('adaptador node-oracledb', () => {
       sql.includes('ORDER BY ID')
         ? {
             rows: DATASET_ROWS.map((row, index) =>
-              index === 4 ? [...row.slice(0, 2), 31, ...row.slice(3)] : row,
+              index === 4 ? [...row.slice(0, 7), 1, ...row.slice(8)] : row,
             ),
-            metaData: [
-              number('ID'),
-              text('NOMBRE'),
-              number('EDAD'),
-              text('CIUDAD'),
-              number('SALARIO'),
-              text('DEPTO'),
-            ],
+            metaData: DATASET_META,
           }
         : healthyReplies(sql),
     );
     const mismatch = await new OracledbQueryExecutor(CONFIG, async () => changed.driver).status();
     expect(mismatch).toMatchObject({ available: false, reason: 'not-configured' });
-    expect(mismatch.message).toContain('empleados-select-v1');
+    expect(mismatch.message).toContain('empleados-select-v2');
   });
 
   it('el driver se carga una sola vez y solo al usarse', async () => {

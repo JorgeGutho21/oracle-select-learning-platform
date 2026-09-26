@@ -30,7 +30,8 @@ export const MISSION_IDS = [
 export type MissionId = (typeof MISSION_IDS)[number];
 
 export type Difficulty = 'facil' | 'media' | 'dificil';
-export type LessonId = 'L00' | 'L01' | 'L02' | 'L03' | 'L04' | 'L05' | 'L06' | 'L07' | 'L08';
+/** Lecciones del Modo Estudio (lesson-outline): L00–L21. */
+export type LessonId = `L${'0' | '1'}${0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9}` | 'L20' | 'L21';
 
 export type PieceRole =
   'keyword' | 'column' | 'table' | 'punctuation' | 'expression' | 'alias' | 'operator' | 'number';
@@ -63,6 +64,8 @@ export interface PredictResultData {
     readonly rowSelection: boolean;
     readonly rowCount: boolean;
   };
+  /** Columnas de EMPLEADOS que se muestran al marcar filas; por defecto, todas. */
+  readonly sourceColumns?: readonly string[];
 }
 export interface ExpressionBuilderData {
   readonly type: 'expression-builder';
@@ -80,6 +83,8 @@ export interface DistinctResultData {
   readonly type: 'distinct-result';
   readonly query: string;
   readonly column: string;
+  /** Consulta sin DISTINCT que produce la lista de partida. */
+  readonly sourceQuery: string;
   /** Proyección sin DISTINCT, con repeticiones, de la que se retiran duplicados. */
   readonly candidateValues: readonly string[];
 }

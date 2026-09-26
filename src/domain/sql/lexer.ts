@@ -3,8 +3,8 @@ import type { Span } from './source';
 /**
  * Análisis léxico del subconjunto SELECT. Reconoce identificadores (incluidas letras con
  * tilde, para poder explicar por qué no valen sin comillas), identificadores entre comillas
- * dobles, números, literales de texto, operadores y puntuación. Los comentarios `--` se
- * guardan aparte; `/* *\/` se marca para rechazarlo como fuera de alcance.
+ * dobles, números, literales de texto, operadores aritméticos y de comparación, `||` y
+ * puntuación. Los comentarios `--` se guardan aparte; `/* *\/` se marca para rechazarlo.
  */
 
 export type TokenKind =
@@ -13,6 +13,7 @@ export type TokenKind =
   | 'number'
   | 'string'
   | 'operator'
+  | 'comparison'
   | 'comma'
   | 'semicolon'
   | 'lparen'
@@ -27,7 +28,10 @@ export interface Token extends Span {
   readonly kind: TokenKind;
   /** Texto tal como se escribió. */
   readonly text: string;
-  /** Identificadores en mayúsculas; contenido interior de comillas; número tal cual. */
+  /**
+   * Identificadores en mayúsculas; contenido interior de comillas (en textos, con `''`
+   * convertido en `'`); número u operador tal cual.
+   */
   readonly value: string;
   readonly unterminated?: boolean;
 }
@@ -50,7 +54,12 @@ const SINGLE: Readonly<Record<string, TokenKind>> = {
   '-': 'operator',
   '*': 'operator',
   '/': 'operator',
+  '=': 'comparison',
+  '<': 'comparison',
+  '>': 'comparison',
 };
+/** Operadores de dos caracteres de Oracle: distinto (<>, !=, ^=) y menor o mayor o igual. */
+const DOUBLE_COMPARISON = new Set(['<>', '!=', '^=', '<=', '>=']);
 
 export function lex(source: string): LexResult {
   const tokens: Token[] = [];
@@ -132,10 +141,14 @@ export function lex(source: string): LexResult {
         }
         end++;
       }
-      push('string', index, end, source.slice(index + 1, closed ? end - 1 : end), !closed);
+      const inner = source.slice(index + 1, closed ? end - 1 : end);
+      push('string', index, end, inner.replaceAll("''", "'"), !closed);
       index = end;
     } else if (char === '|' && next === '|') {
       push('concat', index, index + 2);
+      index += 2;
+    } else if (next !== undefined && DOUBLE_COMPARISON.has(char + next)) {
+      push('comparison', index, index + 2);
       index += 2;
     } else {
       push(SINGLE[char] ?? 'symbol', index, index + 1);

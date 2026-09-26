@@ -10,7 +10,7 @@ export function DistinctInteraction({
   onChange,
   disabled,
 }: InteractionProps<'distinct-result'>) {
-  const { query, column, candidateValues } = mission.publicData;
+  const { query, sourceQuery, column, candidateValues } = mission.publicData;
   const kept = new Set(answer.keptIndexes);
   const toggle = (index: number) =>
     onChange({
@@ -25,7 +25,7 @@ export function DistinctInteraction({
       <div className="ch-compare">
         <div className="ch-compare__panel">
           <p className="ch-compare__title">
-            Antes: SELECT {column.toLowerCase()} FROM empleados; ({candidateValues.length} filas)
+            Antes: {sourceQuery} ({candidateValues.length} filas)
           </p>
           <ul className="ch-rows">
             {candidateValues.map((value, index) => (

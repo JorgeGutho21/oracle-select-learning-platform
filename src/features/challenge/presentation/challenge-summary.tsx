@@ -1,6 +1,9 @@
 'use client';
 
+import type { Route } from 'next';
+import Link from 'next/link';
 import { useState } from 'react';
+import { LESSON_INDEX } from '@/features/study/application/lesson-index';
 import { Alert, Button, Chip, DataTable, Dialog, Heading } from '@/presentation/components/ui';
 import type {
   AnyPublicMission,
@@ -97,11 +100,18 @@ export function ChallengeSummary({ result, missions, onRestart, onReview }: Chal
         <div className="ch-review">
           <p className="ch-builder__label">Conceptos para repasar</p>
           <div className="ch-review__chips">
-            {result.reviewLessons.map((lesson) => (
-              <Chip key={lesson} tone="warning">
-                {lesson}
-              </Chip>
-            ))}
+            {result.reviewLessons.map((id) => {
+              const lesson = LESSON_INDEX.find((entry) => entry.id === id);
+              return lesson ? (
+                <Link key={id} className="ch-review__link" href={`/learn/${lesson.slug}` as Route}>
+                  {lesson.shortTitle}
+                </Link>
+              ) : (
+                <Chip key={id} tone="warning">
+                  {id}
+                </Chip>
+              );
+            })}
           </div>
         </div>
       )}

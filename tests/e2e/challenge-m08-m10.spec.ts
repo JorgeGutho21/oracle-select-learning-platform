@@ -36,7 +36,7 @@ test.describe('Challenge M08–M10 y resultados', () => {
     expect(results.violations).toEqual([]);
   });
 
-  test('M09: bloques con distractores, corregidos por resultado y no por texto', async ({
+  test('M09: bloques con distractores; sin ORDER BY no se cumple el orden pedido', async ({
     page,
   }) => {
     await startChallenge(page);
@@ -47,16 +47,13 @@ test.describe('Challenge M08–M10 y resultados', () => {
       page.locator('.ch-zone--target'),
     );
     await expect(page.getByRole('button', { name: 'SELECT, posición 1' })).toBeVisible();
-    for (const piece of ['nombre', 'ciudad', ',', 'salario', 'FROM', 'empleados']) {
+    for (const piece of ['nombre', ',', 'ciudad', ',', 'salario', 'FROM', 'empleados']) {
       await addPiece(page, piece);
     }
     await submit(page);
-    await expectFeedback(page, 'Oracle lee ciudad como un alias');
-    await addPiece(page, ',');
-    await page.getByRole('button', { name: ', posición 8' }).click();
-    for (let step = 0; step < 5; step++) {
-      await page.getByRole('button', { name: /Mover antes/ }).click();
-    }
+    // Filas y columnas correctas, pero el pedido indica un orden.
+    await expectFeedback(page, 'sin ORDER BY Oracle no garantiza ninguno');
+    for (const piece of ['ORDER BY', 'salario', 'DESC']) await addPiece(page, piece);
     await submit(page);
     await expectCorrect(page);
     await expect(mapScore(page)).toContainText('80');
@@ -80,7 +77,7 @@ test.describe('Challenge M08–M10 y resultados', () => {
 
     await fillEditor(
       editor,
-      'SELECT nombre, ciudad,\n  (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados;',
+      "SELECT nombre, cargo,\n  (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados\nWHERE estado = 'ACTIVO' AND ciudad = 'Bogotá'\nORDER BY proyeccion_anual DESC;",
     );
     await page.getByRole('button', { name: 'Enviar para evaluar' }).click();
     if (ORACLE_CONFIGURED) {
@@ -168,8 +165,9 @@ test.describe('Challenge M08–M10 y resultados', () => {
     const secrets = [
       'El pedido menciona dos datos de cada empleado',
       'se obtienen las dos columnas pedidas',
-      'Calcula primero el nuevo salario mensual',
-      'Cada dato mencionado en el pedido es una columna',
+      'Filtra primero las filas (activos y de Bogotá)',
+      'Cada dato mencionado es una columna',
+      'WHERE conserva solo las filas cuya ciudad es Cali',
     ];
     for (const source of sources) {
       const body = await (await request.get(source)).text();

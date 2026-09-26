@@ -21,10 +21,10 @@ export function SourceTable({
       caption={caption}
       columns={EMPLEADOS.columns.filter((column) => !columns || columns.includes(column.name))}
       rows={EMPLEADOS.rows}
-      rowKey={(row) => String(row.ID)}
+      rowKey={(row) => String(row.ID_EMPLEADO)}
       highlighted={highlighted}
       highlightNote="El borde azul marca las columnas que elegiste."
-      formatted={['SALARIO']}
+      formatted={['SALARIO', 'BONO']}
       extraColumns={extraColumns}
     />
   );

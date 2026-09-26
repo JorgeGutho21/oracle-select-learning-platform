@@ -214,7 +214,7 @@ describe('Aislamiento de rúbricas y almacenamiento (G15, ARCHITECTURE)', () => 
 
   it('los registros del dataset solo se definen en su módulo de dominio', () => {
     const owners = sources
-      .filter((file) => /3700000/.test(readFileSync(file, 'utf8')))
+      .filter((file) => /4800000/.test(readFileSync(file, 'utf8')))
       .map((file) => path.relative(root, file).replaceAll('\\', '/'));
     expect(owners).toEqual(['domain/dataset/empleados.ts']);
   });

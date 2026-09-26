@@ -3,21 +3,28 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { ACADEMIC_IDENTITY as identity } from '@/application/academic-identity';
 import { PRACTICE_RULES } from '@/features/challenge/application/challenge-api';
-import { MODULE_STATUS_LABEL, upcomingModules } from '@/features/modules/application/modules-api';
+import { STAGE_LABEL, upcomingLevels } from '@/features/modules/application/modules-api';
 import { getVideo } from '@/features/resources/application/resources-api';
-import { analyzeLabQuery } from '@/features/laboratory/application/lab-api';
-import { LESSONS } from '@/features/study/application/study-api';
+import { analyzeLabQuery, EMPLEADOS } from '@/features/laboratory/application/lab-api';
+import {
+  LESSON_COUNT,
+  LESSON_INDEX,
+  STUDY_BLOCKS,
+} from '@/features/study/application/lesson-index';
+import { CellValueView } from '@/presentation/components/data/cell-format';
+import { highlightSql } from '@/presentation/components/data/sql-code';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { HomeDemonstration } from './home-demonstration';
 
 /** Consulta de la portada; su resultado sale del motor educativo y del dataset único. */
-const HERO_SQL = 'SELECT nombre,\n       salario * 12 AS salario_anual\nFROM   empleados;';
-
-const numberFormat = new Intl.NumberFormat('es-CO');
+const HERO_SQL = `SELECT nombre,
+       salario * 12 AS salario_anual
+FROM   empleados
+WHERE  ciudad = 'Bogotá'
+ORDER BY salario_anual DESC;`;
 
 function HeroTerminal() {
   const preview = analyzeLabQuery(HERO_SQL).preview;
-  const keywords = /\b(SELECT|AS|FROM)\b/g;
   return (
     <figure className="home-terminal" aria-label="Ejemplo de consulta y su resultado">
       <div className="home-terminal__bar" aria-hidden="true">
@@ -26,14 +33,10 @@ function HeroTerminal() {
           <i />
           <i />
         </span>
-        <span>empleados-select-v1</span>
+        <span>{EMPLEADOS.id}</span>
       </div>
       <pre className="home-terminal__code">
-        <code>
-          {HERO_SQL.split(keywords).map((part, index) =>
-            index % 2 === 1 ? <b key={index}>{part}</b> : part,
-          )}
-        </code>
+        <code>{highlightSql(HERO_SQL)}</code>
       </pre>
       {preview && (
         <div
@@ -58,7 +61,7 @@ function HeroTerminal() {
                 <tr key={index}>
                   {row.map((value, cell) => (
                     <td key={cell} className={typeof value === 'number' ? 'is-number' : undefined}>
-                      {typeof value === 'number' ? numberFormat.format(value) : value}
+                      <CellValueView value={value} />
                     </td>
                   ))}
                 </tr>
@@ -86,8 +89,8 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
               </span>
             </h1>
             <p className="home-hero__lead">
-              Aprende a pedir datos a una tabla: elige columnas, calcula valores y entiende cada
-              resultado. Sin experiencia previa.
+              Aprende a pedir datos a una tabla: elegir columnas, calcular, filtrar filas, tratar
+              valores vacíos y ordenar el resultado. Sin experiencia previa.
             </p>
             <p className="home-hero__byline">
               <span>{identity.author}</span>
@@ -159,25 +162,34 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
         <div className="site-container">
           <header className="home-heading">
             <p className="home-eyebrow">01 · Qué aprenderás</p>
-            <h2 id="learn-title">Nueve pasos. Una sola tabla.</h2>
+            <h2 id="learn-title">
+              {STUDY_BLOCKS.length} bloques, {LESSON_COUNT} lecciones. Una sola tabla.
+            </h2>
             <p>
-              Todo el recorrido usa EMPLEADOS: seis personas y seis columnas. Cada paso muestra la
-              tabla, la consulta y el resultado.
+              Todo el recorrido usa EMPLEADOS: {EMPLEADOS.rows.length} personas y{' '}
+              {EMPLEADOS.columns.length} columnas. Cada lección muestra la tabla, la consulta, lo
+              que hace y el resultado.
             </p>
           </header>
           <ol className="home-path">
-            {LESSONS.map((lesson, index) => (
-              <li key={lesson.id}>
-                <Link href={`/learn/${lesson.slug}`} className="home-path__card">
-                  <span className="home-path__number">{String(index + 1).padStart(2, '0')}</span>
-                  <span className="home-path__copy">
-                    <strong>{lesson.shortTitle}</strong>
-                    <span>{lesson.objective}</span>
-                  </span>
-                  <code className="home-path__code">{lesson.badge}</code>
-                </Link>
-              </li>
-            ))}
+            {STUDY_BLOCKS.map((block) => {
+              const lessons = LESSON_INDEX.filter((lesson) => lesson.block === block.id);
+              const first = lessons[0]!;
+              return (
+                <li key={block.id}>
+                  <Link href={`/learn/${first.slug}`} className="home-path__card">
+                    <span className="home-path__number">{block.letter}</span>
+                    <span className="home-path__copy">
+                      <strong>{block.title}</strong>
+                      <span>{block.summary}</span>
+                    </span>
+                    <code className="home-path__code">
+                      {lessons.map((lesson) => lesson.badge).join(' · ')}
+                    </code>
+                  </Link>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </section>
@@ -188,8 +200,8 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
             <p className="home-eyebrow">02 · Pruébalo ahora</p>
             <h2 id="demo-title">Elige columnas. Mira el resultado.</h2>
             <p>
-              Toca las columnas en el orden que quieras. La consulta se escribe sola y las seis
-              filas se conservan.
+              Toca las columnas en el orden que quieras. La consulta se escribe sola y todas las
+              filas se conservan: SELECT elige columnas, no filas.
             </p>
           </header>
           <HomeDemonstration />
@@ -249,8 +261,6 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
             <VideoPlayer
               title={intro.title}
               description={intro.description}
-              plannedDuration={intro.plannedDuration}
-              duration={intro.duration}
               orientation={intro.orientation}
               source={intro.source}
               poster={intro.poster}
@@ -274,21 +284,26 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
       >
         <div className="site-container">
           <header className="home-heading">
-            <p className="home-eyebrow">Próximos módulos</p>
+            <p className="home-eyebrow">La ruta continúa</p>
             <h2 id="future-title">Después de SELECT.</h2>
-            <p>Estos temas llegarán en unidades futuras. Esta unidad se concentra en SELECT.</p>
+            <p>
+              Esta unidad es el nivel 1. Los siguientes ya tienen sus temas definidos y aparecen
+              como «Próximamente».
+            </p>
           </header>
           <ul className="home-future__grid">
-            {upcomingModules().map((entry) => (
-              <li key={entry.id}>
-                <span className="home-future__tag">{MODULE_STATUS_LABEL[entry.status]}</span>
-                <code>{entry.keyword}</code>
-                <span>{entry.description}</span>
+            {upcomingLevels().map((level) => (
+              <li key={level.id}>
+                <span className="home-future__tag">
+                  Nivel {level.number} · {STAGE_LABEL[level.stage]} · Próximamente
+                </span>
+                <strong>{level.title}</strong>
+                <span>{level.topics.map((topic) => topic.title).join(' · ')}</span>
               </li>
             ))}
           </ul>
           <Link href="/modules" className="inline-action home-future__link">
-            Ver el catálogo de módulos <span aria-hidden="true">→</span>
+            Ver la ruta de aprendizaje <span aria-hidden="true">→</span>
           </Link>
         </div>
       </section>

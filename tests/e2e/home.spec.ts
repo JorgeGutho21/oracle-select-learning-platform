@@ -34,23 +34,30 @@ test.describe('Home', () => {
       await expect(actions.getByRole('link', { name })).toHaveAttribute('href', href);
     }
 
-    await expect(page.getByRole('link', { name: /^0?\d.*¿Qué es SQL\?/ })).toHaveAttribute(
-      'href',
-      '/learn/introduccion',
-    );
+    // La consulta del hero ya usa WHERE y ORDER BY, con su resultado real del motor.
+    const terminal = page.getByRole('figure', { name: 'Ejemplo de consulta y su resultado' });
+    await expect(terminal).toContainText("ciudad = 'Bogotá'");
+    await expect(terminal).toContainText('ORDER BY salario_anual DESC');
+    await expect(terminal.getByRole('region', { name: 'Vista educativa · 7 filas' })).toBeVisible();
+
+    const path = page.locator('.home-path > li');
+    await expect(path).toHaveCount(8);
+    await expect(path.first().getByRole('link')).toHaveAttribute('href', '/learn/introduccion');
     const future = page.locator('#proximos-modulos li');
-    await expect(future).toHaveCount(7);
-    await expect(future.filter({ hasText: 'Próximamente' })).toHaveCount(7);
+    await expect(future).toHaveCount(6);
+    await expect(future.filter({ hasText: 'Próximamente' })).toHaveCount(6);
     const intro = page.locator('.video-player').filter({ hasText: 'Video introductorio' });
     await expect(intro).not.toContainText('Video en preparación');
     await expect(intro.locator('video, [role="alert"]')).toHaveCount(1);
-    await expect(page.getByRole('link', { name: /Ver el catálogo de módulos/ })).toHaveAttribute(
+    // Sin rótulos de duración de los videos.
+    await expect(page.locator('main')).not.toContainText('Duración');
+    await expect(page.getByRole('link', { name: /Ver la ruta de aprendizaje/ })).toHaveAttribute(
       'href',
       '/modules',
     );
   });
 
-  test('la demostración escribe la consulta y conserva las seis filas', async ({ page }) => {
+  test('la demostración escribe la consulta y muestra 8 de las 20 filas', async ({ page }) => {
     await page.goto('/');
     const demo = page.locator('.home-demo');
     await expect(demo.locator('pre')).toContainText('SELECT nombre, ciudad');
@@ -62,7 +69,8 @@ test.describe('Home', () => {
     await expect(demo.locator('pre')).toContainText('SELECT nombre, ciudad, salario');
     const table = demo.getByRole('region', { name: 'Resultado de la demostración' });
     await expect(table.locator('thead th')).toHaveText(['NOMBRE', 'CIUDAD', 'SALARIO']);
-    await expect(table.locator('tbody tr')).toHaveCount(6);
+    await expect(table.locator('tbody tr')).toHaveCount(8);
+    await expect(demo).toContainText('8 de 20 filas');
     await expect(demo.getByRole('link', { name: /Abrir en el laboratorio/ })).toHaveAttribute(
       'href',
       /\/lab\?sql=SELECT\+nombre%2C\+ciudad%2C\+salario/,

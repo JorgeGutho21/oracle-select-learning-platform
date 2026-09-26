@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 24 de septiembre de 2026. Punto de entrada para Codex u otra IA.
+Actualizado: 25 de septiembre de 2026 (reingeniería educativa, dataset v2). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -16,9 +16,9 @@ En otro equipo, usar el clon de ese mismo repositorio. No crear repositorios dif
 
 ## Objetivo y alcance acordados
 
-SQL SELECT LAB es una plataforma universitaria en español de Jorge Gutierrez Thomas para la asignatura Base de Datos (profesor Amilkar Sierra), programa de Ingeniería de Sistemas de la Universidad Popular del Cesar. Enseña introducción breve a SQL, SELECT, FROM, SELECT *, columnas específicas, expresiones y cálculos, alias con AS, DISTINCT y consultas completas de proyección.
+SQL SELECT LAB es una plataforma universitaria en español de Jorge Gutierrez Thomas para la asignatura Base de Datos (profesor Amilkar Sierra), programa de Ingeniería de Sistemas de la Universidad Popular del Cesar. Desde la reingeniería del 25 de septiembre de 2026 enseña el **Nivel 1, SELECT fundamental** completo: base de datos, tabla, fila, columna y SQL; SELECT, FROM, `*`, columnas, expresiones, precedencia, alias con AS, concatenación, DISTINCT, WHERE, comparaciones, AND/OR/NOT, paréntesis, BETWEEN, IN, LIKE, NULL, ORDER BY, la consulta completa y los errores frecuentes (22 lecciones, 29 escenas).
 
-WHERE, BETWEEN, IN, LIKE, NULL, JOIN, ORDER BY, agrupaciones y demás temas avanzados quedan para módulos futuros. Los criterios verificables por módulo están en las especificaciones.
+Funciones, agrupación, JOIN, subconsultas, INSERT/UPDATE/DELETE con COMMIT/ROLLBACK y DDL son los niveles 2 a 7: 46 fichas «Próximamente» en `/modules`, sin lecciones ni misiones. Mapa completo en `docs/CONTENT_MAP.md`.
 
 La experiencia incluye Home, Exposición, Estudio, búsqueda Ctrl+K/Cmd+K, vídeo introductorio, explicaciones visuales, tablas interactivas, laboratorio Oracle real, diez misiones de SQL Challenge, arrastre accesible, predicción, detección de errores, reconstrucción, reto escrito, sala por QR, cronómetro, puntos, ranking, estadísticas, vídeo resumen, chuleta y catálogo futuro.
 
@@ -46,7 +46,8 @@ La solicitud activa del usuario autoriza exclusivamente cimientos técnicos y DE
 - Presentación, aplicación, dominio e infraestructura separados; no concentrar el producto en una sola página.
 - Stack propuesto: Next.js, React, TypeScript estricto, Bootstrap/Sass, CodeMirror y arrastre accesible. Supabase para datos de aplicación, identidad y tiempo real; servicio separado para Oracle. Fijar versiones compatibles al implementar.
 - Superficies claras, azul/cian, buena legibilidad en proyector y móvil. Bootstrap, Atera Energy y Spinoff son referencias de diseño; el sitio del compañero solo aporta estructura pedagógica.
-- Dataset `empleados-select-v1` de seis empleados y seis columnas, gobernado por `DATABASE_SCHEMA.md`. Se eligió F1: María tiene 30 años; Jorge, 22 y departamento Sistemas. No mezclar los datos divergentes del juego o F2 ni añadir TELEFONO a esta unidad.
+- Dataset `empleados-select-v2` (12 columnas, 20 filas diseñadas para cada concepto), gobernado por `DATABASE_SCHEMA.md` 2.0. Fuente única: `src/domain/dataset/empleados.ts`, cargada en Oracle desde `oracle/empleados-select-v2.sql` (una prueba exige que coincidan). v1 (6 filas) se conserva en su script y en los esquemas Oracle `SQL_LAB_OWNER`/`SQL_LAB_READER` para volver atrás. En Oracle, v2 vive en `SQL_LAB_V2_OWNER` (sin inicio de sesión) y `SQL_LAB_V2_READER` (solo `CREATE SESSION` y `READ`).
+- El motor educativo (`src/domain/sql`) es la referencia del Estudio, la Exposición, el laboratorio y el Challenge; `tests/integration/oracle-real.test.ts` exige que Oracle devuelva lo mismo en cada consulta del contenido. Ningún tema de los niveles 2 a 7 entra al recorrido actual.
 - Exactamente diez misiones. La definición de evaluación y puntos está en `GAME_SPEC.md`; máximo 1000 puntos. En sala, el servidor gobierna puntuación y tiempo.
 - Laboratorio real significa ejecución comprobada en Oracle. Si falta el servicio, mostrar indisponibilidad; las demostraciones visuales no acreditan este requisito.
 - Objetivo de sala: 60 participantes, con prueba adicional a 75 conexiones. Es una meta pendiente de medición.
@@ -180,3 +181,12 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
     - validar el uso del emblema;
     - opcional: ensayo con 50–60 móviles.
   - **Commits:** `release: finalize production learning platform` y los anteriores de la fase, subidos a `origin/claude-finish-20260923`.
+- 2026-09-25: reingeniería educativa (unidad Oracle SQL fundamental) en `claude-finish-20260923`. Plan en `docs/CONTENT_REDESIGN_PLAN.md`.
+  - **Dataset v2:** `empleados-select-v2`, 12 columnas y 20 filas; fuente única en `src/domain/dataset/empleados.ts` y `oracle/empleados-select-v2.sql`.
+  - **Motor SQL:** WHERE, comparaciones, AND/OR/NOT, paréntesis, BETWEEN, IN, LIKE, IS NULL, ORDER BY, textos, `||` y fechas DATE, con lógica de tres valores y orden BINARY como Oracle. Diagnóstico en cinco grupos con posición, pista y corrección aplicable (plegada).
+  - **Contenido:** 22 lecciones en 8 bloques (plantilla de 12 partes, mini comprobaciones con pistas), 29 escenas, LAB01–LAB24, Challenge `select-challenge-v3` (M02, M04, M05, M07, M09 y M10 renovadas; M10 en Oracle), ruta `/modules` con 46 temas futuros y buscador de temas actuales y futuros. Videos sin rótulos de duración.
+  - **Oracle:** `SQL_LAB_V2_OWNER` y `SQL_LAB_V2_READER` creados de forma aditiva en Oracle local 23ai (`npm run oracle:setup`) y en Oracle Cloud 19c (`node scripts/oracle-cloud.mjs setup`); las cuentas v1 quedan como `ORACLE_PREVIOUS_*` y `ORACLE_CLOUD_PREVIOUS_*` en los archivos ignorados.
+  - **Bugs encontrados y corregidos:** decimales `.1` de Oracle; visitas del Estudio que no se guardaban; retorno del laboratorio limitado a 16 escenas y 9 lecciones; desbordes con zoom 200 % en las páginas nuevas; tablas cortadas en las escenas 05, 11, 15 y 21; lecciones con muros de tablas (ahora muestras de 10 filas rotuladas).
+  - **Verificado:** lint, typecheck, format:check, `npm run test:unit` 632/632 (508 unitarias, 102 contra Oracle local v2 y la sala en PostgreSQL embebido), integración contra Oracle Cloud 102/102, build, E2E en Chromium 199/199 y QA visual de 42 capturas (1920×1080 a 180×400).
+  - **Documentos:** CONTENT_MAP 2.0, DATABASE_SCHEMA 2.0, LAB_SPEC 2.0, GAME_SPEC 3.0, ORACLE_SETUP 2.0, README, PROJECT_STATUS, CONTENT_REDESIGN_PLAN y referencias en UX_FLOWS, PROJECT_SPEC, ROADMAP, TEST_PLAN, PRODUCTION_SETUP e IMPLEMENTATION_NOTES.
+  - **No versionado a propósito:** `docs/Guia_herramientas_SQL_SELECT_LAB.docx` (documento personal, excluido también en `.vercelignore`).

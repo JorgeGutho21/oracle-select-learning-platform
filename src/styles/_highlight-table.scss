@@ -98,3 +98,72 @@
 .hl-table--large th {
   font-size: 0.8em;
 }
+
+// Estado de cada fila frente a WHERE: símbolo y texto en la primera columna, además del color.
+.hl-table__state {
+  width: 1%;
+  white-space: nowrap;
+  font-weight: 700;
+}
+.hl-table th.hl-table__state {
+  color: var(--color-muted);
+}
+.hl-table tr.is-kept .hl-table__state {
+  color: var(--color-success);
+}
+.hl-table tr.is-discarded .hl-table__state {
+  color: var(--color-danger);
+}
+.hl-table tr.is-unknown .hl-table__state {
+  color: var(--color-warning);
+}
+.hl-table tr.is-kept td {
+  background: color-mix(in srgb, var(--color-success) 7%, var(--color-surface));
+}
+.hl-table tr.is-discarded td:not(.hl-table__state) {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-page) 70%, var(--color-surface));
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
+}
+.hl-table tr.is-unknown td:not(.hl-table__state) {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-warning) 6%, var(--color-surface));
+}
+.hl-table__state-label {
+  font-size: 0.8125em;
+}
+// Celda que cumple la condición: borde además del fondo.
+.hl-table td.is-match {
+  box-shadow: inset 0 0 0 2px var(--color-primary);
+  font-weight: 700;
+}
+.hl-like__literal {
+  padding: 0 1px;
+  color: var(--color-night);
+  background: var(--color-cyan);
+  border-radius: 3px;
+  font-weight: 800;
+}
+.hl-like__one {
+  text-decoration: underline dotted var(--color-primary) 2px;
+  text-underline-offset: 3px;
+}
+.hl-null {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+.hl-table td.is-match .hl-null {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+.hl-table th.is-sorted {
+  color: var(--color-night);
+  background: color-mix(in srgb, var(--color-cyan) 55%, var(--color-soft));
+}
+.hl-table__sort {
+  font-size: 1.1em;
+}

@@ -40,7 +40,8 @@ test('las respuestas llevan las cabeceras de seguridad y la CSP no bloquea nada'
 });
 
 test('las columnas atenuadas de la tabla didáctica mantienen el contraste AA', async ({ page }) => {
-  await page.goto('/learn/consulta-completa');
+  // La tabla de origen atenúa las columnas que la consulta no muestra (NOMBRE, DEPARTAMENTO).
+  await page.goto('/learn/distinct');
   await expect(page.locator('.hl-table .is-dim').first()).toBeVisible();
   expect(await violations(page, ['color-contrast'])).toEqual([]);
 });
@@ -56,6 +57,8 @@ for (const [width, height] of [
     '/learn/alias',
     '/learn/distinct',
     '/learn/consulta-completa',
+    '/learn/null',
+    '/learn/errores-frecuentes',
     '/resources',
     '/modules',
   ]) {
@@ -70,7 +73,7 @@ for (const [width, height] of [
     });
   }
 
-  for (const scene of [1, 2, 5, 9, 11, 12, 14, 15]) {
+  for (const scene of [1, 2, 5, 8, 9, 10, 11, 13, 15, 17, 19, 20, 21, 27, 28]) {
     test(`a ${width} px la escena ${scene} se lee sin desplazamiento interno`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto(`/presentation?scene=${scene}`);

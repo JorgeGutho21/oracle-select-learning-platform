@@ -9,10 +9,6 @@ export type VideoPlayerSource =
 export interface VideoPlayerProps {
   readonly title: string;
   readonly description: string;
-  /** Duración prevista, por ejemplo «1:30–2:00». */
-  readonly plannedDuration: string;
-  /** Duración real del video publicado, por ejemplo «1:13». */
-  readonly duration?: string | null;
   /** Sin fuente, el reproductor muestra «Video en preparación» y nunca un marco vacío. */
   readonly source: VideoPlayerSource | null;
   /** Un video vertical (9:16) conserva su proporción en lugar de encogerse dentro de 16:9. */
@@ -37,8 +33,6 @@ type LoadState = 'idle' | 'loading' | 'ready' | 'error';
 export function VideoPlayer({
   title,
   description,
-  plannedDuration,
-  duration = null,
   source,
   orientation = 'landscape',
   poster = null,
@@ -74,7 +68,6 @@ export function VideoPlayer({
           ▶
         </span>
         <strong>Video en preparación</strong>
-        <span>Duración prevista: {plannedDuration}</span>
       </div>
     );
   } else if (state === 'error') {
@@ -94,7 +87,7 @@ export function VideoPlayer({
             controls
             // Nada se descarga hasta pulsar reproducir: ahorra datos en cada visita y no
             // retrasa el evento «load» de la página (WebKit lo retenía 2–3 s por video).
-            // La portada y la duración escrita ocupan el lugar de los metadatos.
+            // La portada ocupa el lugar de los metadatos.
             preload="none"
             playsInline
             src={source.url}
@@ -149,7 +142,6 @@ export function VideoPlayer({
         </p>
         {source ? (
           <>
-            {duration && <p className="video-player__meta">Duración: {duration}</p>}
             <p className="video-player__links">
               <a href={source.url} target="_blank" rel="noreferrer">
                 Abrir el video en una pestaña nueva

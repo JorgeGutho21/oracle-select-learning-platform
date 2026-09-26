@@ -14,7 +14,7 @@ export interface OracleExecutionRequest {
 
 export interface OracleColumn {
   readonly name: string;
-  readonly type: 'number' | 'text';
+  readonly type: 'number' | 'text' | 'date';
 }
 
 export type OracleUnavailableReason =

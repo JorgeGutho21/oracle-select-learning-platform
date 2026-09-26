@@ -1,8 +1,9 @@
 import type { CellValue } from '@/domain/dataset/empleados';
 
 /**
- * Resultado tabular de una proyección. Se conserva el orden de columnas y la
- * multiplicidad de filas; el orden de filas no es significativo (LAB_SPEC).
+ * Resultado tabular de una consulta. Se conserva el orden de columnas y la multiplicidad de
+ * filas; el orden de filas solo es significativo si la consulta tiene ORDER BY, y entonces
+ * se comprueba con `isSortedBy` (los empates pueden salir en cualquier orden).
  */
 export interface ResultTable {
   readonly columns: readonly string[];
@@ -73,4 +74,48 @@ export function compareResults(
   if (actual.rows.length !== expected.rows.length) return { equal: false, difference: 'row-count' };
   if (!sameRowMultiset(actual.rows, expected.rows)) return { equal: false, difference: 'rows' };
   return { equal: true };
+}
+
+/** Criterio de orden sobre una columna del resultado. */
+export interface SortKey {
+  readonly column: number;
+  readonly direction: 'ASC' | 'DESC';
+  /** Por defecto, como Oracle: NULLS LAST en ASC y NULLS FIRST en DESC. */
+  readonly nulls?: 'FIRST' | 'LAST';
+}
+
+function compareCells(left: CellValue, right: CellValue, key: SortKey): number {
+  const nulls = key.nulls ?? (key.direction === 'ASC' ? 'LAST' : 'FIRST');
+  if (left === null || right === null) {
+    if (left === right) return 0;
+    return (left === null) === (nulls === 'FIRST') ? -1 : 1;
+  }
+  const order =
+    typeof left === 'number' && typeof right === 'number'
+      ? Math.sign(left - right)
+      : String(left) < String(right)
+        ? -1
+        : String(left) > String(right)
+          ? 1
+          : 0;
+  return key.direction === 'DESC' ? -order : order;
+}
+
+/** Las filas respetan el orden pedido; entre filas empatadas cualquier orden es válido. */
+export function isSortedBy(
+  rows: readonly (readonly CellValue[])[],
+  keys: readonly SortKey[],
+): boolean {
+  for (let index = 1; index < rows.length; index++) {
+    for (const key of keys) {
+      const result = compareCells(
+        rows[index - 1]![key.column] ?? null,
+        rows[index]![key.column] ?? null,
+        key,
+      );
+      if (result < 0) break;
+      if (result > 0) return false;
+    }
+  }
+  return true;
 }

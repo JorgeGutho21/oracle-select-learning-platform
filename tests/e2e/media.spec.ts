@@ -14,19 +14,14 @@ async function playsH264(page: Page): Promise<boolean> {
 
 /**
  * Reproductor real: controles nativos, sin reproducción automática ni descarga previa,
- * portada, duración y la proporción del archivo. Con `play`, reproduce silenciado y
+ * portada y la proporción del archivo, sin rótulos de duración. Con `play`, reproduce silenciado y
  * comprueba que avanza; si el navegador no decodifica H.264, debe mostrar el error y el
  * enlace alternativo en lugar de un marco vacío.
  */
 async function expectVideo(
   page: Page,
   player: Locator,
-  {
-    url,
-    ratio,
-    duration,
-    play = false,
-  }: { url: string; ratio: number; duration: string; play?: boolean },
+  { url, ratio, play = false }: { url: string; ratio: number; play?: boolean },
 ) {
   await expect(player).not.toContainText('Video en preparación');
   await expect(
@@ -39,7 +34,8 @@ async function expectVideo(
   await expect(video).toHaveAttribute('poster', url.replace(/\.mp4$/, '.jpg'));
   await expect(video).not.toHaveAttribute('autoplay');
   await expect(player.getByRole('status')).toHaveCount(0);
-  await expect(player).toContainText(`Duración: ${duration}`);
+  // La duración no se muestra: el reproductor nativo ya la indica.
+  await expect(player).not.toContainText('Duración');
   const frame = await player.locator('.video-player__frame').boundingBox();
   expect(frame!.width / frame!.height).toBeCloseTo(ratio, 1);
   if (!play) return;
@@ -64,24 +60,24 @@ async function expectVideo(
 test.describe('Videos de la unidad', () => {
   test('el video introductorio está en la Home y al inicio del recorrido', async ({ page }) => {
     await page.goto('/');
-    const intro = { url: INTRO, ratio: 9 / 16, duration: '1:13' };
+    const intro = { url: INTRO, ratio: 9 / 16 };
     await expectVideo(
       page,
       page.locator('.video-player').filter({ hasText: 'Video introductorio' }),
       { ...intro, play: true },
     );
     await page.goto('/learn');
-    const start = page.getByRole('region', { name: 'Antes de la primera lección' });
+    const start = page.getByRole('region', { name: 'La misma estructura, doce partes' });
     await expectVideo(page, start.locator('.video-player'), intro);
   });
 
-  test('el video resumen está al final del recorrido y en la escena 14', async ({
+  test('el video resumen está al final del recorrido y en la escena 26', async ({
     page,
     browserName,
   }) => {
-    const summary = { url: SUMMARY, ratio: 16 / 9, duration: '4:51' };
-    await page.goto('/learn/consulta-completa');
-    const closing = page.getByRole('region', { name: 'Repasa toda la unidad' });
+    const summary = { url: SUMMARY, ratio: 16 / 9 };
+    await page.goto('/learn/errores-frecuentes');
+    const closing = page.getByRole('region', { name: 'Repasa y pon a prueba lo aprendido' });
     await expectVideo(page, closing.locator('.video-player'), { ...summary, play: true });
 
     // Subtítulos en español activos por defecto, sincronizados con el audio.
@@ -120,11 +116,13 @@ test.describe('Videos de la unidad', () => {
     expect(await response.text()).toContain('SELECT elige las columnas y FROM elige la tabla.');
 
     await page.goto('/learn/distinct');
-    await expect(page.getByRole('region', { name: 'Repasa toda la unidad' })).toHaveCount(0);
+    await expect(
+      page.getByRole('region', { name: 'Repasa y pon a prueba lo aprendido' }),
+    ).toHaveCount(0);
 
-    await page.goto('/presentation?scene=14');
+    await page.goto('/presentation?scene=26');
     await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true');
-    const scene = page.locator('[data-scene="14"] .video-player');
+    const scene = page.locator('[data-scene="26"] .video-player');
     await expect(scene.locator('video, [role="alert"]')).toHaveCount(1);
     const frame = await scene.locator('.video-player__frame').boundingBox();
     expect(frame!.width / frame!.height).toBeCloseTo(16 / 9, 1);
@@ -136,12 +134,10 @@ test.describe('Videos de la unidad', () => {
     await expectVideo(page, page.locator('#video-introduccion'), {
       url: INTRO,
       ratio: 9 / 16,
-      duration: '1:13',
     });
     await expectVideo(page, page.locator('#video-resumen'), {
       url: SUMMARY,
       ratio: 16 / 9,
-      duration: '4:51',
     });
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

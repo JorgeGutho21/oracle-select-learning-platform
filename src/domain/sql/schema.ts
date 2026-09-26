@@ -4,6 +4,10 @@ import { EMPLEADOS_DATASET, type ColumnType } from '@/domain/dataset/empleados';
 export interface SchemaColumn {
   readonly name: string;
   readonly type: ColumnType;
+  readonly nullable: boolean;
+  /** Nombre en español, en minúsculas, para las traducciones. */
+  readonly label: string;
+  readonly gender: 'f' | 'm';
 }
 
 export interface TableSchema {
@@ -13,11 +17,24 @@ export interface TableSchema {
 
 export const EMPLEADOS_SCHEMA: TableSchema = Object.freeze({
   name: EMPLEADOS_DATASET.table,
-  columns: Object.freeze(EMPLEADOS_DATASET.columns.map(({ name, type }) => ({ name, type }))),
+  columns: Object.freeze(
+    EMPLEADOS_DATASET.columns.map(({ name, type, nullable, label, gender }) => ({
+      name,
+      type,
+      nullable,
+      label,
+      gender,
+    })),
+  ),
 });
 
 export function findColumn(schema: TableSchema, name: string): SchemaColumn | undefined {
   return schema.columns.find((column) => column.name === name.toUpperCase());
+}
+
+/** Columnas numéricas del esquema, para los mensajes sobre cálculos. */
+export function numericColumns(schema: TableSchema): string[] {
+  return schema.columns.filter(({ type }) => type === 'number').map(({ name }) => name);
 }
 
 /** Distancia de edición para sugerir una columna parecida (SALARIOS → SALARIO). */
@@ -26,9 +43,20 @@ export function closestColumn(schema: TableSchema, name: string): string | null 
   let best: { name: string; distance: number } | null = null;
   for (const column of schema.columns) {
     const distance = editDistance(target, column.name);
-    if (distance <= 2 && (!best || distance < best.distance))
+    const limit = column.name.length >= 8 ? 3 : 2;
+    if (distance <= limit && (!best || distance < best.distance))
       best = { name: column.name, distance };
   }
+  // Nombres de la versión anterior del dataset.
+  const renamed: Readonly<Record<string, string>> = {
+    ID: 'ID_EMPLEADO',
+    DEPTO: 'DEPARTAMENTO',
+    SUELDO: 'SALARIO',
+    EMAIL: 'CORREO',
+    JEFE: 'ID_JEFE',
+  };
+  const known = renamed[target];
+  if (known && schema.columns.some((column) => column.name === known)) return known;
   return best?.name ?? null;
 }
 

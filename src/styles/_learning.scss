@@ -1,0 +1,272 @@
+// Patrón TABLA ORIGINAL → CONSULTA → QUÉ HACE → RESULTADO y mini comprobación.
+
+.query-flow__stages {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-areas:
+    'source query'
+    'source steps'
+    'result result';
+  gap: var(--space-4);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.query-flow__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+.query-flow__stage--source {
+  grid-area: source;
+}
+.query-flow__stage--query {
+  grid-area: query;
+}
+.query-flow__stage--steps {
+  grid-area: steps;
+  background: var(--color-soft);
+}
+.query-flow__stage--result {
+  grid-area: result;
+  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border-subtle));
+}
+.query-flow__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.query-flow__number {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--color-inverse);
+  background: var(--color-primary);
+  border-radius: 8px;
+  font: 800 0.875rem var(--font-mono);
+}
+.query-flow__question,
+.query-flow__reading {
+  margin: 0;
+  font-size: 1rem;
+}
+.query-flow__question span,
+.query-flow__reading span {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.query-flow__reading {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-soft);
+  border-radius: var(--radius-control);
+}
+.query-flow__badge {
+  justify-self: start;
+  margin: 0;
+  padding: 4px 12px;
+  color: var(--color-inverse);
+  background: var(--color-night);
+  border-radius: 999px;
+  font-weight: 750;
+}
+.query-flow__steps {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: 1.25em;
+  font-size: 0.9375rem;
+}
+.query-flow__legend,
+.query-flow__caption,
+.query-flow__empty {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.query-flow__before {
+  display: grid;
+  gap: var(--space-2);
+}
+@media (max-width: 991px) {
+  .query-flow__stages {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'query' 'source' 'steps' 'result';
+  }
+}
+
+// Mini comprobación.
+.mini-check {
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(20px, 3vw, 32px);
+  background: var(--color-soft);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-section);
+}
+.mini-check > * {
+  min-width: 0;
+}
+.mini-check__eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.mini-check__prompt {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+}
+.mini-check__solved {
+  margin: 0;
+  color: var(--color-success);
+  font-weight: 700;
+}
+.mini-check__options {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.mini-check__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 48px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.mini-check__option input {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+}
+.mini-check__option.is-selected {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+.mini-check__option.is-answer {
+  border-color: var(--color-success);
+  box-shadow: inset 0 0 0 2px var(--color-success);
+}
+.mini-check__option.is-answer::after {
+  content: '✓ respuesta';
+  margin-left: auto;
+  color: var(--color-success);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+.mini-check__option code {
+  font-size: 0.9375rem;
+}
+.mini-check__number {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  max-width: 320px;
+  font-weight: 700;
+}
+.mini-check__number input {
+  // Sin ancho propio: el campo cabe con zoom alto (180 px).
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  font: 600 1.125rem var(--font-mono);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+}
+.mini-check__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.mini-check__submit,
+.mini-check__reveal {
+  min-height: 48px;
+  padding-inline: var(--space-5);
+  border-radius: var(--radius-control);
+  font-weight: 750;
+}
+.mini-check__submit {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+.mini-check__submit:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+.mini-check__submit:disabled {
+  opacity: 0.6;
+}
+.mini-check__reveal {
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+}
+.mini-check__feedback {
+  display: grid;
+  gap: var(--space-2);
+}
+.mini-check__message,
+.mini-check__hint {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-control);
+}
+.mini-check__message--correct {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-surface));
+}
+.mini-check__message--wrong {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 7%, var(--color-surface));
+  border: 1px solid color-mix(in srgb, var(--color-danger) 30%, var(--color-surface));
+}
+.mini-check__message--answer {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+}
+.mini-check__hint {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface));
+}
+
+// Reflujo a 200 % (180 px): menos relleno en las etapas y la comprobación.
+@media (max-width: 300px) {
+  .query-flow__stage,
+  .mini-check {
+    padding: var(--space-3);
+  }
+  .query-flow__title,
+  .query-flow__question,
+  .query-flow__reading {
+    overflow-wrap: anywhere;
+  }
+}

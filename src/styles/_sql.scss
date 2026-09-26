@@ -1,0 +1,75 @@
+// Bloque SQL compartido (Estudio, Exposición, Recursos, laboratorio y roadmap). El
+// resaltado combina color y peso: las palabras clave no dependen solo del color.
+
+.sql-code {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+}
+.sql-code__label {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sql-code__pre {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-inverse);
+  background: var(--color-editor);
+  border: 1px solid rgb(247 250 255 / 8%);
+  border-left: 4px solid var(--color-cyan);
+  border-radius: var(--radius-control);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  line-height: 1.6;
+  // Ajusta las líneas: se lee completo con zoom alto sin una región desplazable.
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+.sql-code__pre code {
+  color: inherit;
+  font: inherit;
+  white-space: inherit;
+}
+.sql-code__pre:focus-visible {
+  outline: 3px solid var(--color-cyan);
+  outline-offset: 2px;
+}
+.sql-code--large .sql-code__pre {
+  font-size: 1.125rem;
+}
+.sql-code--error .sql-code__pre {
+  border-left-color: #ff8a95;
+}
+.sql-code--success .sql-code__pre {
+  border-left-color: #7fe0a8;
+}
+.sql-code--error .sql-code__label {
+  color: var(--color-danger);
+}
+.sql-code--success .sql-code__label {
+  color: var(--color-success);
+}
+
+.sql-token--keyword {
+  color: var(--color-cyan);
+  font-weight: 750;
+}
+.sql-token--string {
+  color: var(--color-code-string);
+}
+.sql-token--identifier {
+  color: #d8c4ff;
+}
+.sql-token--number {
+  color: var(--color-code-number);
+}
+.sql-token--comment {
+  color: var(--color-code-comment);
+  font-style: italic;
+}

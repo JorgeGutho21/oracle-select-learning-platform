@@ -12,7 +12,7 @@ describe('Server Functions de corrección de la práctica', () => {
     await expect(
       evaluatePracticeAnswer({
         missionId: 'M01',
-        missionVersion: 1,
+        missionVersion: 2,
         answer: { type: 'drag-column', columns: ['NOMBRE', 'SALARIO'] },
       }),
     ).resolves.toMatchObject({ kind: 'correct' });
@@ -42,7 +42,7 @@ describe('Server Functions de corrección de la práctica', () => {
     ],
     [
       'campos malformados',
-      { missionId: 'M01', missionVersion: 1, answer: { type: 'drag-column', columns: 'NOMBRE' } },
+      { missionId: 'M01', missionVersion: 2, answer: { type: 'drag-column', columns: 'NOMBRE' } },
     ],
   ])('rechazan sin consumir intento una petición con %s', async (_label, request) => {
     await expect(

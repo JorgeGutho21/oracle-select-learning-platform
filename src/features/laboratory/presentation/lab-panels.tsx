@@ -1,11 +1,17 @@
 'use client';
 
+import type { Route } from 'next';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Alert, Chip, DataTable } from '@/presentation/components/ui';
+import { CellValueView } from '@/presentation/components/data/cell-format';
 import { DatasetTable } from '@/presentation/components/data/dataset-table';
+import { SqlCode } from '@/presentation/components/data/sql-code';
 import {
   EMPLEADOS,
   type AnatomyRole,
+  type CellValue,
+  type DiagnosticGroup,
   type EmpleadoRow,
   type LabAnalysis,
   type LabDiagnostic,
@@ -15,7 +21,7 @@ import type { LabExecution } from '../application/execute-on-oracle';
 
 /** Paneles del laboratorio. Solo presentan el análisis; no contienen reglas SQL. */
 
-const numberFormat = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 10 });
+const TYPE_LABEL = { number: 'número', text: 'texto', date: 'fecha' } as const;
 
 export function Panel({
   id,
@@ -70,7 +76,10 @@ export function SchemaPanel({ highlighted }: { highlighted: readonly string[] })
             className={highlighted.includes(column.name) ? 'lab-schema__used' : undefined}
           >
             <code>{column.name}</code>
-            <span>{column.type === 'number' ? 'número' : 'texto'}</span>
+            <span>
+              {TYPE_LABEL[column.type]}
+              {column.nullable ? ' · admite NULL' : ''}
+            </span>
             {highlighted.includes(column.name) && (
               <span className="ds-sr-only"> (usada por la consulta)</span>
             )}
@@ -81,10 +90,10 @@ export function SchemaPanel({ highlighted }: { highlighted: readonly string[] })
         caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.id}`}
         columns={EMPLEADOS.columns}
         rows={EMPLEADOS.rows}
-        rowKey={(row) => String(row.ID)}
+        rowKey={(row) => String(row.ID_EMPLEADO)}
         highlighted={highlighted}
-        highlightNote="El borde azul marca las columnas fuente que lee la consulta."
-        formatted={['SALARIO']}
+        highlightNote="El borde azul marca las columnas que lee la consulta."
+        formatted={['SALARIO', 'BONO']}
       />
     </Panel>
   );
@@ -92,35 +101,103 @@ export function SchemaPanel({ highlighted }: { highlighted: readonly string[] })
 
 /* ---------- 6. Diagnóstico ---------- */
 
-const categoryLabel: Record<LabDiagnostic['category'], string> = {
-  syntax: 'Sintaxis',
-  identifier: 'Columna',
-  table: 'Tabla',
-  alias: 'Alias',
-  scope: 'Fuera del alcance de la unidad',
-  security: 'Consulta no permitida',
-  limit: 'Límite del laboratorio',
-  operation: 'Operación',
+const GROUP_CLASS: Record<DiagnosticGroup, string> = {
+  SINTAXIS: 'syntax',
+  SEMÁNTICA: 'semantic',
+  'ALCANCE EDUCATIVO': 'scope',
+  ORACLE: 'oracle',
+  ADVERTENCIA: 'warning',
 };
 
-function DiagnosticItem({ item }: { item: LabDiagnostic }) {
+const GROUP_HELP: Record<DiagnosticGroup, string> = {
+  SINTAXIS: 'La consulta no está bien escrita y no se puede ejecutar.',
+  SEMÁNTICA: 'Está bien escrita, pero usa algo que no existe o no encaja en EMPLEADOS.',
+  'ALCANCE EDUCATIVO': 'Es SQL de Oracle que esta unidad todavía no enseña o no permite.',
+  ORACLE: 'Es una regla propia de Oracle: la base de datos la rechazaría.',
+  ADVERTENCIA: 'Se puede ejecutar, pero el resultado quizá no es el que buscas.',
+};
+
+function DiagnosticItem({
+  item,
+  onApply,
+}: {
+  item: LabDiagnostic;
+  onApply?: (sql: string) => void;
+}) {
   return (
-    <Alert
-      tone={item.severity === 'error' ? 'danger' : 'warning'}
-      title={`${categoryLabel[item.category]} · línea ${item.line}, columna ${item.column}`}
+    <article
+      className={`lab-diagnostic lab-diagnostic--${GROUP_CLASS[item.group]}`}
+      aria-label={`${item.group}: ${item.message}`}
     >
-      <p>{item.message}</p>
+      <header className="lab-diagnostic__header">
+        <span className="lab-diagnostic__group">
+          <span aria-hidden="true">{item.severity === 'error' ? '✗' : '!'}</span> {item.group}
+        </span>
+        <span className="lab-diagnostic__position">
+          Línea {item.line}, columna {item.column}
+        </span>
+      </header>
+      <p className="lab-diagnostic__message">{item.message}</p>
+      <dl className="lab-diagnostic__details">
+        <div>
+          <dt>Encontrado</dt>
+          <dd>
+            <code>{item.found}</code>
+          </dd>
+        </div>
+      </dl>
       {item.hint && <p className="lab-hint">{item.hint}</p>}
-    </Alert>
+      <p className="lab-diagnostic__help">{GROUP_HELP[item.group]}</p>
+      {/* Primero la pista; la corrección se abre solo si el estudiante la pide. */}
+      {item.correction && (
+        <details className="lab-diagnostic__example lab-diagnostic__correction">
+          <summary>Ver la posible corrección</summary>
+          <code className="lab-diagnostic__fix">{item.correction}</code>
+          {item.fixedSql && onApply && (
+            <button
+              type="button"
+              className="ds-button ds-button--secondary"
+              onClick={() => onApply(item.fixedSql!)}
+            >
+              Aplicar la corrección
+            </button>
+          )}
+        </details>
+      )}
+      {item.example && (
+        <details className="lab-diagnostic__example">
+          <summary>Ver un ejemplo correcto</summary>
+          <SqlCode sql={item.example} tone="success" />
+        </details>
+      )}
+      <div className="lab-diagnostic__actions">
+        {item.fixedSql && onApply && !item.correction && (
+          <button
+            type="button"
+            className="ds-button ds-button--secondary"
+            onClick={() => onApply(item.fixedSql!)}
+          >
+            Aplicar la corrección
+          </button>
+        )}
+        {item.learnMore && (
+          <Link className="inline-action" href={item.learnMore.href as Route}>
+            Ver en Próximamente: {item.learnMore.label} <span aria-hidden="true">→</span>
+          </Link>
+        )}
+      </div>
+    </article>
   );
 }
 
 export function FeedbackPanel({
   analysis,
   stale,
+  onApply,
 }: {
   analysis: LabAnalysis | null;
   stale: boolean;
+  onApply?: (sql: string) => void;
 }) {
   return (
     <Panel id="lab-feedback" number={6} title="Diagnóstico" className="lab-panel--feedback">
@@ -133,14 +210,23 @@ export function FeedbackPanel({
             {analysis.status === 'valid' && analysis.translation && (
               <Alert tone="success" title="Consulta válida dentro del subconjunto SELECT">
                 <p>
-                  SELECT elige {analysis.preview?.columns.length ?? 0} columna
-                  {analysis.preview?.columns.length === 1 ? '' : 's'} del resultado; FROM toma los
-                  datos de EMPLEADOS. Columnas fuente: {analysis.sourceColumns.join(', ')}.
+                  {analysis.preview?.rows.length ?? 0} de {EMPLEADOS.rows.length} filas y{' '}
+                  {analysis.preview?.columns.length ?? 0} columna
+                  {analysis.preview?.columns.length === 1 ? '' : 's'} en el resultado. Columnas que
+                  lee:{' '}
+                  {[...new Set([...analysis.sourceColumns, ...analysis.conditionColumns])].join(
+                    ', ',
+                  )}
+                  .
                 </p>
               </Alert>
             )}
             {analysis.diagnostics.map((item, index) => (
-              <DiagnosticItem key={`${item.from}-${index}`} item={item} />
+              <DiagnosticItem
+                key={`${item.from}-${index}`}
+                item={item}
+                {...(onApply ? { onApply } : {})}
+              />
             ))}
           </>
         )}
@@ -151,10 +237,7 @@ export function FeedbackPanel({
 
 /* ---------- 3. Resultado ---------- */
 
-const formatValue = (value: string | number) =>
-  typeof value === 'number' ? numberFormat.format(value) : value;
-
-type ResultRow = { key: string; values: readonly (string | number)[] };
+type ResultRow = { key: string; values: readonly CellValue[] };
 
 function ResultTableView({
   caption,
@@ -162,8 +245,8 @@ function ResultTableView({
   rows,
 }: {
   caption: string;
-  columns: readonly { name: string; type: 'number' | 'text' }[];
-  rows: readonly (readonly (string | number)[])[];
+  columns: readonly { name: string; type: 'number' | 'text' | 'date' }[];
+  rows: readonly (readonly CellValue[])[];
 }) {
   const data: ResultRow[] = rows.map((values, index) => ({ key: String(index), values }));
   return (
@@ -175,7 +258,7 @@ function ResultTableView({
         id: `${column.name}-${index}`,
         header: column.name,
         numeric: column.type === 'number',
-        cell: (row) => formatValue(row.values[index] ?? ''),
+        cell: (row) => <CellValueView value={row.values[index] ?? null} />,
       }))}
     />
   );
@@ -316,6 +399,11 @@ const roleClass: Record<AnatomyRole, string> = {
   select: 'keyword',
   distinct: 'keyword',
   from: 'keyword',
+  where: 'keyword',
+  order: 'keyword',
+  logical: 'keyword',
+  condition: 'condition',
+  'order-item': 'order',
   star: 'column',
   column: 'column',
   expression: 'expression',

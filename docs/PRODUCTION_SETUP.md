@@ -37,7 +37,7 @@ Estados:
 
 | Variable                                 | Tipo               | Ámbito                       | Función                                                     | Vercel Production                   | Vercel Preview                                |
 | ---------------------------------------- | ------------------ | ---------------------------- | ----------------------------------------------------------- | ----------------------------------- | --------------------------------------------- |
-| `ORACLE_USER`                            | REQUIRED           | Servidor                     | Cuenta lectora `SQL_LAB_READER`                             | AVAILABLE                           | AVAILABLE                                     |
+| `ORACLE_USER`                            | REQUIRED           | Servidor                     | Cuenta lectora `SQL_LAB_V2_READER`                          | AVAILABLE                           | AVAILABLE                                     |
 | `ORACLE_PASSWORD`                        | REQUIRED           | Servidor, secreta            | Contraseña de la cuenta lectora                             | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
 | `ORACLE_CONNECT_STRING`                  | REQUIRED           | Servidor, secreta            | Descriptor TCPS del servicio `sqlselect_tp`                 | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
 | `ORACLE_SCHEMA`                          | OPTIONAL           | Servidor                     | Propietario de `EMPLEADOS` (`SQL_LAB_OWNER`)                | AVAILABLE                           | AVAILABLE                                     |

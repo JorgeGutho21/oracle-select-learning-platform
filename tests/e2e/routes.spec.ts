@@ -61,7 +61,9 @@ test('la barra principal muestra las entradas acordadas y la búsqueda', async (
   ).toBeLessThan(8);
 });
 
-test('«Aprender» queda activo también en Exposición y en el catálogo', async ({ page }) => {
+test('«Aprender» queda activo también en Exposición y en la ruta de aprendizaje', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   for (const route of ['/presentation', '/modules']) {
     await page.goto(route);
@@ -73,12 +75,14 @@ test('«Aprender» queda activo también en Exposición y en el catálogo', asyn
   }
 });
 
-test('el pie enlaza los recorridos, los recursos y el catálogo de módulos', async ({ page }) => {
+test('el pie enlaza los recorridos, los recursos y la ruta de aprendizaje', async ({ page }) => {
   await page.goto('/');
   const footer = page.getByRole('navigation', { name: 'Enlaces del pie' });
-  await footer.getByRole('link', { name: 'Catálogo de módulos' }).click();
+  await footer.getByRole('link', { name: 'Ruta de aprendizaje' }).click();
   await expect(page).toHaveURL('/modules');
-  await expect(page.getByRole('heading', { level: 1, name: 'Módulos de SQL' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'De SELECT a una base de datos completa' }),
+  ).toBeVisible();
   await expect(footer.getByRole('link', { name: 'Recursos y chuleta' })).toHaveAttribute(
     'href',
     '/resources',

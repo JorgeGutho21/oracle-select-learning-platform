@@ -7,6 +7,7 @@ import { EMPLEADOS, analyzeLabQuery } from '@/features/laboratory/application/la
 import { HighlightTable } from '@/presentation/components/data/highlight-table';
 
 const INITIAL = ['NOMBRE', 'CIUDAD'];
+const VISIBLE_ROWS = 8;
 
 /**
  * Demostración de proyección: el resultado sale del motor educativo sobre el dataset
@@ -69,8 +70,8 @@ export function HomeDemonstration() {
           <HighlightTable
             caption="Resultado de la demostración"
             columns={preview.columns}
-            rows={preview.rows}
-            summary={`Vista educativa · ${preview.rows.length} filas · ${preview.columns.length} ${
+            rows={preview.rows.slice(0, VISIBLE_ROWS)}
+            summary={`Vista educativa · ${Math.min(VISIBLE_ROWS, preview.rows.length)} de ${preview.rows.length} filas · ${preview.columns.length} ${
               preview.columns.length === 1 ? 'columna' : 'columnas'
             }`}
           />

@@ -33,3 +33,6 @@ playwright-report/
 test-results/
 .playwright-cli/
 *.log
+
+# Documentos personales de trabajo (no forman parte de la aplicación).
+*.docx

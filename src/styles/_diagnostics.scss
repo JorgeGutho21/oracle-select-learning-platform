@@ -1,0 +1,145 @@
+// Diagnóstico del laboratorio: grupo visible con texto y símbolo, posición, fragmento,
+// corrección posible y ejemplo. El color refuerza el grupo, nunca lo sustituye.
+
+.lab-diagnostic {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 6px solid var(--diagnostic-accent, var(--color-muted));
+  border-radius: var(--radius-control);
+}
+.lab-diagnostic--syntax,
+.lab-diagnostic--semantic {
+  --diagnostic-accent: var(--color-danger);
+}
+.lab-diagnostic--scope {
+  --diagnostic-accent: var(--color-primary);
+}
+.lab-diagnostic--oracle {
+  --diagnostic-accent: #6b3fb8;
+}
+.lab-diagnostic--warning {
+  --diagnostic-accent: var(--color-warning);
+}
+.lab-diagnostic__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.lab-diagnostic__group {
+  padding: 2px 10px;
+  color: var(--color-surface);
+  background: var(--diagnostic-accent, var(--color-muted));
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.lab-diagnostic__position {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+.lab-diagnostic__message {
+  margin: 0;
+  font-weight: 650;
+}
+.lab-diagnostic__details {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+.lab-diagnostic__details div {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: baseline;
+}
+.lab-diagnostic__details dt {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 750;
+}
+.lab-diagnostic__details dd {
+  min-inline-size: 0;
+  margin: 0;
+}
+.lab-diagnostic__details code {
+  display: inline-block;
+  max-inline-size: 100%;
+  padding: 2px 8px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  background: var(--color-page);
+  border-radius: 6px;
+}
+.lab-diagnostic__help {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.lab-diagnostic__example summary {
+  min-block-size: 40px;
+  color: var(--color-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+.lab-diagnostic__correction[open] {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+.lab-diagnostic__fix {
+  display: inline-block;
+  max-inline-size: 100%;
+  padding: 4px 10px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-page));
+  border-radius: 6px;
+}
+.lab-diagnostic__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.lab-part--condition {
+  background: color-mix(in srgb, var(--color-success) 16%, transparent);
+}
+.lab-part--order {
+  background: color-mix(in srgb, var(--color-warning) 16%, transparent);
+}
+.lab-legend--condition {
+  border-color: var(--color-success);
+}
+.lab-legend--order {
+  border-color: var(--color-warning);
+}
+@media (max-width: 575px) {
+  .lab-diagnostic__details div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// Conceptos para repasar del Challenge: enlaces a sus lecciones.
+.ch-review__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface));
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.ch-review__link:hover {
+  text-decoration: underline;
+}

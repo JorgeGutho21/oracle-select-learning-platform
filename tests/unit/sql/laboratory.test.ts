@@ -3,7 +3,11 @@ import { describe, expect, it, vi } from 'vitest';
 import type { OracleQueryExecutor } from '@/application/oracle-executor';
 import { executeLabQuery, getLabOracleStatus } from '@/composition/lab/actions';
 import { executeOnOracle } from '@/features/laboratory/application/execute-on-oracle';
-import { analyzeLabQuery, LAB_EXAMPLES } from '@/features/laboratory/application/lab-api';
+import {
+  analyzeLabQuery,
+  DEFAULT_LAB_SQL,
+  LAB_EXAMPLES,
+} from '@/features/laboratory/application/lab-api';
 import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured-oracle-executor';
 
 const fakeOracle = (): OracleQueryExecutor & { execute: ReturnType<typeof vi.fn> } => ({
@@ -31,10 +35,10 @@ describe('Análisis educativo del laboratorio', () => {
       { name: 'NOMBRE', type: 'text' },
       { name: 'SALARIO', type: 'number' },
     ]);
-    expect(analysis.preview?.rows[0]).toEqual(['Ana', 3000000]);
-    expect(analysis.preview?.datasetId).toBe('empleados-select-v1');
+    expect(analysis.preview?.rows[0]).toEqual(['Ana', 9000000]);
+    expect(analysis.preview?.datasetId).toBe('empleados-select-v2');
     expect(analysis.translation?.summary).toBe(
-      'Para cada fila de la tabla EMPLEADOS, muestra la columna NOMBRE y la columna SALARIO.',
+      'Muéstrame el nombre y el salario de todos los empleados.',
     );
     expect(analysis.canonicalSql).toBe('SELECT NOMBRE, SALARIO FROM EMPLEADOS');
   });
@@ -46,9 +50,9 @@ describe('Análisis educativo del laboratorio', () => {
     expect(analysis.anatomy.find((part) => part.role === 'expression')?.text).toBe('salario * 12');
     expect(analysis.anatomy.find((part) => part.role === 'alias')?.text).toBe('AS salario_anual');
     expect(analysis.preview?.columns.map(({ name }) => name)).toEqual(['NOMBRE', 'SALARIO_ANUAL']);
-    expect(analysis.preview?.rows[0]).toEqual(['Ana', 36000000]);
+    expect(analysis.preview?.rows[0]).toEqual(['Ana', 108000000]);
     expect(analysis.translation?.steps.join(' ')).toContain(
-      'calcula SALARIO multiplicado por 12 y lo muestra como SALARIO_ANUAL',
+      'calcula salario multiplicado por 12 y lo muestra como SALARIO_ANUAL',
     );
   });
 
@@ -72,21 +76,29 @@ describe('Análisis educativo del laboratorio', () => {
     expect(analysis.diagnostics.at(-1)).toMatchObject({ category: 'operation' });
   });
 
-  it('los ejemplos LAB01–LAB10 se analizan sin errores', () => {
-    expect(LAB_EXAMPLES.map(({ id }) => id)).toEqual([
-      'LAB01',
-      'LAB02',
-      'LAB03',
-      'LAB04',
-      'LAB05',
-      'LAB06',
-      'LAB07',
-      'LAB08',
-      'LAB09',
-      'LAB10',
-    ]);
-    for (const example of LAB_EXAMPLES)
-      expect(analyzeLabQuery(example.sql).status, example.id).toBe('valid');
+  it('los ejemplos LAB01–LAB18 se analizan sin errores y LAB19–LAB24 muestran su diagnóstico', () => {
+    expect(LAB_EXAMPLES.map(({ id }) => id)).toEqual(
+      Array.from({ length: 24 }, (_, index) => `LAB${String(index + 1).padStart(2, '0')}`),
+    );
+    for (const example of LAB_EXAMPLES) {
+      const analysis = analyzeLabQuery(example.sql);
+      if (example.group === 'Errores para analizar') {
+        expect(analysis.diagnostics.length, example.id).toBeGreaterThan(0);
+      } else {
+        expect(analysis.status, example.id).toBe('valid');
+        expect(
+          analysis.diagnostics.filter(({ severity }) => severity === 'error'),
+          example.id,
+        ).toEqual([]);
+      }
+    }
+  });
+
+  it('el ejemplo inicial usa WHERE sobre el dataset v2', () => {
+    const analysis = analyzeLabQuery(DEFAULT_LAB_SQL);
+    expect(analysis.status).toBe('valid');
+    expect(analysis.preview?.rows).toHaveLength(7);
+    expect(analysis.conditionColumns).toEqual(['CIUDAD']);
   });
 });
 

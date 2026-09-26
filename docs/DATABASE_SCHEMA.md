@@ -1,6 +1,6 @@
 # DATABASE_SCHEMA — Datos educativos y persistencia
 
-Versión 1.1 · Modelo lógico y diccionario. La migración de la sala en vivo 1.1 está en `supabase/migrations`.
+Versión 2.0 · Dataset `empleados-select-v2`, modelo lógico y diccionario. La migración de la sala en vivo 1.1 está en `supabase/migrations`.
 
 ## Separación de bases
 
@@ -8,29 +8,72 @@ Oracle contiene el dataset consultado por estudiantes. PostgreSQL de Supabase co
 
 ## Dataset educativo canónico
 
-ID de versión: `empleados-select-v1`. Fuente de valores: `SentenciasSQL_GM.pptx`, diapositiva 6. Datos didácticos de las presentaciones, sin relación con registros reales de estudiantes. Todas las columnas son visibles y no admiten NULL en esta versión.
+ID de versión: `empleados-select-v2` (25 de septiembre de 2026). Sustituye a `empleados-select-v1` (6 filas × 6 columnas), que se conserva en `oracle/empleados-select-v1.sql` y en los esquemas Oracle anteriores para volver atrás. Datos didácticos inventados, sin relación con personas reales; los correos usan el dominio reservado `empresa.example`.
 
-| Posición | Columna Oracle | Tipo propuesto | Regla |
+Una tabla EMPLEADOS de **12 columnas y 20 filas**, diseñada para que cada concepto de la unidad tenga un caso visible: repeticiones para DISTINCT, límites de rango para BETWEEN, empates para ORDER BY, NULL frente a 0, fechas e inactivos. Motivo de cada fila en [CONTENT_MAP.md](CONTENT_MAP.md#dataset-único-empleados-select-v2).
+
+| Posición | Columna | Tipo Oracle | NULL | Regla |
+|---:|---|---|---|---|
+| 1 | ID_EMPLEADO | NUMBER(4) | No | Clave primaria (`EMPLEADOS_PK`), positiva. |
+| 2 | NOMBRE | VARCHAR2(40 CHAR) | No | Conserva tildes. |
+| 3 | APELLIDO | VARCHAR2(40 CHAR) | No | Conserva tildes. |
+| 4 | CARGO | VARCHAR2(40 CHAR) | No | |
+| 5 | DEPARTAMENTO | VARCHAR2(30 CHAR) | No | 5 valores: Operaciones, TI, Ventas, Finanzas, Recursos Humanos. |
+| 6 | CIUDAD | VARCHAR2(30 CHAR) | No | 5 valores: Bogotá, Medellín, Cali, Barranquilla, Valledupar. |
+| 7 | SALARIO | NUMBER(10) | No | Mayor que 0; pesos por mes. |
+| 8 | BONO | NUMBER(10) | Sí | 0 o más; 6 filas NULL y una con 0. |
+| 9 | FECHA_INGRESO | DATE | No | Solo fecha (hora 00:00:00). |
+| 10 | ESTADO | VARCHAR2(8 CHAR) | No | `CHECK (ESTADO IN ('ACTIVO', 'INACTIVO'))`; 17 activos. |
+| 11 | CORREO | VARCHAR2(60 CHAR) | No | Único (`EMPLEADOS_CORREO_UNICO`): `nombre.apellido@empresa.example` sin tildes. |
+| 12 | ID_JEFE | NUMBER(4) | Sí | Clave foránea a `EMPLEADOS (ID_EMPLEADO)`; NULL para Ana y Esteban. |
+
+| ID | Nombre | Apellido | Cargo | Departamento | Ciudad | Salario | Bono | Ingreso | Estado | Jefe |
+|---:|---|---|---|---|---|---:|---:|---|---|---:|
+| 1 | Ana | Rojas | Gerente general | Operaciones | Bogotá | 9000000 | 900000 | 2012-02-01 | ACTIVO | NULL |
+| 2 | Carlos | Gómez | Líder de área | TI | Bogotá | 7500000 | 600000 | 2014-06-16 | ACTIVO | 1 |
+| 3 | María | Ruiz | Líder de área | Ventas | Medellín | 6000000 | 500000 | 2015-03-02 | ACTIVO | 1 |
+| 4 | Jorge | Díaz | Líder de área | Finanzas | Cali | 6800000 | NULL | 2016-09-12 | ACTIVO | 1 |
+| 5 | Laura | Mora | Líder de área | Recursos Humanos | Bogotá | 5800000 | 400000 | 2017-01-23 | ACTIVO | 1 |
+| 6 | Andrés | Pérez | Analista | TI | Bogotá | 4200000 | 300000 | 2019-04-08 | ACTIVO | 2 |
+| 7 | Paula | Castro | Analista | TI | Medellín | 4200000 | NULL | 2020-08-03 | ACTIVO | 2 |
+| 8 | Oscar | Vega | Analista | TI | Cali | 3800000 | 250000 | 2021-02-15 | INACTIVO | 2 |
+| 9 | Sofía | López | Representante comercial | Ventas | Medellín | 3000000 | 450000 | 2018-11-19 | ACTIVO | 3 |
+| 10 | Mario | Soto | Representante comercial | Ventas | Bogotá | 3500000 | 0 | 2019-07-01 | ACTIVO | 3 |
+| 11 | Valentina | Ríos | Representante comercial | Ventas | Cali | 2900000 | 350000 | 2022-05-09 | ACTIVO | 3 |
+| 12 | Ricardo | Herrera | Representante comercial | Ventas | Barranquilla | 3500000 | NULL | 2023-01-16 | ACTIVO | 3 |
+| 13 | Camila | Cruz | Analista | Finanzas | Cali | 4500000 | 200000 | 2020-03-10 | ACTIVO | 4 |
+| 14 | Diego | Ortiz | Analista | Finanzas | Bogotá | 5200000 | 300000 | 2016-10-24 | INACTIVO | 4 |
+| 15 | Daniela | Suárez | Especialista | Finanzas | Medellín | 6100000 | 350000 | 2015-12-01 | ACTIVO | 4 |
+| 16 | Julián | Luna | Asistente | Recursos Humanos | Cali | 2300000 | NULL | 2024-02-05 | ACTIVO | 5 |
+| 17 | Carolina | Vargas | Analista | Recursos Humanos | Medellín | 3900000 | 150000 | 2021-09-13 | ACTIVO | 5 |
+| 18 | Felipe | Mejía | Asistente | Operaciones | Bogotá | 2100000 | NULL | 2025-01-20 | ACTIVO | 1 |
+| 19 | Alicia | Paz | Especialista | Operaciones | Valledupar | 4800000 | 250000 | 2013-05-06 | INACTIVO | 1 |
+| 20 | Esteban | Torres | Asistente | TI | Barranquilla | 2500000 | NULL | 2025-03-03 | ACTIVO | NULL |
+
+La columna CORREO (`nombre.apellido@empresa.example`) no se repite en la tabla anterior.
+
+### Una sola fuente y su verificación
+
+- **Definición:** `src/domain/dataset/empleados.ts`, con el orden, los tipos, las etiquetas y la nulabilidad de las columnas y los valores de las filas. De ahí salen la Exposición, el Estudio, el laboratorio, el Challenge y la chuleta.
+- **Carga Oracle:** [`oracle/empleados-select-v2.sql`](../oracle/empleados-select-v2.sql). Usa literales `DATE 'AAAA-MM-DD'`, que no dependen de `NLS_DATE_FORMAT`, e incluye PK, FK, UNIQUE, CHECK y NOT NULL. No contiene cuentas ni contraseñas.
+- **Prueba unitaria** (`tests/unit/oracle/dataset-sql.test.ts`): las 20 filas del script coinciden con el módulo y las 12 columnas con sus tipos y su nulabilidad.
+- **Comprobación en tiempo de ejecución:** antes de ejecutar, el servidor lee las 12 columnas `ORDER BY ID_EMPLEADO` y las compara con el dataset (salud de `OracledbQueryExecutor`). Si no coinciden, el laboratorio no ejecuta.
+- **Integración** (`tests/integration/oracle-real.test.ts`): cada consulta del contenido da en Oracle el mismo resultado que el motor educativo.
+- **Sesión Oracle:** `ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD' NLS_SORT = BINARY NLS_COMP = BINARY`. Las fechas se muestran como `AAAA-MM-DD` y los textos se comparan y ordenan exactamente, igual que el motor educativo. Los números que no caben en un número de JavaScript sin perder precisión, como los decimales periódicos, se conservan con los dígitos de Oracle.
+
+### Esquemas Oracle y privilegios
+
+La migración a v2 es **aditiva**: se crean esquemas nuevos y los de v1 quedan intactos para volver atrás.
+
+| Esquema o cuenta | Versión | Tipo | Privilegios |
 |---|---|---|---|
-| 1 | ID | NUMBER(4,0) | Clave primaria, positiva. |
-| 2 | NOMBRE | VARCHAR2(40 CHAR) | Obligatorio; conservar tildes. |
-| 3 | EDAD | NUMBER(3,0) | Entero de 0 a 120. |
-| 4 | CIUDAD | VARCHAR2(50 CHAR) | Obligatorio. |
-| 5 | SALARIO | NUMBER(12,2) | No negativo; unidades monetarias del ejemplo. |
-| 6 | DEPTO | VARCHAR2(40 CHAR) | Obligatorio, etiqueta de interfaz Departamento. |
+| `SQL_LAB_V2_OWNER` | v2 | Sin inicio de sesión (`NO AUTHENTICATION`) | Dueño de EMPLEADOS; cuota de 10 MB. |
+| `SQL_LAB_V2_READER` | v2 | Cuenta de la aplicación | Solo `CREATE SESSION` y `READ` sobre `SQL_LAB_V2_OWNER.EMPLEADOS` (READ impide `SELECT … FOR UPDATE`). |
+| `SQL_LAB_OWNER` / `SQL_LAB_READER` | v1 | Anteriores | Sin cambios; `EMPLEADOS` con 6 filas. |
 
-| ID | NOMBRE | EDAD | CIUDAD | SALARIO | DEPTO |
-|---:|---|---:|---|---:|---|
-| 1 | Ana | 25 | Bogotá | 3000000 | Ventas |
-| 2 | Carlos | 35 | Cali | 5000000 | Sistemas |
-| 3 | Laura | 28 | Bogotá | 4200000 | Sistemas |
-| 4 | Pedro | 19 | Medellín | 1800000 | Ventas |
-| 5 | María | 30 | Cali | 3700000 | Contabilidad |
-| 6 | Jorge | 22 | Bogotá | 2800000 | Sistemas |
+`ADMIN` (Autonomous Database) y `SYSTEM` (Oracle local) solo se usan en los scripts de instalación, nunca en la aplicación: `oracleConfigFromEnv` rechaza esas cuentas. Los scripts `scripts/oracle-local.mjs setup` y `scripts/oracle-cloud.mjs setup` crean los esquemas v2 desde el archivo canónico, guardan la cuenta anterior como `*_PREVIOUS_*` en archivos ignorados por Git y no imprimen ningún secreto ([ORACLE_SETUP.md](ORACLE_SETUP.md)).
 
-Decisión de reconciliación: F2 y el juego usan María 31, Jorge 29 y Ventas y añaden TELEFONO. No se trasladan esas diferencias al dataset v1. TELEFONO y ejemplos de NULL quedan para otra versión. No utilizar DEPARTAMENTO como un identificador alternativo silencioso: el esquema muestra DEPTO claramente.
-
-Una única definición versionada origina la carga administrativa de Oracle y la copia de visualización. Al publicar, comparar esquema, filas y huella de contenido. No permitir editar el dataset desde la plataforma. Cambios producen una nueva versión y no alteran salas activas. El usuario lector Oracle posee solo permiso de lectura sobre la tabla aprobada; un usuario distinto administra el esquema. Implementación (Fase 8): la carga es [`oracle/empleados-select-v1.sql`](../oracle/empleados-select-v1.sql), cuya igualdad con `src/domain/dataset/empleados.ts` verifica una prueba unitaria; el servidor compara además la tabla real con el dataset antes de ejecutar ([ORACLE_SETUP.md](ORACLE_SETUP.md)).
+No se permite editar el dataset desde la plataforma. Un cambio produce una versión nueva (v3) con esquemas nuevos y no altera las salas activas.
 
 ## Entidades de la plataforma
 
@@ -196,10 +239,10 @@ Estado de DB02, DB03 y DB05 para la sala 1.1: verificados en esa base (cupo 61, 
 
 Salas, participantes, intentos, pistas, resultados y recibos se eliminan conjuntamente a los 30 días del estado terminal. Si una sala caduca, se fija ended_at. Publicaciones referenciadas no se eliminan durante retención. Eliminar identidades anónimas huérfanas mediante mantenimiento cuando no conserven salas asociadas; no eliminar la cuenta del docente. Copias de seguridad y registros operativos deben respetar una política de vencimiento documentada antes de producción.
 
-- DB01: carga v1 produce exactamente seis filas y seis columnas, con valores y huella iguales a la copia visual.
+- DB01: la carga v2 produce exactamente 20 filas y 12 columnas, con los valores, tipos y nulabilidad de la copia visual (verificado en Oracle local 23ai y Oracle Cloud 19c).
 - DB02: se rechazan duplicación de identidad/alias en sala, cupo 61 y referencias cruzadas entre salas.
 - DB03: no puede existir tercer intento académico ni doble resultado para una misión.
 - DB04: restaurar datos permite recalcular los mismos totales y empates.
 - DB05: acceso directo de un estudiante no modifica score, estado o tiempo ni lee intentos ajenos.
 - DB06: limpieza elimina dependencias sin huérfanos y no afecta otra sala dentro de retención.
-- DB07: esquema y permisos de Oracle impiden cambios al dataset mediante la identidad de ejecución.
+- DB07: esquema y permisos de Oracle impiden cambios al dataset mediante la identidad de ejecución (`UPDATE` con `SQL_LAB_V2_READER` devuelve ORA-01031 u ORA-41900).

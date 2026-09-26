@@ -2,8 +2,10 @@ import { expect, test } from '@playwright/test';
 
 const VIEWPORTS = [
   [1920, 1080],
+  [1600, 900],
   [1440, 900],
   [1366, 768],
+  [1280, 720],
   [1024, 768],
   [768, 1024],
   [430, 932],
@@ -15,16 +17,21 @@ const ROUTES = [
   '/',
   '/learn',
   '/learn/expresiones',
+  '/learn/between',
   '/presentation?scene=8',
+  '/presentation?scene=16',
   '/lab',
   '/challenge',
   '/resources',
+  '/modules',
 ] as const;
 
 for (const [width, height] of VIEWPORTS) {
   test(`a ${width}×${height} el contenido usa el ancho disponible sin desbordar`, async ({
     page,
   }) => {
+    // Diez rutas por prueba: unos 5 s por ruta con la CPU del equipo ocupada.
+    test.setTimeout(ROUTES.length * 6_000);
     await page.setViewportSize({ width, height });
     for (const route of ROUTES) {
       await page.goto(route);

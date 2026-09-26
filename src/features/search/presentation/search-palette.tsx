@@ -28,7 +28,7 @@ function focusDestinationTitle(href: string) {
       (target.search === '' || window.location.search === target.search);
     const anchor = target.hash ? document.getElementById(target.hash.slice(1)) : null;
     const title =
-      anchor?.querySelector<HTMLElement>('h2, h3') ??
+      anchor?.querySelector<HTMLElement>('h2, h3, h4') ??
       anchor ??
       document.querySelector<HTMLElement>('#main-content h1');
 
@@ -212,9 +212,9 @@ export function SearchPalette() {
                               <span>{result.description}</span>
                             </span>
                             <span
-                              className={`search-result__status ${result.href ? '' : 'search-result__status--future'}`.trim()}
+                              className={`search-result__status ${result.status === 'Próximamente' ? 'search-result__status--future' : ''}`.trim()}
                             >
-                              {result.href ? 'Abrir' : result.status}
+                              {result.status === 'Próximamente' ? 'Próximamente' : 'Abrir'}
                             </span>
                           </>
                         );
