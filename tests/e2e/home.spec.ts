@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { expectNoHorizontalScroll } from './support/layout';
 
 test.describe('Home', () => {
   test('presenta la unidad, la identidad académica y los cuatro recorridos', async ({ page }) => {
@@ -75,6 +76,51 @@ test.describe('Home', () => {
       'href',
       /\/lab\?sql=SELECT\+nombre%2C\+ciudad%2C\+salario/,
     );
+  });
+
+  test('con muchas columnas el resultado ocupa todo el ancho y se reparte en bandas', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/');
+    const demo = page.locator('.home-demo');
+    await expect(demo).toHaveClass(/home-demo--few/);
+    const order = [
+      'ID_EMPLEADO',
+      'SALARIO',
+      'APELLIDO',
+      'CARGO',
+      'DEPARTAMENTO',
+      'BONO',
+      'FECHA_INGRESO',
+      'ESTADO',
+      'CORREO',
+      'ID_JEFE',
+    ];
+    for (const name of order) {
+      await demo.getByRole('button', { name: new RegExp(`^\d*${name}$`) }).click();
+    }
+    await expect(demo).toHaveClass(/home-demo--many/);
+    // La consulta respeta el orden en que se eligieron las columnas.
+    await expect(demo.locator('pre')).toContainText(
+      'SELECT nombre, ciudad, id_empleado, salario, apellido, cargo',
+    );
+    await expect(demo).toContainText('8 de 20 filas · 12 columnas');
+    const result = demo.locator('.home-demo__result');
+    const controls = await demo.locator('.home-demo__controls').boundingBox();
+    const box = await result.boundingBox();
+    expect(Math.abs(box!.width - controls!.width)).toBeLessThanOrEqual(1);
+    // Dos bandas con las mismas 8 filas y el número de empleado, sin fichas por registro.
+    const bands = result.locator('.dv__bands:visible');
+    await expect(bands).toHaveCount(1);
+    const tables = bands.getByRole('table');
+    await expect(tables).toHaveCount(2);
+    for (let index = 0; index < 2; index += 1) {
+      await expect(tables.nth(index).locator('thead th').first()).toHaveText('ID_EMPLEADO');
+      await expect(tables.nth(index).locator('tbody tr')).toHaveCount(8);
+    }
+    await expect(result.locator('.dv-record:visible')).toHaveCount(0);
+    await expectNoHorizontalScroll(page, 'Home con 12 columnas');
   });
 
   // Un análisis por tamaño: la Home es larga y dos análisis completos en una sola prueba

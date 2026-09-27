@@ -310,20 +310,40 @@
   font-weight: 700;
 }
 
-// Demostración.
+// Demostración. Con 1–4 columnas, controles y resultado lado a lado; con 5 o más, el
+// resultado ocupa todo el ancho bajo los controles (y con 8–12 se reparte en bandas).
 .home-demo {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
   align-items: start;
 }
+.home-demo--few {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
 .home-demo__controls {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
+  align-items: start;
   padding: var(--space-5);
   background: rgb(9 18 33 / 30%);
   border: 1px solid rgb(247 250 255 / 22%);
   border-radius: var(--radius-card);
+}
+.home-demo--some .home-demo__controls,
+.home-demo--many .home-demo__controls {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+}
+.home-demo__side {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.home-demo__note {
+  margin: var(--space-3) 0 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
 }
 .home-demo__columns {
   min-width: 0;
@@ -544,6 +564,9 @@
 @media (max-width: 991px) {
   .home-hero__grid,
   .home-demo,
+  .home-demo--few,
+  .home-demo--some .home-demo__controls,
+  .home-demo--many .home-demo__controls,
   .home-challenge,
   .home-start {
     grid-template-columns: minmax(0, 1fr);
