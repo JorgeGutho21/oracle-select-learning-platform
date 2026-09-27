@@ -62,9 +62,9 @@ test.describe('Recursos', () => {
     for (const [slug, title] of CONCEPTS) {
       const card = page.locator(`#chuleta-${slug}`);
       await expect(card.getByRole('heading', { level: 4 }), slug).toHaveText(title);
-      // Estructura de la ficha: en una frase, para qué sirve, patrón y qué devuelve.
+      // Estructura de la ficha: qué es, para qué sirve, patrón y qué devuelve.
       await expect(card.locator('.resource-card__facts dt'), slug).toHaveText([
-        'En una frase',
+        'Qué es',
         'Para qué sirve',
         'Patrón',
       ]);

@@ -127,7 +127,7 @@ function Definition({ concept }: { readonly concept: SqlConcept }) {
 }
 
 /**
- * Ficha de la chuleta: en una frase, para qué sirve, patrón, ejemplo, qué devuelve y el
+ * Ficha de la chuleta: qué es, para qué sirve, patrón, ejemplo, qué devuelve y el
  * error frecuente (desplegable), con las acciones Copiar, Abrir en Lab y Repasar lección.
  */
 function ConceptCard({ lesson }: { readonly lesson: CheatLesson }) {
@@ -142,7 +142,7 @@ function ConceptCard({ lesson }: { readonly lesson: CheatLesson }) {
       </header>
       <dl className="resource-card__facts">
         <div>
-          <dt>En una frase</dt>
+          <dt>Qué es</dt>
           <dd>
             <Definition concept={concept} />
           </dd>
