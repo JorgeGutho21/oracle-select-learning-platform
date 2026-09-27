@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from 'react';
 import { formatSql } from '@/application/sql-format';
+import { sqlRole } from './sql-semantics';
 
 /**
  * Resaltado visual de SQL, compartido por Estudio, Exposición, Recursos y el Challenge.
@@ -62,19 +63,24 @@ const KEYWORDS = [
   'DEFAULT',
 ];
 
+// Los operadores de comparación y aritméticos se marcan aparte (color ámbar); `-` solo con
+// espacios alrededor, para no confundirlo con un comentario o un número negativo.
 const TOKENS = new RegExp(
-  `--[^\\n]*|"(?:[^"]|"")*"|'(?:[^']|'')*'|\\b(?:${KEYWORDS.join('|')})\\b|\\b\\d+(?:\\.\\d+)?\\b`,
+  `--[^\\n]*|"(?:[^"]|"")*"|'(?:[^']|'')*'|\\b(?:${KEYWORDS.join('|')})\\b|\\b\\d+(?:\\.\\d+)?\\b|<>|!=|>=|<=|\\|\\||[=<>+/*]|(?<= )-(?= )`,
   'gi',
 );
 
 export function highlightSql(code: string): ReactNode[] {
   const output: ReactNode[] = [];
   let position = 0;
+  let previous = '';
   for (const match of code.matchAll(TOKENS)) {
     const start = match.index;
     const value = match[0];
-    if (start > position)
-      output.push(<Fragment key={`text-${position}`}>{code.slice(position, start)}</Fragment>);
+    const between = code.slice(position, start);
+    if (start > position) output.push(<Fragment key={`text-${position}`}>{between}</Fragment>);
+    // `*` justo tras SELECT o DISTINCT es el comodín de columnas, no una multiplicación.
+    const star = value === '*' && between.trim() === '' && /^(?:SELECT|DISTINCT)$/i.test(previous);
     const tone = value.startsWith('--')
       ? 'comment'
       : value.startsWith("'")
@@ -83,12 +89,21 @@ export function highlightSql(code: string): ReactNode[] {
           ? 'identifier'
           : /^\d/.test(value)
             ? 'number'
-            : 'keyword';
+            : /^\w/.test(value)
+              ? 'keyword'
+              : star
+                ? 'star'
+                : 'operator';
+    const role = tone === 'keyword' ? sqlRole(value) : null;
     output.push(
-      <span className={`sql-token sql-token--${tone}`} key={`token-${start}`}>
+      <span
+        className={`sql-token sql-token--${tone}${role ? ` sql-token--${role}` : ''}`}
+        key={`token-${start}`}
+      >
         {value}
       </span>,
     );
+    previous = value;
     position = start + value.length;
   }
   if (position < code.length)

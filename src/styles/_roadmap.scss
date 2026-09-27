@@ -40,7 +40,9 @@
 }
 .level__header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  // El progreso ocupa hasta 320 px sin forzar un mínimo: Safari resolvía `min(320px, 100%)`
+  // en una pista `auto` como 320 px fijos y desbordaba entre 768 y 1366 px.
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 320px);
   gap: var(--space-4);
   align-items: start;
 }
@@ -75,7 +77,7 @@
   font-size: 0.9375rem;
 }
 .level__progress {
-  min-width: min(320px, 100%);
+  min-width: 0;
 }
 .level__blocks {
   display: grid;
@@ -193,9 +195,10 @@
   color: var(--color-muted);
   font-size: 0.9375rem;
 }
+// Safari no muestra el contenido de un <details> con display grid o flex: bloque y márgenes.
 .topic-card__more {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: block;
+  min-width: 0;
 }
 .topic-card__more summary {
   min-height: 40px;
@@ -203,8 +206,8 @@
   font-weight: 700;
   cursor: pointer;
 }
-.topic-card__more[open] {
-  gap: var(--space-3);
+.topic-card__more[open] > * + * {
+  margin-block-start: var(--space-3);
 }
 .topic-card__states {
   display: grid;

@@ -79,3 +79,20 @@ describe('fuente conceptual única', () => {
     expect(SQL_CONCEPTS.null.oracleNote).toMatch(/texto vacío/);
   });
 });
+
+describe('glosas y piezas de la consulta', () => {
+  it('cada concepto tiene una glosa breve para «En esta consulta»', () => {
+    for (const id of CONCEPT_IDS) {
+      const gloss = SQL_CONCEPTS[id].gloss;
+      expect(words(gloss), id).toBeGreaterThan(1);
+      expect(words(gloss), id).toBeLessThanOrEqual(8);
+    }
+  });
+
+  it('también se explican la coma, los paréntesis, IS NOT NULL y la consulta', () => {
+    expect(SQL_CONCEPTS.comma.definition).toMatch(/separa/);
+    expect(SQL_CONCEPTS.parentheses.definition).toMatch(/agrupan/);
+    expect(SQL_CONCEPTS['is-not-null'].definition).toMatch(/tiene un valor/);
+    expect(SQL_CONCEPTS.query.definition).toMatch(/pregunta escrita en SQL/);
+  });
+});

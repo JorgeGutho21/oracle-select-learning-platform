@@ -62,14 +62,21 @@ test.describe('Recursos', () => {
     for (const [slug, title] of CONCEPTS) {
       const card = page.locator(`#chuleta-${slug}`);
       await expect(card.getByRole('heading', { level: 4 }), slug).toHaveText(title);
-      await expect(card.locator('.resource-card__definition'), slug).not.toBeEmpty();
+      // Estructura de la ficha: en una frase, para qué sirve, patrón y qué devuelve.
+      await expect(card.locator('.resource-card__facts dt'), slug).toHaveText([
+        'En una frase',
+        'Para qué sirve',
+        'Patrón',
+      ]);
+      await expect(card.locator('.resource-card__facts dd').first(), slug).not.toBeEmpty();
       await expect(card.locator('.resource-syntax'), slug).not.toBeEmpty();
+      await expect(card.locator('.resource-card__returns'), slug).toContainText('Qué devuelve');
       await expect(card.getByRole('button', { name: /Copiar/ })).toBeVisible();
       await expect(card.getByRole('link', { name: /Abrir en Lab/ })).toHaveAttribute(
         'href',
         new RegExp(`returnTo=%2Flearn%2F${slug}`),
       );
-      await expect(card.getByRole('link', { name: /Ver lección/ })).toHaveAttribute(
+      await expect(card.getByRole('link', { name: /Repasar lección/ })).toHaveAttribute(
         'href',
         `/learn/${slug}`,
       );

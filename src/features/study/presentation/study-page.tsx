@@ -168,7 +168,7 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
   const { lesson, example, comparisons, steps, check } = view;
   const { content } = lesson;
   const { previous, next } = lessonNeighbors(lesson.slug);
-  const concept = lessonConcepts(lesson)[0];
+  const [concept, ...related] = lessonConcepts(lesson);
   const returnTo = `/learn/${lesson.slug}`;
   const labHref = lessonLabHref(content.example.sql, returnTo) as Route;
   const errorLab = content.error.wrong
@@ -205,6 +205,21 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
               </span>
               {lessonDefinition(lesson)}
             </p>
+            {related.length > 0 && (
+              <dl className="study-terms" aria-label="Otros términos de esta lección">
+                {related.map((term) => (
+                  <div key={term.id}>
+                    <dt>
+                      <code>{term.title}</code>
+                      <span className="study-category">
+                        {CONCEPT_CATEGORY_LABEL[term.category]}
+                      </span>
+                    </dt>
+                    <dd>{term.definition}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
             <nav className="study-onpage" aria-label="En esta lección">
               {ON_PAGE.map(([id, label]) => (
                 <a key={id} href={`#${id}`}>

@@ -84,6 +84,8 @@ export interface SceneProps {
   readonly purpose?: ReactNode;
   /** «Cómo leerlo en español»: frase o `true` para usar la del primer concepto. */
   readonly reading?: string | true;
+  /** «Para qué sirve»: frase o `true` para usar la del primer concepto. */
+  readonly use?: ReactNode | true;
   /** Idea clave (una línea); por defecto, la del primer concepto. */
   readonly takeaway?: ReactNode | false;
   readonly children: ReactNode;
@@ -97,6 +99,7 @@ export function Scene({
   concepts = [],
   purpose,
   reading,
+  use,
   takeaway,
   children,
 }: SceneProps) {
@@ -131,6 +134,7 @@ export function Scene({
           concepts={concepts}
           purpose={purpose}
           reading={reading === true ? first?.humanReading : reading}
+          use={use === true ? first?.whyItMatters : use}
         />
       )}
       <div className="scene__main">{children}</div>
@@ -166,10 +170,12 @@ export function ConceptIntro({
   concepts = [],
   purpose,
   reading,
+  use,
 }: {
   readonly concepts?: readonly ConceptId[];
   readonly purpose?: ReactNode;
   readonly reading?: string | undefined;
+  readonly use?: ReactNode;
 }) {
   const items = concepts.map((id) => SQL_CONCEPTS[id]);
   return (
@@ -190,6 +196,11 @@ export function ConceptIntro({
               </li>
             ))}
           </ul>
+        )}
+        {use && (
+          <p className="concept-intro__use">
+            <span>Para qué sirve</span> {use}
+          </p>
         )}
         {reading && (
           <p className="concept-intro__reading">
@@ -397,5 +408,73 @@ export function LinkedQuery({
       </div>
       <div className="linked-query__data">{children}</div>
     </div>
+  );
+}
+
+/* ---------- «En esta consulta» ---------- */
+
+/** Papel semántico de cada concepto: el mismo color en toda la plataforma. */
+const CONCEPT_ROLE: Partial<
+  Record<ConceptId, 'select' | 'from' | 'filter' | 'order' | 'operator'>
+> = {
+  select: 'select',
+  star: 'select',
+  'column-list': 'select',
+  comma: 'select',
+  distinct: 'select',
+  alias: 'select',
+  as: 'select',
+  from: 'from',
+  table: 'from',
+  where: 'filter',
+  comparison: 'filter',
+  and: 'filter',
+  or: 'filter',
+  not: 'filter',
+  between: 'filter',
+  in: 'filter',
+  like: 'filter',
+  percent: 'filter',
+  underscore: 'filter',
+  null: 'filter',
+  'is-null': 'filter',
+  'is-not-null': 'filter',
+  'order-by': 'order',
+  asc: 'order',
+  desc: 'order',
+  expression: 'operator',
+  'arithmetic-precedence': 'operator',
+  parentheses: 'operator',
+  concat: 'operator',
+};
+
+/**
+ * Diccionario visual de la consulta mostrada: solo los elementos presentes, con la glosa
+ * breve de la fuente conceptual única («SELECT · elige qué columnas mostrar»).
+ */
+export function QueryGlossary({
+  ids,
+  label = 'En esta consulta',
+}: {
+  readonly ids: readonly ConceptId[];
+  readonly label?: string;
+}) {
+  return (
+    <section className="query-glossary" aria-label={label}>
+      <p className="query-glossary__label">{label}</p>
+      <dl className="query-glossary__list">
+        {ids.map((id) => (
+          <div
+            key={id}
+            className={`query-glossary__item query-glossary__item--${CONCEPT_ROLE[id] ?? 'neutral'}`}
+          >
+            <dt>
+              <code>{SQL_CONCEPTS[id].title}</code>
+            </dt>
+            <dd>{SQL_CONCEPTS[id].gloss}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }

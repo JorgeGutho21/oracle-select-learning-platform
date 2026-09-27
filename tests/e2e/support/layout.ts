@@ -87,10 +87,12 @@ export async function expectNoHorizontalScroll(page: Page, label: string, scope 
 
 /** Adjunta una captura al informe para la revisión visual humana. */
 export async function attachShot(page: Page, testInfo: TestInfo, name: string, fullPage = false) {
-  await testInfo.attach(name, {
-    body: await page.screenshot({ fullPage, animations: 'disabled' }),
-    contentType: 'image/png',
-  });
+  // WebKit no captura más de 32 767 px: una página muy larga se adjunta como su primera
+  // pantalla. La captura es evidencia para la revisión humana, no una aserción.
+  const body = await page
+    .screenshot({ fullPage, animations: 'disabled' })
+    .catch(() => page.screenshot({ animations: 'disabled' }));
+  await testInfo.attach(name, { body, contentType: 'image/png' });
 }
 
 /**
@@ -105,6 +107,11 @@ export function watchConsole(page: Page): string[] {
     else if (/hydrat|Content Security Policy/i.test(text))
       problems.push(`aviso: ${text.slice(0, 200)}`);
   });
-  page.on('pageerror', (error) => problems.push(`excepción: ${error.message.slice(0, 200)}`));
+  page.on('pageerror', (error) => {
+    // WebKit informa como «access control checks» las precargas RSC que cancela al navegar
+    // a otra página; no es un error de la aplicación.
+    if (/\?_rsc=\S+ due to access control checks/.test(error.message)) return;
+    problems.push(`excepción: ${error.message.slice(0, 200)}`);
+  });
   return problems;
 }

@@ -16,6 +16,7 @@ import {
   type StudyLesson,
 } from '@/features/study/application/study-api';
 import { DataView } from '@/presentation/components/data/data-view';
+import { SqlCode } from '@/presentation/components/data/sql-code';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { CodeBlock } from '@/presentation/components/ui';
 import { PrintButton } from './print-button';
@@ -87,6 +88,17 @@ const WARNINGS = [
   'Sin ORDER BY, Oracle no garantiza el orden de las filas.',
 ] as const;
 
+/** «Qué devuelve»: tamaño y columnas del resultado del ejemplo, calculados por el motor. */
+function resultShape(sql: string): string {
+  const preview = analyzeLabQuery(sql).preview;
+  if (!preview) return '—';
+  const rows = `${preview.rows.length} ${preview.rows.length === 1 ? 'fila' : 'filas'}`;
+  const names = preview.columns.map((column) => column.name);
+  return names.length > 4
+    ? `${rows} con las ${names.length} columnas de EMPLEADOS`
+    : `${rows} con ${names.join(', ')}`;
+}
+
 function resultSize(sql: string): string {
   const preview = analyzeLabQuery(sql).preview;
   if (!preview) return '—';
@@ -114,18 +126,38 @@ function Definition({ concept }: { readonly concept: SqlConcept }) {
   );
 }
 
+/**
+ * Ficha de la chuleta: en una frase, para qué sirve, patrón, ejemplo, qué devuelve y el
+ * error frecuente (desplegable), con las acciones Copiar, Abrir en Lab y Repasar lección.
+ */
 function ConceptCard({ lesson }: { readonly lesson: CheatLesson }) {
   const [primary, ...secondary] = conceptsOf(lesson);
   const concept = primary!;
+  const mistake = concept.mistake ?? secondary.find((item) => item.mistake)?.mistake;
   return (
     <article className="resource-card" id={`chuleta-${lesson.slug}`}>
       <header className="resource-card__header">
         <h4>{lesson.concept.title}</h4>
         <span className="resource-card__category">{CONCEPT_CATEGORY_LABEL[concept.category]}</span>
       </header>
-      <p className="resource-card__definition">
-        <Definition concept={concept} />
-      </p>
+      <dl className="resource-card__facts">
+        <div>
+          <dt>En una frase</dt>
+          <dd>
+            <Definition concept={concept} />
+          </dd>
+        </div>
+        <div>
+          <dt>Para qué sirve</dt>
+          <dd>{concept.whyItMatters}</dd>
+        </div>
+        <div>
+          <dt>Patrón</dt>
+          <dd>
+            <code className="resource-syntax">{concept.syntax}</code>
+          </dd>
+        </div>
+      </dl>
       {/* Siempre presente (aunque vacía) para alinear las filas del subgrid. */}
       <ul className="resource-card__more" aria-hidden={secondary.length === 0 || undefined}>
         {secondary.map((item) => (
@@ -134,17 +166,30 @@ function ConceptCard({ lesson }: { readonly lesson: CheatLesson }) {
           </li>
         ))}
       </ul>
-      <div className="resource-card__syntax">
-        <p className="resource-card__label">Sintaxis</p>
-        <code className="resource-syntax">{concept.syntax}</code>
-      </div>
       <CodeBlock
         code={concept.example}
         format
         label={`Ejemplo de ${lesson.concept.title}`}
         labHref={lessonLabHref(concept.example, `/learn/${lesson.slug}`) as Route}
         lessonHref={`/learn/${lesson.slug}` as Route}
+        lessonLabel="Repasar lección"
       />
+      <p className="resource-card__returns">
+        <span className="resource-card__label">Qué devuelve</span> {resultShape(concept.example)}.{' '}
+        <em>«{concept.humanReading}»</em>
+      </p>
+      {mistake ? (
+        <details className="resource-card__mistake">
+          <summary>Error frecuente</summary>
+          <SqlCode sql={mistake.wrong} label="Con error" tone="error" />
+          <p className="resource-card__why">
+            <strong>Por qué:</strong> {mistake.why}
+          </p>
+          <SqlCode sql={mistake.right} label="Corrección" tone="success" />
+        </details>
+      ) : (
+        <span aria-hidden="true" />
+      )}
     </article>
   );
 }

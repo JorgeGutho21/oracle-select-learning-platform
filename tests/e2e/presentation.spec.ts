@@ -298,16 +298,18 @@ test.describe('Modo Exposición', () => {
     await expectScene(page, 23, 'Laboratorio');
   });
 
-  test('el reto revela su respuesta, el QR abre la práctica y enlaza la sala en vivo', async ({
+  test('el reto explica cómo participar, el QR abre la práctica y enlaza la sala en vivo', async ({
     page,
   }) => {
     await openDeck(page, '/presentation?scene=27');
     await expect(await sceneTitle(page)).toHaveText('Reto en vivo');
-    await page.getByRole('button', { name: 'Revelar respuesta' }).click();
-    const answer = page.getByRole('status').filter({ hasText: '5 filas' });
-    for (const department of ['Operaciones', 'TI', 'Recursos Humanos', 'Ventas', 'Finanzas']) {
-      await expect(answer).toContainText(department);
-    }
+    // Qué harás, cómo entrar, qué evalúa y qué pasa con el resultado.
+    await expect(page.locator('[data-scene="27"] .live-facts dt')).toHaveText([
+      'Qué harás',
+      'Cómo entrar',
+      'Qué evalúa',
+      'Tu resultado',
+    ]);
     await expect(
       page.getByRole('img', { name: /Código QR que abre .*\/challenge$/ }),
     ).toBeVisible();

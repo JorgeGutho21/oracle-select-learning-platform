@@ -18,7 +18,7 @@ test('EMPLEADOS completa: tabla en escritorio ancho, fichas en móvil', async ({
   const mobile = page.locator('[data-scene="4"]');
   await expect(mobile.getByRole('table')).toBeHidden();
   const cards = mobile.getByRole('list', { name: /Primeras filas de EMPLEADOS/ });
-  await expect(cards.getByRole('listitem')).toHaveCount(4);
+  await expect(cards.getByRole('listitem')).toHaveCount(3);
   await expect(cards.getByRole('listitem').first()).toContainText('Ana Rojas');
   await expect(cards.getByRole('listitem').first()).toContainText('ACTIVO');
 });

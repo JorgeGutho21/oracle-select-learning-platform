@@ -101,16 +101,35 @@
 .logic-panel__table code,
 .expression-card__code,
 .pattern-card__pattern,
-.anatomy-light code {
+.anatomy-light code,
+.query-glossary code {
   .sql-token--keyword {
     color: var(--color-primary);
+  }
+  .sql-token--select {
+    color: var(--color-sem-select);
+  }
+  .sql-token--from {
+    color: var(--color-sem-from);
+  }
+  .sql-token--filter {
+    color: var(--color-sem-filter);
+  }
+  .sql-token--order {
+    color: var(--color-sem-order);
+  }
+  .sql-token--operator {
+    color: var(--color-sem-operator);
   }
   .sql-token--string {
     color: var(--color-success);
   }
   .sql-token--number {
-    color: var(--color-warning);
+    color: var(--color-ink);
     font-weight: 700;
+  }
+  .sql-token--star {
+    color: var(--color-sem-select);
   }
 }
 
@@ -428,14 +447,26 @@
   white-space: pre-wrap;
   cursor: pointer;
 }
+.sql-clause {
+  --clause-color: var(--color-sem-select-dark);
+}
+.sql-clause[data-clause='from'] {
+  --clause-color: var(--color-sem-from-dark);
+}
+.sql-clause[data-clause='where'] {
+  --clause-color: var(--color-sem-filter-dark);
+}
+.sql-clause[data-clause='order'] {
+  --clause-color: var(--color-sem-order-dark);
+}
 .sql-clause:hover,
 .sql-clause[aria-pressed='true'],
 [data-active-clause='select'] .sql-clause[data-clause='select'],
 [data-active-clause='from'] .sql-clause[data-clause='from'],
 [data-active-clause='where'] .sql-clause[data-clause='where'],
 [data-active-clause='order'] .sql-clause[data-clause='order'] {
-  background: rgb(32 204 229 / 18%);
-  box-shadow: inset 0.2em 0 0 var(--color-cyan);
+  background: color-mix(in srgb, var(--clause-color) 20%, transparent);
+  box-shadow: inset 0.2em 0 0 var(--clause-color);
 }
 [data-active-clause='from'] .dv__table,
 [data-active-clause='from'] .dv__records {
@@ -509,72 +540,68 @@
   height: auto;
 }
 
-/* ---------- 02 y 25 Ruta ---------- */
+/* ---------- 02 Mapa de aprendizaje ---------- */
 
+// Camino de ocho bloques en dos filas: la línea une las letras y cada ficha dice su
+// objetivo y sus conceptos. En móvil se convierte en una línea de tiempo vertical.
 .route-map {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1em 1.3em;
+  gap: 1.1em 1.1em;
   padding: 0;
   list-style: none;
-  counter-reset: stage;
 }
 .route-map__stage {
   position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: auto auto;
-  gap: 0.15em 0.6em;
-  align-content: start;
-  min-height: 5.2em;
-  padding: 0.75em 0.85em;
+  gap: 0.6em;
+  align-items: start;
+  padding: 0.8em 0.9em;
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-top: 0.28em solid var(--color-primary);
-  border-radius: 0.6em;
+  border-radius: 0.7em;
   box-shadow: var(--shadow-xs);
 }
 .route-map__stage:not(:nth-child(4n))::after {
   position: absolute;
-  top: 50%;
-  right: -1.05em;
-  color: var(--color-primary);
-  font-weight: 800;
-  content: '→';
-  transform: translateY(-50%);
+  top: 1.55em;
+  right: -1.1em;
+  width: 1.1em;
+  height: 0.16em;
+  background: var(--color-primary);
+  content: '';
+  opacity: 0.45;
 }
-.route-map__number {
-  grid-row: span 2;
+.route-map__letter {
   display: grid;
   place-items: center;
-  width: 2em;
-  height: 2em;
+  width: 1.9em;
+  height: 1.9em;
   color: var(--color-inverse);
-  background: var(--color-night);
-  border-radius: 0.45em;
-  font: 800 0.85em var(--font-mono);
+  background: var(--color-primary);
+  border-radius: 50%;
+  font: 800 1.05em var(--font-mono);
 }
-.route-map__glyph {
-  position: absolute;
-  top: 0.45em;
-  right: 0.6em;
-  color: var(--color-primary);
-  font-size: 0.95em;
-  opacity: 0.55;
+.route-map__body {
+  display: grid;
+  gap: 0.2em;
+  min-width: 0;
 }
 .route-map__title {
-  font-size: 1em;
+  font-size: 1.05em;
   font-weight: 800;
+  line-height: 1.2;
+}
+.route-map__goal {
+  color: var(--color-ink);
+  font-size: 0.86em;
+  line-height: 1.3;
 }
 .route-map__concepts {
   color: var(--color-primary);
   font: 700 max(0.72em, 12px) / 1.35 var(--font-mono);
-}
-.route-map[data-completed] .route-map__stage {
-  border-top-color: var(--color-success);
-}
-.route-map[data-completed] .route-map__number {
-  background: var(--color-success);
 }
 
 /* ---------- 03 Qué es SQL ---------- */
@@ -714,6 +741,11 @@
   background: color-mix(in srgb, var(--color-cyan) 16%, var(--color-surface));
   border-left: 0.25em solid var(--color-cyan);
 }
+.scene-legend__cell {
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-left: 0.25em double var(--color-primary);
+}
 .scene .schema-cards {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   font-size: max(0.7em, 12px);
@@ -750,11 +782,20 @@
 .ask-card code {
   justify-self: start;
   padding: 0.05em 0.5em;
-  color: var(--color-night);
-  background: var(--color-cyan);
+  color: var(--color-inverse);
+  background: var(--color-sem-select);
   border-radius: 0.3em;
   font-size: 0.85em;
   font-weight: 800;
+}
+.ask-card--select {
+  border-left: 0.25em solid var(--color-sem-select);
+}
+.ask-card--from {
+  border-left: 0.25em solid var(--color-sem-from);
+}
+.ask-card--from code {
+  background: var(--color-sem-from);
 }
 
 /* ---------- 06 SELECT * ---------- */
@@ -1260,10 +1301,38 @@
   font: inherit;
   cursor: pointer;
 }
+// Cada cláusula con su color semántico: proyección, fuente, filtro y orden.
+.anatomy__row {
+  --clause-color: var(--color-sem-select-dark);
+  border-left: 0.25em solid var(--clause-color);
+}
+.anatomy__row--from {
+  --clause-color: var(--color-sem-from-dark);
+}
+.anatomy__row--where {
+  --clause-color: var(--color-sem-filter-dark);
+}
+.anatomy__row--order {
+  --clause-color: var(--color-sem-order-dark);
+}
 .anatomy__row:hover,
 .anatomy__row[aria-pressed='true'] {
-  background: rgb(32 204 229 / 12%);
-  border-color: rgb(32 204 229 / 55%);
+  background: color-mix(in srgb, var(--clause-color) 14%, transparent);
+  border-color: color-mix(in srgb, var(--clause-color) 60%, transparent);
+  border-left-color: var(--clause-color);
+}
+.anatomy__row small:last-child {
+  color: var(--clause-color);
+  font-weight: 700;
+}
+.anatomy[data-active='from'] .anatomy__detail {
+  border-left-color: var(--color-sem-from-dark);
+}
+.anatomy[data-active='where'] .anatomy__detail {
+  border-left-color: var(--color-sem-filter-dark);
+}
+.anatomy[data-active='order'] .anatomy__detail {
+  border-left-color: var(--color-sem-order-dark);
 }
 .anatomy__keyword,
 .anatomy__content {
@@ -1272,7 +1341,7 @@
   min-width: 0;
 }
 .anatomy__keyword code {
-  color: var(--color-cyan);
+  color: var(--clause-color, var(--color-cyan));
   font-size: 1.1em;
   font-weight: 800;
 }
@@ -1822,5 +1891,317 @@
   }
   .scene--practice .scene-grid--split:has(.scene-rules) {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- «Para qué sirve» y «En esta consulta» ---------- */
+
+.query-glossary {
+  display: grid;
+  gap: 0.35em;
+}
+.query-glossary__label {
+  color: var(--scene-muted);
+  font-size: max(0.72em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.query-glossary__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(7.5em, 100%), 1fr));
+  gap: 0.4em;
+  margin: 0;
+}
+.query-glossary__item {
+  --role-color: var(--color-muted);
+  display: grid;
+  gap: 0.1em;
+  padding: 0.4em 0.65em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 0.25em solid var(--role-color);
+  border-radius: 0.45em;
+}
+.query-glossary__item--select {
+  --role-color: var(--color-sem-select);
+}
+.query-glossary__item--from {
+  --role-color: var(--color-sem-from);
+}
+.query-glossary__item--filter {
+  --role-color: var(--color-sem-filter);
+}
+.query-glossary__item--order {
+  --role-color: var(--color-sem-order);
+}
+.query-glossary__item--operator {
+  --role-color: var(--color-sem-operator);
+}
+.query-glossary__item dt code {
+  color: var(--role-color);
+  font-size: 0.95em;
+  font-weight: 800;
+}
+.query-glossary__item dd {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.82em;
+  line-height: 1.3;
+}
+
+/* ---------- 20 Anatomía: resultado ---------- */
+
+.anatomy-result {
+  color: var(--scene-muted);
+  font-size: 0.9em;
+}
+.anatomy-result strong {
+  color: var(--color-cyan);
+}
+
+/* ---------- 25 Qué aprendimos ---------- */
+
+.scene-subtitle {
+  margin: 0;
+  color: var(--scene-accent);
+  font-size: max(0.78em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.scene-grid--synthesis {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+}
+.competency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5em;
+  padding: 0;
+  list-style: none;
+}
+.competency-grid__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.15em 0.5em;
+  align-items: center;
+  padding: 0.5em 0.65em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.55em;
+}
+.competency-grid__number {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 1.7em;
+  height: 1.7em;
+  color: var(--color-inverse);
+  background: var(--color-success);
+  border-radius: 50%;
+  font: 800 0.8em var(--font-mono);
+}
+.competency-grid__text {
+  font-size: 0.9em;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.competency-grid__sql {
+  color: var(--color-primary);
+  font-size: max(0.72em, 12px);
+  font-weight: 700;
+}
+
+/* ---------- 27 Reto en vivo ---------- */
+
+.scene-grid--live {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  align-items: center;
+}
+.live-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6em;
+  margin: 0;
+}
+.live-facts > div {
+  display: grid;
+  gap: 0.2em;
+  padding: 0.65em 0.8em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-top: 0.22em solid var(--color-primary);
+  border-radius: 0.55em;
+}
+.live-facts dt {
+  color: var(--color-primary);
+  font-size: max(0.74em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.live-facts dd {
+  margin: 0;
+  font-size: 0.9em;
+  line-height: 1.3;
+}
+
+/* ---------- 28 Siguiente ruta recomendada ---------- */
+
+.future-roadmap {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55em;
+  padding: 0;
+  list-style: none;
+}
+.future-roadmap__item {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 0.25em;
+  padding: 0.6em 0.7em;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border-control);
+  border-top: 0.22em solid var(--color-primary);
+  border-radius: 0.55em;
+}
+.future-roadmap__number {
+  color: var(--color-primary);
+  font: 800 max(0.72em, 12px) var(--font-mono);
+}
+.future-roadmap__title {
+  font-size: 0.92em;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.future-roadmap__examples {
+  color: var(--color-primary);
+  font-size: max(0.7em, 12px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+.future-roadmap__level {
+  color: var(--color-muted);
+  font-size: max(0.7em, 12px);
+  font-weight: 700;
+}
+
+/* ---------- 29 Cierre ---------- */
+
+.scene-grid--closing {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: center;
+}
+.data-to-query {
+  width: 100%;
+  height: auto;
+}
+.data-to-query__node rect:first-child {
+  fill: rgb(247 250 255 / 6%);
+  stroke: var(--node-color);
+  stroke-width: 2.5;
+}
+.data-to-query__node--from {
+  --node-color: var(--color-sem-from-dark);
+}
+.data-to-query__node--select {
+  --node-color: var(--color-sem-select-dark);
+}
+.data-to-query__node--filter {
+  --node-color: var(--color-sem-filter-dark);
+}
+.data-to-query__node--result {
+  --node-color: #7fe0a8;
+}
+.data-to-query__icon * {
+  fill: none;
+  stroke: var(--node-color);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.data-to-query__label {
+  fill: var(--color-inverse);
+  font: 700 17px var(--font-sans);
+}
+.data-to-query__arrow {
+  fill: none;
+  stroke: rgb(247 250 255 / 70%);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.closing-ideas {
+  display: grid;
+  gap: 0.4em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: idea;
+}
+.closing-ideas li {
+  counter-increment: idea;
+  font-size: 0.95em;
+}
+.closing-ideas li::before {
+  margin-right: 0.5em;
+  color: var(--color-cyan);
+  font: 800 0.9em var(--font-mono);
+  content: counter(idea) '.';
+}
+.closing-ideas code {
+  color: var(--color-sem-select-dark);
+  font-weight: 800;
+}
+.closing-ideas li:nth-child(2) code {
+  color: var(--color-sem-from-dark);
+}
+.exit-questions {
+  display: grid;
+  gap: 0.4em;
+  padding: 0.7em 0.9em;
+  background: rgb(247 250 255 / 6%);
+  border: 1px solid rgb(247 250 255 / 20%);
+  border-radius: 0.55em;
+}
+.exit-questions__title {
+  margin: 0;
+  color: var(--color-cyan);
+  font-size: max(0.74em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.exit-questions ol {
+  display: grid;
+  gap: 0.25em;
+  margin: 0;
+  padding-left: 1.3em;
+  font-size: 0.9em;
+}
+
+@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+  .scene-grid--synthesis,
+  .scene-grid--live,
+  .scene-grid--closing,
+  .live-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .competency-grid,
+  .future-roadmap {
+    grid-template-columns: repeat(auto-fit, minmax(min(11em, 100%), 1fr));
+  }
+  // Línea de tiempo vertical: la línea une las letras.
+  .route-map {
+    gap: 0.6em;
+  }
+  .route-map__stage:not(:last-child)::after {
+    display: block;
+    top: auto;
+    right: auto;
+    bottom: -0.6em;
+    left: 1.85em;
+    width: 0.16em;
+    height: 0.6em;
   }
 }

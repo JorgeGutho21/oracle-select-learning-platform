@@ -15,21 +15,31 @@ import {
   type ExplainOptions,
   type ExplainedQuery,
 } from '@/features/laboratory/application/lab-api';
-import { CURRICULUM_LEVELS } from '@/features/modules/application/modules-api';
 import { getVideo } from '@/features/resources/application/resources-api';
 import { formatNumber } from '@/presentation/components/data/cell-format';
 import { HighlightTable } from '@/presentation/components/data/highlight-table';
 import { SchemaCards } from '@/presentation/components/data/schema-cards';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { SCENES, sceneNumber } from '../application/presentation-api';
-import { Code, CountFlow, Data, LinkedQuery, NameChips, Reveal, Scene } from './scene-kit';
+import {
+  Code,
+  CountFlow,
+  Data,
+  LinkedQuery,
+  NameChips,
+  QueryGlossary,
+  Reveal,
+  Scene,
+} from './scene-kit';
 import { SceneQr } from './scene-qr';
 import {
   ColumnGrid,
   ComparatorScale,
+  CompetencyGrid,
+  DataToQuery,
   ErrorCard,
   ExpressionCard,
-  LevelRoadmap,
+  FutureRoadmap,
   ListChips,
   LogicPanel,
   MetricStrip,
@@ -41,6 +51,7 @@ import {
   SqlJourney,
   StepFlow,
   type AnatomyClause,
+  type FutureTopic,
   type RouteStage,
 } from './scene-visuals';
 
@@ -80,15 +91,23 @@ const nameOf = (id: number) => EMPLEADOS.rows[id - 1]!.NOMBRE;
 const INTEGRATED =
   "SELECT nombre, ciudad, salario\nFROM empleados\nWHERE estado = 'ACTIVO'\n  AND ciudad = 'Bogotá'\n  AND salario BETWEEN 4000000 AND 8000000\nORDER BY salario DESC;";
 
+/** Consulta integradora de «Qué aprendimos» (escena 25). */
+const SYNTHESIS =
+  'SELECT DISTINCT ciudad\nFROM empleados\nWHERE salario >= 4000000\nORDER BY ciudad;';
+
+/** Consulta de la anatomía (escena 20). */
+const ANATOMY_SQL =
+  "SELECT nombre, salario\nFROM empleados\nWHERE ciudad = 'Cali'\nORDER BY salario DESC;";
+
 const INTEGRATED_QUESTION =
   'Quiero ver nombre, ciudad y salario de los empleados activos de Bogotá con salarios entre 4 y 8 millones, del mayor al menor.';
 
 // Consultas de las escenas, calculadas una vez.
 const F = {
   journey: firstColumn("SELECT nombre\nFROM empleados\nWHERE ciudad = 'Cali';"),
-  selectFrom: flow('SELECT nombre, cargo\nFROM empleados;', {
-    sourceColumns: ['NOMBRE', 'APELLIDO', 'CARGO'],
-    maxRows: 5,
+  selectFrom: flow('SELECT nombre, ciudad\nFROM empleados;', {
+    sourceColumns: ['NOMBRE', 'CARGO', 'CIUDAD'],
+    maxRows: 4,
   }),
   cityName: flow('SELECT ciudad, nombre\nFROM empleados;', { maxRows: 5 }),
   nameCity: flow('SELECT nombre, ciudad\nFROM empleados;', { maxRows: 5 }),
@@ -103,7 +122,7 @@ const F = {
   distinctPairs: rowCount('SELECT DISTINCT ciudad, departamento FROM empleados;'),
   where: flow("SELECT nombre, ciudad\nFROM empleados\nWHERE ciudad = 'Cali';", {
     sourceColumns: ['NOMBRE', 'CIUDAD'],
-    rows: ids(1, 4, 8, 11, 12),
+    rows: ids(1, 4, 8, 12),
   }),
   withoutParentheses: firstColumn(
     "SELECT nombre, ciudad, salario\nFROM empleados\nWHERE ciudad = 'Bogotá' OR ciudad = 'Medellín'\n  AND salario > 5000000;",
@@ -130,6 +149,10 @@ const F = {
     sourceColumns: ['NOMBRE'],
     rows: ids(1, 6, 2),
   }),
+  likeEnds: flow("SELECT nombre\nFROM empleados\nWHERE nombre LIKE '%a';", {
+    sourceColumns: ['NOMBRE'],
+    rows: ids(1, 3, 2),
+  }),
   likeContains: flow("SELECT nombre\nFROM empleados\nWHERE nombre LIKE '%ar%';", {
     sourceColumns: ['NOMBRE'],
     rows: ids(2, 3, 5),
@@ -143,12 +166,14 @@ const F = {
     rows: ids(1, 4, 7, 10, 12, 16, 18),
   }),
   equalsNull: rowCount('SELECT nombre FROM empleados WHERE bono = NULL;'),
-  zero: rowCount('SELECT nombre FROM empleados WHERE bono = 0;'),
+  isNotNull: rowCount('SELECT nombre FROM empleados WHERE bono IS NOT NULL;'),
   original: flow('SELECT nombre, salario\nFROM empleados;', { maxRows: 5 }),
   orderDesc: flow('SELECT nombre, salario\nFROM empleados\nORDER BY salario DESC;', {
     maxRows: 5,
   }),
   integrated: flow(INTEGRATED),
+  synthesis: firstColumn(SYNTHESIS),
+  anatomy: rowCount(ANATOMY_SQL),
 };
 
 const STEPS: readonly { readonly label: string; readonly sql: string; readonly note: string }[] = [
@@ -207,16 +232,91 @@ function rows(count: number, total: number = EMPLEADOS.rows.length): string {
 
 /* ---------- Contenido fijo ---------- */
 
-/** Los ocho bloques de la ruta (escenas 02 y 25), con los conceptos de cada uno. */
+/** Los ocho bloques del mapa de aprendizaje (escena 02): objetivo y conceptos. */
 const ROUTE: readonly RouteStage[] = [
-  { title: 'Fundamentos', glyph: '▦', concepts: 'SQL · tabla · fila · columna' },
-  { title: 'Consulta', glyph: '▤', concepts: 'SELECT · FROM · * · expresiones · AS' },
-  { title: 'Duplicados', glyph: '◎', concepts: 'DISTINCT' },
-  { title: 'Filtrar', glyph: '▽', concepts: 'WHERE · comparadores · AND · OR' },
-  { title: 'Operadores', glyph: '⋯', concepts: 'BETWEEN · IN · LIKE' },
-  { title: 'Ausencia de datos', glyph: '∅', concepts: 'NULL · IS NULL' },
-  { title: 'Ordenar', glyph: '⇅', concepts: 'ORDER BY · ASC · DESC' },
-  { title: 'Integrar', glyph: '✓', concepts: 'consulta completa · errores · Lab · Challenge' },
+  {
+    letter: 'A',
+    title: 'Fundamentos',
+    goal: 'Entender tabla, fila y columna.',
+    concepts: 'SQL · EMPLEADOS · tipos de dato',
+  },
+  {
+    letter: 'B',
+    title: 'Primera consulta',
+    goal: 'Elegir qué mostrar y de dónde.',
+    concepts: 'SELECT · FROM · * · expresiones · AS',
+  },
+  {
+    letter: 'C',
+    title: 'Duplicados',
+    goal: 'Obtener valores únicos del resultado.',
+    concepts: 'DISTINCT',
+  },
+  {
+    letter: 'D',
+    title: 'Filtrar',
+    goal: 'Elegir las filas que cumplen una condición.',
+    concepts: 'WHERE · comparadores · AND · OR · NOT',
+  },
+  {
+    letter: 'E',
+    title: 'Operadores de filtro',
+    goal: 'Rangos, listas y patrones de texto.',
+    concepts: 'BETWEEN · IN · LIKE',
+  },
+  {
+    letter: 'F',
+    title: 'Valores ausentes',
+    goal: 'Reconocer y consultar NULL.',
+    concepts: 'NULL · IS NULL · IS NOT NULL',
+  },
+  {
+    letter: 'G',
+    title: 'Ordenar',
+    goal: 'Presentar el resultado en un orden.',
+    concepts: 'ORDER BY · ASC · DESC',
+  },
+  {
+    letter: 'H',
+    title: 'Integrar',
+    goal: 'Construir, corregir y practicar consultas completas.',
+    concepts: 'consulta completa · errores · Lab · Challenge',
+  },
+];
+
+/** Lo que el estudiante ya puede hacer (escena 25). */
+const COMPETENCIES = [
+  { text: 'Elegir columnas', sql: 'SELECT' },
+  { text: 'Consultar una tabla', sql: 'FROM' },
+  { text: 'Crear expresiones', sql: 'salario * 12' },
+  { text: 'Renombrar resultados', sql: 'AS' },
+  { text: 'Eliminar duplicados del resultado', sql: 'DISTINCT' },
+  { text: 'Filtrar filas', sql: 'WHERE' },
+  { text: 'Combinar condiciones', sql: 'AND · OR' },
+  { text: 'Trabajar con NULL', sql: 'IS NULL' },
+  { text: 'Ordenar resultados', sql: 'ORDER BY' },
+] as const;
+
+/** Siguiente ruta recomendada (escena 28): temas futuros, fuera de la evaluación actual. */
+const FUTURE_TOPICS: readonly FutureTopic[] = [
+  { title: 'Funciones de texto', examples: 'UPPER · LOWER · INITCAP · SUBSTR · LENGTH', level: 2 },
+  { title: 'Funciones numéricas', examples: 'ROUND · TRUNC', level: 2 },
+  { title: 'Funciones de fecha', examples: 'SYSDATE · operaciones con fechas', level: 2 },
+  { title: 'Funciones de agregación', examples: 'COUNT · SUM · AVG · MIN · MAX', level: 3 },
+  { title: 'Agrupación', examples: 'GROUP BY · HAVING', level: 3 },
+  { title: 'Consultas con varias tablas', examples: 'INNER JOIN · LEFT JOIN · PK/FK', level: 4 },
+  { title: 'Subconsultas', examples: 'SELECT dentro de SELECT', level: 5 },
+  {
+    title: 'Operadores de conjuntos',
+    examples: 'UNION · UNION ALL · INTERSECT · MINUS',
+    level: null,
+  },
+  { title: 'Modificar datos', examples: 'INSERT · UPDATE · DELETE', level: 6 },
+  {
+    title: 'Estructura de la base de datos',
+    examples: 'CREATE TABLE · ALTER TABLE · DROP · constraints',
+    level: 7,
+  },
 ];
 
 const COMPARE_VALUE = 4200000;
@@ -259,9 +359,9 @@ const ANATOMY: readonly AnatomyClause[] = [
   {
     role: 'select',
     keyword: 'SELECT',
-    content: 'nombre, ciudad, salario',
+    content: 'nombre, salario',
     question: '¿qué mostrar?',
-    part: 'columnas del resultado',
+    part: 'Proyección · columnas del resultado',
     definition: SQL_CONCEPTS.select.definition,
     logical: 3,
   },
@@ -270,17 +370,16 @@ const ANATOMY: readonly AnatomyClause[] = [
     keyword: 'FROM',
     content: 'empleados',
     question: '¿de dónde?',
-    part: 'tabla de origen',
+    part: 'Fuente · tabla de origen',
     definition: SQL_CONCEPTS.from.definition,
     logical: 1,
   },
   {
     role: 'where',
     keyword: 'WHERE',
-    content:
-      "estado = 'ACTIVO'\n  AND ciudad = 'Bogotá'\n  AND salario BETWEEN 4000000 AND 8000000",
+    content: "ciudad = 'Cali'",
     question: '¿qué filas?',
-    part: 'condiciones unidas con AND',
+    part: 'Filtro · condición',
     definition: SQL_CONCEPTS.where.definition,
     logical: 2,
   },
@@ -289,40 +388,31 @@ const ANATOMY: readonly AnatomyClause[] = [
     keyword: 'ORDER BY',
     content: 'salario DESC',
     question: '¿en qué orden?',
-    part: 'criterio y sentido',
+    part: 'Orden · criterio y sentido',
     definition: SQL_CONCEPTS['order-by'].definition,
     logical: 4,
   },
 ];
 
 /** Errores frecuentes con causa y corrección, tomados de la fuente conceptual. */
-const ERROR_CONCEPTS: readonly ConceptId[] = [
-  'select',
-  'where',
-  'is-null',
-  'between',
-  'in',
-  'like',
+const ERRORS: readonly {
+  readonly id: ConceptId;
+  readonly title: string;
+  /** Qué parte del SQL se muestra: la primera línea, la última o todo en una línea. */
+  readonly part: 'first' | 'last' | 'all';
+}[] = [
+  { id: 'select', title: 'Falta la coma', part: 'first' },
+  { id: 'from', title: 'Falta FROM', part: 'all' },
+  { id: 'column', title: 'Columna inexistente', part: 'first' },
+  { id: 'is-null', title: 'NULL con =', part: 'last' },
+  { id: 'distinct', title: 'DISTINCT mal colocado', part: 'first' },
+  { id: 'where', title: 'Texto sin comillas', part: 'last' },
 ];
-const ERROR_TITLES: Partial<Record<ConceptId, string>> = {
-  select: 'Falta la coma',
-  where: 'Texto sin comillas',
-  'is-null': 'NULL con =',
-  between: 'Límites al revés',
-  in: 'Lista sin paréntesis',
-  like: 'Patrón sin comillas',
-};
 
-/** Nombre corto de cada nivel futuro y dos temas de ejemplo. */
-const LEVEL_NAMES: Readonly<Record<number, { readonly name: string; readonly examples: string }>> =
-  {
-    2: { name: 'Funciones', examples: 'UPPER · ROUND · NVL' },
-    3: { name: 'Agregación', examples: 'COUNT · SUM · GROUP BY' },
-    4: { name: 'JOINs', examples: 'INNER JOIN · LEFT JOIN' },
-    5: { name: 'Subconsultas', examples: 'IN (SELECT …) · EXISTS' },
-    6: { name: 'Modificar datos', examples: 'INSERT · UPDATE · DELETE' },
-    7: { name: 'Estructura', examples: 'CREATE TABLE · ALTER' },
-  };
+function sqlPart(sql: string, part: 'first' | 'last' | 'all'): string {
+  const lines = sql.replace(/;$/, '').split('\n');
+  return part === 'first' ? lines[0]! : part === 'last' ? lines.at(-1)! : lines.join(' ');
+}
 
 /* ---------- Escenas interactivas ---------- */
 
@@ -382,28 +472,6 @@ function BuildStepper() {
           />
         )}
       </div>
-    </div>
-  );
-}
-
-const QUIZ_SQL = "SELECT DISTINCT departamento\nFROM empleados\nWHERE ciudad = 'Bogotá';";
-
-function RevealAnswer() {
-  const [shown, setShown] = useState(false);
-  const answer = firstColumn(QUIZ_SQL);
-  return (
-    <div className="scene-quiz">
-      <p className="scene-quiz__question">¿Cuántas filas devuelve esta consulta?</p>
-      <Code sql={QUIZ_SQL} />
-      {shown ? (
-        <p className="scene-quiz__answer" role="status">
-          <strong>{answer.length} filas:</strong> {answer.join(', ')}.
-        </p>
-      ) : (
-        <button type="button" className="scene-button" onClick={() => setShown(true)}>
-          Revelar respuesta
-        </button>
-      )}
     </div>
   );
 }
@@ -493,46 +561,41 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       id="ruta"
       layout="summary"
       tone="soft"
-      purpose="Ocho bloques; cada uno añade una pieza a la misma consulta, de la tabla al resultado ordenado."
+      purpose="Pasaremos de entender una tabla a construir consultas completas, paso a paso."
       takeaway="Cada bloque tiene su lección en el Modo Estudio, con ejemplos y una comprobación."
     >
       <RouteMap stages={ROUTE} />
     </Scene>
   ),
   'que-es-sql': () => (
-    <Scene id="que-es-sql" concepts={['sql']} layout="pipeline">
+    <Scene id="que-es-sql" concepts={['sql']} use={SQL_CONCEPTS.sql.whatItDoes} layout="pipeline">
       <div className="scene-grid scene-grid--stack">
         <SqlJourney
           question="¿Quiénes trabajan en Cali?"
           sql={"SELECT nombre\nFROM empleados\nWHERE ciudad = 'Cali';"}
           names={F.journey}
         />
-        <div className="scene-duo">
-          <p className="scene-duo__item scene-duo__item--on">
-            <span className="scene-duo__label">En esta unidad</span>
-            <strong>Consultar</strong> <code>SELECT</code> solo lee los datos.
-          </p>
-          <p className="scene-duo__item">
-            <span className="scene-duo__label">Nivel 6</span>
-            <strong>Modificar</strong> <code>INSERT</code> · <code>UPDATE</code> ·{' '}
-            <code>DELETE</code>
-          </p>
-        </div>
+        <QueryGlossary ids={['table', 'row', 'column', 'query']} label="Vocabulario de la unidad" />
       </div>
     </Scene>
   ),
   empleados: () => {
-    const preview = datasetPreview(DATASET_COLUMNS, 4);
+    const preview = datasetPreview(DATASET_COLUMNS, 3);
     return (
-      <Scene id="empleados" concepts={['table']} layout="concept" takeaway={false}>
+      <Scene
+        id="empleados"
+        concepts={['table']}
+        use="EMPLEADOS será nuestra tabla de ejemplo durante toda la unidad."
+        layout="concept"
+        takeaway={false}
+      >
         <div className="scene-grid scene-grid--dataset">
           <div className="scene-dataset__top">
             <MetricStrip
               items={[
                 { value: EMPLEADOS.rows.length, label: 'empleados' },
-                { value: EMPLEADOS.columns.length, label: 'columnas' },
-                { value: 'NUMBER · VARCHAR2 · DATE', label: 'tipos' },
-                { value: 'mensuales', label: 'SALARIO y BONO' },
+                { value: EMPLEADOS.columns.length, label: 'atributos' },
+                { value: 'NULL', label: 'posible en BONO' },
               ]}
             />
             <ul className="scene-legend">
@@ -540,19 +603,22 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
                 <strong>Fila</strong> un empleado (Ana)
               </li>
               <li className="scene-legend__column">
-                <strong>Columna</strong> un dato de todos (CIUDAD)
+                <strong>Columna</strong> una característica
+              </li>
+              <li className="scene-legend__cell">
+                <strong>Celda</strong> un valor (Bogotá)
               </li>
             </ul>
           </div>
           <HighlightTable
             size="large"
             label="Tabla original · 8 de 12 columnas"
-            caption="Primeras filas de EMPLEADOS con una fila y una columna resaltadas"
+            caption="Primeras filas de EMPLEADOS con una fila, una columna y su celda resaltadas"
             columns={preview.columns}
             rows={preview.rows}
             highlightedColumns={['CIUDAD']}
             highlightedRow={0}
-            summary="4 de 20 filas"
+            summary="3 de 20 filas"
           />
           <SchemaCards
             label="Los 12 campos que utilizaremos"
@@ -569,19 +635,19 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     <Scene
       id="select-from"
       concepts={['select', 'from']}
-      reading="Muéstrame el nombre y el cargo de cada empleado."
+      reading="Muéstrame el nombre y la ciudad de cada empleado."
       layout="pipeline"
     >
       <div className="scene-grid scene-grid--pipeline">
         <Reveal at={1} className="ask-cards">
-          <p className="ask-card">
-            <span className="ask-card__question">¿Qué quieres?</span>
-            <strong>nombre, cargo</strong>
+          <p className="ask-card ask-card--select">
+            <span className="ask-card__question">¿Qué quiero ver?</span>
+            <strong>NOMBRE y CIUDAD</strong>
             <code>SELECT</code>
           </p>
-          <p className="ask-card">
-            <span className="ask-card__question">¿De dónde?</span>
-            <strong>empleados</strong>
+          <p className="ask-card ask-card--from">
+            <span className="ask-card__question">¿De dónde salen los datos?</span>
+            <strong>EMPLEADOS</strong>
             <code>FROM</code>
           </p>
         </Reveal>
@@ -590,7 +656,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
           stepClauses={{ 2: 'from', 3: 'select' }}
           aside={
             <Reveal at={4}>
-              <What>Conserva las 20 filas y solo 2 columnas.</What>
+              <What>Conserva las 20 filas; solo muestra NOMBRE y CIUDAD.</What>
             </Reveal>
           }
         >
@@ -605,7 +671,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
           <Reveal at={4}>
             <Data
               table={F.selectFrom.result!}
-              caption="Resultado de SELECT nombre, cargo"
+              caption="Resultado de SELECT nombre, ciudad"
               label="Resultado"
               explained={F.selectFrom}
             />
@@ -615,7 +681,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     </Scene>
   ),
   asterisco: () => (
-    <Scene id="asterisco" concepts={['star']} reading layout="concept">
+    <Scene id="asterisco" concepts={['star']} use layout="concept">
       <div className="scene-grid scene-grid--split">
         <div className="scene-stack">
           <Code sql={'SELECT *\nFROM empleados;'} />
@@ -623,16 +689,11 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
             <code>*</code> <span aria-hidden="true">→</span> {EMPLEADOS.columns.length} columnas, en
             su orden
           </p>
-          <ul className="scene-pros">
-            <li className="scene-pros__yes">
-              <span aria-hidden="true">✓</span> Explorar una tabla nueva
-            </li>
-            <li className="scene-pros__no">
-              <span aria-hidden="true">✗</span> Consulta final: pide solo lo necesario
-            </li>
-          </ul>
+          <QueryGlossary ids={['select', 'star', 'from']} />
         </div>
-        <ColumnGrid columns={EMPLEADOS_SCHEMA_COLUMNS} groups={EMPLEADOS_FIELD_GROUP_LIST} />
+        <div className="scene-stack">
+          <ColumnGrid columns={EMPLEADOS_SCHEMA_COLUMNS} groups={EMPLEADOS_FIELD_GROUP_LIST} />
+        </div>
       </div>
     </Scene>
   ),
@@ -762,7 +823,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     </Scene>
   ),
   where: () => (
-    <Scene id="where" concepts={['where']} reading layout="transformation">
+    <Scene id="where" concepts={['where']} use layout="transformation">
       <LinkedQuery
         sql={F.where.sql}
         className="linked-query--top"
@@ -799,7 +860,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     </Scene>
   ),
   comparaciones: () => (
-    <Scene id="comparaciones" concepts={['comparison']} layout="concept">
+    <Scene id="comparaciones" concepts={['comparison']} use layout="concept">
       <div className="scene-grid scene-grid--stack">
         <ComparatorScale items={COMPARATOR_ITEMS} total={EMPLEADOS.rows.length} />
         <ul className="scene-quotes">
@@ -821,6 +882,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     <Scene
       id="and-or"
       concepts={['and', 'or']}
+      use={SQL_CONCEPTS.and.whyItMatters}
       layout="comparison"
       takeaway="AND: se cumplen todas. OR: basta con una."
     >
@@ -849,7 +911,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
   parentesis: () => {
     const extra = F.withoutParentheses.filter((name) => !F.withParentheses.includes(name));
     return (
-      <Scene id="parentesis" concepts={['logical-precedence']} layout="comparison">
+      <Scene id="parentesis" concepts={['logical-precedence']} use layout="comparison">
         <div className="scene-grid scene-grid--duo">
           <div className="scene-stack">
             <Code
@@ -888,7 +950,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     );
   },
   between: () => (
-    <Scene id="between" concepts={['between']} reading layout="concept">
+    <Scene id="between" concepts={['between']} use layout="concept">
       <div className="scene-grid scene-grid--split">
         <div className="scene-stack">
           <Code sql={F.between.sql} />
@@ -910,14 +972,15 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
             }))}
           />
           <What>
-            Equivale a <code>salario &gt;= 3000000 AND salario &lt;= 6000000</code>.
+            Incluye los dos límites. Equivale a{' '}
+            <code>salario &gt;= 3000000 AND salario &lt;= 6000000</code>.
           </What>
         </div>
       </div>
     </Scene>
   ),
   in: () => (
-    <Scene id="in" concepts={['in']} reading layout="comparison">
+    <Scene id="in" concepts={['in']} use layout="comparison">
       <div className="scene-grid scene-grid--flow">
         <div className="scene-stack">
           <ListChips column="CIUDAD" values={['Bogotá', 'Medellín', 'Cali']} />
@@ -940,7 +1003,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     </Scene>
   ),
   like: () => (
-    <Scene id="like" concepts={['like']} reading layout="concept">
+    <Scene id="like" concepts={['like']} use layout="concept">
       <div className="scene-grid scene-grid--flow">
         <div className="scene-stack">
           <Code sql={F.likeStarts.sql} />
@@ -955,12 +1018,16 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
               <dt>
                 <code>_</code>
               </dt>
-              <dd>{SQL_CONCEPTS.underscore.definition}</dd>
+              <dd>
+                {SQL_CONCEPTS.underscore.definition} <code>&apos;A_&apos;</code>: A y un carácter
+                más.
+              </dd>
             </div>
           </dl>
         </div>
         <div className="pattern-cards">
           <PatternCard pattern="A%" meaning="empieza por A" table={F.likeStarts.source} />
+          <PatternCard pattern="%a" meaning="termina en a" table={F.likeEnds.source} />
           <PatternCard pattern="%ar%" meaning="contiene «ar»" table={F.likeContains.source} />
           <PatternCard pattern="_a%" meaning="a en la 2.ª posición" table={F.likeSecond.source} />
         </div>
@@ -968,7 +1035,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     </Scene>
   ),
   null: () => (
-    <Scene id="null" concepts={['null', 'is-null']} layout="concept">
+    <Scene id="null" concepts={['null', 'is-null']} use layout="concept">
       <div className="scene-grid scene-grid--flow">
         <div className="scene-stack">
           <ul className="null-facts" aria-label="Qué no es NULL">
@@ -990,9 +1057,9 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
               <span aria-hidden="true">✓</span> <code>bono IS NULL</code>{' '}
               <span>{F.isNull.counts.result} filas sin bono</span>
             </li>
-            <li>
-              <span aria-hidden="true">·</span> <code>bono = 0</code>{' '}
-              <span>{F.zero} fila: 0 sí es un valor</span>
+            <li className="scene-pros__yes">
+              <span aria-hidden="true">✓</span> <code>bono IS NOT NULL</code>{' '}
+              <span>{F.isNotNull} filas con bono</span>
             </li>
           </ul>
         </div>
@@ -1009,7 +1076,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     <Scene
       id="order-by"
       concepts={['order-by']}
-      reading
+      use
       layout="transformation"
       takeaway="ASC (de menor a mayor) es el valor por defecto; DESC invierte el orden."
     >
@@ -1031,6 +1098,10 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
               <span aria-hidden="true">↓</span> DESC mayor a menor
             </span>
           </p>
+          <ul className="scene-tags">
+            <li>Ordena el resultado</li>
+            <li>No cambia la tabla</li>
+          </ul>
         </Reveal>
         <Reveal at={2} className="scene-stack">
           <Code sql={F.orderDesc.sql} />
@@ -1052,6 +1123,10 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       takeaway="Se escribe SELECT → FROM → WHERE → ORDER BY; se entiende FROM → WHERE → SELECT → ORDER BY."
     >
       <SqlAnatomy clauses={ANATOMY} />
+      <p className="anatomy-result">
+        Resultado: <strong>{rows(F.anatomy)}</strong> · los empleados de Cali, del salario más alto
+        al más bajo.
+      </p>
     </Scene>
   ),
   'paso-a-paso': () => (
@@ -1069,18 +1144,17 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       id="errores"
       layout="practice"
       purpose="Cada error tiene una causa y una corrección: encuéntralo antes de leerla."
-      takeaway="Comillas simples para textos, IS NULL para NULL y paréntesis para listas."
+      takeaway="Coma entre columnas, FROM siempre, comillas simples para textos e IS NULL para NULL."
     >
       <div className="error-cards">
-        {ERROR_CONCEPTS.map((id) => {
+        {ERRORS.map(({ id, title, part }) => {
           const mistake = SQL_CONCEPTS[id].mistake!;
-          const lastLine = (sql: string) => sql.split('\n').at(-1)!.replace(/;$/, '');
           return (
             <ErrorCard
               key={id}
-              title={ERROR_TITLES[id] ?? SQL_CONCEPTS[id].title}
-              wrong={id === 'select' ? mistake.wrong.split('\n')[0]! : lastLine(mistake.wrong)}
-              right={id === 'select' ? mistake.right.split('\n')[0]! : lastLine(mistake.right)}
+              title={title}
+              wrong={sqlPart(mistake.wrong, part)}
+              right={sqlPart(mistake.right, part)}
               why={mistake.why}
             />
           );
@@ -1101,7 +1175,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
           <p className="lab-preview__bar">
             <span aria-hidden="true">● ● ●</span> Laboratorio SQL
           </p>
-          <Code sql={INTEGRATED} label="Editor" />
+          <Code sql={INTEGRATED} />
           <Data
             table={F.integrated.result!}
             caption="Vista educativa de la consulta de ejemplo"
@@ -1168,14 +1242,28 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       purpose="Recorrimos los ocho bloques: ya puedes leer y escribir una consulta SELECT completa."
       takeaway="La chuleta imprimible con todas las piezas está en Recursos."
     >
-      <RouteMap stages={ROUTE} completed />
+      <div className="scene-grid scene-grid--synthesis">
+        <section className="scene-stack" aria-labelledby="scene-25-competencies">
+          <h2 id="scene-25-competencies" className="scene-subtitle">
+            Ahora ya puedes…
+          </h2>
+          <CompetencyGrid items={COMPETENCIES} />
+        </section>
+        <div className="scene-stack">
+          <Code sql={SYNTHESIS} label="Todo junto" />
+          <What>
+            Las ciudades, sin repetir, de quienes ganan 4.000.000 o más, en orden alfabético.
+          </What>
+          <NameChips names={F.synthesis} label={`${F.synthesis.length} ciudades`} />
+        </div>
+      </div>
     </Scene>
   ),
   video: () => (
     <Scene
       id="video"
       layout="media"
-      purpose="Repasa en video la primera parte de la unidad: SELECT, FROM, *, cálculos, AS y DISTINCT."
+      purpose="Repasa visualmente los conceptos esenciales antes del reto final."
       takeaway="Puede verse después de clase, con subtítulos en español."
     >
       <SummaryVideo />
@@ -1189,21 +1277,31 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       purpose="Practica con toda la clase: el profesor crea una sala y todos resuelven las misiones en su móvil."
       takeaway={false}
     >
-      <div className="scene-grid scene-grid--stack">
-        <StepFlow
-          label="Cómo funciona la sala en vivo"
-          steps={[
-            { title: 'Profesor', text: 'Crea la sala' },
-            { title: 'QR', text: 'Proyecta el código' },
-            { title: 'Estudiantes', text: 'Entran desde el móvil' },
-            { title: 'Misiones', text: 'Resuelven a la vez' },
-            { title: 'Ranking', text: 'Resultados en vivo' },
-          ]}
-        />
-        <div className="scene-grid scene-grid--split">
-          <RevealAnswer />
-          <SceneQr path="/challenge" />
-        </div>
+      <div className="scene-grid scene-grid--live">
+        <dl className="live-facts">
+          <div>
+            <dt>Qué harás</dt>
+            <dd>Resolver las diez misiones del Challenge desde tu móvil, a la vez que la clase.</dd>
+          </div>
+          <div>
+            <dt>Cómo entrar</dt>
+            <dd>
+              El profesor proyecta el QR de la sala; también puedes escribir su código en «En vivo».
+            </dd>
+          </div>
+          <div>
+            <dt>Qué evalúa</dt>
+            <dd>
+              Lo aprendido en la unidad, con {PRACTICE_RULES.maxScoredAttempts} intentos por misión
+              y una pista opcional.
+            </dd>
+          </div>
+          <div>
+            <dt>Tu resultado</dt>
+            <dd>Tus puntos entran al ranking de la sala; al final verás el resumen por misión.</dd>
+          </div>
+        </dl>
+        <SceneQr path="/challenge" />
       </div>
     </Scene>
   ),
@@ -1211,21 +1309,16 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     <Scene
       id="proximos"
       layout="summary"
-      purpose="La ruta continúa con seis niveles más; SELECT es la base de todos."
+      purpose="Hasta ahora aprendimos a consultar una tabla. Lo siguiente: resumir información, combinar tablas, crear consultas más complejas y modificar datos."
       takeaway={
         <>
-          Cada tema futuro ya tiene su ficha en <Link href="/modules">la ruta de aprendizaje</Link>.
+          No forman parte de la evaluación de esta unidad; cada tema tiene su ficha en{' '}
+          <Link href="/modules">la ruta de aprendizaje</Link>.
         </>
       }
     >
-      <LevelRoadmap
-        levels={CURRICULUM_LEVELS.filter((level) => level.number > 1).map((level) => ({
-          number: level.number,
-          name: LEVEL_NAMES[level.number]?.name ?? level.title,
-          summary: level.summary,
-          examples: LEVEL_NAMES[level.number]?.examples ?? '',
-        }))}
-      />
+      <p className="scene-subtitle">Siguiente ruta recomendada · Próximamente</p>
+      <FutureRoadmap topics={FUTURE_TOPICS} />
     </Scene>
   ),
   cierre: () => (
@@ -1234,21 +1327,36 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       title="¿Preguntas?"
       tone="night"
       layout="summary"
-      purpose="Ahora puedes leer, entender y escribir una consulta completa como esta."
-      takeaway="SELECT convierte preguntas en resultados."
+      purpose="Del dato a la consulta: lo esencial de la unidad en tres ideas."
+      takeaway="Ya no estás viendo una tabla: ahora sabes hacerle preguntas."
     >
-      <div className="scene-grid scene-grid--split">
+      <div className="scene-grid scene-grid--closing">
         <div className="scene-stack">
-          <Code sql={INTEGRATED} />
-          <p className="scene-closing__reading">
-            «{INTEGRATED_QUESTION}» <strong>{rows(F.integrated.counts.result)}.</strong>
-          </p>
+          <DataToQuery />
+          <ol className="closing-ideas">
+            <li>
+              <code>SELECT</code> decide qué información queremos ver.
+            </li>
+            <li>
+              <code>FROM</code> indica de dónde proviene.
+            </li>
+            <li>Las demás cláusulas refinan el resultado.</li>
+          </ol>
         </div>
         <div className="scene-closing">
-          <nav className="scene-links" aria-label="Seguir aprendiendo">
-            <Link href="/learn">Estudiar →</Link>
-            <Link href="/lab">Practicar SQL →</Link>
-            <Link href="/resources">Recursos y chuleta →</Link>
+          <section className="exit-questions" aria-labelledby="scene-29-questions">
+            <h2 id="scene-29-questions" className="exit-questions__title">
+              Preguntas de salida
+            </h2>
+            <ol>
+              <li>¿Qué diferencia hay entre SELECT y WHERE?</li>
+              <li>¿Cuándo usarías DISTINCT?</li>
+              <li>¿Por qué NULL se consulta con IS NULL?</li>
+            </ol>
+          </section>
+          <nav className="scene-links" aria-label="Seguir practicando">
+            <Link href="/lab">Abrir el laboratorio →</Link>
+            <Link href="/challenge">Iniciar Challenge →</Link>
           </nav>
           <p className="scene-signature">
             {identity.author} · Profesor {identity.teacher} · {identity.course} ·{' '}

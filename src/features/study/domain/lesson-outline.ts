@@ -214,7 +214,7 @@ const OUTLINE: readonly LessonOutlineInput[] = [
     keywords: ['columnas', 'lista de columnas', 'coma', 'orden de columnas', 'especificas'],
     concept: {
       title: 'Lista de columnas',
-      concepts: ['column-list'],
+      concepts: ['column-list', 'comma'],
       keywords: ['coma', 'columnas', 'orden'],
     },
   },
@@ -242,7 +242,7 @@ const OUTLINE: readonly LessonOutlineInput[] = [
     keywords: ['precedencia', 'parentesis', 'orden de operaciones', 'prioridad'],
     concept: {
       title: 'Precedencia aritmética',
-      concepts: ['arithmetic-precedence'],
+      concepts: ['arithmetic-precedence', 'parentheses'],
       keywords: ['precedencia', 'parentesis'],
     },
   },
@@ -407,7 +407,7 @@ const OUTLINE: readonly LessonOutlineInput[] = [
     keywords: ['null', 'is null', 'is not null', 'nulo', 'vacio', 'sin valor', '= null'],
     concept: {
       title: 'IS NULL',
-      concepts: ['null', 'is-null'],
+      concepts: ['null', 'is-null', 'is-not-null'],
       keywords: ['null', 'is null'],
     },
   },

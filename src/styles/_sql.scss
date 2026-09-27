@@ -68,6 +68,27 @@
   color: var(--color-cyan);
   font-weight: 750;
 }
+// Cada palabra clave toma el color de su papel (proyección, fuente, filtro u orden).
+.sql-token--select {
+  color: var(--color-sem-select-dark);
+}
+.sql-token--from {
+  color: var(--color-sem-from-dark);
+}
+.sql-token--filter {
+  color: var(--color-sem-filter-dark);
+}
+.sql-token--order {
+  color: var(--color-sem-order-dark);
+}
+.sql-token--operator {
+  color: var(--color-sem-operator-dark);
+  font-weight: 750;
+}
+.sql-token--star {
+  color: var(--color-sem-select-dark);
+  font-weight: 750;
+}
 .sql-token--string {
   color: var(--color-code-string);
 }

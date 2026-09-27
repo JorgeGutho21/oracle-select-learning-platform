@@ -14,6 +14,8 @@ export interface CodeBlockProps {
   labDisabled?: boolean;
   /** Lección del Modo Estudio que explica el ejemplo. */
   lessonHref?: Route;
+  /** Texto del enlace a la lección («Ver lección», «Repasar lección»). */
+  lessonLabel?: string;
   /** Muestra (y copia) la consulta formateada: una cláusula por línea. */
   format?: boolean;
 }
@@ -28,10 +30,12 @@ export function CodeBlock({
   labHref,
   labDisabled = false,
   lessonHref,
+  lessonLabel = 'Ver lección',
   format = false,
 }: CodeBlockProps) {
   const [copyStatus, setCopyStatus] = useState('');
   const text = format ? formatSql(code) : code;
+  const hasActions = labDisabled || Boolean(labHref) || Boolean(lessonHref);
 
   async function copyCode() {
     try {
@@ -56,7 +60,7 @@ export function CodeBlock({
           <SqlLines sql={text} />
         </code>
       </pre>
-      <div className="ds-code__footer">
+      <div className={`ds-code__footer${hasActions ? '' : ' ds-code__footer--bare'}`}>
         <span className="ds-code__status" role="status">
           {copyStatus}
         </span>
@@ -72,7 +76,7 @@ export function CodeBlock({
           ) : null}
           {lessonHref && (
             <Link className="ds-button ds-button--text" href={lessonHref}>
-              Ver lección <span aria-hidden="true">→</span>
+              {lessonLabel} <span aria-hidden="true">→</span>
             </Link>
           )}
         </span>

@@ -18,33 +18,34 @@ import {
 /* ---------- Ruta de aprendizaje (escenas 02 y 25) ---------- */
 
 export interface RouteStage {
+  /** Letra del bloque en el mapa: A, B, C… */
+  readonly letter: string;
   readonly title: string;
-  readonly glyph: string;
+  /** Objetivo del bloque en una frase. */
+  readonly goal: string;
   readonly concepts: string;
 }
 
-export function RouteMap({
-  stages,
-  completed = false,
-}: {
-  readonly stages: readonly RouteStage[];
-  readonly completed?: boolean;
-}) {
+/**
+ * Mapa de aprendizaje (escena 02): ocho bloques como un camino, cada uno con su objetivo y
+ * sus conceptos. En 16:9 ocupa el ancho en dos filas; en móvil es una línea de tiempo.
+ */
+export function RouteMap({ stages }: { readonly stages: readonly RouteStage[] }) {
   return (
-    <ol className="route-map" data-completed={completed || undefined}>
-      {stages.map((stage, index) => (
-        <li key={stage.title} className="route-map__stage">
-          <span className="route-map__number" aria-hidden="true">
-            {completed ? '✓' : String(index + 1).padStart(2, '0')}
+    <ol className="route-map">
+      {stages.map((stage) => (
+        <li key={stage.letter} className="route-map__stage">
+          <span className="route-map__letter" aria-hidden="true">
+            {stage.letter}
           </span>
-          <span className="route-map__glyph" aria-hidden="true">
-            {stage.glyph}
+          <span className="route-map__body">
+            <strong className="route-map__title">
+              <span className="visually-hidden">Bloque {stage.letter}: </span>
+              {stage.title}
+            </strong>
+            <span className="route-map__goal">{stage.goal}</span>
+            <span className="route-map__concepts">{stage.concepts}</span>
           </span>
-          <strong className="route-map__title">
-            {stage.title}
-            {completed && <span className="visually-hidden"> (completado)</span>}
-          </strong>
-          <span className="route-map__concepts">{stage.concepts}</span>
         </li>
       ))}
     </ol>
@@ -634,5 +635,116 @@ export function LevelRoadmap({
         </li>
       ))}
     </ol>
+  );
+}
+
+/* ---------- Competencias (escena 25) ---------- */
+
+export function CompetencyGrid({
+  items,
+}: {
+  readonly items: readonly { readonly text: string; readonly sql: string }[];
+}) {
+  return (
+    <ol className="competency-grid">
+      {items.map((item, index) => (
+        <li key={item.text} className="competency-grid__item">
+          <span className="competency-grid__number" aria-hidden="true">
+            {index + 1}
+          </span>
+          <span className="competency-grid__text">{item.text}</span>
+          <code className="competency-grid__sql">{item.sql}</code>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/* ---------- Ruta de continuidad (escena 28) ---------- */
+
+export interface FutureTopic {
+  readonly title: string;
+  readonly examples: string;
+  /** Nivel de la ruta de aprendizaje donde se estudia, si ya está definido. */
+  readonly level: number | null;
+}
+
+export function FutureRoadmap({ topics }: { readonly topics: readonly FutureTopic[] }) {
+  return (
+    <ol className="future-roadmap">
+      {topics.map((topic, index) => (
+        <li key={topic.title} className="future-roadmap__item">
+          <span className="future-roadmap__number" aria-hidden="true">
+            {index + 1}
+          </span>
+          <strong className="future-roadmap__title">{topic.title}</strong>
+          <code className="future-roadmap__examples">{topic.examples}</code>
+          <span className="future-roadmap__level">
+            {topic.level ? `Nivel ${topic.level}` : 'Tema avanzado'} · Próximamente
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+/* ---------- Cierre (escena 29): del dato a la consulta ---------- */
+
+const JOURNEY_NODES = [
+  { label: 'Base de datos', role: 'from' },
+  { label: 'SELECT · FROM', role: 'select' },
+  { label: 'Filtro', role: 'filter' },
+  { label: 'Resultado', role: 'result' },
+] as const;
+
+/** Ilustración vectorial original: base de datos → SELECT/FROM → filtro → resultado. */
+export function DataToQuery() {
+  return (
+    <svg
+      className="data-to-query"
+      viewBox="0 0 640 170"
+      role="img"
+      aria-label="Del dato a la consulta: la base de datos, SELECT y FROM, el filtro y el resultado."
+    >
+      {JOURNEY_NODES.map((node, index) => {
+        const x = 20 + index * 160;
+        return (
+          <g key={node.label} className={`data-to-query__node data-to-query__node--${node.role}`}>
+            <rect x={x} y={14} width={120} height={104} rx={16} />
+            {node.role === 'from' && (
+              <g className="data-to-query__icon">
+                <ellipse cx={x + 60} cy={44} rx={30} ry={10} />
+                <path d={`M${x + 30} 44 v38 a30 10 0 0 0 60 0 v-38`} />
+                <path d={`M${x + 30} 63 a30 10 0 0 0 60 0`} />
+              </g>
+            )}
+            {node.role === 'select' && (
+              <g className="data-to-query__icon">
+                <path d={`M${x + 42} 40 l-14 26 l14 26`} />
+                <path d={`M${x + 78} 40 l14 26 l-14 26`} />
+                <path d={`M${x + 50} 58 h20 M${x + 50} 74 h14`} />
+              </g>
+            )}
+            {node.role === 'filter' && (
+              <g className="data-to-query__icon">
+                <path d={`M${x + 28} 38 h64 l-24 30 v22 l-16 8 v-30 z`} />
+              </g>
+            )}
+            {node.role === 'result' && (
+              <g className="data-to-query__icon">
+                <rect x={x + 28} y={36} width={64} height={56} rx={6} />
+                <path d={`M${x + 28} 54 h64 M${x + 28} 73 h64 M${x + 56} 36 v56`} />
+              </g>
+            )}
+            <text x={x + 60} y={148} textAnchor="middle" className="data-to-query__label">
+              {node.label}
+            </text>
+            {index < JOURNEY_NODES.length - 1 && (
+              <path className="data-to-query__arrow" d={`M${x + 128} 66 h24 m-8 -8 l8 8 l-8 8`} />
+            )}
+          </g>
+        );
+      })}
+    </svg>
   );
 }

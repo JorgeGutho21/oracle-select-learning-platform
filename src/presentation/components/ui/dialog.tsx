@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode, type RefObject } from 'react';
 import { Button } from './button';
 
 export interface DialogProps {
@@ -10,10 +10,23 @@ export interface DialogProps {
   description?: string;
   /** Clase adicional para variantes de composición, como la paleta de búsqueda. */
   className?: string;
+  /**
+   * Control al que vuelve el foco al cerrar. Safari no enfoca un botón al pulsarlo, así que
+   * el elemento activo al abrir no siempre es el activador.
+   */
+  returnFocusTo?: RefObject<HTMLElement | null>;
   children: ReactNode;
 }
 
-export function Dialog({ open, onClose, title, description, className, children }: DialogProps) {
+export function Dialog({
+  open,
+  onClose,
+  title,
+  description,
+  className,
+  returnFocusTo,
+  children,
+}: DialogProps) {
   const id = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -23,7 +36,8 @@ export function Dialog({ open, onClose, title, description, className, children 
     if (!dialog) return;
     if (open && !dialog.open) {
       triggerRef.current =
-        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        returnFocusTo?.current ??
+        (document.activeElement instanceof HTMLElement ? document.activeElement : null);
       dialog.showModal();
     } else if (!open && dialog.open) {
       dialog.close();
@@ -36,7 +50,7 @@ export function Dialog({ open, onClose, title, description, className, children 
       )
         document.activeElement.blur();
     }
-  }, [open]);
+  }, [open, returnFocusTo]);
 
   useEffect(
     () => () => {

@@ -20,7 +20,8 @@ $colors: (
   border-control: #63738d,
   focus: #1746b8,
   code-string: #a8e6b8,
-  code-number: #ffd08a,
+  // Los números son datos: tono neutro para no confundirse con los operadores (ámbar).
+  code-number: #e6ebf5,
   code-comment: #a2b1cb,
   // Alias semánticos del sistema de diseño final (misma paleta, nombres de marca).
   brand-navy: #0b1733,
@@ -31,6 +32,20 @@ $colors: (
   danger-soft: #fbe9eb,
   null-bg: #eef2f8,
   null-border: #8e9bb3,
+  // Color semántico de SQL, el mismo en Exposición, Estudio, Recursos, laboratorio y
+  // Challenge: proyección (SELECT) cian, fuente (FROM) azul, filtro (WHERE y condiciones)
+  // violeta, operadores ámbar y orden (ORDER BY) magenta. Siempre acompaña a texto o forma.
+  sem-select: #0e7490,
+  sem-from: #1d4ed8,
+  sem-filter: #6d28d9,
+  sem-operator: #92400e,
+  sem-order: #be185d,
+  // Variantes para fondos oscuros (editor y escenas nocturnas).
+  sem-select-dark: #22d3ee,
+  sem-from-dark: #93b8ff,
+  sem-filter-dark: #c4b5fd,
+  sem-operator-dark: #fcd34d,
+  sem-order-dark: #f9a8d4,
 );
 $spacing: (
   1: 4px,

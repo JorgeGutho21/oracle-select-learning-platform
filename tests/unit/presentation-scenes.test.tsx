@@ -69,7 +69,7 @@ describe('escenas del Modo Exposición', () => {
       unmount();
     }
     const { container } = render(<>{renderScene(4)}</>);
-    expect(container.textContent).toContain('4 de 20 filas');
+    expect(container.textContent).toContain('3 de 20 filas');
     // EMPLEADOS presenta sus 12 campos agrupados, no solo una tabla.
     expect(container.querySelectorAll('.schema-group li')).toHaveLength(12);
   });
@@ -129,5 +129,85 @@ describe('estructura de la exposición', () => {
       'where',
       'order-by',
     ]);
+  });
+});
+
+describe('cierre pedagógico y mapa de la unidad', () => {
+  const scene = (number: number) => render(<>{renderScene(number)}</>).container;
+
+  it('la ruta (02) es un mapa: ocho bloques con letra, objetivo y conceptos', () => {
+    const route = scene(2);
+    const stages = route.querySelectorAll('.route-map__stage');
+    expect(stages).toHaveLength(8);
+    for (const stage of stages) {
+      expect(stage.querySelector('.route-map__letter')?.textContent).toMatch(/^[A-H]$/);
+      expect(stage.querySelector('.route-map__goal')?.textContent?.length).toBeGreaterThan(10);
+      expect(stage.querySelector('.route-map__concepts')?.textContent).toBeTruthy();
+    }
+    expect(route.textContent).toContain('Pasaremos de entender una tabla');
+  });
+
+  it('«Qué aprendimos» (25) sintetiza nueve competencias y una consulta integradora', () => {
+    const summary = scene(25);
+    expect(summary.textContent).toContain('Ahora ya puedes…');
+    expect(summary.querySelectorAll('.competency-grid__item')).toHaveLength(9);
+    expect(summary.querySelector('pre')?.textContent).toMatch(/SELECT DISTINCT ciudad/);
+    expect(summary.querySelectorAll('.name-chips li').length).toBeGreaterThan(1);
+  });
+
+  it('«Próximos temas» (28) es una ruta de continuidad marcada como próxima', () => {
+    const next = scene(28);
+    const topics = next.querySelectorAll('.future-roadmap__item');
+    expect(topics).toHaveLength(10);
+    for (const topic of topics) expect(topic.textContent).toContain('Próximamente');
+    for (const term of [
+      'UPPER',
+      'COUNT',
+      'GROUP BY',
+      'INNER JOIN',
+      'UNION',
+      'INSERT',
+      'CREATE TABLE',
+    ])
+      expect(next.textContent).toContain(term);
+    expect(next.textContent).toContain('No forman parte de la evaluación');
+  });
+
+  it('el cierre (29) ilustra del dato a la consulta, deja tres ideas y preguntas de salida', () => {
+    const closing = scene(29);
+    const figure = closing.querySelector('svg[role="img"]');
+    expect(figure?.getAttribute('aria-label')).toMatch(/Del dato a la consulta/);
+    expect(closing.querySelectorAll('.closing-ideas li')).toHaveLength(3);
+    expect(closing.querySelectorAll('.exit-questions li')).toHaveLength(3);
+    const links = [...closing.querySelectorAll('.scene-links a')].map((a) =>
+      a.getAttribute('href'),
+    );
+    expect(links).toEqual(['/lab', '/challenge']);
+    expect(closing.textContent).toContain('ahora sabes hacerle preguntas');
+  });
+
+  it('los errores frecuentes (22) cubren coma, FROM, columna, = NULL, DISTINCT y comillas', () => {
+    const titles = [...scene(22).querySelectorAll('.error-card__title')].map((t) => t.textContent);
+    expect(titles).toEqual([
+      'Falta la coma',
+      'Falta FROM',
+      'Columna inexistente',
+      'NULL con =',
+      'DISTINCT mal colocado',
+      'Texto sin comillas',
+    ]);
+  });
+
+  it('SQL (03) define el lenguaje y su vocabulario: tabla, fila, columna y consulta', () => {
+    const sql = scene(3);
+    expect(sql.querySelector('.concept-intro__use')?.textContent).toContain('mediante SELECT');
+    const terms = [...sql.querySelectorAll('.query-glossary dt')].map((dt) => dt.textContent);
+    expect(terms).toEqual(['Tabla', 'Fila', 'Columna', 'Consulta']);
+  });
+
+  it('las escenas de filtrado dicen para qué sirve cada concepto', () => {
+    for (const number of [11, 12, 13, 14, 15, 16, 17, 18, 19]) {
+      expect(scene(number).querySelector('.concept-intro__use'), `escena ${number}`).not.toBeNull();
+    }
   });
 });

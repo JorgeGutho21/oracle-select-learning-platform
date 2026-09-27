@@ -100,9 +100,12 @@
   color: var(--color-ink);
   font-family: var(--font-mono);
 }
+// Safari no muestra el contenido de un <details> con display grid o flex: bloque y márgenes.
 .lab-schema__data {
-  display: grid;
-  gap: var(--space-3);
+  display: block;
+}
+.lab-schema__data > * + * {
+  margin-block-start: var(--space-3);
 }
 .lab-schema__data > summary {
   display: inline-flex;
@@ -253,25 +256,27 @@
   font-size: 0.75rem;
   font-weight: 700;
 }
+// Color semántico común: proyección cian, fuente azul, operadores ámbar (ver _tokens).
 .lab-part--keyword {
   color: var(--color-night);
-  background: var(--color-cyan);
+  background: #e6ebf5;
 }
 .lab-part--column {
   color: var(--color-night);
-  background: #cfe0ff;
+  background: color-mix(in srgb, var(--color-sem-select) 22%, white);
 }
 .lab-part--expression {
   color: var(--color-night);
-  background: var(--color-code-number);
+  background: color-mix(in srgb, var(--color-sem-operator) 22%, white);
 }
 .lab-part--alias {
   color: var(--color-night);
-  background: var(--color-code-string);
+  background: color-mix(in srgb, var(--color-sem-select) 12%, white);
+  outline: 1px dashed var(--color-sem-select);
 }
 .lab-part--table {
   color: var(--color-night);
-  background: #e3d4ff;
+  background: color-mix(in srgb, var(--color-sem-from) 18%, white);
 }
 .lab-part--separator {
   color: var(--color-inverse);
@@ -301,19 +306,20 @@
   color: var(--color-muted);
 }
 .lab-legend--keyword {
-  border-inline-start-color: var(--color-cyan);
+  border-inline-start-color: var(--color-border-control);
 }
 .lab-legend--column {
-  border-inline-start-color: #6f9bff;
+  border-inline-start-color: var(--color-sem-select);
 }
 .lab-legend--expression {
-  border-inline-start-color: #e0a100;
+  border-inline-start-color: var(--color-sem-operator);
 }
 .lab-legend--alias {
-  border-inline-start-color: #2f9a58;
+  border-inline-start-color: var(--color-sem-select);
+  border-inline-start-style: dashed;
 }
 .lab-legend--table {
-  border-inline-start-color: #8a5cf6;
+  border-inline-start-color: var(--color-sem-from);
 }
 
 // Reflujo equivalente a zoom 200 % en un teléfono de 360 px (DESIGN_SYSTEM, D05): el

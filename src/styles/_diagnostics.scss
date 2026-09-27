@@ -114,16 +114,16 @@
   gap: var(--space-3);
 }
 .lab-part--condition {
-  background: color-mix(in srgb, var(--color-success) 16%, transparent);
+  background: color-mix(in srgb, var(--color-sem-filter) 16%, transparent);
 }
 .lab-part--order {
-  background: color-mix(in srgb, var(--color-warning) 16%, transparent);
+  background: color-mix(in srgb, var(--color-sem-order) 16%, transparent);
 }
 .lab-legend--condition {
-  border-color: var(--color-success);
+  border-color: var(--color-sem-filter);
 }
 .lab-legend--order {
-  border-color: var(--color-warning);
+  border-color: var(--color-sem-order);
 }
 @media (max-width: 575px) {
   .lab-diagnostic__details div {

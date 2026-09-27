@@ -339,8 +339,21 @@
   gap: var(--space-1);
   margin-inline-start: auto;
 }
+// Las dos acciones caben en una línea en fichas estrechas (sin reducir el objetivo táctil).
+.ds-code__actions .ds-button {
+  padding-inline: var(--space-2);
+}
 .ds-code__status {
   overflow-wrap: anywhere;
+}
+// Sin acciones, el pie solo existe para anunciar «Código copiado».
+.ds-code__footer--bare {
+  min-block-size: 0;
+  padding: 0;
+  border: 0;
+}
+.ds-code__footer--bare .ds-code__status:not(:empty) {
+  padding: var(--space-2) var(--space-4);
 }
 .ds-code__keyword {
   color: var(--color-cyan);

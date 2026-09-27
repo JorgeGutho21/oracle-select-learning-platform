@@ -94,7 +94,7 @@
   grid-template-columns: minmax(0, 1fr);
   // Subgrid: encabezado, definición, conceptos asociados, sintaxis y ejemplo quedan
   // alineados entre las fichas de una misma fila.
-  grid-row: span 5;
+  grid-row: span 6;
   grid-template-rows: subgrid;
   row-gap: var(--space-3);
   align-content: start;
@@ -150,9 +150,54 @@
   font-size: 0.9375rem;
   line-height: 1.45;
 }
-.resource-card__syntax {
+.resource-card__facts {
   display: grid;
-  gap: var(--space-1);
+  gap: var(--space-2);
+  margin: 0;
+}
+.resource-card__facts dt {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.resource-card__facts dd {
+  margin: 0;
+  line-height: 1.5;
+}
+.resource-card__facts dd strong {
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+}
+.resource-card__returns {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.resource-card__returns em {
+  color: var(--color-muted);
+}
+// Safari no muestra el contenido de un <details> con display grid o flex: bloque y márgenes.
+.resource-card__mistake {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-page);
+  border-radius: var(--radius-md);
+}
+.resource-card__mistake > summary {
+  display: flex;
+  align-items: center;
+  min-block-size: 44px;
+  color: var(--color-danger);
+  font-weight: 700;
+  cursor: pointer;
+}
+.resource-card__mistake > * + * {
+  margin-block-start: var(--space-2);
+}
+.resource-card__why {
+  font-size: 0.9375rem;
 }
 .resource-card__label {
   color: var(--color-muted);

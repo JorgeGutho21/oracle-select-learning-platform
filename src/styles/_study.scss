@@ -870,3 +870,33 @@ a[aria-current='page'] .study-toc__number {
 .study-dictionary .schema-cards {
   margin-top: var(--space-3);
 }
+
+// Otros términos de la lección (AS, %, _, IS NOT NULL…), con la definición canónica.
+.study-terms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0 0;
+}
+.study-terms > div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}
+.study-terms dt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.study-terms dt code {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+.study-terms dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}

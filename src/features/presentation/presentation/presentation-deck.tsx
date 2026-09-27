@@ -52,6 +52,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
   const [stepMode, setStepMode] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
   const [navigatorOpen, setNavigatorOpen] = useState(false);
+  const navigatorTrigger = useRef<HTMLButtonElement>(null);
   const [resumeHandled, setResumeHandled] = useState(requestedScene !== null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [idle, setIdle] = useState(false);
@@ -327,6 +328,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
         <div className="deck-controls__tools">
           <button
             type="button"
+            ref={navigatorTrigger}
             className="deck-button deck-button--ghost"
             onClick={() => setNavigatorOpen(true)}
             disabled={!hydrated}
@@ -402,6 +404,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
       <Dialog
         open={navigatorOpen}
         onClose={() => setNavigatorOpen(false)}
+        returnFocusTo={navigatorTrigger}
         title="Escenas"
         description={`${SCENE_TOTAL} escenas en ${SCENE_BLOCKS.length} bloques.`}
         className="deck-navigator"
