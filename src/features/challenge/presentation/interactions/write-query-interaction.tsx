@@ -42,8 +42,8 @@ export function WriteQueryInteraction({
   return (
     <div className="ch-stack">
       <Alert tone="info" title="Corrección con Oracle">
-        {mission.publicData.requirement} Mientras el servicio Oracle no esté disponible, un envío
-        con la estructura correcta no consume intento; un error de SQL sí lo consume.
+        {mission.publicData.requirement} Si Oracle no está disponible, un envío con la estructura
+        correcta no consume intento.
       </Alert>
       <SqlEditor
         value={answer.sql}

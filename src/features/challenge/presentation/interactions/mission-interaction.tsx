@@ -47,6 +47,7 @@ interface Props {
   answer: MissionAnswer;
   onChange: (answer: MissionAnswer) => void;
   disabled: boolean;
+  reveal?: boolean;
 }
 
 function as<T extends InteractionType>(mission: AnyPublicMission, answer: MissionAnswer) {
@@ -54,9 +55,9 @@ function as<T extends InteractionType>(mission: AnyPublicMission, answer: Missio
 }
 
 /** Selecciona la interacción de la misión; todas comparten el mismo marco y motor. */
-export function MissionInteraction({ mission, answer, onChange, disabled }: Props) {
+export function MissionInteraction({ mission, answer, onChange, disabled, reveal = false }: Props) {
   if (answer.type !== mission.interactionType) return null;
-  const common = { onChange: onChange as never, disabled };
+  const common = { onChange: onChange as never, disabled, reveal };
   switch (mission.interactionType) {
     case 'drag-column':
       return <ColumnsInteraction {...as<'drag-column'>(mission, answer)} {...common} />;

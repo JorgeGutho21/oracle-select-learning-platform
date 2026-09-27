@@ -36,9 +36,6 @@ export function DataTable<T>({
   }
   return (
     <div className="ds-table-container">
-      <p className="ds-table__hint">
-        Desplaza la tabla horizontalmente si necesitas ver más columnas.
-      </p>
       <div className="ds-table-scroll" role="region" aria-label={caption} tabIndex={0}>
         <table className="ds-table">
           <caption>{caption}</caption>

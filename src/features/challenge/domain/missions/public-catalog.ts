@@ -1,4 +1,4 @@
-import { EMPLEADOS_COLUMNS, EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
+import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
 import type { AnyPublicMission, MissionId, Piece } from '../types';
 
 /**
@@ -20,7 +20,7 @@ const bogotaDepartments = EMPLEADOS_DATASET.rows
 export const PUBLIC_MISSIONS: readonly AnyPublicMission[] = Object.freeze([
   {
     id: 'M01',
-    version: 2,
+    version: 3,
     order: 1,
     title: 'Columnas a la vista',
     description: 'Elige qué columnas mostrar de EMPLEADOS.',
@@ -36,7 +36,16 @@ export const PUBLIC_MISSIONS: readonly AnyPublicMission[] = Object.freeze([
     publicData: {
       type: 'drag-column',
       datasetId: EMPLEADOS_DATASET.id,
-      availableColumns: [...EMPLEADOS_COLUMNS],
+      // Siete columnas bastan para decidir qué mostrar; las doce siguen en «Ver tabla completa».
+      availableColumns: [
+        'ID_EMPLEADO',
+        'NOMBRE',
+        'APELLIDO',
+        'DEPARTAMENTO',
+        'CIUDAD',
+        'SALARIO',
+        'BONO',
+      ],
     },
   },
   {
@@ -106,7 +115,7 @@ export const PUBLIC_MISSIONS: readonly AnyPublicMission[] = Object.freeze([
   },
   {
     id: 'M04',
-    version: 3,
+    version: 4,
     order: 4,
     title: 'Predice las filas',
     description: 'Construye el resultado de una consulta con WHERE.',
@@ -116,7 +125,7 @@ export const PUBLIC_MISSIONS: readonly AnyPublicMission[] = Object.freeze([
     request: '¿Qué tabla devuelve esta consulta?',
     lessons: ['L11', 'L12'],
     instructions:
-      'Construye los encabezados del resultado y marca los empleados que cumplen la condición.',
+      'Construye los encabezados del resultado y marca, en la muestra, los empleados que cumplen la condición.',
     maxScore: 100,
     baseDurationSeconds: 75,
     publicData: {
@@ -125,6 +134,8 @@ export const PUBLIC_MISSIONS: readonly AnyPublicMission[] = Object.freeze([
       headerOptions: ['SALARIO', 'CIUDAD', 'NOMBRE', 'ID_EMPLEADO', 'CARGO'],
       asks: { headers: true, rowSelection: true, rowCount: false },
       sourceColumns: ['ID_EMPLEADO', 'NOMBRE', 'CIUDAD', 'SALARIO'],
+      // Diez filas: los cinco empleados de Cali y cinco de otras ciudades.
+      sampleIds: [1, 3, 4, 6, 8, 11, 12, 13, 16, 17],
     },
   },
   {

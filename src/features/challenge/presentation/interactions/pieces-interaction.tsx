@@ -34,6 +34,17 @@ export function PiecesInteraction({
   const headers = type === 'alias-builder' ? previewHeaders(texts) : null;
   return (
     <div className="ch-stack">
+      {type === 'alias-builder' && (
+        <p className="ch-alias-goal">
+          <span className="ch-alias-goal__label">Sin alias</span>
+          <code>SALARIO*12</code>
+          <span className="ch-alias-goal__arrow" aria-hidden="true">
+            →
+          </span>
+          <span className="ch-alias-goal__label">Con AS</span>
+          <code>SALARIO_ANUAL</code>
+        </p>
+      )}
       <SequenceBuilder
         label={labels[type].label}
         paletteLabel={labels[type].palette}
@@ -46,7 +57,7 @@ export function PiecesInteraction({
       {type === 'alias-builder' && (
         <div className="ch-compare" aria-live="polite">
           <div className="ch-compare__panel">
-            <p className="ch-compare__title">Tabla EMPLEADOS (no cambia)</p>
+            <p className="ch-compare__title">Tabla EMPLEADOS · no cambia</p>
             <ul className="ch-headers" aria-label="Columnas de la tabla">
               {EMPLEADOS.columns.map(({ name }) => (
                 <li key={name} className={name === 'SALARIO' ? 'ch-headers__focus' : undefined}>

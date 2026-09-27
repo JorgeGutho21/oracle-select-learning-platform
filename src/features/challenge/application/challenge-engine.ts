@@ -15,6 +15,7 @@ import {
   pauseCurrent,
   recordHint,
   resumeCurrent,
+  scoredAttempts,
   skipMission,
   type Attempt,
   type ChallengeState,
@@ -204,6 +205,7 @@ export class ChallengeEngine {
         missionId: id,
         missionVersion: mission.version,
         answer,
+        attempt: scoredAttempts(getMission(initial, id)).length + 1,
       });
     } catch {
       outcome = TECHNICAL_FAILURE;

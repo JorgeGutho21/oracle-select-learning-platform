@@ -4,14 +4,21 @@ import type { Route } from 'next';
 import Link from 'next/link';
 import { useState } from 'react';
 import { LESSON_INDEX } from '@/features/study/application/lesson-index';
-import { Alert, Button, Chip, DataTable, Dialog, Heading } from '@/presentation/components/ui';
+import { DataView, type DataViewSchema } from '@/presentation/components/data/data-view';
+import { Alert, Button, Chip, Dialog, Heading } from '@/presentation/components/ui';
 import type {
   AnyPublicMission,
   ChallengeResult,
-  MissionResult,
   MissionStatus,
 } from '../application/challenge-api';
 import { formatDuration, formatPercent } from './format';
+
+/** En pantallas estrechas cada misión es una ficha titulada con su nombre. */
+const SUMMARY_SCHEMA: DataViewSchema = {
+  titleColumns: ['MISIÓN'],
+  priorityColumns: ['MISIÓN', 'ESTADO', 'INTENTOS', 'PISTA', 'TIEMPO', 'PUNTOS'],
+  fieldGroups: [],
+};
 
 const statusText: Record<MissionStatus, string> = {
   'not-started': 'Pendiente',
@@ -63,32 +70,28 @@ export function ChallengeSummary({ result, missions, onRestart, onReview }: Chal
           </div>
         ))}
       </dl>
-      <DataTable<MissionResult>
+      <DataView
         caption="Resumen por misión"
-        rowKey={(row) => row.missionId}
-        rows={result.missions}
+        label="Resultado por misión"
         columns={[
-          {
-            id: 'mision',
-            header: 'Misión',
-            cell: (row) => `${String(row.order).padStart(2, '0')} · ${row.title}`,
-          },
-          { id: 'estado', header: 'Estado', cell: (row) => statusText[row.status] },
-          { id: 'intentos', header: 'Intentos', numeric: true, cell: (row) => row.scoredAttempts },
-          { id: 'pista', header: 'Pista', cell: (row) => (row.hintUsed ? 'Sí' : 'No') },
-          {
-            id: 'tiempo',
-            header: 'Tiempo',
-            numeric: true,
-            cell: (row) => formatDuration(row.timeMs),
-          },
-          {
-            id: 'puntos',
-            header: 'Puntos',
-            numeric: true,
-            cell: (row) => `${row.score.total} / ${row.score.max}`,
-          },
+          { name: 'MISIÓN', type: 'text' },
+          { name: 'ESTADO', type: 'text' },
+          { name: 'INTENTOS', type: 'number' },
+          { name: 'PISTA', type: 'text' },
+          { name: 'TIEMPO', type: 'text' },
+          { name: 'PUNTOS', type: 'text' },
         ]}
+        rows={result.missions.map((row) => [
+          `${String(row.order).padStart(2, '0')} · ${row.title}`,
+          statusText[row.status],
+          row.scoredAttempts,
+          row.hintUsed ? 'Sí' : 'No',
+          formatDuration(row.timeMs),
+          `${row.score.total} / ${row.score.max}`,
+        ])}
+        schema={SUMMARY_SCHEMA}
+        rowHeader={0}
+        wrapColumns={['MISIÓN']}
       />
       {oracleMissions.length > 0 && (
         <Alert tone="info" title="Misiones que requieren Oracle">

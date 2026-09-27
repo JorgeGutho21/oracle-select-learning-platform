@@ -1,5 +1,5 @@
 import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
-import { analyzeSql } from '@/domain/sql/analyzer';
+import { analyzeSql, conditionColumns } from '@/domain/sql/analyzer';
 import { runEducational } from '@/domain/sql/educational-run';
 import { PUBLIC_MISSIONS } from '../domain/missions/public-catalog';
 import { GAME_SPEC_SCORING_POLICY } from '../domain/scoring';
@@ -23,6 +23,7 @@ export type {
   AnyPublicMission,
   Difficulty,
   EvaluationOutcome,
+  FeedbackCategory,
   InteractionType,
   MissionAnswer,
   MissionId,
@@ -42,6 +43,41 @@ export type { EmpleadoRow, EmpleadosColumn } from '@/domain/dataset/empleados';
 export { elapsedMs, getMission, isClosed, scoredAttempts } from '../domain/challenge-state';
 
 export const EMPLEADOS = EMPLEADOS_DATASET;
+
+/** Resultado de una consulta pública sobre EMPLEADOS, limitado a sus primeras filas. */
+export interface ResultPreview {
+  readonly columns: readonly string[];
+  readonly rows: readonly (readonly (string | number | null)[])[];
+  readonly total: number;
+}
+
+/**
+ * Vista previa del resultado de una consulta que la misión ya muestra (por ejemplo, la
+ * consulta con error de M08). Describe lo que devuelve; no corrige nada.
+ */
+export function previewResult(sql: string, limit: number): ResultPreview | null {
+  const table = runEducational(sql).result?.table;
+  if (!table) return null;
+  return { columns: table.columns, rows: table.rows.slice(0, limit), total: table.rows.length };
+}
+
+/**
+ * Filas de EMPLEADOS (ID_EMPLEADO) que conserva la consulta de la misión y columnas que usa
+ * su condición. Solo se muestra cuando la misión ya está cerrada, para explicar el porqué.
+ */
+export function queryTrace(sql: string): {
+  readonly keptIds: readonly number[];
+  readonly whereColumns: readonly string[];
+} {
+  const run = runEducational(sql);
+  const statement = run.analysis.statement;
+  return {
+    keptIds: (run.result?.trace.keptRows ?? []).map(
+      (index) => EMPLEADOS_DATASET.rows[index]!.ID_EMPLEADO,
+    ),
+    whereColumns: statement ? [...new Set(conditionColumns(statement))] : [],
+  };
+}
 
 export const PRACTICE_RULES = Object.freeze({
   maxScoredAttempts: GAME_SPEC_SCORING_POLICY.maxScoredAttempts,

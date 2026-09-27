@@ -1,6 +1,5 @@
 'use client';
 
-import { CodeBlock } from '@/presentation/components/ui';
 import type { InteractionProps } from './types';
 
 /** M07: retirar repeticiones de una proyección para obtener el resultado de DISTINCT. */
@@ -10,7 +9,7 @@ export function DistinctInteraction({
   onChange,
   disabled,
 }: InteractionProps<'distinct-result'>) {
-  const { query, sourceQuery, column, candidateValues } = mission.publicData;
+  const { sourceQuery, column, candidateValues } = mission.publicData;
   const kept = new Set(answer.keptIndexes);
   const toggle = (index: number) =>
     onChange({
@@ -21,11 +20,11 @@ export function DistinctInteraction({
     });
   return (
     <div className="ch-stack">
-      <CodeBlock code={query} label="Consulta objetivo" />
-      <div className="ch-compare">
+      <div className="ch-compare ch-compare--flow">
         <div className="ch-compare__panel">
-          <p className="ch-compare__title">
-            Antes: {sourceQuery} ({candidateValues.length} filas)
+          <p className="ch-compare__title">Antes · sin DISTINCT ({candidateValues.length} filas)</p>
+          <p className="ch-compare__query">
+            <code>{sourceQuery}</code>
           </p>
           <ul className="ch-rows">
             {candidateValues.map((value, index) => (
@@ -47,6 +46,9 @@ export function DistinctInteraction({
             ))}
           </ul>
         </div>
+        <p className="ch-compare__arrow" aria-hidden="true">
+          <span>DISTINCT</span>
+        </p>
         <div className="ch-compare__panel ch-compare__panel--result" aria-live="polite">
           <p className="ch-compare__title">Después: tu resultado ({kept.size} filas)</p>
           <ul className="ch-headers ch-headers--column" aria-label="Resultado construido">
@@ -57,6 +59,10 @@ export function DistinctInteraction({
           </ul>
         </div>
       </div>
+      <p className="ch-rule">
+        <strong>Regla:</strong> DISTINCT elimina los duplicados <em>del resultado</em>. No borra
+        registros de la tabla ni ordena los valores.
+      </p>
     </div>
   );
 }

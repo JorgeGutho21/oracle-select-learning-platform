@@ -18,6 +18,7 @@ import {
 import { arrayMove, rectSortingStrategy, SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useId, useMemo, useState, type ReactNode } from 'react';
+import { sqlRole } from '../data/sql-semantics';
 
 /**
  * Constructor de secuencias con piezas. Tres formas equivalentes de responder (D02, G14):
@@ -86,6 +87,7 @@ function PalettePiece({
       {...attributes}
       {...listeners}
       className={`ch-piece ch-piece--${piece.role ?? 'neutral'}${isDragging ? ' ch-piece--ghost' : ''}`}
+      data-sql-role={sqlRole(piece.text) ?? undefined}
       disabled={disabled}
       aria-label={`Añadir ${piece.text}`}
       onClick={onAdd}
@@ -123,6 +125,7 @@ function SlotPiece({
       {...listeners}
       style={{ transform: CSS.Translate.toString(transform), transition }}
       className={`ch-piece ch-piece--placed ch-piece--${piece.role ?? 'neutral'}${selected ? ' ch-piece--selected' : ''}${isDragging ? ' ch-piece--ghost' : ''}`}
+      data-sql-role={sqlRole(piece.text) ?? undefined}
       aria-pressed={selected}
       aria-label={`${piece.text}, posición ${index + 1}`}
       disabled={disabled}

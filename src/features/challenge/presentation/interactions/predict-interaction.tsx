@@ -2,20 +2,24 @@
 
 import { useId } from 'react';
 import { SequenceBuilder } from '@/presentation/components/interaction/sequence-builder';
-import { CodeBlock } from '@/presentation/components/ui';
-import { EMPLEADOS, type EmpleadosColumn } from '../../application/challenge-api';
-import { SourceTable } from '../source-table';
+import { EMPLEADOS, queryTrace, type EmpleadosColumn } from '../../application/challenge-api';
+import { RowPicker } from '../row-picker';
 import type { InteractionProps } from './types';
 
-/** M03 y M04: construir los encabezados de un resultado y sus filas o su número. */
+/**
+ * M03 y M04: construir los encabezados de un resultado y marcar sus filas (sobre una
+ * muestra que contiene todas las que importan) o indicar su número.
+ */
 export function PredictInteraction({
   mission,
   answer,
   onChange,
   disabled,
+  reveal = false,
 }: InteractionProps<'predict-result'>) {
   const countId = useId();
-  const { query, headerOptions, asks, sourceColumns } = mission.publicData;
+  const { query, headerOptions, asks, sourceColumns, sampleIds } = mission.publicData;
+  const trace = reveal && asks.rowSelection ? queryTrace(query) : null;
   const pieces = headerOptions.map((header) => ({ id: header, text: header, role: 'column' }));
   const set = (patch: Partial<typeof answer>) => onChange({ ...answer, ...patch });
   const toggleRow = (id: number) =>
@@ -26,31 +30,18 @@ export function PredictInteraction({
     });
   return (
     <div className="ch-stack">
-      <CodeBlock code={query} label="Consulta" />
-      {asks.rowSelection ? (
-        <SourceTable
-          caption="Marca las filas de EMPLEADOS que aparecen en el resultado"
-          {...(sourceColumns ? { columns: sourceColumns as EmpleadosColumn[] } : {})}
-          extraColumns={[
-            {
-              id: 'incluir',
-              header: 'En el resultado',
-              cell: (row) => (
-                <label className="ch-check">
-                  <input
-                    type="checkbox"
-                    checked={answer.sourceRowIds.includes(row.ID_EMPLEADO)}
-                    onChange={() => toggleRow(row.ID_EMPLEADO)}
-                    disabled={disabled}
-                  />
-                  <span className="ds-sr-only">Incluir a {row.NOMBRE}</span>
-                </label>
-              ),
-            },
-          ]}
+      {asks.rowSelection && (
+        <RowPicker
+          legend="¿Qué filas de la muestra aparecen en el resultado?"
+          columns={
+            (sourceColumns ?? EMPLEADOS.columns.map(({ name }) => name)) as EmpleadosColumn[]
+          }
+          rowIds={sampleIds ?? EMPLEADOS.rows.map((row) => row.ID_EMPLEADO)}
+          selected={answer.sourceRowIds}
+          onToggle={toggleRow}
+          disabled={disabled}
+          {...(trace ? { kept: trace.keptIds, focusColumns: trace.whereColumns } : {})}
         />
-      ) : (
-        <SourceTable caption="Tabla EMPLEADOS: observa su esquema" />
       )}
       {asks.headers && (
         <SequenceBuilder

@@ -1,9 +1,14 @@
 'use client';
 
 import { Fragment } from 'react';
+import { DataView } from '@/presentation/components/data/data-view';
+import { previewResult } from '../../application/challenge-api';
 import type { InteractionProps } from './types';
 
-/** M08: localizar el hueco donde falta un símbolo en la consulta. */
+/**
+ * M08: localizar el hueco donde falta un símbolo. Se muestra qué devuelve ahora la consulta
+ * (el diagnóstico) con un esquema mínimo, sin tabla completa.
+ */
 export function HotspotInteraction({
   mission,
   answer,
@@ -12,6 +17,7 @@ export function HotspotInteraction({
 }: InteractionProps<'hotspot-error'>) {
   const { tokens, requirement, insertToken } = mission.publicData;
   const selected = answer.gapIndex;
+  const current = previewResult(tokens.join(' '), 3);
   return (
     <div className="ch-stack">
       <p className="ch-requirement">
@@ -40,6 +46,19 @@ export function HotspotInteraction({
           </Fragment>
         ))}
       </div>
+      {current && (
+        <DataView
+          caption="Resultado actual de la consulta con error"
+          label="Qué devuelve ahora"
+          columns={current.columns.map((name, index) => ({
+            name,
+            type: typeof current.rows[0]?.[index] === 'number' ? 'number' : 'text',
+          }))}
+          rows={current.rows}
+          summary={`${current.rows.length} de ${current.total} filas · ${current.columns.length} columna${current.columns.length === 1 ? '' : 's'}`}
+          className="ch-diagnosis"
+        />
+      )}
       <p className="ch-muted" aria-live="polite">
         {selected === null
           ? 'Selecciona el hueco donde debería ir el símbolo que falta.'

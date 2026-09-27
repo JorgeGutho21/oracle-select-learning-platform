@@ -10,6 +10,11 @@ export interface EvaluationRequest {
   readonly missionId: MissionId;
   readonly missionVersion: number;
   readonly answer: MissionAnswer;
+  /**
+   * Intento que se corrige (1 y 2 puntuados; mayor en práctica). Solo elige el nivel de la
+   * orientación del feedback; nunca cambia la corrección ni la puntuación.
+   */
+  readonly attempt?: number;
 }
 
 export interface MissionEvaluator {

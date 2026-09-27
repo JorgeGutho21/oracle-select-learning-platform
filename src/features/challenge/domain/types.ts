@@ -66,6 +66,11 @@ export interface PredictResultData {
   };
   /** Columnas de EMPLEADOS que se muestran al marcar filas; por defecto, todas. */
   readonly sourceColumns?: readonly string[];
+  /**
+   * Muestra de filas (ID_EMPLEADO) visible al marcar filas. Debe contener todas las filas
+   * que conserva la consulta: la respuesta nunca depende de filas que no se ven.
+   */
+  readonly sampleIds?: readonly number[];
 }
 export interface ExpressionBuilderData {
   readonly type: 'expression-builder';
@@ -152,12 +157,37 @@ export type PublicDataFor<T extends InteractionType> = Extract<MissionPublicData
 export type TechnicalReason = 'service-unavailable' | 'oracle-unavailable' | 'timeout';
 
 /**
+ * Tipo de error de una respuesta incorrecta: orienta la explicación (qué está bien, qué
+ * necesita ajuste y pista) sin cambiar la corrección ni la puntuación.
+ */
+export const FEEDBACK_CATEGORIES = [
+  'sintaxis',
+  'semantica',
+  'orden',
+  'columna',
+  'condicion',
+  'operador',
+  'resultado',
+  'alcance',
+] as const;
+export type FeedbackCategory = (typeof FEEDBACK_CATEGORIES)[number];
+
+/**
  * `incorrect` consume un intento académico. `invalid-input` (respuesta vacía) y
  * `technical` (fallo de servicio) no lo consumen (GAME_SPEC, intentos).
  */
 export type EvaluationOutcome =
   | { readonly kind: 'correct'; readonly feedback: string }
-  | { readonly kind: 'incorrect'; readonly feedback: string }
+  | {
+      readonly kind: 'incorrect';
+      /** Qué necesita ajuste: el diagnóstico concreto de esta respuesta. */
+      readonly feedback: string;
+      readonly category?: FeedbackCategory;
+      /** Qué parte de la respuesta ya es correcta. */
+      readonly good?: string;
+      /** Pista progresiva: conceptual en el primer intento, localizada después. */
+      readonly guidance?: string;
+    }
   | { readonly kind: 'invalid-input'; readonly message: string }
   | { readonly kind: 'technical'; readonly reason: TechnicalReason; readonly message: string };
 
@@ -195,10 +225,21 @@ export interface MissionRubric<T extends InteractionType = InteractionType> {
 }
 
 /** Contenido privado: permanece en el servicio de corrección hasta cerrar la oportunidad puntuada. */
+/**
+ * Orientación gratuita tras un error, sin revelar la solución: `concept` recuerda la idea
+ * (primer intento) y `locate` señala dónde mirar (segundo intento y práctica). La pista
+ * con descuento (`hint`) sigue siendo una ayuda aparte.
+ */
+export interface MissionGuide {
+  readonly concept: string;
+  readonly locate: string;
+}
+
 export interface MissionPrivate<T extends InteractionType = InteractionType> {
   readonly missionId: MissionId;
   readonly interactionType: T;
   readonly hint: string;
+  readonly guide: MissionGuide;
   readonly explanation: string;
   readonly rubric: MissionRubric<T>;
 }
@@ -207,6 +248,7 @@ export interface MissionDefinition<
   T extends InteractionType = InteractionType,
 > extends PublicMission<T> {
   readonly hint: string;
+  readonly guide: MissionGuide;
   readonly explanation: string;
   readonly rubric: MissionRubric<T>;
 }

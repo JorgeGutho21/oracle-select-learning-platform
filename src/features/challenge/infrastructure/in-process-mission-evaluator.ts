@@ -12,7 +12,15 @@ import type { EvaluationOutcome, MissionId } from '../domain/types';
 export class InProcessMissionEvaluator implements MissionEvaluator {
   constructor(private readonly oracle: OracleQueryExecutor) {}
 
-  async evaluate({
+  async evaluate(request: EvaluationRequest): Promise<EvaluationOutcome> {
+    const outcome = await this.grade(request);
+    if (outcome.kind !== 'incorrect' || outcome.guidance) return outcome;
+    // Orientación progresiva sin revelar la solución: la idea primero, dónde mirar después.
+    const guide = getMissionDefinition(request.missionId).guide;
+    return { ...outcome, guidance: (request.attempt ?? 1) > 1 ? guide.locate : guide.concept };
+  }
+
+  private async grade({
     missionId,
     missionVersion,
     answer,
@@ -42,6 +50,7 @@ export class InProcessMissionEvaluator implements MissionEvaluator {
         return {
           kind: 'incorrect',
           feedback: `Oracle devolvió el error ${execution.code}: ${execution.message}`,
+          category: 'sintaxis',
         };
       case 'ok': {
         const grade = definition.rubric.gradeExecution;

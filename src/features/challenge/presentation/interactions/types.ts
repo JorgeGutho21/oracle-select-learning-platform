@@ -5,4 +5,6 @@ export interface InteractionProps<T extends InteractionType> {
   answer: AnswerFor<T>;
   onChange: (answer: AnswerFor<T>) => void;
   disabled: boolean;
+  /** Misión cerrada: puede mostrarse por qué cada fila cumple o no (nunca antes). */
+  reveal?: boolean;
 }

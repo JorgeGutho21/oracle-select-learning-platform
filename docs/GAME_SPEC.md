@@ -1,6 +1,8 @@
 # GAME_SPEC — SQL Oracle Challenge
 
-Versión 3.0 · Diez misiones · Dataset `empleados-select-v2` · Catálogo `select-challenge-v3`.
+Versión 3.1 · Diez misiones · Dataset `empleados-select-v2` · Catálogo `select-challenge-v3`.
+
+La versión 3.1 (26 de septiembre de 2026) da al Challenge su propia densidad de datos y un feedback pedagógico. Cada misión muestra el pedido, el concepto clave de la fuente canónica y los «datos necesarios» (4–7 columnas y pocas filas); la tabla EMPLEADOS completa queda como consulta secundaria («Ver tabla completa») y nunca se pide desplazar una tabla horizontalmente. M01 (versión 3) ofrece 7 columnas; M04 (versión 4) se resuelve sobre una muestra de 10 registros que contiene a los 5 empleados de Cali y 5 de otras ciudades, así que la respuesta no depende de filas ocultas. Una respuesta incorrecta indica su tipo (sintaxis, semántica, orden, columna, condición, operador, resultado o alcance educativo), qué está bien y qué necesita ajuste, y una orientación progresiva: conceptual en el primer intento y localizada después; la pista con descuento no cambia. Un acierto explica por qué es correcto. La puntuación, los intentos, el tiempo, la sala en vivo y el ranking no cambian. El punto y coma sigue siendo opcional.
 
 La versión 3 (25 de septiembre de 2026) acompaña la unidad ampliada con WHERE y ORDER BY y el dataset de 20 filas. Se conservan las diez posiciones, los tipos de interacción, la puntuación, los intentos, las pistas, el tiempo, la sala en vivo y el ranking. Cambian el contenido y la versión de M02, M04, M05, M07, M09 y M10. M01, M03, M06 y M08 conservan su pedido; se ajustaron sus datos (12 columnas, 20 filas). La partida guardada con una versión anterior de una misión se descarta.
 
@@ -38,7 +40,7 @@ Las duraciones corresponden a la sala con perfil estándar. Estudio no impone l�
 ### M01 — Columnas a la vista
 
 - Pedido: «Muéstrame solamente nombre y salario». L02, L05. Fácil; 45 s.
-- Acción: arrastrar columnas de EMPLEADOS a la lista de SELECT, o pulsarlas; reordenar con arrastre o botones.
+- Acción: arrastrar a la lista de SELECT, o pulsar, columnas de EMPLEADOS (siete relevantes: ID_EMPLEADO, NOMBRE, APELLIDO, DEPARTAMENTO, CIUDAD, SALARIO y BONO); reordenar con arrastre o botones. Una vista previa muestra las tres primeras filas del resultado elegido. Versión 3.
 - Solución: `SELECT nombre, salario FROM empleados;`.
 - Aceptación G01: resultado con NOMBRE y SALARIO en ese orden y 20 filas. Incluir ID_EMPLEADO, * u otras columnas no cumple el pedido.
 - Pista: el pedido menciona dos datos; el orden de la lista es el orden de las columnas. Feedback: las columnas restantes siguen en la tabla.
@@ -54,7 +56,7 @@ Las duraciones corresponden a la sala con perfil estándar. Estudio no impone l�
 ### M03 — ¿Qué trae el asterisco?
 
 - Pedido: «Muéstrame todo lo que guarda la tabla EMPLEADOS». L04. Fácil; 60 s.
-- Acción: construir los 12 encabezados del resultado de `SELECT * FROM empleados;` en orden (entre las opciones hay un distractor `*`) e introducir el número de filas.
+- Acción: construir los 12 encabezados del resultado de `SELECT * FROM empleados;` en orden (entre las opciones hay un distractor `*`) e introducir el número de filas. El esquema numerado de las 12 columnas y el total de 20 filas son visibles; no se muestran 240 celdas.
 - Solución: ID_EMPLEADO, NOMBRE, APELLIDO, CARGO, DEPARTAMENTO, CIUDAD, SALARIO, BONO, FECHA_INGRESO, ESTADO, CORREO, ID_JEFE; 20 filas.
 - Aceptación G03: los 12 encabezados en el orden del esquema y el número 20. No se interpreta * como una columna.
 - Pista: observa el esquema completo. Feedback: * expande todas las columnas visibles del dataset.
@@ -62,7 +64,7 @@ Las duraciones corresponden a la sala con perfil estándar. Estudio no impone l�
 ### M04 — Predice las filas
 
 - Pedido: «¿Qué tabla devuelve esta consulta?» sobre `SELECT nombre, salario FROM empleados WHERE ciudad = 'Cali';`. L11, L12. Media; 75 s. Versión 3.
-- Acción: construir los encabezados del resultado y marcar en la tabla de origen (ID_EMPLEADO, NOMBRE, CIUDAD, SALARIO) qué empleados cumplen la condición.
+- Acción: construir los encabezados del resultado y marcar, en una muestra de 10 registros (ID_EMPLEADO, NOMBRE, CIUDAD, SALARIO), qué empleados cumplen la condición. La muestra contiene a todos los de Cali y a cinco de otras ciudades. Al cerrar la misión, cada fila indica «Cumple» o «No cumple» y se resalta CIUDAD. Versión 4.
 - Solución: NOMBRE, SALARIO y los 5 empleados de Cali: Jorge, Oscar, Valentina, Camila y Julián.
 - Aceptación G04: encabezados en el orden de SELECT (CIUDAD no se muestra aunque WHERE la use) y exactamente esas 5 filas. Marcar a alguien de otra ciudad o dejar fuera a alguien de Cali es incorrecto y el feedback lo nombra.
 - Pista: WHERE conserva solo las filas cuya ciudad es Cali; SELECT decide qué columnas se ven.

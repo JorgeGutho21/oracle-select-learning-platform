@@ -19,6 +19,7 @@ function compose(): readonly AnyMissionDefinition[] {
     return {
       ...mission,
       hint: hidden.hint,
+      guide: hidden.guide,
       explanation: hidden.explanation,
       rubric: hidden.rubric,
     } as AnyMissionDefinition;

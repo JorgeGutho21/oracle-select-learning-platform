@@ -67,7 +67,14 @@ test('con zoom 200 % el laboratorio sigue siendo usable', async ({ page }) => {
   expect(wrap).toBeLessThanOrEqual(1);
 
   await page.getByRole('button', { name: 'Analizar' }).click();
-  await expect(page.getByRole('table').filter({ hasText: 'SALARIO_ANUAL' }).first()).toBeAttached();
+  // La vista educativa es una tabla con ancho y fichas (lista) en 180 px: los mismos datos.
+  await expect(
+    page
+      .getByRole('table')
+      .filter({ hasText: 'SALARIO_ANUAL' })
+      .or(page.getByRole('list').filter({ hasText: 'SALARIO_ANUAL' }))
+      .first(),
+  ).toBeAttached();
   await page.getByRole('button', { name: 'Ejecutar en Oracle' }).click();
   // A 180 px el resultado se lee como fichas (lista) en lugar de tabla: los mismos datos.
   const oracle = /^Oracle \(Oracle Database/;

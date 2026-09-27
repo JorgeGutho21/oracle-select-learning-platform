@@ -1,8 +1,7 @@
 'use client';
 
 import { SequenceBuilder } from '@/presentation/components/interaction/sequence-builder';
-import { CodeBlock } from '@/presentation/components/ui';
-import { EMPLEADOS } from '../../application/challenge-api';
+import { EMPLEADOS, previewHeaders } from '../../application/challenge-api';
 import { formatNumber, parseTypedNumber } from '../format';
 import type { InteractionProps } from './types';
 
@@ -13,8 +12,23 @@ export function ExpressionInteraction({
   onChange,
   disabled,
 }: InteractionProps<'expression-builder'>) {
-  const { query, palette, predictionEmployeeIds } = mission.publicData;
+  const { palette, predictionEmployeeIds } = mission.publicData;
   const employees = EMPLEADOS.rows.filter((row) => predictionEmployeeIds.includes(row.ID_EMPLEADO));
+  const texts = answer.pieceIds.map((id) => palette.find((piece) => piece.id === id)?.text ?? '');
+  // Encabezado que tendría la columna calculada: muestra la expresión, no su valor.
+  const header =
+    texts.length > 0
+      ? (previewHeaders([
+          'SELECT',
+          'nombre',
+          ',',
+          'salario',
+          ',',
+          ...texts,
+          'FROM',
+          'empleados',
+        ])?.[2] ?? null)
+      : null;
   const valueOf = (id: number) =>
     answer.predictions.find((item) => item.employeeId === id)?.value ?? null;
   const setPrediction = (employeeId: number, text: string) =>
@@ -27,7 +41,6 @@ export function ExpressionInteraction({
     });
   return (
     <div className="ch-stack">
-      <CodeBlock code={query} label="Consulta con un espacio por completar" />
       <SequenceBuilder
         label="Tercera columna: expresión"
         paletteLabel="Piezas reutilizables"
@@ -38,6 +51,16 @@ export function ExpressionInteraction({
         emptyText="Arrastra o pulsa piezas para formar la expresión"
         disabled={disabled}
       />
+      <p className="ch-calc" aria-live="polite">
+        {header ? (
+          <>
+            Columna calculada: <code>{header}</code> · Oracle la calcula en cada fila; la tabla no
+            cambia.
+          </>
+        ) : (
+          'Cuando la expresión esté completa, aquí verás el encabezado de la columna calculada.'
+        )}
+      </p>
       <div className="ch-predictions">
         <p className="ch-builder__label">¿Qué valor mostrará la columna calculada?</p>
         <div className="ch-predictions__grid">

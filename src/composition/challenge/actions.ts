@@ -46,7 +46,9 @@ export async function evaluatePracticeAnswer(
     request === null ||
     !isMissionId(request.missionId) ||
     !Number.isInteger(request.missionVersion) ||
-    !isAnswerShape(request.answer)
+    !isAnswerShape(request.answer) ||
+    (request.attempt !== undefined &&
+      (!Number.isInteger(request.attempt) || request.attempt < 1 || request.attempt > 100))
   ) {
     return INVALID;
   }

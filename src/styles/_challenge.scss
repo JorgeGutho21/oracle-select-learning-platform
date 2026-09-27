@@ -67,7 +67,6 @@
 }
 @media (min-width: 768px) {
   .ch-intro,
-  .ch-summary,
   .ch-mission {
     padding: var(--space-6);
   }
@@ -347,6 +346,28 @@
   color: var(--color-primary);
   font-weight: 700;
 }
+// Mismo color semántico que el código: SELECT cian, FROM azul, filtro violeta, orden
+// magenta, operadores ámbar. El borde inferior lo refuerza sin depender solo del color.
+.ch-piece[data-sql-role='select'] {
+  color: var(--color-sem-select);
+  box-shadow: inset 0 -3px 0 var(--color-sem-select);
+}
+.ch-piece[data-sql-role='from'] {
+  color: var(--color-sem-from);
+  box-shadow: inset 0 -3px 0 var(--color-sem-from);
+}
+.ch-piece[data-sql-role='filter'] {
+  color: var(--color-sem-filter);
+  box-shadow: inset 0 -3px 0 var(--color-sem-filter);
+}
+.ch-piece[data-sql-role='order'] {
+  color: var(--color-sem-order);
+  box-shadow: inset 0 -3px 0 var(--color-sem-order);
+}
+.ch-piece[data-sql-role='operator'] {
+  color: var(--color-sem-operator);
+  box-shadow: inset 0 -3px 0 var(--color-sem-operator);
+}
 .ch-piece--alias,
 .ch-piece--expression {
   background: var(--color-soft);
@@ -442,10 +463,34 @@
   display: grid;
   gap: var(--space-4);
 }
-@media (min-width: 768px) {
+// La columna de trabajo decide, no la ventana: con dos columnas internas, 768 px de
+// ventana no garantizan espacio para dos paneles.
+@container ch-work (width >= 28rem) {
   .ch-compare {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
+  // Antes → DISTINCT → Después necesita más ancho que dos paneles.
+  .ch-compare--flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@container ch-work (width >= 44rem) {
+  .ch-compare--flow {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+  }
+}
+// En la comparación de DISTINCT, las filas son fichas que fluyen: la lista entera cabe
+// en pocas líneas en lugar de una columna larga.
+.ch-compare--flow .ch-rows,
+.ch-compare--flow .ch-headers--column {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.ch-compare--flow .ch-row-toggle {
+  inline-size: auto;
 }
 .ch-compare__panel {
   display: grid;
