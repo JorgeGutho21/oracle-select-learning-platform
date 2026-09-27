@@ -118,8 +118,8 @@ test.describe('Modo Exposición', () => {
     await expect(result).toHaveAttribute('data-hidden', 'true');
     await page.locator('body').press('ArrowRight');
     await expect(page.locator('.deck-status__step')).toHaveText('Paso 2 de 4');
-    // En el paso 2 se resalta la cláusula WHERE y sus datos.
-    await expect(page.locator('.linked-query')).toHaveAttribute('data-active-clause', 'where');
+    // En el paso 2 (la consulta) se resalta la cláusula WHERE y sus datos.
+    await expect(page.locator('.concept-flow')).toHaveAttribute('data-active-clause', 'where');
     await page.locator('body').press('ArrowRight');
     await page.locator('body').press('ArrowRight');
     await expect(result).not.toHaveAttribute('data-hidden', 'true');
@@ -167,7 +167,7 @@ test.describe('Modo Exposición', () => {
 
   test('señalar una cláusula resalta sus datos, también con el teclado', async ({ page }) => {
     await openDeck(page, '/presentation?scene=5');
-    const query = page.locator('.linked-query');
+    const query = page.locator('.concept-flow');
     const select = query.locator('.sql-clause[data-clause="select"]');
     await select.focus();
     await expect(query).toHaveAttribute('data-active-clause', 'select');
@@ -215,17 +215,22 @@ test.describe('Modo Exposición', () => {
     page,
   }) => {
     // WHERE, AND y OR, BETWEEN, IN, LIKE, NULL y ORDER BY: evidencia visual del cambio.
-    const scenes = [11, 13, 15, 16, 17, 18, 19];
+    const scenes = [11, 12, 13, 14, 15, 16, 17, 18, 19];
     // Una carga por escena: unos 6 s cada una en WebKit con la CPU del equipo ocupada.
     test.setTimeout(scenes.length * 8_000);
     for (const scene of scenes) {
       await openDeck(page, `/presentation?scene=${scene}`);
       const node = page.locator(`[data-scene="${scene}"]`);
       await expect(node.locator('.scene-code, .sql-code').first(), `escena ${scene}`).toBeVisible();
-      // LIKE muestra sus patrones con ejemplos que cumplen y que no; el resto, tablas.
-      const data = scene === 17 ? node.locator('.pattern-card') : node.locator('table');
+      // Tabla de origen y resultado: el antes y el después de la condición.
+      const data = node.locator('table');
       await expect(data.first(), `escena ${scene}`).toBeVisible();
       expect(await data.count(), `escena ${scene}`).toBeGreaterThanOrEqual(1);
+      if (scene !== 13 && scene !== 14) {
+        for (const step of ['Tabla de origen', 'Consulta', 'Qué hace cada parte', 'Resultado']) {
+          await expect(node.locator('.flow-step__title', { hasText: step }).first()).toBeVisible();
+        }
+      }
     }
   });
 

@@ -3,6 +3,7 @@ import {
   rowValues,
   type CellValue,
   type ColumnType,
+  type EducationalDataset,
 } from '@/domain/dataset/empleados';
 import { rowKey } from '@/domain/results/result-table';
 import { conditionColumns, sourceColumns } from '@/domain/sql/analyzer';
@@ -232,6 +233,11 @@ export interface ExplainOptions {
   readonly maxRows?: number;
   /** Filas de EMPLEADOS (por posición) que se muestran en la tabla de origen. */
   readonly rows?: readonly number[];
+  /**
+   * Tabla sobre la que se calcula todo (origen y resultado): por defecto EMPLEADOS completa;
+   * una muestra de sus filas en la proyección didáctica.
+   */
+  readonly dataset?: EducationalDataset;
 }
 
 const STATE: Readonly<Record<Truth, FlowRowState>> = {
@@ -291,9 +297,9 @@ function statementColumns(statement: SelectStatement): string[] {
 
 export function explainQuery(sql: string, options: ExplainOptions = {}): ExplainedQuery {
   const analysis = analyzeLabQuery(sql);
-  const run = runEducational(sql);
+  const dataset = options.dataset ?? EMPLEADOS_DATASET;
+  const run = runEducational(sql, dataset);
   const statement = run.analysis.ok ? run.analysis.statement : null;
-  const dataset = EMPLEADOS_DATASET;
   const trace = run.result?.trace ?? null;
   const shownNames =
     options.sourceColumns ?? (statement ? statementColumns(statement) : ['NOMBRE']);
@@ -344,7 +350,7 @@ export function explainQuery(sql: string, options: ExplainOptions = {}): Explain
 
   let beforeDistinct: FlowTable | null = null;
   if (statement?.distinct && run.result) {
-    const plain = evaluateStatement({ ...statement, distinct: null, orderBy: null }, sql);
+    const plain = evaluateStatement({ ...statement, distinct: null, orderBy: null }, sql, dataset);
     if (plain.ok) {
       const seen = new Set<string>();
       const duplicates: number[] = [];

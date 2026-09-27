@@ -79,20 +79,23 @@
 
 // En el lienzo 16:9 las tablas se diseñan para caber enteras (solo las columnas del
 // concepto): se muestran siempre como tabla. En flujo (móvil, zoom alto) la vista de datos
-// decide y pasa a fichas cuando no cabe.
+// decide y pasa a fichas cuando no cabe. `.dv--free` (las 12 columnas de SELECT *) decide
+// siempre por el espacio: bandas en el lienzo, fichas en un móvil.
 @media (min-width: 768px) and (orientation: landscape) and (min-height: 561px) {
-  .deck__stage .scene .dv--mode-auto > .dv__table {
+  .deck:not([data-flow]) .deck__stage .scene .dv--mode-auto:not(.dv--free) > .dv__table {
     display: block;
   }
-  .deck__stage .scene .dv--mode-auto > .dv__records {
+  .deck:not([data-flow]) .deck__stage .scene .dv--mode-auto:not(.dv--free) > .dv__bands,
+  .deck:not([data-flow]) .deck__stage .scene .dv--mode-auto:not(.dv--free) > .dv__records {
     display: none;
   }
 }
 // La vista del presentador muestra la escena siempre como lienzo 16:9.
-.presenter-stage .scene .dv--mode-auto > .dv__table {
+.presenter-stage .scene .dv--mode-auto:not(.dv--free) > .dv__table {
   display: block;
 }
-.presenter-stage .scene .dv--mode-auto > .dv__records {
+.presenter-stage .scene .dv--mode-auto:not(.dv--free) > .dv__bands,
+.presenter-stage .scene .dv--mode-auto:not(.dv--free) > .dv__records {
   display: none;
 }
 
@@ -148,6 +151,14 @@
 }
 .scene .dv {
   font-size: 0.8em;
+}
+// Filas algo más compactas en el lienzo: caben 5–6 registros con consulta y resultado.
+.scene .dv--large th,
+.scene .dv--large td {
+  padding-block: 0.34em;
+}
+.scene .dv-status {
+  line-height: 1.3;
 }
 .scene .dv__label {
   color: var(--scene-accent);
@@ -548,7 +559,7 @@
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.1em 1.1em;
+  gap: 0.7em 1.1em;
   padding: 0;
   list-style: none;
 }
@@ -556,9 +567,9 @@
   position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.6em;
+  gap: 0.5em;
   align-items: start;
-  padding: 0.8em 0.9em;
+  padding: 0.55em 0.7em;
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: 0.7em;
@@ -577,8 +588,8 @@
 .route-map__letter {
   display: grid;
   place-items: center;
-  width: 1.9em;
-  height: 1.9em;
+  width: 1.7em;
+  height: 1.7em;
   color: var(--color-inverse);
   background: var(--color-primary);
   border-radius: 50%;
@@ -586,11 +597,11 @@
 }
 .route-map__body {
   display: grid;
-  gap: 0.2em;
+  gap: 0.12em;
   min-width: 0;
 }
 .route-map__title {
-  font-size: 1.05em;
+  font-size: 1em;
   font-weight: 800;
   line-height: 1.2;
 }
@@ -602,6 +613,16 @@
 .route-map__concepts {
   color: var(--color-primary);
   font: 700 max(0.72em, 12px) / 1.35 var(--font-mono);
+}
+// Resultado esperado del bloque: lo que el estudiante podrá hacer.
+.route-map__outcome {
+  margin-top: 0.15em;
+  padding-top: 0.25em;
+  color: var(--color-success);
+  border-top: 1px dashed var(--color-border-subtle);
+  font-size: max(0.78em, 12px);
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 /* ---------- 03 Qué es SQL ---------- */
@@ -1805,7 +1826,7 @@
 
 /* ---------- Flujo (móvil, vertical, zoom alto) ---------- */
 
-@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+@mixin scene-flow-1 {
   .scene-grid--split,
   .scene-grid--duo,
   .scene-grid--flow,
@@ -1892,6 +1913,411 @@
   .scene--practice .scene-grid--split:has(.scene-rules) {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+  @include scene-flow-1;
+}
+.deck[data-flow] {
+  @include scene-flow-1;
+}
+
+/* ---------- Flujo pedagógico: origen → consulta → partes → resultado ---------- */
+
+// Columnas proporcionales al ancho que pide cada bloque (estilo en línea desde
+// scene-flow.tsx); las flechas marcan el recorrido. En flujo (móvil) se apilan en orden.
+.concept-flow {
+  display: grid;
+  grid-template-columns: var(--flow-columns, minmax(0, 1fr));
+  gap: 0.6em 0.75em;
+  align-items: start;
+  min-width: 0;
+}
+.concept-flow__column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 0.65em;
+  min-width: 0;
+}
+.concept-flow__arrow {
+  display: grid;
+  justify-items: center;
+  align-self: center;
+  color: var(--scene-accent);
+  font-size: 1.5em;
+  font-weight: 800;
+  line-height: 1;
+}
+.concept-flow__arrow small {
+  color: var(--scene-muted);
+  font-size: max(0.4em, 12px);
+  font-weight: 700;
+}
+.flow-step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.3em;
+  min-width: 0;
+}
+.flow-step__title {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--scene-accent);
+  font-size: max(0.66em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.flow-step__number {
+  display: inline-grid;
+  place-items: center;
+  width: 1.55em;
+  height: 1.55em;
+  color: var(--color-inverse);
+  background: var(--scene-accent);
+  border-radius: 50%;
+  font-size: 1em;
+  letter-spacing: 0;
+}
+.scene--night .flow-step__number,
+.scene--tech .flow-step__number {
+  color: var(--color-night);
+}
+// En el flujo, el paso ya rotula la tabla: el resumen de filas va a la derecha.
+.flow-step .dv__header {
+  justify-content: flex-end;
+}
+.flow-step .sql-code__pre {
+  margin: 0;
+}
+
+// «Qué hace cada parte»: fragmento con su color semántico y su función.
+.query-parts {
+  display: grid;
+  gap: 0.3em;
+  margin: 0;
+  container-type: inline-size;
+}
+// En columnas estrechas, el fragmento encima de su explicación; con espacio, al lado.
+.query-parts__item {
+  --role-color: var(--color-muted);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.05em 0.6em;
+  align-items: baseline;
+  padding: 0.3em 0.6em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 0.25em solid var(--role-color);
+  border-radius: 0.4em;
+}
+.query-parts__item--select {
+  --role-color: var(--color-sem-select);
+}
+.query-parts__item--from {
+  --role-color: var(--color-sem-from);
+}
+.query-parts__item--filter {
+  --role-color: var(--color-sem-filter);
+}
+.query-parts__item--order {
+  --role-color: var(--color-sem-order);
+}
+.query-parts__item--operator {
+  --role-color: var(--color-sem-operator);
+}
+@container (width >= 19em) {
+  .query-parts__item {
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  }
+}
+.query-parts dt code {
+  color: var(--color-ink);
+  font-size: 0.86em;
+  font-weight: 700;
+}
+.query-parts dd {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.82em;
+  line-height: 1.3;
+}
+.query-parts code {
+  .sql-token--keyword {
+    color: var(--color-primary);
+  }
+  .sql-token--select {
+    color: var(--color-sem-select);
+  }
+  .sql-token--from {
+    color: var(--color-sem-from);
+  }
+  .sql-token--filter {
+    color: var(--color-sem-filter);
+  }
+  .sql-token--order {
+    color: var(--color-sem-order);
+  }
+  .sql-token--operator {
+    color: var(--color-sem-operator);
+  }
+  .sql-token--string {
+    color: var(--color-success);
+  }
+  .sql-token--number,
+  .sql-token--star {
+    color: var(--color-ink);
+    font-weight: 800;
+  }
+}
+// Nota breve bajo las partes (equivalencias, reglas de la consulta).
+.flow-note {
+  color: var(--scene-muted);
+  font-size: max(0.78em, 12px);
+  line-height: 1.35;
+}
+.flow-note code {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+// Afirmaciones de «qué no hace» (DISTINCT, AS, ORDER BY…): texto y símbolo, no solo color.
+.flow-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.flow-facts li {
+  padding: 0.12em 0.6em;
+  color: var(--color-ink);
+  background: var(--scene-soft);
+  border: 1px solid var(--scene-line);
+  border-radius: var(--radius-pill);
+  font-size: max(0.74em, 12px);
+  font-weight: 650;
+}
+.flow-facts li span {
+  margin-right: 0.3em;
+  color: var(--color-success);
+  font-weight: 800;
+}
+// Resultados comparados (orden de columnas, antes y después de AS).
+.flow-compare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.6em;
+  align-items: start;
+}
+.flow-compare__item {
+  display: grid;
+  gap: 0.3em;
+  min-width: 0;
+}
+.flow-compare__wide {
+  grid-column: 1 / -1;
+}
+.flow-compare__label {
+  color: var(--scene-muted);
+  font-size: max(0.66em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.flow-compare__label code {
+  color: var(--color-ink);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+@mixin scene-flow-2 {
+  .concept-flow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .concept-flow__arrow {
+    transform: rotate(90deg);
+  }
+  .flow-compare {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+  @include scene-flow-2;
+}
+.deck[data-flow] {
+  @include scene-flow-2;
+}
+
+.flow-facts li span.is-no {
+  color: var(--color-danger);
+}
+
+// 06 SELECT *: la tabla como objeto, la consulta y sus partes arriba; el resultado con las
+// 12 columnas (en bandas) a todo el ancho.
+.star-flow {
+  display: grid;
+  gap: 0.2em;
+  min-width: 0;
+}
+.star-flow .flow-step {
+  gap: 0.2em;
+}
+.star-flow .dv__bands {
+  gap: 0.15em;
+}
+.star-flow .dv__band {
+  gap: 0.1em;
+}
+.star-flow .dv__bands-note {
+  font-size: max(0.75em, 12px);
+}
+.star-flow .query-parts__item {
+  padding-block: 0.22em;
+}
+.star-flow__top {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) auto minmax(0, 0.62fr) minmax(0, 1.8fr);
+  gap: 0.6em 0.8em;
+  align-items: start;
+}
+.star-flow__top .query-parts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+// Cuatro partes cortas: fragmento y función en la misma línea aunque la celda sea estrecha.
+.star-flow__top .query-parts__item {
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+}
+.table-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0 0.55em;
+  align-items: center;
+  padding: 0.35em 0.6em;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 0.25em solid var(--color-sem-from);
+  border-radius: 0.5em;
+}
+.table-card__icon {
+  grid-row: span 2;
+  width: 1.9em;
+  fill: color-mix(in srgb, var(--color-sem-from) 10%, var(--color-surface));
+  stroke: var(--color-sem-from);
+  stroke-width: 1.4;
+}
+.table-card__name code {
+  color: var(--color-sem-from);
+  font-size: 1.05em;
+  font-weight: 800;
+}
+.table-card__facts {
+  color: var(--scene-muted);
+  font-size: max(0.78em, 12px);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+// 12 Comparaciones: los seis operadores en una línea.
+.operator-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.operator-strip li {
+  padding: 0.15em 0.6em;
+  color: var(--scene-muted);
+  background: var(--scene-soft);
+  border-radius: var(--radius-pill);
+  font-size: max(0.78em, 12px);
+}
+.operator-strip code {
+  color: var(--color-sem-operator);
+  font-weight: 800;
+}
+
+// 14 Paréntesis: candidatas → dos consultas → dos resultados.
+.scene-grid--paren {
+  grid-template-columns: minmax(0, 1.05fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.6em 0.75em;
+}
+.paren-table tr.is-different th,
+.paren-table tr.is-different td {
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface));
+}
+.name-chips-block {
+  display: grid;
+  gap: 0.3em;
+}
+.name-chips-block__label {
+  color: var(--scene-muted);
+  font-size: max(0.7em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.logic-panel__step {
+  color: var(--scene-muted);
+  font-size: max(0.7em, 12px);
+  font-weight: 700;
+}
+
+// 15 BETWEEN: la recta reducida bajo el resultado.
+.range-line--compact svg {
+  max-height: 4.2em;
+}
+.range-line--compact .range-line__legend {
+  font-size: max(0.7em, 12px);
+}
+
+// 17 LIKE: otros tres patrones en una fila, cada uno con sus ejemplos en una línea.
+.pattern-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5em;
+}
+.pattern-strip .pattern-card {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25em;
+  padding: 0.4em 0.65em;
+}
+.pattern-strip .pattern-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1em 0.5em;
+}
+.pattern-strip .pattern-card__pattern {
+  font-size: 1.1em;
+}
+.pattern-strip .pattern-card__examples li {
+  font-size: 0.85em;
+}
+
+@mixin scene-flow-3 {
+  .star-flow__top,
+  .scene-grid--paren,
+  .pattern-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .star-flow__top .query-parts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .scene-grid--paren > .concept-flow__arrow,
+  .star-flow__top > .concept-flow__arrow {
+    transform: rotate(90deg);
+  }
+}
+@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+  @include scene-flow-3;
+}
+.deck[data-flow] {
+  @include scene-flow-3;
 }
 
 /* ---------- «Para qué sirve» y «En esta consulta» ---------- */
@@ -2194,7 +2620,7 @@
   font-size: 0.9em;
 }
 
-@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+@mixin scene-flow-4 {
   .scene-grid--synthesis,
   .scene-grid--live,
   .scene-grid--closing,
@@ -2218,4 +2644,10 @@
     width: 0.16em;
     height: 0.6em;
   }
+}
+@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+  @include scene-flow-4;
+}
+.deck[data-flow] {
+  @include scene-flow-4;
 }

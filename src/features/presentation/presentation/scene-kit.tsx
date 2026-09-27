@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, Fragment, useContext, useId, useState, type ReactNode } from 'react';
+import { createContext, Fragment, useContext, useState, type ReactNode } from 'react';
 import {
   CONCEPT_CATEGORY_LABEL,
   SQL_CONCEPTS,
@@ -248,40 +248,9 @@ export function Data({
       caption={caption}
       size="large"
       {...(label ? { label } : {})}
-      {...(summary ? { summary } : {})}
+      {...(summary !== undefined ? { summary } : {})}
       {...(explained ? { columnRoles: explained.columnRoles } : {})}
     />
-  );
-}
-
-/** Cadena de recuentos: «20 filas → WHERE → 5 filas». */
-export function CountFlow({
-  steps,
-  label,
-}: {
-  readonly steps: readonly {
-    readonly value: number | string;
-    readonly text: string;
-    readonly via?: string;
-  }[];
-  readonly label: string;
-}) {
-  return (
-    <ol className="count-flow" aria-label={label}>
-      {steps.map((step, index) => (
-        <Fragment key={`${step.text}-${index}`}>
-          {step.via && (
-            <li className="count-flow__via" aria-hidden="true">
-              <code>{step.via}</code>
-            </li>
-          )}
-          <li className="count-flow__step">
-            <strong>{step.value}</strong> {step.text}
-            {step.via && <span className="visually-hidden"> después de {step.via}</span>}
-          </li>
-        </Fragment>
-      ))}
-    </ol>
   );
 }
 
@@ -290,13 +259,16 @@ export function NameChips({
   names,
   marked = [],
   label,
+  visibleLabel = false,
 }: {
   readonly names: readonly string[];
   /** Nombres que se destacan (por ejemplo, los que cambian entre dos consultas). */
   readonly marked?: readonly string[];
   readonly label: string;
+  /** Muestra el rótulo encima de la lista (además de nombrarla). */
+  readonly visibleLabel?: boolean;
 }) {
-  return (
+  const list = (
     <ul className="name-chips" aria-label={label}>
       {names.map((name) => (
         <li key={name} className={marked.includes(name) ? 'is-marked' : undefined}>
@@ -305,6 +277,15 @@ export function NameChips({
         </li>
       ))}
     </ul>
+  );
+  if (!visibleLabel) return list;
+  return (
+    <div className="name-chips-block">
+      <p className="name-chips-block__label" aria-hidden="true">
+        {label}
+      </p>
+      {list}
+    </div>
   );
 }
 
@@ -345,69 +326,63 @@ export function clauseLines(sql: string): { readonly role: ClauseRole; readonly 
 }
 
 /**
- * Consulta con sus datos enlazados: al señalar, enfocar o pulsar una cláusula se resaltan
- * sus columnas y filas en las tablas del mismo bloque. Funciona con teclado (Tab y Enter),
- * no solo con el puntero.
+ * Código SQL con una cláusula por línea convertida en botón: al señalarla, enfocarla o
+ * pulsarla, el contenedor marca `data-active-clause` y las tablas enlazadas resaltan sus
+ * columnas y filas. Funciona con teclado (Tab y Enter), no solo con el puntero.
  */
-export function LinkedQuery({
+export function useClauseLink(stepClauses?: Readonly<Record<number, ClauseRole>>) {
+  const [pinned, setPinned] = useState<ClauseRole | null>(null);
+  const [hovered, setHovered] = useState<ClauseRole | null>(null);
+  const step = useSceneStep();
+  return {
+    active: hovered ?? pinned ?? stepClauses?.[step] ?? null,
+    pinned,
+    setPinned,
+    setHovered,
+  };
+}
+
+export function ClauseCode({
   sql,
   label,
-  aside,
-  children,
+  link,
+  hintId,
   className = '',
-  stepClauses,
 }: {
   readonly sql: string;
   readonly label?: string;
-  /** Piezas bajo el código: qué hace, recuentos… */
-  readonly aside?: ReactNode;
-  /** Datos enlazados (tablas de la consulta). */
-  readonly children: ReactNode;
+  readonly link: ReturnType<typeof useClauseLink>;
+  readonly hintId: string;
   readonly className?: string;
-  /** En «Paso a paso», la cláusula que se resalta en cada paso. */
-  readonly stepClauses?: Readonly<Record<number, ClauseRole>>;
 }) {
-  const [pinned, setPinned] = useState<ClauseRole | null>(null);
-  const [hovered, setHovered] = useState<ClauseRole | null>(null);
-  const hintId = useId();
-  const step = useSceneStep();
-  const active = hovered ?? pinned ?? stepClauses?.[step] ?? null;
   const parts = clauseLines(sql);
+  const { pinned, setPinned, setHovered } = link;
   return (
-    <div className={`linked-query ${className}`.trim()} data-active-clause={active ?? undefined}>
-      <div className="linked-query__side">
-        <figure className="sql-code sql-code--large linked-query__code">
-          {label && <figcaption className="sql-code__label">{label}</figcaption>}
-          <pre className="sql-code__pre" aria-label={label ?? 'Consulta SQL'}>
-            <code>
-              {parts.map((part, index) => (
-                <button
-                  key={`${part.role}-${index}`}
-                  type="button"
-                  className="sql-clause"
-                  data-clause={part.role}
-                  aria-pressed={pinned === part.role}
-                  aria-describedby={hintId}
-                  aria-label={`${part.text.trim()}: ${CLAUSE_HINT[part.role]}`}
-                  onMouseEnter={() => setHovered(part.role)}
-                  onMouseLeave={() => setHovered(null)}
-                  onFocus={() => setHovered(part.role)}
-                  onBlur={() => setHovered(null)}
-                  onClick={() => setPinned(pinned === part.role ? null : part.role)}
-                >
-                  {highlightSql(part.text)}
-                </button>
-              ))}
-            </code>
-          </pre>
-        </figure>
-        <p id={hintId} className="linked-query__hint">
-          Señala o pulsa una cláusula para ver qué datos toca.
-        </p>
-        {aside}
-      </div>
-      <div className="linked-query__data">{children}</div>
-    </div>
+    <figure className={`sql-code sql-code--large ${className}`.trim()}>
+      {label && <figcaption className="sql-code__label">{label}</figcaption>}
+      <pre className="sql-code__pre" aria-label={label ?? 'Consulta SQL'}>
+        <code>
+          {parts.map((part, index) => (
+            <button
+              key={`${part.role}-${index}`}
+              type="button"
+              className="sql-clause"
+              data-clause={part.role}
+              aria-pressed={pinned === part.role}
+              aria-describedby={hintId}
+              aria-label={`${part.text.trim()}: ${CLAUSE_HINT[part.role]}`}
+              onMouseEnter={() => setHovered(part.role)}
+              onMouseLeave={() => setHovered(null)}
+              onFocus={() => setHovered(part.role)}
+              onBlur={() => setHovered(null)}
+              onClick={() => setPinned(pinned === part.role ? null : part.role)}
+            >
+              {highlightSql(part.text)}
+            </button>
+          ))}
+        </code>
+      </pre>
+    </figure>
   );
 }
 
@@ -447,6 +422,11 @@ const CONCEPT_ROLE: Partial<
   parentheses: 'operator',
   concat: 'operator',
 };
+
+/** Papel semántico (color) de un concepto: select, from, filter, order, operator o neutral. */
+export function conceptRole(id: ConceptId): string {
+  return CONCEPT_ROLE[id] ?? 'neutral';
+}
 
 /**
  * Diccionario visual de la consulta mostrada: solo los elementos presentes, con la glosa

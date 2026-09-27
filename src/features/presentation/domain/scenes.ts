@@ -124,6 +124,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'SELECT *',
     block: 'consulta',
     lessons: ['asterisco'],
+    steps: 4,
     notes: {
       explain: 'El asterisco se expande a las 12 columnas, en su orden.',
       mistake: 'Dejar * en una consulta final: trae datos que no necesitas.',
@@ -137,6 +138,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'Columnas',
     block: 'consulta',
     lessons: ['columnas'],
+    steps: 4,
     notes: {
       explain: 'El orden de la lista es el orden del resultado. Los datos son los mismos.',
       mistake: 'Olvidar la coma: Oracle toma la segunda palabra como alias.',
@@ -150,6 +152,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'Expresiones',
     block: 'consulta',
     lessons: ['expresiones', 'precedencia'],
+    steps: 4,
     notes: {
       explain: 'Una expresión se calcula en cada fila. * y / van antes que + y -.',
       mistake: 'Escribir salario + bono * 12 queriendo sumar primero.',
@@ -163,6 +166,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'Alias',
     block: 'consulta',
     lessons: ['alias', 'concatenacion'],
+    steps: 4,
     notes: {
       explain:
         'Pregunta primero qué encabezado aparecerá con salario * 12. Después muestra AS salario_anual.',
@@ -177,7 +181,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'DISTINCT',
     block: 'consulta',
     lessons: ['distinct'],
-    steps: 3,
+    steps: 4,
     notes: {
       explain: 'DISTINCT compara las filas completas del resultado y deja una de cada.',
       mistake: 'Creer que DISTINCT ordena o borra filas de la tabla.',
@@ -205,6 +209,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'Comparaciones',
     block: 'filtrado',
     lessons: ['comparaciones'],
+    steps: 4,
     notes: {
       explain: 'Seis operadores ordenados de menor a mayor; cada uno con cuántas filas deja.',
       mistake: 'Comillas dobles para textos: "Cali" es el nombre de una columna.',
@@ -231,6 +236,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'Paréntesis',
     block: 'filtrado',
     lessons: ['parentesis'],
+    steps: 4,
     notes: {
       explain: 'AND se evalúa antes que OR. Compara las filas de ambas consultas.',
       question: '¿Qué empleados aparecen solo sin paréntesis?',
@@ -243,6 +249,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'BETWEEN',
     block: 'filtrado',
     lessons: ['between'],
+    steps: 4,
     notes: {
       explain: 'Rango con los dos límites incluidos; el menor va primero.',
       mistake: 'Invertir los límites: el resultado queda vacío.',
@@ -256,6 +263,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'IN',
     block: 'filtrado',
     lessons: ['in'],
+    steps: 4,
     notes: {
       explain: 'IN comprueba si el valor está en la lista; sustituye varios OR con =.',
       mistake: 'Olvidar los paréntesis de la lista.',
@@ -269,6 +277,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'LIKE',
     block: 'filtrado',
     lessons: ['like'],
+    steps: 4,
     notes: {
       explain: '% son cero o más caracteres; _ es exactamente uno.',
       mistake: "Esperar que 'a%' encuentre «Ana»: LIKE distingue mayúsculas.",
@@ -282,6 +291,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'NULL',
     block: 'filtrado',
     lessons: ['null'],
+    steps: 4,
     notes: {
       explain: 'NULL es ausencia de valor. Se pregunta con IS NULL.',
       mistake: 'bono = NULL devuelve 0 filas.',
@@ -295,7 +305,7 @@ const OUTLINE: readonly SceneInput[] = [
     shortTitle: 'ORDER BY',
     block: 'integracion',
     lessons: ['order-by'],
-    steps: 2,
+    steps: 4,
     notes: {
       explain:
         'Muestra primero el orden original y después el ordenado. ASC es el valor por defecto.',

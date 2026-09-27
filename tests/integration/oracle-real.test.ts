@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { parseEnv } from 'node:util';
 import { afterAll, describe, expect, it } from 'vitest';
 import type { OracleExecutionResult } from '@/application/oracle-executor';
+import { CONCEPT_PROJECTIONS } from '@/domain/concepts/concept-projections';
 import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
 import { compareResults, isSortedBy } from '@/domain/results/result-table';
 import { runEducational } from '@/domain/sql/educational-run';
@@ -155,6 +156,8 @@ function sceneQueries(): (readonly [string, string])[] {
     ...source.matchAll(/'(SELECT\b(?:\\.|[^'\\])*)'/g),
     ...source.matchAll(/"(SELECT\b(?:\\.|[^"\\])*)"/g),
   ].map((match) => match[1]!.replaceAll('\\n', '\n').replaceAll("\\'", "'").replaceAll('\\"', '"'));
+  // Las consultas de las proyecciones didácticas (escenas 05–19) viven en su catálogo.
+  literals.push(...Object.values(CONCEPT_PROJECTIONS).map(({ sql }) => sql));
   return (
     [...new Set(literals)]
       // Las consultas completas; «SELECT … FROM» es un patrón de sintaxis, no una consulta.

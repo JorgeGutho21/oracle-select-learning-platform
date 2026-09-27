@@ -24,6 +24,8 @@ export interface RouteStage {
   /** Objetivo del bloque en una frase. */
   readonly goal: string;
   readonly concepts: string;
+  /** Resultado esperado: qué podrás hacer al terminar el bloque. */
+  readonly outcome: string;
 }
 
 /**
@@ -45,6 +47,9 @@ export function RouteMap({ stages }: { readonly stages: readonly RouteStage[] })
             </strong>
             <span className="route-map__goal">{stage.goal}</span>
             <span className="route-map__concepts">{stage.concepts}</span>
+            <span className="route-map__outcome">
+              <span aria-hidden="true">✓</span> {stage.outcome}
+            </span>
           </span>
         </li>
       ))}
@@ -113,111 +118,6 @@ export function MetricStrip({
   );
 }
 
-/* ---------- SELECT * (escena 06) ---------- */
-
-export function ColumnGrid({
-  columns,
-  groups,
-}: {
-  readonly columns: readonly { readonly name: string; readonly oracleType: string }[];
-  readonly groups: readonly {
-    readonly id: string;
-    readonly title: string;
-    readonly columns: readonly string[];
-  }[];
-}) {
-  const groupOf = (name: string) => groups.find((group) => group.columns.includes(name));
-  return (
-    <div className="column-grid">
-      <ol className="column-grid__list" aria-label="Las 12 columnas que expande el asterisco">
-        {columns.map((column, index) => (
-          <li key={column.name} className={`column-grid__item group--${groupOf(column.name)?.id}`}>
-            <span className="column-grid__index" aria-hidden="true">
-              {index + 1}
-            </span>
-            <code>{column.name}</code>
-          </li>
-        ))}
-      </ol>
-      <ul className="group-legend" aria-label="Grupos de columnas">
-        {groups.map((group) => (
-          <li key={group.id} className={`group--${group.id}`}>
-            {group.title}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ---------- Expresiones (escena 08) ---------- */
-
-export function ExpressionCard({
-  expression,
-  order,
-  value,
-  tone = 'default',
-}: {
-  readonly expression: string;
-  /** Pasos del cálculo en orden: «bono × 12», «+ salario». */
-  readonly order: readonly string[];
-  /** Resultado para Ana. */
-  readonly value: string;
-  readonly tone?: 'default' | 'accent';
-}) {
-  return (
-    <div className={`expression-card expression-card--${tone}`}>
-      <code className="expression-card__code">{highlightSql(expression)}</code>
-      <ol className="expression-card__order">
-        {order.map((step, index) => (
-          <li key={step}>
-            <span aria-hidden="true">{index + 1}.º</span> {step}
-          </li>
-        ))}
-      </ol>
-      <p className="expression-card__value">
-        Ana <span aria-hidden="true">→</span> <strong>{value}</strong>
-      </p>
-    </div>
-  );
-}
-
-/* ---------- Comparadores (escena 12) ---------- */
-
-export function ComparatorScale({
-  items,
-  total,
-}: {
-  readonly items: readonly {
-    readonly operator: string;
-    readonly meaning: string;
-    readonly condition: string;
-    readonly count: number;
-  }[];
-  readonly total: number;
-}) {
-  return (
-    <div className="comparator-scale">
-      <p className="comparator-scale__axis" aria-hidden="true">
-        <span>menor</span>
-        <span>mayor</span>
-      </p>
-      <ol className="comparator-scale__list">
-        {items.map((item) => (
-          <li key={item.operator} className="comparator-scale__item">
-            <code className="comparator-scale__operator">{item.operator}</code>
-            <span className="comparator-scale__meaning">{item.meaning}</span>
-            <code className="comparator-scale__condition">{highlightSql(item.condition)}</code>
-            <span className="comparator-scale__count">
-              <strong>{item.count}</strong> de {total} filas
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
 /* ---------- AND y OR (escena 13) ---------- */
 
 function Truth({ value }: { readonly value: boolean }) {
@@ -255,6 +155,7 @@ export function LogicPanel({
       <SqlBlock
         sql={`WHERE ${conditions[0]}\n${operator === 'AND' ? '  AND' : '   OR'} ${conditions[1]}`}
       />
+      <p className="logic-panel__step">Filas candidatas: cada condición, fila por fila</p>
       <table className="logic-panel__table">
         <caption className="visually-hidden">
           Cómo decide {operator} con dos condiciones, fila por fila
@@ -289,7 +190,7 @@ export function LogicPanel({
         </tbody>
       </table>
       <p className="logic-panel__names">
-        <strong>{names.length} filas:</strong> {names.join(' · ')}
+        <strong>Resultado en la tabla: {names.length} filas.</strong> {names.join(' · ')}
       </p>
     </section>
   );
@@ -301,6 +202,7 @@ export function RangeLine({
   low,
   high,
   points,
+  compact = false,
 }: {
   readonly low: number;
   readonly high: number;
@@ -309,6 +211,8 @@ export function RangeLine({
     readonly value: number;
     readonly inside: boolean;
   }[];
+  /** Versión reducida (bajo el resultado de una escena): leyenda en una línea. */
+  readonly compact?: boolean;
 }) {
   const values = points.map((point) => point.value);
   const min = Math.floor(Math.min(...values, low) / 1_000_000) * 1_000_000;
@@ -320,7 +224,7 @@ export function RangeLine({
   // Puntos del mismo salario se apilan para que todos se vean.
   const stack = new Map<number, number>();
   return (
-    <figure className="range-line">
+    <figure className={compact ? 'range-line range-line--compact' : 'range-line'}>
       <svg
         viewBox="0 0 100 34"
         role="img"
@@ -374,41 +278,14 @@ export function RangeLine({
         <span className="range-line__key">
           <span aria-hidden="true">○</span> fuera ({points.length - inside})
         </span>
-        <span className="range-line__key range-line__key--limit">
-          <span aria-hidden="true">┃</span> límites {formatNumber(low)} y {formatNumber(high)}:
-          incluidos
-        </span>
+        {!compact && (
+          <span className="range-line__key range-line__key--limit">
+            <span aria-hidden="true">┃</span> límites {formatNumber(low)} y {formatNumber(high)}:
+            incluidos
+          </span>
+        )}
       </figcaption>
     </figure>
-  );
-}
-
-/* ---------- IN (escena 16) ---------- */
-
-export function ListChips({
-  column,
-  values,
-}: {
-  readonly column: string;
-  readonly values: readonly string[];
-}) {
-  return (
-    <p className="list-chips">
-      <code className="list-chips__column">{column}</code>
-      <span className="list-chips__in">IN</span>
-      <span className="list-chips__paren" aria-hidden="true">
-        (
-      </span>
-      {values.map((value, index) => (
-        <Fragment key={value}>
-          <span className="list-chips__value">{value}</span>
-          {index < values.length - 1 && <span className="visually-hidden">, </span>}
-        </Fragment>
-      ))}
-      <span className="list-chips__paren" aria-hidden="true">
-        )
-      </span>
-    </p>
   );
 }
 
@@ -459,6 +336,95 @@ export function PatternCard({
         })}
       </ul>
     </div>
+  );
+}
+
+/* ---------- Tabla como objeto (escena 06) ---------- */
+
+/** La tabla de origen como objeto: nombre y dimensiones, con un icono de rejilla. */
+export function TableCard({
+  name,
+  facts,
+}: {
+  readonly name: string;
+  readonly facts: readonly string[];
+}) {
+  return (
+    <div className="table-card">
+      <svg className="table-card__icon" viewBox="0 0 24 18" aria-hidden="true">
+        <rect x="1" y="1" width="22" height="16" rx="2" />
+        <path d="M1 6h22M1 11h22M8 1v16M16 1v16" />
+      </svg>
+      <p className="table-card__name">
+        <code>{name}</code>
+      </p>
+      <p className="table-card__facts">{facts.join(' · ')}</p>
+    </div>
+  );
+}
+
+/* ---------- Operadores de comparación (escena 12) ---------- */
+
+export function OperatorStrip({
+  items,
+}: {
+  readonly items: readonly (readonly [string, string])[];
+}) {
+  return (
+    <ul className="operator-strip" aria-label="Operadores de comparación">
+      {items.map(([operator, meaning]) => (
+        <li key={operator}>
+          <code>{operator}</code> {meaning}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/* ---------- Paréntesis (escena 14) ---------- */
+
+export interface ParenthesesRow {
+  readonly name: string;
+  readonly city: string;
+  readonly salary: number;
+  readonly without: boolean;
+  readonly with: boolean;
+}
+
+/** Filas candidatas con el veredicto de cada consulta: la diferencia salta a la vista. */
+export function ParenthesesTable({ rows }: { readonly rows: readonly ParenthesesRow[] }) {
+  return (
+    <table className="logic-panel__table paren-table">
+      <caption className="visually-hidden">
+        Filas candidatas y si pasan la condición sin paréntesis y con paréntesis
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Empleado</th>
+          <th scope="col">CIUDAD</th>
+          <th scope="col" className="is-number">
+            SALARIO
+          </th>
+          <th scope="col">Sin ( )</th>
+          <th scope="col">Con ( )</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.name} className={row.without !== row.with ? 'is-different' : undefined}>
+            <th scope="row">{row.name}</th>
+            <td>{row.city}</td>
+            <td className="is-number">{formatNumber(row.salary)}</td>
+            <td>
+              <Truth value={row.without} />
+            </td>
+            <td className="logic-panel__result">
+              <Truth value={row.with} />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 

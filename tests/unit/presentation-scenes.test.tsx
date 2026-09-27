@@ -11,12 +11,15 @@ import {
   renderScene,
 } from '@/features/presentation/presentation/presentation-scenes';
 
-/** Palabras explicativas visibles: sin tablas, código, controles ni textos ocultos. */
+/**
+ * Palabras explicativas visibles: sin tablas, código, controles ni textos ocultos. Los
+ * rótulos de estructura (pasos del flujo, cabeceras y notas de las tablas) no son prosa.
+ */
 function explanatoryWords(element: HTMLElement): number {
   const copy = element.cloneNode(true) as HTMLElement;
   copy
     .querySelectorAll(
-      'table, pre, code, .visually-hidden, .scene__header, figure.video-player, .scene-qr, button, .column-grid, .route-map__concepts, .dv__records, .schema-cards, .name-chips, .mission-path, .level-roadmap__examples',
+      'table, pre, code, .visually-hidden, .scene__header, figure.video-player, .scene-qr, button, .column-grid, .route-map__concepts, .dv__records, .schema-cards, .name-chips, .mission-path, .level-roadmap__examples, .flow-step__title, .dv__header, .dv__bands-note, .dv__band-title, .name-chips-block__label',
     )
     .forEach((node) => node.remove());
   return (copy.textContent ?? '').split(/\s+/).filter((word) => /\p{L}/u.test(word)).length;
@@ -80,9 +83,12 @@ describe('escenas del Modo Exposición', () => {
     for (const name of ['Sofía', 'María', 'Valentina', 'Daniela']) expect(text).toContain(name);
     expect(container.querySelectorAll('tr.is-discarded').length).toBeGreaterThan(0);
     expect(container.querySelectorAll('tr.is-kept').length).toBeGreaterThan(0);
+    // La recta muestra la muestra de la escena: 3 de sus 5 salarios están en el rango.
     expect(container.querySelector('.range-line svg')?.getAttribute('aria-label')).toMatch(
-      /12 están entre 3\.000\.000 y 6\.000\.000/,
+      /3 están entre 3\.000\.000 y 6\.000\.000/,
     );
+    // Y el recuento en la tabla completa sigue a la vista.
+    expect(container.textContent).toContain('tabla completa: 12 de 20');
   });
 
   it('LIKE marca la parte coincidente de cada nombre', () => {
@@ -93,14 +99,15 @@ describe('escenas del Modo Exposición', () => {
   it('ORDER BY compara el orden original con el ordenado e indica el sentido', () => {
     const { container } = render(<>{renderScene(19)}</>);
     expect(container.querySelectorAll('th[aria-sort="descending"]').length).toBeGreaterThan(0);
-    expect(container.textContent).toContain('Antes · sin ORDER BY');
-    expect(container.textContent).toContain('ASC menor a mayor');
+    expect(container.textContent).toContain('Tabla de origen');
+    expect(container.textContent).toContain('ASC: de menor a mayor');
   });
 
   it('IN se define antes de compararlo con OR', () => {
     const { container } = render(<>{renderScene(16)}</>);
     const text = container.textContent ?? '';
-    expect(text.indexOf(SQL_CONCEPTS.in.definition)).toBeLessThan(text.indexOf('Con OR'));
+    expect(text.indexOf('Equivale a')).toBeGreaterThan(-1);
+    expect(text.indexOf(SQL_CONCEPTS.in.definition)).toBeLessThan(text.indexOf('Equivale a'));
   });
 });
 
@@ -123,12 +130,25 @@ describe('estructura de la exposición', () => {
       expect(scene.shortTitle.length, scene.id).toBeLessThanOrEqual(14);
       expect(scene.steps, scene.id).toBeGreaterThanOrEqual(1);
     }
+    // Las escenas de concepto siguen el flujo de cuatro pasos: origen, consulta, partes y
+    // resultado.
     expect(SCENES.filter(({ steps }) => steps > 1).map(({ id }) => id)).toEqual([
       'select-from',
+      'asterisco',
+      'columnas',
+      'expresiones',
+      'alias',
       'distinct',
       'where',
+      'comparaciones',
+      'parentesis',
+      'between',
+      'in',
+      'like',
+      'null',
       'order-by',
     ]);
+    for (const scene of SCENES.filter(({ steps }) => steps > 1)) expect(scene.steps).toBe(4);
   });
 });
 

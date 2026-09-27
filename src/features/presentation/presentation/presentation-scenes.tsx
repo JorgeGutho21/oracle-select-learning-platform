@@ -6,6 +6,7 @@ import type { Route } from 'next';
 import { useState, type ReactNode } from 'react';
 import { ACADEMIC_IDENTITY as identity } from '@/application/academic-identity';
 import { EMPLEADOS_FIELD_GROUP_LIST, EMPLEADOS_SCHEMA_COLUMNS } from '@/application/dataset-view';
+import { conceptProjection, type ProjectedPart } from '@/application/didactic-projection';
 import { SQL_CONCEPTS, type ConceptId } from '@/application/sql-concepts';
 import { MISSION_OVERVIEW, PRACTICE_RULES } from '@/features/challenge/application/challenge-api';
 import {
@@ -21,37 +22,29 @@ import { HighlightTable } from '@/presentation/components/data/highlight-table';
 import { SchemaCards } from '@/presentation/components/data/schema-cards';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { SCENES, sceneNumber } from '../application/presentation-api';
-import {
-  Code,
-  CountFlow,
-  Data,
-  LinkedQuery,
-  NameChips,
-  QueryGlossary,
-  Reveal,
-  Scene,
-} from './scene-kit';
+import { Code, Data, NameChips, QueryGlossary, Scene } from './scene-kit';
+import { ConceptFlow, FlowArrow, FlowStep, QueryParts, resultSummary } from './scene-flow';
 import { SceneQr } from './scene-qr';
 import {
-  ColumnGrid,
-  ComparatorScale,
   CompetencyGrid,
   DataToQuery,
   ErrorCard,
-  ExpressionCard,
   FutureRoadmap,
-  ListChips,
   LogicPanel,
   MetricStrip,
   MissionPath,
+  OperatorStrip,
+  ParenthesesTable,
   PatternCard,
   RangeLine,
   RouteMap,
   SqlAnatomy,
   SqlJourney,
   StepFlow,
+  TableCard,
   type AnatomyClause,
   type FutureTopic,
+  type ParenthesesRow,
   type RouteStage,
 } from './scene-visuals';
 
@@ -95,6 +88,18 @@ const INTEGRATED =
 const SYNTHESIS =
   'SELECT DISTINCT ciudad\nFROM empleados\nWHERE salario >= 4000000\nORDER BY ciudad;';
 
+/** Qué hace cada parte de la consulta integradora (escena 25). */
+function part(code: string, concept: ConceptId, text: string): ProjectedPart {
+  return { code, concept, title: SQL_CONCEPTS[concept].title, text };
+}
+
+const SYNTHESIS_PARTS: readonly ProjectedPart[] = [
+  part('SELECT DISTINCT ciudad', 'distinct', 'ciudades, sin repetir'),
+  part('FROM empleados', 'from', 'de la tabla EMPLEADOS'),
+  part('WHERE salario >= 4000000', 'where', 'solo quien gana 4 millones o más'),
+  part('ORDER BY ciudad', 'order-by', 'en orden alfabético'),
+];
+
 /** Consulta de la anatomía (escena 20). */
 const ANATOMY_SQL =
   "SELECT nombre, salario\nFROM empleados\nWHERE ciudad = 'Cali'\nORDER BY salario DESC;";
@@ -102,53 +107,38 @@ const ANATOMY_SQL =
 const INTEGRATED_QUESTION =
   'Quiero ver nombre, ciudad y salario de los empleados activos de Bogotá con salarios entre 4 y 8 millones, del mayor al menor.';
 
-// Consultas de las escenas, calculadas una vez.
+// Proyecciones didácticas de las escenas 05–19: muestra de EMPLEADOS, consulta, partes y
+// resultado sobre esas mismas filas (application/didactic-projection).
+const P = {
+  selectFrom: conceptProjection('select-from'),
+  star: conceptProjection('star'),
+  columns: conceptProjection('columns'),
+  columnsSwapped: conceptProjection('columns', { sql: 'SELECT ciudad, nombre\nFROM empleados;' }),
+  expression: conceptProjection('expression'),
+  alias: conceptProjection('alias'),
+  aliasBefore: conceptProjection('alias', {
+    sql: 'SELECT nombre,\n       salario * 12\nFROM empleados;',
+  }),
+  distinct: conceptProjection('distinct'),
+  where: conceptProjection('where'),
+  comparison: conceptProjection('comparison'),
+  between: conceptProjection('between'),
+  in: conceptProjection('in'),
+  like: conceptProjection('like'),
+  isNull: conceptProjection('is-null'),
+  orderBy: conceptProjection('order-by'),
+};
+
+// Otras consultas de las escenas, calculadas una vez.
 const F = {
   journey: firstColumn("SELECT nombre\nFROM empleados\nWHERE ciudad = 'Cali';"),
-  selectFrom: flow('SELECT nombre, ciudad\nFROM empleados;', {
-    sourceColumns: ['NOMBRE', 'CARGO', 'CIUDAD'],
-    maxRows: 4,
-  }),
-  cityName: flow('SELECT ciudad, nombre\nFROM empleados;', { maxRows: 5 }),
-  nameCity: flow('SELECT nombre, ciudad\nFROM empleados;', { maxRows: 5 }),
-  precedence: flow(
-    'SELECT nombre, salario, bono,\n       salario + bono * 12 AS sin_parentesis,\n       (salario + bono) * 12 AS con_parentesis\nFROM empleados\nWHERE id_empleado IN (1, 2, 4);',
-  ),
-  noAlias: flow('SELECT nombre,\n       salario * 12\nFROM empleados;', { maxRows: 3 }),
-  alias: flow('SELECT nombre,\n       salario * 12 AS salario_anual\nFROM empleados;', {
-    maxRows: 3,
-  }),
-  distinct: flow('SELECT DISTINCT ciudad\nFROM empleados;', { maxRows: 7 }),
   distinctPairs: rowCount('SELECT DISTINCT ciudad, departamento FROM empleados;'),
-  where: flow("SELECT nombre, ciudad\nFROM empleados\nWHERE ciudad = 'Cali';", {
-    sourceColumns: ['NOMBRE', 'CIUDAD'],
-    rows: ids(1, 4, 8, 12),
-  }),
   withoutParentheses: firstColumn(
     "SELECT nombre, ciudad, salario\nFROM empleados\nWHERE ciudad = 'Bogotá' OR ciudad = 'Medellín'\n  AND salario > 5000000;",
   ),
   withParentheses: firstColumn(
     "SELECT nombre, ciudad, salario\nFROM empleados\nWHERE (ciudad = 'Bogotá' OR ciudad = 'Medellín')\n  AND salario > 5000000;",
   ),
-  between: flow(
-    'SELECT nombre, salario\nFROM empleados\nWHERE salario BETWEEN 3000000 AND 6000000;',
-    {
-      sourceColumns: ['NOMBRE', 'SALARIO'],
-      rows: ids(11, 9, 3, 15),
-    },
-  ),
-  betweenIds: matching('salario BETWEEN 3000000 AND 6000000'),
-  in: flow(
-    "SELECT nombre, ciudad\nFROM empleados\nWHERE ciudad IN ('Bogotá', 'Medellín', 'Cali');",
-    {
-      sourceColumns: ['NOMBRE', 'CIUDAD'],
-      rows: ids(1, 3, 4, 12, 17, 19, 20),
-    },
-  ),
-  likeStarts: flow("SELECT nombre\nFROM empleados\nWHERE nombre LIKE 'A%';", {
-    sourceColumns: ['NOMBRE'],
-    rows: ids(1, 6, 2),
-  }),
   likeEnds: flow("SELECT nombre\nFROM empleados\nWHERE nombre LIKE '%a';", {
     sourceColumns: ['NOMBRE'],
     rows: ids(1, 3, 2),
@@ -161,20 +151,31 @@ const F = {
     sourceColumns: ['NOMBRE'],
     rows: ids(3, 5, 1),
   }),
-  isNull: flow('SELECT nombre, bono\nFROM empleados\nWHERE bono IS NULL;', {
-    sourceColumns: ['NOMBRE', 'BONO'],
-    rows: ids(1, 4, 7, 10, 12, 16, 18),
-  }),
   equalsNull: rowCount('SELECT nombre FROM empleados WHERE bono = NULL;'),
   isNotNull: rowCount('SELECT nombre FROM empleados WHERE bono IS NOT NULL;'),
-  original: flow('SELECT nombre, salario\nFROM empleados;', { maxRows: 5 }),
-  orderDesc: flow('SELECT nombre, salario\nFROM empleados\nORDER BY salario DESC;', {
-    maxRows: 5,
-  }),
   integrated: flow(INTEGRATED),
   synthesis: firstColumn(SYNTHESIS),
   anatomy: rowCount(ANATOMY_SQL),
 };
+
+const PAREN_WITHOUT = "WHERE ciudad = 'Bogotá'\n   OR ciudad = 'Medellín'\n  AND salario > 5000000";
+const PAREN_WITH = "WHERE (ciudad = 'Bogotá'\n    OR ciudad = 'Medellín')\n  AND salario > 5000000";
+
+/** Candidatas de la escena 14: el veredicto de cada versión sale del motor. */
+const PAREN_ROWS: readonly ParenthesesRow[] = (() => {
+  const without = matching(PAREN_WITHOUT.replace(/^WHERE /, ''));
+  const withGroup = matching(PAREN_WITH.replace(/^WHERE /, ''));
+  return [1, 6, 3, 7, 10].map((id) => {
+    const row = EMPLEADOS.rows[id - 1]!;
+    return {
+      name: row.NOMBRE,
+      city: row.CIUDAD,
+      salary: row.SALARIO,
+      without: without.has(id),
+      with: withGroup.has(id),
+    };
+  });
+})();
 
 const STEPS: readonly { readonly label: string; readonly sql: string; readonly note: string }[] = [
   {
@@ -239,48 +240,56 @@ const ROUTE: readonly RouteStage[] = [
     title: 'Fundamentos',
     goal: 'Entender tabla, fila y columna.',
     concepts: 'SQL · EMPLEADOS · tipos de dato',
+    outcome: 'Leer la tabla EMPLEADOS',
   },
   {
     letter: 'B',
     title: 'Primera consulta',
     goal: 'Elegir qué mostrar y de dónde.',
     concepts: 'SELECT · FROM · * · expresiones · AS',
+    outcome: 'Escribir SELECT … FROM',
   },
   {
     letter: 'C',
     title: 'Duplicados',
     goal: 'Obtener valores únicos del resultado.',
     concepts: 'DISTINCT',
+    outcome: 'Listar valores sin repetir',
   },
   {
     letter: 'D',
     title: 'Filtrar',
-    goal: 'Elegir las filas que cumplen una condición.',
+    goal: 'Elegir filas con una condición.',
     concepts: 'WHERE · comparadores · AND · OR · NOT',
+    outcome: 'Pedir solo ciertas filas',
   },
   {
     letter: 'E',
     title: 'Operadores de filtro',
     goal: 'Rangos, listas y patrones de texto.',
     concepts: 'BETWEEN · IN · LIKE',
+    outcome: 'Buscar rangos, listas y textos',
   },
   {
     letter: 'F',
     title: 'Valores ausentes',
     goal: 'Reconocer y consultar NULL.',
     concepts: 'NULL · IS NULL · IS NOT NULL',
+    outcome: 'Encontrar datos que faltan',
   },
   {
     letter: 'G',
     title: 'Ordenar',
     goal: 'Presentar el resultado en un orden.',
     concepts: 'ORDER BY · ASC · DESC',
+    outcome: 'Ordenar de mayor a menor',
   },
   {
     letter: 'H',
     title: 'Integrar',
-    goal: 'Construir, corregir y practicar consultas completas.',
+    goal: 'Consultas completas y práctica.',
     concepts: 'consulta completa · errores · Lab · Challenge',
+    outcome: 'Resolver el Challenge',
   },
 ];
 
@@ -319,8 +328,6 @@ const FUTURE_TOPICS: readonly FutureTopic[] = [
   },
 ];
 
-const COMPARE_VALUE = 4200000;
-
 const COMPARATORS: readonly (readonly [string, string])[] = [
   ['<', 'menor'],
   ['<=', 'menor o igual'],
@@ -329,11 +336,6 @@ const COMPARATORS: readonly (readonly [string, string])[] = [
   ['>', 'mayor'],
   ['<>', 'distinto'],
 ];
-
-const COMPARATOR_ITEMS = COMPARATORS.map(([operator, meaning]) => {
-  const condition = `salario ${operator} ${COMPARE_VALUE}`;
-  return { operator, meaning, condition, count: matching(condition).size };
-});
 
 function logicExamples(a: string, b: string, operator: 'AND' | 'OR', people: readonly number[]) {
   const first = matching(a);
@@ -562,7 +564,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       layout="summary"
       tone="soft"
       purpose="Pasaremos de entender una tabla a construir consultas completas, paso a paso."
-      takeaway="Cada bloque tiene su lección en el Modo Estudio, con ejemplos y una comprobación."
+      takeaway="Al terminar: leer, escribir y corregir consultas SELECT completas."
     >
       <RouteMap stages={ROUTE} />
     </Scene>
@@ -585,7 +587,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       <Scene
         id="empleados"
         concepts={['table']}
-        use="EMPLEADOS será nuestra tabla de ejemplo durante toda la unidad."
+        use="EMPLEADOS será nuestra tabla de ejemplo durante toda la unidad: cada fila es un empleado."
         layout="concept"
         takeaway={false}
       >
@@ -593,17 +595,18 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
           <div className="scene-dataset__top">
             <MetricStrip
               items={[
-                { value: EMPLEADOS.rows.length, label: 'empleados' },
-                { value: EMPLEADOS.columns.length, label: 'atributos' },
+                { value: EMPLEADOS.rows.length, label: 'empleados (filas)' },
+                { value: EMPLEADOS.columns.length, label: 'atributos (columnas)' },
+                { value: 'NUMBER · VARCHAR2 · DATE', label: 'tipos' },
                 { value: 'NULL', label: 'posible en BONO' },
               ]}
             />
             <ul className="scene-legend">
               <li className="scene-legend__row">
-                <strong>Fila</strong> un empleado (Ana)
+                <strong>Fila</strong> un registro: un empleado (Ana)
               </li>
               <li className="scene-legend__column">
-                <strong>Columna</strong> una característica
+                <strong>Columna</strong> un atributo de todos (CIUDAD)
               </li>
               <li className="scene-legend__cell">
                 <strong>Celda</strong> un valor (Bogotá)
@@ -621,7 +624,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
             summary="3 de 20 filas"
           />
           <SchemaCards
-            label="Los 12 campos que utilizaremos"
+            label="Los 12 atributos, por grupos"
             groups={EMPLEADOS_FIELD_GROUP_LIST}
             columns={EMPLEADOS_SCHEMA_COLUMNS}
             headingLevel="h2"
@@ -635,247 +638,191 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     <Scene
       id="select-from"
       concepts={['select', 'from']}
-      reading="Muéstrame el nombre y la ciudad de cada empleado."
+      use
       layout="pipeline"
+      takeaway={P.selectFrom.keyIdea}
     >
-      <div className="scene-grid scene-grid--pipeline">
-        <Reveal at={1} className="ask-cards">
-          <p className="ask-card ask-card--select">
-            <span className="ask-card__question">¿Qué quiero ver?</span>
-            <strong>NOMBRE y CIUDAD</strong>
-            <code>SELECT</code>
-          </p>
-          <p className="ask-card ask-card--from">
-            <span className="ask-card__question">¿De dónde salen los datos?</span>
-            <strong>EMPLEADOS</strong>
-            <code>FROM</code>
-          </p>
-        </Reveal>
-        <LinkedQuery
-          sql={F.selectFrom.sql}
-          stepClauses={{ 2: 'from', 3: 'select' }}
-          aside={
-            <Reveal at={4}>
-              <What>Conserva las 20 filas; solo muestra NOMBRE y CIUDAD.</What>
-            </Reveal>
-          }
-        >
-          <Reveal at={2}>
-            <Data
-              table={F.selectFrom.source}
-              caption="Tabla EMPLEADOS de origen"
-              label="Tabla original"
-              explained={F.selectFrom}
-            />
-          </Reveal>
-          <Reveal at={4}>
-            <Data
-              table={F.selectFrom.result!}
-              caption="Resultado de SELECT nombre, ciudad"
-              label="Resultado"
-              explained={F.selectFrom}
-            />
-          </Reveal>
-        </LinkedQuery>
-      </div>
+      <ConceptFlow projection={P.selectFrom} stepClauses={{ 2: 'from', 3: 'select' }} />
     </Scene>
   ),
   asterisco: () => (
-    <Scene id="asterisco" concepts={['star']} use layout="concept">
-      <div className="scene-grid scene-grid--split">
-        <div className="scene-stack">
-          <Code sql={'SELECT *\nFROM empleados;'} />
-          <p className="scene-lead">
-            <code>*</code> <span aria-hidden="true">→</span> {EMPLEADOS.columns.length} columnas, en
-            su orden
-          </p>
-          <QueryGlossary ids={['select', 'star', 'from']} />
+    <Scene id="asterisco" concepts={['star']} use layout="pipeline" takeaway={P.star.keyIdea}>
+      <div className="star-flow">
+        <div className="star-flow__top">
+          <FlowStep number={1} title="Tabla de origen">
+            <TableCard
+              name="EMPLEADOS"
+              facts={[`${EMPLEADOS.rows.length} filas`, `${EMPLEADOS.columns.length} columnas`]}
+            />
+          </FlowStep>
+          <FlowArrow />
+          <FlowStep number={2} title="Consulta">
+            <Code sql={P.star.sql} />
+          </FlowStep>
+          <FlowStep number={3} title="Qué hace cada parte" className="flow-step--wide">
+            <QueryParts parts={P.star.parts} />
+          </FlowStep>
         </div>
-        <div className="scene-stack">
-          <ColumnGrid columns={EMPLEADOS_SCHEMA_COLUMNS} groups={EMPLEADOS_FIELD_GROUP_LIST} />
-        </div>
+        <FlowStep
+          number={4}
+          title={`Resultado · ${P.star.sample.counts.result} de ${EMPLEADOS.rows.length} filas · todas las columnas`}
+        >
+          <HighlightTable
+            size="large"
+            caption="Resultado de SELECT *: las 12 columnas de EMPLEADOS"
+            columns={P.star.sample.result!.columns}
+            rows={P.star.sample.result!.rows}
+            className="dv--free"
+          />
+        </FlowStep>
       </div>
     </Scene>
   ),
   columnas: () => (
-    <Scene id="columnas" concepts={['column-list']} layout="comparison">
-      <div className="scene-grid scene-grid--compare">
-        <div className="scene-stack">
-          <Code sql={F.cityName.sql} label="CIUDAD primero" />
-          <Data
-            table={F.cityName.result!}
-            caption="Resultado de SELECT ciudad, nombre"
-            label="Resultado"
-          />
-        </div>
-        <p className="scene-versus">
-          <span aria-hidden="true">⇄</span> Mismos datos, distinto orden
-        </p>
-        <div className="scene-stack">
-          <Code sql={F.nameCity.sql} label="NOMBRE primero" />
-          <Data
-            table={F.nameCity.result!}
-            caption="Resultado de SELECT nombre, ciudad"
-            label="Resultado"
-          />
-        </div>
-      </div>
+    <Scene id="columnas" concepts={['column-list']} use layout="pipeline">
+      <ConceptFlow
+        projection={P.columns}
+        layout="columns"
+        after={
+          <p className="flow-note">
+            SELECT elige columnas, no filas: las {P.columns.sample.counts.source} filas siguen.
+          </p>
+        }
+        result={
+          <div className="flow-compare">
+            {[P.columns, P.columnsSwapped].map((projection) => (
+              <div key={projection.sql} className="flow-compare__item">
+                <p className="flow-compare__label">
+                  <code>{projection.sql.split('\n')[0]}</code>
+                </p>
+                <Data
+                  table={projection.sample.result!}
+                  caption={`Resultado de ${projection.sql.split('\n')[0]}`}
+                  summary={`${projection.sample.counts.result} filas`}
+                />
+              </div>
+            ))}
+          </div>
+        }
+      />
     </Scene>
   ),
   expresiones: () => {
     const ana = EMPLEADOS.rows[0]!;
     const bonus = ana.BONO ?? 0;
     return (
-      <Scene id="expresiones" concepts={['expression']} reading layout="concept">
-        <div className="scene-grid scene-grid--wide-data">
-          <div className="scene-stack">
-            <ExpressionCard
-              expression="salario * 12"
-              order={['salario × 12']}
-              value={formatNumber(ana.SALARIO * 12)}
-            />
-            <ExpressionCard
-              expression="salario + bono * 12"
-              order={['bono × 12', '+ salario']}
-              value={formatNumber(ana.SALARIO + bonus * 12)}
-            />
-            <ExpressionCard
-              expression="(salario + bono) * 12"
-              order={['salario + bono', '× 12']}
-              value={formatNumber((ana.SALARIO + bonus) * 12)}
-              tone="accent"
-            />
-          </div>
-          <div className="scene-stack">
-            <Data
-              table={F.precedence.result!}
-              caption="Precedencia con y sin paréntesis"
-              label="Resultado · 3 empleados"
-            />
-            <p className="scene-note">
-              * y / se calculan antes que + y -. {SQL_CONCEPTS.expression.oracleNote}
+      <Scene id="expresiones" concepts={['expression']} use layout="pipeline">
+        <ConceptFlow
+          projection={P.expression}
+          layout="columns"
+          queryAfter={
+            <p className="flow-note">
+              Ana: <code>{formatNumber(bonus)} × 12</code> va primero →{' '}
+              {formatNumber(ana.SALARIO + bonus * 12)}. Si BONO es NULL, el resultado es NULL.
             </p>
-          </div>
-        </div>
+          }
+        />
       </Scene>
     );
   },
   alias: () => (
-    <Scene id="alias" concepts={['alias', 'as']} layout="comparison">
-      <div className="scene-grid scene-grid--alias">
-        <Code sql={F.alias.sql} />
-        <div className="scene-grid scene-grid--compare">
-          <Data
-            table={F.noAlias.result!}
-            caption="Encabezado sin alias"
-            label="Antes · sin alias"
-          />
-          <p className="scene-versus">
-            <span aria-hidden="true">→</span> <code>AS salario_anual</code>
-          </p>
-          <Data table={F.alias.result!} caption="Encabezado con alias" label="Después · con AS" />
-        </div>
-        <p className="scene-callout">
-          <strong>No cambia la tabla:</strong> SALARIO sigue siendo{' '}
-          {formatNumber(EMPLEADOS.rows[0]!.SALARIO)} para Ana; solo cambia el encabezado del
-          resultado.
-        </p>
-      </div>
+    <Scene
+      id="alias"
+      concepts={['alias', 'as']}
+      use={SQL_CONCEPTS.alias.whyItMatters}
+      layout="pipeline"
+      takeaway="AS solo cambia el encabezado de esta consulta: la tabla no cambia y el nombre no es permanente."
+    >
+      <ConceptFlow
+        projection={P.alias}
+        layout="columns"
+        result={
+          <div className="flow-compare">
+            <div className="flow-compare__item">
+              <p className="flow-compare__label">Antes · sin alias</p>
+              <Data
+                table={P.aliasBefore.sample.result!}
+                caption="Encabezado sin alias: SALARIO*12"
+                summary=""
+              />
+            </div>
+            <div className="flow-compare__item">
+              <p className="flow-compare__label">
+                Después · <code>AS salario_anual</code>
+              </p>
+              <Data
+                table={P.alias.sample.result!}
+                caption="Encabezado con alias: SALARIO_ANUAL"
+                summary=""
+              />
+            </div>
+          </div>
+        }
+      />
     </Scene>
   ),
   distinct: () => (
-    <Scene id="distinct" concepts={['distinct']} reading layout="transformation">
-      <div className="scene-grid scene-grid--transform">
-        <Reveal at={1}>
-          <Data
-            table={F.distinct.beforeDistinct!}
-            caption="Ciudades con repeticiones"
-            label="Antes · SELECT ciudad"
-            summary={`${F.distinct.beforeDistinct!.rows.length} de ${F.distinct.counts.source} filas`}
-          />
-        </Reveal>
-        <Reveal at={2} className="scene-transform">
-          <CountFlow
-            label="Cambio en el número de filas"
-            steps={[
-              { value: F.distinct.counts.source, text: 'filas' },
-              { value: F.distinct.counts.result, text: 'ciudades únicas', via: 'DISTINCT' },
-            ]}
-          />
-          <ul className="scene-tags">
-            <li>No ordena</li>
-            <li>No borra datos</li>
-          </ul>
-        </Reveal>
-        <Reveal at={3} className="scene-stack">
-          <Code sql={F.distinct.sql} />
-          <Data
-            table={F.distinct.result!}
-            caption="Ciudades distintas"
-            label="Después · DISTINCT"
-          />
-          <p className="scene-note">
-            Compara la fila completa: <code>DISTINCT ciudad, departamento</code> da{' '}
-            {F.distinctPairs} pares.
-          </p>
-        </Reveal>
-      </div>
+    <Scene id="distinct" concepts={['distinct']} use layout="pipeline">
+      <ConceptFlow
+        projection={P.distinct}
+        after={
+          <>
+            <ul className="flow-facts" aria-label="Qué hace y qué no hace DISTINCT">
+              <li>
+                <span aria-hidden="true">✓</span>Quita repetidos del resultado
+              </li>
+              <li>
+                <span aria-hidden="true">✓</span>No borra datos de la tabla
+              </li>
+              <li>
+                <span aria-hidden="true">✓</span>No ordena
+              </li>
+            </ul>
+          </>
+        }
+        resultWidth={19}
+        result={
+          <div className="flow-compare">
+            <div className="flow-compare__item">
+              <p className="flow-compare__label">Sin DISTINCT</p>
+              <Data
+                table={P.distinct.sample.beforeDistinct!}
+                caption="Ciudades de la muestra, con las repetidas marcadas"
+                summary={`${P.distinct.sample.beforeDistinct!.rows.length} filas`}
+              />
+            </div>
+            <div className="flow-compare__item">
+              <p className="flow-compare__label">Con DISTINCT</p>
+              <Data
+                table={P.distinct.sample.result!}
+                caption="Ciudades distintas de la muestra"
+                summary={`${P.distinct.sample.counts.result} filas · tabla completa: ${P.distinct.full.result}`}
+              />
+            </div>
+            <p className="flow-note flow-compare__wide">
+              Con dos columnas compara la pareja: <code>DISTINCT ciudad, departamento</code> da{' '}
+              {F.distinctPairs} combinaciones.
+            </p>
+          </div>
+        }
+      />
     </Scene>
   ),
   where: () => (
-    <Scene id="where" concepts={['where']} use layout="transformation">
-      <LinkedQuery
-        sql={F.where.sql}
-        className="linked-query--top"
-        stepClauses={{ 2: 'where' }}
-        aside={
-          <Reveal at={3}>
-            <CountFlow
-              label="Filas antes y después de WHERE"
-              steps={[
-                { value: F.where.counts.source, text: 'filas' },
-                { value: F.where.counts.result, text: 'filas cumplen', via: "ciudad = 'Cali'" },
-              ]}
-            />
-          </Reveal>
-        }
-      >
-        <Reveal at={1}>
-          <Data
-            table={F.where.source}
-            caption="Tabla original con la condición"
-            label="Tabla original"
-            explained={F.where}
-          />
-        </Reveal>
-        <Reveal at={4}>
-          <Data
-            table={F.where.result!}
-            caption="Filas que cumplen"
-            label="Resultado"
-            explained={F.where}
-          />
-        </Reveal>
-      </LinkedQuery>
+    <Scene id="where" concepts={['where']} use layout="pipeline">
+      <ConceptFlow projection={P.where} stepClauses={{ 2: 'where', 3: 'where' }} />
     </Scene>
   ),
   comparaciones: () => (
-    <Scene id="comparaciones" concepts={['comparison']} use layout="concept">
-      <div className="scene-grid scene-grid--stack">
-        <ComparatorScale items={COMPARATOR_ITEMS} total={EMPLEADOS.rows.length} />
-        <ul className="scene-quotes">
-          <li className="scene-pros__yes">
-            <span aria-hidden="true">✓</span> <code>ciudad = &apos;Cali&apos;</code> texto entre
-            comillas simples
-          </li>
-          <li className="scene-pros__no">
-            <span aria-hidden="true">✗</span> <code>ciudad = Cali</code> busca una columna
-          </li>
-          <li className="scene-pros__no">
-            <span aria-hidden="true">✗</span> <code>ciudad = &quot;Cali&quot;</code> es un nombre
-          </li>
-        </ul>
-      </div>
+    <Scene
+      id="comparaciones"
+      concepts={['comparison']}
+      use
+      layout="pipeline"
+      takeaway={P.comparison.keyIdea}
+    >
+      <ConceptFlow projection={P.comparison} />
+      <OperatorStrip items={COMPARATORS} />
     </Scene>
   ),
   'and-or': () => (
@@ -889,7 +836,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       <div className="scene-grid scene-grid--duo">
         <LogicPanel
           operator="AND"
-          lead="las dos condiciones"
+          lead="exige que las dos condiciones sean verdaderas"
           conditions={[AND_A, AND_B]}
           examples={logicExamples(AND_A, AND_B, 'AND', [1, 6, 3])}
           names={firstColumn(
@@ -898,7 +845,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
         />
         <LogicPanel
           operator="OR"
-          lead="al menos una condición"
+          lead="acepta la fila si se cumple al menos una"
           conditions={[OR_A, OR_B]}
           examples={logicExamples(OR_A, OR_B, 'OR', [4, 12, 1])}
           names={firstColumn(
@@ -912,206 +859,146 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     const extra = F.withoutParentheses.filter((name) => !F.withParentheses.includes(name));
     return (
       <Scene id="parentesis" concepts={['logical-precedence']} use layout="comparison">
-        <div className="scene-grid scene-grid--duo">
+        <div className="scene-grid scene-grid--paren">
+          <FlowStep number={1} title="Filas candidatas">
+            <ParenthesesTable rows={PAREN_ROWS} />
+          </FlowStep>
+          <FlowArrow />
           <div className="scene-stack">
-            <Code
-              label={`Sin paréntesis · ${F.withoutParentheses.length} filas`}
-              sql={"WHERE ciudad = 'Bogotá'\n   OR ciudad = 'Medellín'\n  AND salario > 5000000"}
-            />
-            <p className="scene-warning">
-              Oracle lee: Bogotá <strong>OR</strong> (Medellín <strong>AND</strong> salario &gt;
-              5.000.000)
-            </p>
-            <NameChips
-              names={F.withoutParentheses}
-              marked={extra}
-              label={`${F.withoutParentheses.length} filas sin paréntesis`}
-            />
+            <FlowStep number={2} title="Consulta sin paréntesis">
+              <Code sql={PAREN_WITHOUT} />
+              <p className="scene-warning">
+                Oracle lee: Bogotá <strong>OR</strong> (Medellín <strong>AND</strong> salario &gt;
+                5.000.000)
+              </p>
+            </FlowStep>
+            <FlowStep number={3} title="Consulta con paréntesis">
+              <Code sql={PAREN_WITH} />
+              <p className="scene-good">Primero la ciudad; después, el salario.</p>
+            </FlowStep>
           </div>
-          <div className="scene-stack">
-            <Code
-              label={`Con paréntesis · ${F.withParentheses.length} filas`}
-              sql={"WHERE (ciudad = 'Bogotá'\n    OR ciudad = 'Medellín')\n  AND salario > 5000000"}
-            />
-            <p className="scene-good">
-              Primero la ciudad; después, el salario para las dos ciudades.
-            </p>
-            <NameChips
-              names={F.withParentheses}
-              label={`${F.withParentheses.length} filas con paréntesis`}
-            />
-          </div>
+          <FlowArrow />
+          <FlowStep number={4} title="Resultado en la tabla completa">
+            <div className="scene-stack">
+              <NameChips
+                names={F.withoutParentheses}
+                marked={extra}
+                label={`Sin paréntesis: ${F.withoutParentheses.length} filas`}
+                visibleLabel
+              />
+              <NameChips
+                names={F.withParentheses}
+                label={`Con paréntesis: ${F.withParentheses.length} filas`}
+                visibleLabel
+              />
+            </div>
+          </FlowStep>
         </div>
-        <p className="scene-note scene-note--center">
-          Marcados: {extra.length} empleados de Bogotá que ganan 5.000.000 o menos y solo aparecen
-          sin paréntesis.
-        </p>
       </Scene>
     );
   },
   between: () => (
-    <Scene id="between" concepts={['between']} use layout="concept">
-      <div className="scene-grid scene-grid--split">
-        <div className="scene-stack">
-          <Code sql={F.between.sql} />
-          <Data
-            table={F.between.source}
-            caption="Salarios en los límites del rango y justo fuera"
-            label="Los límites"
-            summary={`${F.between.counts.result} de 20 filas en el rango`}
-          />
-        </div>
-        <div className="scene-stack">
-          <RangeLine
-            low={3000000}
-            high={6000000}
-            points={EMPLEADOS.rows.map((row) => ({
-              name: row.NOMBRE,
-              value: row.SALARIO,
-              inside: F.betweenIds.has(row.ID_EMPLEADO),
-            }))}
-          />
-          <What>
-            Incluye los dos límites. Equivale a{' '}
-            <code>salario &gt;= 3000000 AND salario &lt;= 6000000</code>.
-          </What>
-        </div>
-      </div>
+    <Scene id="between" concepts={['between']} use layout="pipeline">
+      <ConceptFlow
+        projection={P.between}
+        after={
+          <p className="flow-note">
+            Equivale a <code>salario &gt;= 3000000 AND salario &lt;= 6000000</code>.
+          </p>
+        }
+        resultWidth={12}
+        result={
+          <div className="scene-stack">
+            <Data
+              table={P.between.sample.result!}
+              caption="Filas de la muestra dentro del rango"
+              summary={resultSummary(P.between)}
+            />
+            <RangeLine
+              low={3000000}
+              high={6000000}
+              compact
+              points={P.between.sample.source.rows.map((row, index) => ({
+                name: String(row[0]),
+                value: Number(row[1]),
+                inside: P.between.sample.source.rowStates?.[index] === 'kept',
+              }))}
+            />
+          </div>
+        }
+      />
     </Scene>
   ),
   in: () => (
-    <Scene id="in" concepts={['in']} use layout="comparison">
-      <div className="scene-grid scene-grid--flow">
-        <div className="scene-stack">
-          <ListChips column="CIUDAD" values={['Bogotá', 'Medellín', 'Cali']} />
-          <Code
-            label="Con OR · repetitivo"
-            sql={"WHERE ciudad = 'Bogotá'\n   OR ciudad = 'Medellín'\n   OR ciudad = 'Cali'"}
-          />
-          <p className="scene-arrow-down" aria-hidden="true">
-            ↓
+    <Scene id="in" concepts={['in']} use layout="pipeline">
+      <ConceptFlow
+        projection={P.in}
+        layout="columns"
+        after={
+          <p className="flow-note">
+            Equivale a <code>ciudad = &apos;Medellín&apos; OR ciudad = &apos;Cali&apos;</code>, más
+            corto y fácil de ampliar.
           </p>
-          <Code label="Con IN · compacto" sql={"WHERE ciudad IN ('Bogotá', 'Medellín', 'Cali')"} />
-        </div>
-        <Data
-          table={F.in.source}
-          caption="Ciudades en la lista y fuera de ella"
-          label="Tabla original"
-          summary={`${F.in.counts.result} de 20 filas cumplen`}
-        />
-      </div>
+        }
+      />
     </Scene>
   ),
   like: () => (
-    <Scene id="like" concepts={['like']} use layout="concept">
-      <div className="scene-grid scene-grid--flow">
-        <div className="scene-stack">
-          <Code sql={F.likeStarts.sql} />
-          <dl className="scene-wildcards">
-            <div>
-              <dt>
-                <code>%</code>
-              </dt>
-              <dd>{SQL_CONCEPTS.percent.definition}</dd>
-            </div>
-            <div>
-              <dt>
-                <code>_</code>
-              </dt>
-              <dd>
-                {SQL_CONCEPTS.underscore.definition} <code>&apos;A_&apos;</code>: A y un carácter
-                más.
-              </dd>
-            </div>
-          </dl>
-        </div>
-        <div className="pattern-cards">
-          <PatternCard pattern="A%" meaning="empieza por A" table={F.likeStarts.source} />
-          <PatternCard pattern="%a" meaning="termina en a" table={F.likeEnds.source} />
-          <PatternCard pattern="%ar%" meaning="contiene «ar»" table={F.likeContains.source} />
-          <PatternCard pattern="_a%" meaning="a en la 2.ª posición" table={F.likeSecond.source} />
-        </div>
+    <Scene id="like" concepts={['like']} use layout="pipeline">
+      <ConceptFlow projection={P.like} />
+      <div className="pattern-strip" aria-label="Otros patrones">
+        <PatternCard pattern="%a" meaning="termina en a" table={F.likeEnds.source} />
+        <PatternCard pattern="%ar%" meaning="contiene «ar»" table={F.likeContains.source} />
+        <PatternCard
+          pattern="_a%"
+          meaning="_ = un carácter: a en 2.ª posición"
+          table={F.likeSecond.source}
+        />
       </div>
     </Scene>
   ),
   null: () => (
-    <Scene id="null" concepts={['null', 'is-null']} use layout="concept">
-      <div className="scene-grid scene-grid--flow">
-        <div className="scene-stack">
-          <ul className="null-facts" aria-label="Qué no es NULL">
+    <Scene id="null" concepts={['null', 'is-null']} use layout="pipeline">
+      <ConceptFlow
+        projection={P.isNull}
+        resultAfter={
+          <ul className="flow-facts" aria-label="NULL frente a 0 y a =">
             <li>
-              <code>NULL</code> ≠ <code>0</code>
+              <span aria-hidden="true">✓</span>Mario tiene 0: no es NULL
             </li>
             <li>
-              <code>NULL</code> ≠ <code>&apos;NULL&apos;</code>
+              <span className="is-no" aria-hidden="true">
+                ✗
+              </span>
+              <code>bono = NULL</code> → {F.equalsNull} filas
             </li>
-            <li className="null-facts__oracle">{SQL_CONCEPTS.null.oracleNote}</li>
-          </ul>
-          <Code sql={F.isNull.sql} />
-          <ul className="scene-null">
-            <li className="scene-pros__no">
-              <span aria-hidden="true">✗</span> <code>bono = NULL</code>{' '}
-              <span>{F.equalsNull} filas: nunca es verdadero</span>
-            </li>
-            <li className="scene-pros__yes">
-              <span aria-hidden="true">✓</span> <code>bono IS NULL</code>{' '}
-              <span>{F.isNull.counts.result} filas sin bono</span>
-            </li>
-            <li className="scene-pros__yes">
-              <span aria-hidden="true">✓</span> <code>bono IS NOT NULL</code>{' '}
-              <span>{F.isNotNull} filas con bono</span>
+            <li>
+              <span aria-hidden="true">✓</span>
+              <code>IS NOT NULL</code> → {F.isNotNull} filas
             </li>
           </ul>
-        </div>
-        <Data
-          table={F.isNull.source}
-          caption="BONO con valores y sin valor"
-          label="Tabla original · BONO"
-          summary="7 de 20 filas"
-        />
-      </div>
+        }
+      />
     </Scene>
   ),
   'order-by': () => (
-    <Scene
-      id="order-by"
-      concepts={['order-by']}
-      use
-      layout="transformation"
-      takeaway="ASC (de menor a mayor) es el valor por defecto; DESC invierte el orden."
-    >
-      <div className="scene-grid scene-grid--transform">
-        <Reveal at={1}>
-          <Data
-            table={F.original.result!}
-            caption="Orden original sin ORDER BY"
-            label="Antes · sin ORDER BY"
-            summary="5 de 20 filas · orden sin garantía"
-          />
-        </Reveal>
-        <Reveal at={2} className="scene-transform">
-          <p className="sort-badges">
-            <span className="sort-badge">
-              <span aria-hidden="true">↑</span> ASC menor a mayor
-            </span>
-            <span className="sort-badge sort-badge--on">
-              <span aria-hidden="true">↓</span> DESC mayor a menor
-            </span>
-          </p>
-          <ul className="scene-tags">
-            <li>Ordena el resultado</li>
-            <li>No cambia la tabla</li>
+    <Scene id="order-by" concepts={['order-by']} use layout="pipeline">
+      <ConceptFlow
+        projection={P.orderBy}
+        after={
+          <ul className="flow-facts" aria-label="Sentidos del orden">
+            <li>
+              <span aria-hidden="true">↑</span>ASC: de menor a mayor (por defecto)
+            </li>
+            <li>
+              <span aria-hidden="true">↓</span>DESC: de mayor a menor
+            </li>
+            <li>
+              <span aria-hidden="true">✓</span>No cambia la tabla
+            </li>
           </ul>
-        </Reveal>
-        <Reveal at={2} className="scene-stack">
-          <Code sql={F.orderDesc.sql} />
-          <Data
-            table={F.orderDesc.result!}
-            caption="Del salario más alto al más bajo"
-            label="Después · ORDER BY salario DESC"
-          />
-        </Reveal>
-      </div>
+        }
+      />
     </Scene>
   ),
   anatomia: () => (
@@ -1239,8 +1126,8 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     <Scene
       id="aprendimos"
       layout="summary"
-      purpose="Recorrimos los ocho bloques: ya puedes leer y escribir una consulta SELECT completa."
-      takeaway="La chuleta imprimible con todas las piezas está en Recursos."
+      purpose="Una consulta le pregunta a una tabla y su resultado es otra tabla."
+      takeaway="Tabla → consulta → operación → resultado: la tabla original no cambia."
     >
       <div className="scene-grid scene-grid--synthesis">
         <section className="scene-stack" aria-labelledby="scene-25-competencies">
@@ -1251,10 +1138,12 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
         </section>
         <div className="scene-stack">
           <Code sql={SYNTHESIS} label="Todo junto" />
-          <What>
-            Las ciudades, sin repetir, de quienes ganan 4.000.000 o más, en orden alfabético.
-          </What>
-          <NameChips names={F.synthesis} label={`${F.synthesis.length} ciudades`} />
+          <QueryParts parts={SYNTHESIS_PARTS} />
+          <NameChips
+            names={F.synthesis}
+            label={`Resultado: ${F.synthesis.length} ciudades`}
+            visibleLabel
+          />
         </div>
       </div>
     </Scene>
@@ -1340,7 +1229,10 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
             <li>
               <code>FROM</code> indica de dónde proviene.
             </li>
-            <li>Las demás cláusulas refinan el resultado.</li>
+            <li>
+              <code>WHERE</code>, <code>DISTINCT</code> y <code>ORDER BY</code> afinan filas,
+              repetidos y orden.
+            </li>
           </ol>
         </div>
         <div className="scene-closing">

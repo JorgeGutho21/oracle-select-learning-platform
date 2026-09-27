@@ -46,6 +46,12 @@ function outlineOf(scene: number) {
   return SCENES[scene - 1]!;
 }
 
+/** Ancho mínimo del lienzo 16:9 para que las tablas no bajen de 12 px (1,72 % × 0,8). */
+const MIN_STAGE_WIDTH = 870;
+/** Alto aproximado de la barra de controles y ancho del panel de notas. */
+const CONTROLS_HEIGHT = 56;
+const NOTES_WIDTH = 336;
+
 export function PresentationDeck({ requestedScene, memory }: PresentationDeckProps) {
   const [scene, setScene] = useState(() => clampScene(requestedScene ?? 1));
   const [step, setStep] = useState(Number.POSITIVE_INFINITY);
@@ -110,6 +116,31 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
       );
     }
   }, []);
+
+  // Lienzo demasiado pequeño en la ventana (zoom 125 %, portátil con poca altura): por
+  // debajo de ~870 px la letra de las tablas bajaría de 12 px, así que la escena fluye como
+  // una página (data-flow). En pantalla completa siempre hay lienzo 16:9.
+  const [flow, setFlow] = useState(false);
+  useEffect(() => {
+    const measure = () => {
+      if (document.fullscreenElement) {
+        setFlow(false);
+        return;
+      }
+      const root = getComputedStyle(document.documentElement);
+      const header = Number.parseFloat(root.getPropertyValue('--site-header-height')) || 73;
+      const height = window.innerHeight - header - CONTROLS_HEIGHT - 24;
+      const width = window.innerWidth - 24 - (notesOpen ? NOTES_WIDTH : 0);
+      setFlow(Math.min(width, (height * 16) / 9) < MIN_STAGE_WIDTH);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    document.addEventListener('fullscreenchange', measure);
+    return () => {
+      window.removeEventListener('resize', measure);
+      document.removeEventListener('fullscreenchange', measure);
+    };
+  }, [notesOpen]);
 
   useEffect(() => {
     const handleChange = () => setIsFullscreen(document.fullscreenElement === deckRef.current);
@@ -209,6 +240,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
       data-fullscreen={isFullscreen || undefined}
       data-idle={(isFullscreen && idle) || undefined}
       data-notes={showNotes || undefined}
+      data-flow={flow || undefined}
     >
       <div className="deck__viewport">
         <div className="deck__stage" key={scene}>
