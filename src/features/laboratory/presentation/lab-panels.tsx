@@ -10,7 +10,7 @@ import {
 } from '@/application/dataset-view';
 import { Alert, Chip } from '@/presentation/components/ui';
 import { DataView } from '@/presentation/components/data/data-view';
-import { DataViewToggle } from '@/presentation/components/data/data-view-toggle';
+import { DatasetExplorer } from '@/presentation/components/data/dataset-explorer';
 import { SchemaCards } from '@/presentation/components/data/schema-cards';
 import { SqlCode } from '@/presentation/components/data/sql-code';
 import {
@@ -72,7 +72,8 @@ function StaleNote({ stale }: { stale: boolean }) {
 
 /**
  * El esquema primero (12 columnas agrupadas, las que usa la consulta resaltadas); los 20
- * registros, solo si se piden. El protagonista del laboratorio es el SQL, no la tabla.
+ * registros, solo si se piden. Son los DATOS de origen, no el resultado de la consulta: se
+ * rotulan y se enmarcan distinto para que no se confundan con lo que devuelve SELECT.
  */
 export function SchemaPanel({ highlighted }: { highlighted: readonly string[] }) {
   return (
@@ -89,10 +90,13 @@ export function SchemaPanel({ highlighted }: { highlighted: readonly string[] })
       />
       <details className="lab-schema__data">
         <summary>Ver los {EMPLEADOS.rows.length} registros</summary>
-        <DataViewToggle
+        <p className="lab-muted">
+          Datos almacenados en la tabla EMPLEADOS. No es el resultado de tu consulta: ese está en el
+          panel 2.
+        </p>
+        <DatasetExplorer
           caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.id}`}
-          label="Tabla original"
-          summary={`${EMPLEADOS.rows.length} filas · ${EMPLEADOS.columns.length} columnas`}
+          label="Datos de origen · EMPLEADOS"
           columns={EMPLEADOS.columns.map(({ name, type }) => ({ name, type }))}
           rows={EMPLEADOS.rows.map((row) =>
             EMPLEADOS.columns.map(({ name }) => row[name as keyof EmpleadoRow] ?? null),
@@ -256,17 +260,25 @@ export function FeedbackPanel({
 
 /* ---------- 3. Resultado ---------- */
 
-/** Resultado de cualquier forma (2, 4 o 12 columnas) con la vista de datos adaptable. */
-function ResultTableView({
+/**
+ * Tabla de resultados compartida por la vista previa educativa y la ejecución en Oracle:
+ * siempre una tabla con las columnas y filas reales del resultado, en el orden de la
+ * consulta. Si en móvil o tableta no caben todas las columnas, se reparte en bandas con el
+ * mismo número de empleado; nunca en fichas por registro.
+ */
+export function ResultTableView({
   caption,
   label,
   columns,
   rows,
+  sortedBy,
 }: {
   caption: string;
   label: string;
   columns: readonly { name: string; type: 'number' | 'text' | 'date' }[];
   rows: readonly (readonly CellValue[])[];
+  /** Columnas por las que se ordenó el resultado (ORDER BY), con su sentido. */
+  sortedBy?: readonly { column: number; direction: 'ASC' | 'DESC' }[];
 }) {
   return (
     <DataView
@@ -278,7 +290,10 @@ function ResultTableView({
       columns={columns}
       rows={rows}
       schema={EMPLEADOS_VIEW_SCHEMA}
-      detail={columns.length > 8 ? 'summary' : 'full'}
+      size="compact"
+      fallback="bands"
+      className="dv--result"
+      {...(sortedBy ? { sortedBy } : {})}
     />
   );
 }
@@ -313,9 +328,10 @@ export function ResultPanel({
         ) : analysis.preview ? (
           <ResultTableView
             caption={`Vista previa: ${analysis.preview.rows.length} filas, ${analysis.preview.columns.length} columnas`}
-            label="Vista educativa"
+            label="Resultado · vista educativa"
             columns={analysis.preview.columns}
             rows={analysis.preview.rows}
+            sortedBy={orderOf(analysis)}
           />
         ) : (
           <p className="lab-empty">Sin vista previa: corrige los errores del diagnóstico.</p>
@@ -341,19 +357,37 @@ export function ResultPanel({
               : 'Pulsa «Ejecutar en Oracle» para ejecutar la consulta en el motor real.'}
           </p>
         ) : (
-          <OracleOutcome execution={execution} stale={execution.sql !== analysis?.source} />
+          <OracleOutcome
+            execution={execution}
+            stale={execution.sql !== analysis?.source}
+            sortedBy={execution.sql === analysis?.source ? orderOf(analysis) : []}
+          />
         )}
       </div>
     </Panel>
   );
 }
 
+/** Criterios de ORDER BY del resultado que son columnas, para marcar su encabezado. */
+function orderOf(analysis: LabAnalysis | null): { column: number; direction: 'ASC' | 'DESC' }[] {
+  const order = analysis?.preview?.trace.order ?? [];
+  return order
+    .filter(
+      (entry): entry is { column: number; direction: 'ASC' | 'DESC' } => entry.column !== null,
+    )
+    .filter(
+      (entry, index, all) => all.findIndex((other) => other.column === entry.column) === index,
+    );
+}
+
 function OracleOutcome({
   execution,
   stale,
+  sortedBy,
 }: {
   execution: { sql: string; result: LabExecution };
   stale: boolean;
+  sortedBy: readonly { column: number; direction: 'ASC' | 'DESC' }[];
 }) {
   const { result } = execution;
   return (
@@ -365,6 +399,7 @@ function OracleOutcome({
           label="Resultado Oracle"
           columns={result.columns}
           rows={result.rows}
+          sortedBy={sortedBy}
         />
       )}
       {result.status === 'unavailable' && (

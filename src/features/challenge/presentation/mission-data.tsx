@@ -2,7 +2,7 @@ import { useId } from 'react';
 import { conceptCategoryLabel, SQL_CONCEPTS, type ConceptId } from '@/application/sql-concepts';
 import { EMPLEADOS_VIEW_SCHEMA } from '@/application/dataset-view';
 import { DataView, type DataColumn } from '@/presentation/components/data/data-view';
-import { DataViewToggle } from '@/presentation/components/data/data-view-toggle';
+import { DatasetExplorer } from '@/presentation/components/data/dataset-explorer';
 import { EMPLEADOS, type EmpleadosColumn } from '../application/challenge-api';
 import type { MissionDataSpec } from './mission-context';
 
@@ -98,16 +98,15 @@ export function MissionData({
           Ver tabla completa{' '}
           <span className="ch-data__more-size">· {total} filas × 12 columnas</span>
         </summary>
-        <DataViewToggle
+        <DatasetExplorer
           caption="Tabla EMPLEADOS completa"
-          label="Tabla original"
+          label="Datos de origen · EMPLEADOS"
           columns={columnsOf(EMPLEADOS.columns.map((column) => column.name))}
           rows={rowsOf(
             EMPLEADOS.rows.map((row) => row.ID_EMPLEADO),
             EMPLEADOS.columns.map((column) => column.name),
           )}
           schema={EMPLEADOS_VIEW_SCHEMA}
-          summary={`${total} filas · ${allColumns} columnas`}
         />
       </details>
     </section>

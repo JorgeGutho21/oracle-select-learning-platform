@@ -50,24 +50,37 @@ test('el laboratorio muestra primero el editor y el resultado', async ({ page })
     /Anatomía de la consulta/,
     /Esquema disponible/,
   ]);
-  // Los 20 registros no ocupan la pantalla: se abren solo si se piden.
+  // Los 20 registros no ocupan la pantalla: se abren solo si se piden, y son los datos de
+  // origen (no el resultado), con un selector de columnas por grupos.
   await expect(page.getByText('Ver los 20 registros')).toBeVisible();
   await expect(page.getByRole('table', { name: /Tabla EMPLEADOS · 20 filas/ })).toBeHidden();
   await page.getByText('Ver los 20 registros').click();
-  await expect(page.getByRole('button', { name: 'Resumen' })).toHaveAttribute(
+  await expect(page.getByText('No es el resultado de tu consulta')).toBeVisible();
+  const columns = page.getByRole('group', { name: 'Columnas a la vista' });
+  await expect(columns.getByRole('button', { name: 'Todas' })).toHaveAttribute(
     'aria-pressed',
     'true',
   );
+  await columns.getByRole('button', { name: 'Contacto' }).click();
+  const source = page.getByRole('table', { name: /Tabla EMPLEADOS · 20 filas/ });
+  await expect(source.getByRole('columnheader')).toHaveText(['ID_EMPLEADO', 'CORREO']);
+  await expect(source.locator('tbody tr')).toHaveCount(20);
 });
 
-test('un resultado de 12 columnas se lee sin barra horizontal', async ({ page }) => {
+test('SELECT * en el laboratorio es una sola tabla de 12 columnas, sin barra ni fichas', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/lab?sql=SELECT+*+FROM+empleados%3B');
-  await expect(page.locator('.deck, .lab-page').first()).toBeVisible();
+  await expect(page.locator('.lab-page')).toBeVisible();
   await page.getByRole('button', { name: 'Analizar' }).click();
   const result = page.getByRole('region', { name: 'Resultado' });
-  // Sin espacio para 12 columnas, cada fila pasa a ser una ficha con sus campos agrupados.
-  await expect(result.locator('.dv-record').first()).toBeVisible();
-  await expect(result.locator('.dv-record').first()).toContainText('Ana Rojas');
+  const table = result.getByRole('table', { name: /Vista previa: 20 filas, 12 columnas/ });
+  await expect(table).toBeVisible();
+  await expect(table.getByRole('columnheader')).toHaveCount(12);
+  await expect(table.locator('tbody tr')).toHaveCount(20);
+  await expect(result.locator('.dv-record:visible')).toHaveCount(0);
+  await expect(result.getByText('Ver registro completo')).toHaveCount(0);
+  await expect(result.getByText('20 filas · 12 columnas')).toBeVisible();
   await expectNoHorizontalScroll(page, 'resultado de SELECT *');
 });

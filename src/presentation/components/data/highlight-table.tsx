@@ -43,7 +43,8 @@ export interface HighlightTableProps {
   readonly summary?: string;
   readonly detail?: 'summary' | 'full';
   readonly schema?: DataViewSchema;
-  readonly mode?: 'auto' | 'table' | 'records';
+  readonly mode?: 'auto' | 'table' | 'bands' | 'records';
+  readonly className?: string;
 }
 
 export function HighlightTable({ schema, ...props }: HighlightTableProps) {

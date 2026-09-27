@@ -3,21 +3,24 @@ import { formatCell } from './cell-format';
 
 /**
  * Vista de datos adaptable (ResponsiveDataView): la única forma de mostrar filas en la
- * plataforma. Con espacio suficiente es una tabla completa; cuando las columnas dejarían de
- * leerse, cambia de representación y cada fila pasa a ser una ficha con sus campos
- * agrupados. Los datos son los mismos: nunca se encoge la letra ni se añade una barra
- * horizontal.
+ * plataforma. Con espacio suficiente es una tabla completa. Si no cabe y tiene muchas
+ * columnas (7–12), se reparte en dos o tres bandas tabulares sincronizadas: las mismas filas
+ * en el mismo orden, con ID_EMPLEADO (o la primera columna) repetido para unirlas. Solo si
+ * tampoco caben las bandas, cada fila pasa a ser una ficha con sus campos agrupados. Los
+ * datos son los mismos: nunca se encoge la letra ni se añade una barra horizontal.
  *
  * La decisión es de CSS, sin JavaScript ni saltos de diseño: el componente calcula el ancho
- * que necesita la tabla (en em, según columnas y contenido) y una consulta de contenedor
- * oculta la tabla y muestra las fichas cuando el contenedor es más estrecho. Solo una de las
- * dos representaciones está visible (y en el árbol de accesibilidad) a la vez.
+ * que necesita cada representación (en em, según columnas y contenido) y las consultas de
+ * contenedor muestran la primera que cabe en el espacio real disponible. Solo una está
+ * visible (y en el árbol de accesibilidad) a la vez.
  *
  * También marca lo didáctico sin depender solo del color: columnas pedidas, filas que
  * cumplen o no una condición, repetidas, coincidencias de LIKE, NULL, estado y orden.
  */
 
 export type DataCell = string | number | null;
+
+export type DataViewSize = 'regular' | 'large' | 'compact';
 
 export interface DataColumn {
   readonly name: string;
@@ -76,7 +79,10 @@ export interface DataViewProps {
   readonly columns: readonly DataColumn[];
   readonly rows: readonly (readonly DataCell[])[];
   readonly schema?: DataViewSchema;
-  /** `summary`: solo las columnas prioritarias del esquema; `full`: todas. */
+  /**
+   * Detalle de las fichas: `summary` muestra los campos prioritarios del esquema y pliega el
+   * resto; `full`, todos. La tabla y las bandas muestran siempre todas las columnas.
+   */
   readonly detail?: 'summary' | 'full';
   readonly highlightedColumns?: readonly string[];
   readonly dimOthers?: boolean;
@@ -86,11 +92,21 @@ export interface DataViewProps {
   readonly cellMarks?: readonly (readonly (DataCellMark | null)[])[];
   readonly sortedBy?: readonly { readonly column: number; readonly direction: 'ASC' | 'DESC' }[];
   readonly columnRoles?: Readonly<Record<string, readonly ColumnRole[]>>;
-  readonly size?: 'regular' | 'large';
+  /**
+   * `compact`: tabla de resultados SQL del laboratorio. Letra de datos de 13–14 px, textos
+   * largos (CARGO, DEPARTAMENTO, CORREO) que pueden ocupar dos líneas y encabezado fijo al
+   * desplazar la página.
+   */
+  readonly size?: DataViewSize;
   /** Resumen visible, por ejemplo «8 de 20 filas · 3 columnas». */
   readonly summary?: string;
-  /** Fuerza una representación (pruebas y casos especiales). */
-  readonly mode?: 'auto' | 'table' | 'records';
+  /**
+   * Última representación cuando ni la tabla ni las bandas caben: fichas por registro o más
+   * bandas (hasta seis). El laboratorio usa bandas: un resultado SQL siempre se ve como tabla.
+   */
+  readonly fallback?: 'records' | 'bands';
+  /** Fuerza una representación (pruebas, lienzo 16:9 y casos especiales). */
+  readonly mode?: 'auto' | 'table' | 'bands' | 'records';
   readonly className?: string;
   /** Columna que encabeza cada fila (`<th scope="row">`). */
   readonly rowHeader?: number;
@@ -119,26 +135,18 @@ function textOf(value: DataCell): string {
 }
 
 /**
- * Ancho aproximado (em) que necesita la tabla para leerse sin barra: encabezados en
- * monoespaciada pequeña, datos en la fuente del texto y el relleno de cada celda.
+ * Ancho aproximado (em) de cada columna: encabezado en monoespaciada pequeña, datos en la
+ * fuente del texto y el relleno de la celda.
  */
-export function requiredTableWidth(
+function columnWidths(
   columns: readonly DataColumn[],
   rows: readonly (readonly DataCell[])[],
-  options: {
-    readonly states?: boolean;
-    readonly duplicates?: boolean;
-    readonly size?: 'regular' | 'large';
-    readonly wrap?: readonly string[];
-  } = {},
-): number {
+  options: { readonly size?: DataViewSize; readonly wrap?: readonly string[] } = {},
+): number[] {
+  if (options.size === 'compact') return compactWidths(columns, rows);
   const padding = options.size === 'large' ? 1.6 : 1.9;
-  let width = 0.2;
-  columns.forEach((column, index) => {
-    if (options.wrap?.includes(column.name)) {
-      width += 14 + padding;
-      return;
-    }
+  return columns.map((column, index) => {
+    if (options.wrap?.includes(column.name)) return 14 + padding;
     const header = column.name.length * 0.52 + 0.9;
     const longest = rows.reduce((max, row) => {
       const value = row[index] ?? null;
@@ -146,17 +154,164 @@ export function requiredTableWidth(
       const status = typeof value === 'string' && STATUS_VALUES.has(value) ? 1.6 : 0;
       return Math.max(max, length + status);
     }, 2);
-    width += Math.max(header, longest) + padding;
+    return Math.max(header, longest) + padding;
   });
+}
+
+/** Longitud (caracteres) que un texto no puede partir: su palabra más larga. */
+function longestWord(text: string): number {
+  return Math.max(
+    ...text.split(/[\s@]+/).map((word) => word.length + (text.includes('@') ? 1 : 0)),
+  );
+}
+
+/** Longitud del encabezado cuando se parte tras cada guion bajo («FECHA_» / «INGRESO»). */
+export function headerSegments(name: string): string[] {
+  return name.split(/(?<=_)/);
+}
+
+/**
+ * Anchos de la tabla compacta: encabezados monoespaciados que se parten tras «_», números y
+ * fechas enteros, y textos que pueden ocupar dos líneas (hasta 12 caracteres por línea o su
+ * palabra más larga). La estimación nunca queda por debajo del ancho mínimo real.
+ */
+function compactWidths(
+  columns: readonly DataColumn[],
+  rows: readonly (readonly DataCell[])[],
+): number[] {
+  // Medido en Chromium con la letra del sitio: el ancho mínimo real queda un 5–10 % por debajo.
+  const padding = 1.25;
+  return columns.map((column, index) => {
+    const header = Math.max(...headerSegments(column.name).map((part) => part.length)) * 0.53 + 0.3;
+    const longest = rows.reduce((max, row) => {
+      const value = row[index] ?? null;
+      if (value === null) return Math.max(max, 3.4);
+      const text = textOf(value);
+      if (typeof value === 'string' && STATUS_VALUES.has(value)) {
+        return Math.max(max, text.length * 0.62 + 2.4);
+      }
+      if (column.type !== 'text') return Math.max(max, text.length * 0.53);
+      const chars = /[\s@]/.test(text)
+        ? Math.max(longestWord(text), Math.min(text.length, 12))
+        : text.length;
+      return Math.max(max, chars * 0.52);
+    }, 1.5);
+    return Math.max(header, longest) + padding;
+  });
+}
+
+/** Suma las columnas añadidas por la vista (¿Cumple?, repetida) y calibra con el ancho real. */
+function finishWidth(
+  sum: number,
+  options: {
+    readonly states?: boolean;
+    readonly duplicates?: boolean;
+    readonly compact?: boolean;
+  },
+): number {
+  let width = 0.2 + sum;
   if (options.states) width += 7.6;
   if (options.duplicates) width += 5.4;
   // Calibrado con el ancho real de las tablas del sitio (la estimación queda un 8–30 % por
-  // encima): 0,93 conserva un margen para no provocar nunca una barra horizontal.
-  return Math.round(width * 0.93 * 10) / 10;
+  // encima): 0,93 conserva un margen para no provocar nunca una barra horizontal. La tabla
+  // compacta ya estima con margen y no se reduce.
+  return Math.round(width * (options.compact ? 1 : 0.93) * 10) / 10;
+}
+
+/** Ancho aproximado (em) que necesita la tabla para leerse sin barra. */
+export function requiredTableWidth(
+  columns: readonly DataColumn[],
+  rows: readonly (readonly DataCell[])[],
+  options: {
+    readonly states?: boolean;
+    readonly duplicates?: boolean;
+    readonly size?: DataViewSize;
+    readonly wrap?: readonly string[];
+  } = {},
+): number {
+  const sum = columnWidths(columns, rows, options).reduce((total, width) => total + width, 0);
+  return finishWidth(sum, { ...options, compact: options.size === 'compact' });
 }
 
 export function widthBucket(width: number): number {
   return DATA_VIEW_BUCKETS.find((bucket) => bucket >= width) ?? DATA_VIEW_BUCKETS.at(-1)!;
+}
+
+/**
+ * Reparto de un resultado ancho (7–12 columnas) en bandas tabulares: las mismas filas, en
+ * el mismo orden, con la columna ancla (ID_EMPLEADO o la primera) repetida en cada banda
+ * para unirlas. Las columnas conservan su orden; los cortes minimizan la banda más ancha.
+ */
+export interface DataBandPlan {
+  /** Índice (en `columns`) de la columna ancla. */
+  readonly anchor: number;
+  /** Índices de las columnas de cada banda, sin el ancla. */
+  readonly bands: readonly (readonly number[])[];
+  /** Ancho (em) que necesita la banda más ancha. */
+  readonly need: number;
+}
+
+/** A partir de cuántas columnas se ofrece el reparto en bandas. */
+export const BAND_MIN_COLUMNS = 7;
+
+export function planBands(
+  columns: readonly DataColumn[],
+  rows: readonly (readonly DataCell[])[],
+  count: number,
+  options: {
+    readonly anchorColumn?: string | undefined;
+    readonly states?: boolean;
+    readonly duplicates?: boolean;
+    readonly size?: DataViewSize;
+    readonly wrap?: readonly string[];
+    /** Columnas mínimas para ofrecer bandas (por defecto, BAND_MIN_COLUMNS). */
+    readonly minColumns?: number;
+  } = {},
+): DataBandPlan | null {
+  if (columns.length < (options.minColumns ?? BAND_MIN_COLUMNS)) return null;
+  const named = options.anchorColumn
+    ? columns.findIndex((column) => column.name === options.anchorColumn)
+    : -1;
+  const anchor = named >= 0 ? named : 0;
+  const rest = columns.map((_, index) => index).filter((index) => index !== anchor);
+  // Con dos o tres bandas, al menos dos columnas por banda; con más, basta una.
+  const minimum = count <= 3 ? 2 : 1;
+  if (rest.length < count * minimum) return null;
+  const widths = columnWidths(columns, rows, options);
+  const bandWidth = (indexes: readonly number[]) =>
+    finishWidth(widths[anchor]! + indexes.reduce((total, index) => total + widths[index]!, 0), {
+      ...options,
+      compact: options.size === 'compact',
+    });
+  const best: {
+    value: { readonly bands: number[][]; readonly need: number; readonly spread: number } | null;
+  } = { value: null };
+  // Cortes contiguos, sin cambiar el orden de las columnas. Gana la banda más ancha más
+  // estrecha (por umbral CSS) y, a igualdad, el reparto más equilibrado.
+  const split = (start: number, left: number, bands: number[][]): void => {
+    if (left === 1) {
+      const last = rest.slice(start);
+      if (last.length < minimum) return;
+      const all = [...bands, last];
+      const widths = all.map(bandWidth);
+      const need = Math.max(...widths);
+      const spread = need - Math.min(...widths);
+      const current = best.value;
+      if (
+        !current ||
+        widthBucket(need) < widthBucket(current.need) ||
+        (widthBucket(need) === widthBucket(current.need) && spread < current.spread)
+      ) {
+        best.value = { bands: all, need, spread };
+      }
+      return;
+    }
+    for (let end = start + minimum; end <= rest.length - (left - 1) * minimum; end += 1) {
+      split(end, left - 1, [...bands, rest.slice(start, end)]);
+    }
+  };
+  split(0, count, []);
+  return best.value ? { anchor, bands: best.value.bands, need: best.value.need } : null;
 }
 
 export function NullBadge() {
@@ -212,6 +367,13 @@ function CellContent({
   const content =
     column?.name === 'ESTADO' && typeof value === 'string' && STATUS_VALUES.has(value) ? (
       <StatusChip value={value} />
+    ) : typeof value === 'string' && value.includes('@') ? (
+      // Un correo puede partirse tras la arroba sin ensanchar toda la tabla.
+      <>
+        {value.slice(0, value.indexOf('@') + 1)}
+        <wbr />
+        {value.slice(value.indexOf('@') + 1)}
+      </>
     ) : (
       formatCell(value)
     );
@@ -221,6 +383,16 @@ function CellContent({
       {mark?.kind === 'match' && <span className="visually-hidden"> (cumple)</span>}
     </>
   );
+}
+
+/**
+ * Clases de visibilidad por contenedor (`_data-view.scss`): la representación se oculta si
+ * no cabe (`dv-fit-N`) o si ya cabe la anterior, más fácil de leer (`dv-above-N`).
+ */
+function fitClasses(fit: number | null, above: number | null): string {
+  return [fit !== null ? `dv-fit-${fit}` : '', above !== null ? `dv-above-${above}` : '']
+    .filter(Boolean)
+    .join(' ');
 }
 
 export function DataView({
@@ -241,27 +413,39 @@ export function DataView({
   size = 'regular',
   summary,
   mode = 'auto',
+  fallback = 'records',
   className = '',
   rowHeader,
   wrapColumns = [],
   codeColumns = [],
 }: DataViewProps) {
-  // Columnas visibles en la tabla: en resumen, solo las prioritarias del esquema.
-  const tableIndexes = columns
-    .map((_, index) => index)
-    .filter(
-      (index) =>
-        detail === 'full' || !schema || schema.priorityColumns.includes(columns[index]!.name),
-    );
-  const tableColumns = tableIndexes.map((index) => columns[index]!);
-  const tableRows = rows.map((row) => tableIndexes.map((index) => row[index] ?? null));
-  const need = requiredTableWidth(tableColumns, tableRows, {
+  const widthOptions = {
     states: Boolean(rowStates),
     duplicates: duplicateRows.length > 0,
     size,
     wrap: wrapColumns,
-  });
+  };
+  const need = requiredTableWidth(columns, rows, widthOptions);
   const bucket = widthBucket(need);
+  // Alternativas en bandas, solo si caben donde la anterior no cabe: dos y tres partes; con
+  // bandas como último recurso, hasta seis (móvil).
+  const bandsOnly = fallback === 'bands';
+  const plans: DataBandPlan[] = [];
+  if (mode === 'auto' || mode === 'bands') {
+    let limit = bucket;
+    // Sin fichas, hasta una columna por banda en los móviles más estrechos (320 px).
+    for (const count of bandsOnly ? [2, 3, 4, 6, 8, 11] : [2, 3]) {
+      const plan = planBands(columns, rows, count, {
+        ...widthOptions,
+        anchorColumn: schema?.idColumn,
+        ...(bandsOnly ? { minColumns: 3 } : {}),
+      });
+      if (!plan || (mode === 'auto' && widthBucket(plan.need) >= limit)) continue;
+      plans.push(plan);
+      limit = widthBucket(plan.need);
+      if (mode === 'bands') break;
+    }
+  }
 
   const state = (name: string) =>
     highlightedColumns.includes(name)
@@ -289,134 +473,223 @@ export function DataView({
       </div>
     ) : null;
 
-  const table = (
-    <div className="dv__table" role="region" aria-label={caption} tabIndex={0}>
-      <table>
-        <caption className="visually-hidden">{caption}</caption>
-        <thead>
-          <tr>
-            {rowStates && (
-              <th scope="col" className="dv__state">
-                ¿Cumple?
-              </th>
-            )}
-            {tableIndexes.map((columnIndex) => {
-              const column = columns[columnIndex]!;
-              const sort = sortOf(columnIndex);
+  /** Tabla con las columnas indicadas; en las bandas, el ancla encabeza cada fila. */
+  const renderTable = (
+    indexes: readonly number[],
+    tableCaption: string,
+    extraClass: string,
+    anchor: number | null = null,
+  ) => {
+    const headerColumn = anchor ?? rowHeader;
+    return (
+      <div
+        className={['dv__table', extraClass].filter(Boolean).join(' ')}
+        role="region"
+        aria-label={tableCaption}
+        tabIndex={0}
+      >
+        <table>
+          <caption className="visually-hidden">{tableCaption}</caption>
+          <thead>
+            <tr>
+              {rowStates && (
+                <th scope="col" className="dv__state">
+                  ¿Cumple?
+                </th>
+              )}
+              {indexes.map((columnIndex) => {
+                const column = columns[columnIndex]!;
+                const sort = sortOf(columnIndex);
+                return (
+                  <th
+                    key={`${column.name}-${columnIndex}`}
+                    scope="col"
+                    className={
+                      [
+                        state(column.name),
+                        column.type === 'number' ? 'is-number' : '',
+                        sort ? 'is-sorted' : '',
+                        roleClasses(column.name),
+                        columnIndex === anchor ? 'is-anchor' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ') || undefined
+                    }
+                    aria-sort={
+                      sort ? (sort.direction === 'ASC' ? 'ascending' : 'descending') : undefined
+                    }
+                  >
+                    {headerSegments(column.name).map((part, index) => (
+                      <Fragment key={index}>
+                        {index > 0 && <wbr />}
+                        {part}
+                      </Fragment>
+                    ))}
+                    {sort && (
+                      <span className="dv__sort" aria-hidden="true">
+                        {sort.direction === 'ASC' ? ' ↑' : ' ↓'}
+                      </span>
+                    )}
+                    {state(column.name) === 'is-on' && (
+                      <span className="visually-hidden"> (resaltada)</span>
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => {
+              const rowState = rowStates?.[rowIndex];
+              const duplicate = duplicateRows.includes(rowIndex);
               return (
-                <th
-                  key={`${column.name}-${columnIndex}`}
-                  scope="col"
-                  className={
-                    [
-                      state(column.name),
-                      column.type === 'number' ? 'is-number' : '',
-                      sort ? 'is-sorted' : '',
-                      roleClasses(column.name),
+                <tr key={rowIndex} className={rowClass(rowIndex)}>
+                  {rowState && (
+                    <td className="dv__state">
+                      <span aria-hidden="true">{STATE_TEXT[rowState].symbol}</span>{' '}
+                      <span className="dv__state-label">{STATE_TEXT[rowState].label}</span>
+                    </td>
+                  )}
+                  {indexes.map((columnIndex, position) => {
+                    const column = columns[columnIndex];
+                    const mark = cellMarks?.[rowIndex]?.[columnIndex] ?? null;
+                    const classes = [
+                      column ? state(column.name) : undefined,
+                      column?.type === 'number' ? 'is-number' : '',
+                      column?.type === 'date' ? 'is-date' : '',
+                      mark ? 'is-match' : '',
+                      column ? roleClasses(column.name) : '',
+                      column && wrapColumns.includes(column.name) ? 'is-wrap' : '',
+                      columnIndex === anchor ? 'is-anchor' : '',
                     ]
                       .filter(Boolean)
-                      .join(' ') || undefined
-                  }
-                  aria-sort={
-                    sort ? (sort.direction === 'ASC' ? 'ascending' : 'descending') : undefined
-                  }
-                >
-                  {column.name}
-                  {sort && (
-                    <span className="dv__sort" aria-hidden="true">
-                      {sort.direction === 'ASC' ? ' ↑' : ' ↓'}
-                    </span>
-                  )}
-                  {state(column.name) === 'is-on' && (
-                    <span className="visually-hidden"> (resaltada)</span>
-                  )}
-                </th>
+                      .join(' ');
+                    const Cell = columnIndex === headerColumn ? 'th' : 'td';
+                    return (
+                      <Cell
+                        key={columnIndex}
+                        className={classes || undefined}
+                        {...(columnIndex === headerColumn ? { scope: 'row' as const } : {})}
+                      >
+                        <CellContent
+                          value={row[columnIndex] ?? null}
+                          mark={mark}
+                          column={column}
+                          code={Boolean(column && codeColumns.includes(column.name))}
+                        />
+                        {duplicate && position === indexes.length - 1 && (
+                          <span className="dv__badge">repetida</span>
+                        )}
+                        {rowIndex === highlightedRow && position === 0 && (
+                          <span className="visually-hidden"> (fila resaltada)</span>
+                        )}
+                      </Cell>
+                    );
+                  })}
+                </tr>
               );
             })}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, rowIndex) => {
-            const rowState = rowStates?.[rowIndex];
-            const duplicate = duplicateRows.includes(rowIndex);
-            return (
-              <tr key={rowIndex} className={rowClass(rowIndex)}>
-                {rowState && (
-                  <td className="dv__state">
-                    <span aria-hidden="true">{STATE_TEXT[rowState].symbol}</span>{' '}
-                    <span className="dv__state-label">{STATE_TEXT[rowState].label}</span>
-                  </td>
-                )}
-                {tableIndexes.map((columnIndex, position) => {
-                  const column = columns[columnIndex];
-                  const mark = cellMarks?.[rowIndex]?.[columnIndex] ?? null;
-                  const classes = [
-                    column ? state(column.name) : undefined,
-                    column?.type === 'number' ? 'is-number' : '',
-                    mark ? 'is-match' : '',
-                    column ? roleClasses(column.name) : '',
-                    column && wrapColumns.includes(column.name) ? 'is-wrap' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ');
-                  const Cell = columnIndex === rowHeader ? 'th' : 'td';
-                  return (
-                    <Cell
-                      key={columnIndex}
-                      className={classes || undefined}
-                      {...(columnIndex === rowHeader ? { scope: 'row' as const } : {})}
-                    >
-                      <CellContent
-                        value={row[columnIndex] ?? null}
-                        mark={mark}
-                        column={column}
-                        code={Boolean(column && codeColumns.includes(column.name))}
-                      />
-                      {duplicate && position === tableIndexes.length - 1 && (
-                        <span className="dv__badge">repetida</span>
-                      )}
-                      {rowIndex === highlightedRow && position === 0 && (
-                        <span className="visually-hidden"> (fila resaltada)</span>
-                      )}
-                    </Cell>
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
+          </tbody>
+        </table>
+      </div>
+    );
+  };
 
-  const records = (
-    <Records
-      caption={caption}
-      columns={columns}
-      rows={rows}
-      schema={schema}
-      detail={detail}
-      state={state}
-      sortOf={sortOf}
-      rowClass={rowClass}
-      rowStates={rowStates}
-      cellMarks={cellMarks}
-      duplicateRows={duplicateRows}
-      roleClasses={roleClasses}
-      codeColumns={codeColumns}
-    />
-  );
+  // Cadena de representaciones: tabla → bandas (2, 3) → fichas. En modo automático cada
+  // una se oculta si no cabe en el contenedor o si cabe la anterior.
+  const auto = mode === 'auto';
+  const needs = [bucket, ...plans.map((plan) => widthBucket(plan.need))];
+  const showTable = auto || mode === 'table' || (mode === 'bands' && plans.length === 0);
+  const showRecords = (auto && !bandsOnly) || mode === 'records';
+  // Sin fichas, la última representación (la tabla o la banda más estrecha) queda siempre
+  // disponible: solo se oculta si cabe una anterior.
+  const lastFit = (index: number) =>
+    auto && bandsOnly && index === needs.length - 1 ? null : needs[index]!;
+
+  const bands = plans.map((plan, planIndex) => {
+    const anchorName = columns[plan.anchor]!.name;
+    const total = plan.bands.length;
+    return (
+      <div
+        key={total}
+        className={[
+          'dv__bands',
+          `dv__bands--${total}`,
+          auto ? fitClasses(lastFit(planIndex + 1), needs[planIndex]!) : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        role="group"
+        aria-label={`${caption}, en ${total} partes`}
+      >
+        <p className="dv__bands-note">
+          Mismo resultado en {total} partes: las mismas filas, en el mismo orden.{' '}
+          <code>{anchorName}</code> se repite para unirlas.
+        </p>
+        {plan.bands.map((band, index) => {
+          const first = columns[band[0]!]!.name;
+          const last = columns[band.at(-1)!]!.name;
+          return (
+            <section key={first} className="dv__band" aria-label={`Parte ${index + 1} de ${total}`}>
+              <p className="dv__band-title" aria-hidden="true">
+                <span>
+                  Parte {index + 1} de {total}
+                </span>{' '}
+                {first === last ? first : `${first} … ${last}`}
+              </p>
+              {renderTable(
+                [plan.anchor, ...band],
+                `${caption} · parte ${index + 1} de ${total}: ${first === last ? first : `${first} a ${last}`}`,
+                'dv__table--band',
+                plan.anchor,
+              )}
+            </section>
+          );
+        })}
+      </div>
+    );
+  });
 
   return (
     <div
-      className={['dv', `dv--${size}`, `dv--need-${bucket}`, `dv--mode-${mode}`, className]
+      className={[
+        'dv',
+        `dv--${size}`,
+        `dv--need-${bucket}`,
+        `dv--mode-${mode}`,
+        bandsOnly ? 'dv--tabular' : '',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
       data-need={need}
     >
       {header}
-      {mode !== 'records' && table}
-      {mode !== 'table' && records}
+      {showTable &&
+        renderTable(
+          columns.map((_, index) => index),
+          caption,
+          auto ? fitClasses(lastFit(0), null) : '',
+        )}
+      {bands}
+      {showRecords && (
+        <Records
+          caption={caption}
+          columns={columns}
+          rows={rows}
+          schema={schema}
+          detail={detail}
+          state={state}
+          sortOf={sortOf}
+          rowClass={rowClass}
+          rowStates={rowStates}
+          cellMarks={cellMarks}
+          duplicateRows={duplicateRows}
+          roleClasses={roleClasses}
+          codeColumns={codeColumns}
+          className={auto ? fitClasses(null, needs.at(-1)!) : ''}
+        />
+      )}
     </div>
   );
 }
@@ -435,6 +708,7 @@ interface RecordsProps {
   readonly duplicateRows: readonly number[];
   readonly roleClasses: (name: string) => string;
   readonly codeColumns: readonly string[];
+  readonly className?: string;
 }
 
 /** Fichas por registro: título, campos prioritarios y el resto agrupado y plegable. */
@@ -452,6 +726,7 @@ function Records({
   duplicateRows,
   roleClasses,
   codeColumns,
+  className = '',
 }: RecordsProps) {
   const indexOf = (name: string) => columns.findIndex((column) => column.name === name);
   const titleIndexes = (schema?.titleColumns ?? ['NOMBRE', 'APELLIDO'])
@@ -526,7 +801,7 @@ function Records({
   };
 
   return (
-    <ol className="dv__records" aria-label={caption}>
+    <ol className={['dv__records', className].filter(Boolean).join(' ')} aria-label={caption}>
       {rows.map((row, rowIndex) => {
         const rowState = rowStates?.[rowIndex];
         return (

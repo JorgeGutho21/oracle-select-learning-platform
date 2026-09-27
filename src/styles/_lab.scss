@@ -1,22 +1,13 @@
-// Laboratorio SQL: el SQL es el protagonista. Editor y resultado en dos columnas en
-// escritorio; debajo, diagnóstico, lectura, anatomía y el esquema. En móvil, apilados en ese
-// orden: el editor aparece primero.
+// Laboratorio SQL: el SQL es el protagonista. El editor ocupa todo el ancho y, debajo, el
+// resultado usa también todo el ancho: una tabla de 12 columnas cabe entera en escritorio.
+// Después, diagnóstico, lectura, anatomía y el esquema, en ese orden en cualquier pantalla.
 
 .lab-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
+  align-items: start;
   min-inline-size: 0;
-}
-@media (min-width: 992px) {
-  .lab-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-  }
-  .lab-panel--feedback,
-  .lab-panel--wide {
-    grid-column: 1 / -1;
-  }
 }
 
 .lab-panel {
@@ -197,6 +188,12 @@
 .lab-result__heading h3 {
   margin: 0;
   font-size: 1.125rem;
+}
+// En pantallas estrechas el panel cede relleno a la tabla de resultados.
+@media (max-width: 575px) {
+  .lab-panel {
+    padding: var(--space-4) var(--space-3);
+  }
 }
 
 /* ---------- Traducción ---------- */

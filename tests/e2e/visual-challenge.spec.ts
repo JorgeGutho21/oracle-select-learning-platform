@@ -85,8 +85,10 @@ test('la tabla completa sigue disponible con sus 20 registros', async ({ page })
   await openMission(page, 10, 'Final Boss: Query Master');
   const more = page.locator('.ch-data__more');
   await more.getByText('Ver tabla completa').click();
-  const rows = more.locator('.dv__table tbody tr:visible, .dv-record:visible');
-  await expect(rows).toHaveCount(20);
+  // Una tabla (o sus bandas, cada una con las 20 filas y ID_EMPLEADO), nunca fichas.
+  const first = more.locator('.dv__table:visible').first();
+  await expect(first.locator('tbody tr')).toHaveCount(20);
+  await expect(more.locator('.dv-record:visible')).toHaveCount(0);
 });
 
 test('M04: al acertar, cada fila de la muestra explica si cumple la condición', async ({

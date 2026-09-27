@@ -1,7 +1,8 @@
-// Vista de datos adaptable (data-view.tsx). La tabla se muestra cuando cabe; si el
-// contenedor es más estrecho que el ancho que necesita (clase .dv--need-N, en em), una
-// consulta de contenedor la sustituye por fichas. Nunca hay barra horizontal: la barra de
-// .dv__table es solo la red de seguridad de navegadores sin consultas de contenedor.
+// Vista de datos adaptable (data-view.tsx). Cadena de representaciones: tabla completa →
+// dos bandas → tres bandas → fichas. Cada representación lleva el ancho que necesita
+// (clases dv-fit-N y dv-above-N, en em) y una consulta de contenedor muestra la primera que
+// cabe en el espacio real. Nunca hay barra horizontal: la barra de .dv__table es solo la red
+// de seguridad de navegadores sin consultas de contenedor.
 
 $dv-buckets:
   12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
@@ -385,7 +386,7 @@ $dv-buckets:
 .dv-record__group-title {
   margin: 0;
   color: var(--color-primary);
-  font-size: max(0.7em, 11.5px);
+  font-size: max(0.7em, 12px);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -399,17 +400,135 @@ $dv-buckets:
   cursor: pointer;
 }
 
-// Cambio de representación por contenedor.
-.dv--mode-records > .dv__records {
+// Tabla compacta de resultados SQL (laboratorio): 13–14 px, textos largos en dos líneas,
+// encabezado fijo al desplazar la página y filas alternas muy suaves. Números a la derecha,
+// fechas enteras, NULL y ESTADO como insignias discretas.
+.dv--compact {
+  font-size: clamp(0.8125rem, 0.45vw + 0.45rem, 0.875rem);
+}
+.dv--compact th,
+.dv--compact td {
+  padding: 0.45em 0.62em;
+  vertical-align: top;
+}
+.dv--compact td {
+  white-space: normal;
+  overflow-wrap: normal;
+}
+.dv--compact td.is-number,
+.dv--compact td.is-date,
+.dv--compact .dv-status,
+.dv--compact .dv-null {
+  white-space: nowrap;
+}
+.dv--compact th {
+  // Los nombres largos se parten tras «_» (FECHA_ / INGRESO) solo si hace falta.
+  white-space: normal;
+  vertical-align: bottom;
+  line-height: 1.25;
+}
+.dv--compact thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-soft);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+.dv--compact tbody tr:nth-child(even) > * {
+  background: color-mix(in srgb, var(--color-page) 55%, var(--color-surface));
+}
+.dv--compact tbody tr:hover > * {
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface));
+}
+.dv--compact td.is-date {
+  font-variant-numeric: tabular-nums;
+}
+// La tabla que cabe no necesita región con barra: así el encabezado fijo acompaña a la
+// página. La representación de último recurso conserva la barra como red de seguridad.
+@supports (container-type: inline-size) {
+  .dv--compact > .dv__table[class*='dv-fit-'],
+  .dv--compact > .dv__bands[class*='dv-fit-'] .dv__table {
+    overflow-x: visible;
+  }
+}
+
+// Bandas: el mismo resultado repartido en dos o tres tablas con las mismas filas y la
+// columna ancla repetida.
+.dv__bands {
+  display: none;
+  gap: 0.55em;
+  min-width: 0;
+}
+.dv__bands-note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: max(0.8em, 13px);
+  line-height: 1.4;
+}
+.dv__bands-note code {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.dv__band {
+  display: grid;
+  gap: 0.3em;
+  min-width: 0;
+}
+.dv__band-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2em 0.6em;
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: max(0.75em, 12px);
+  font-weight: 600;
+}
+.dv__band-title span {
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+// El ancla une las bandas: fondo propio y separación, además del encabezado repetido.
+.dv th.is-anchor,
+.dv td.is-anchor,
+.dv tbody th.is-anchor[scope='row'] {
+  background: color-mix(in srgb, var(--color-primary) 7%, var(--color-surface));
+  box-shadow: inset -2px 0 0 color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+.dv thead th.is-anchor {
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-soft));
+}
+.dv tbody th.is-anchor[scope='row'] {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+// Cambio de representación por contenedor: todas se ocultan solas si no caben
+// (dv-fit-N) o si cabe la anterior (dv-above-N); solo una queda visible.
+.dv--mode-records > .dv__records,
+.dv--mode-bands > .dv__bands {
   display: grid;
 }
-@each $bucket in $dv-buckets {
-  @container dv (width < #{$bucket}em) {
-    .dv--need-#{$bucket}.dv--mode-auto > .dv__table {
-      display: none;
+@supports (container-type: inline-size) {
+  .dv--mode-auto > .dv__bands,
+  .dv--mode-auto > .dv__records {
+    display: grid;
+  }
+  @each $bucket in $dv-buckets {
+    @container dv (width < #{$bucket}em) {
+      .dv--mode-auto > .dv-fit-#{$bucket} {
+        display: none;
+      }
     }
-    .dv--need-#{$bucket}.dv--mode-auto > .dv__records {
-      display: grid;
+    @container dv (width >= #{$bucket}em) {
+      .dv--mode-auto > .dv-above-#{$bucket} {
+        display: none;
+      }
     }
   }
 }
@@ -530,6 +649,59 @@ $dv-buckets:
   font-size: 0.92em;
   overflow-wrap: anywhere;
   white-space: normal;
+}
+
+// Explorador de una tabla completa: selector de columnas por grupos. Los datos de origen se
+// enmarcan en gris (no son un resultado); el resultado de una consulta lleva el acento azul.
+.dv-explorer {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.dv-explorer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.dv-explorer__legend {
+  margin-right: var(--space-2);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.dv-explorer__bar button {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.dv-explorer__bar button[aria-pressed='true'] {
+  color: var(--color-inverse);
+  background: var(--color-night);
+  border-color: var(--color-night);
+}
+.dv--source .dv__label {
+  color: var(--color-muted);
+}
+.dv--source > .dv__table,
+.dv--source .dv__band .dv__table {
+  border-style: dashed;
+  border-color: var(--color-border);
+}
+.dv--source.dv--compact thead th {
+  color: var(--color-ink);
+  background: var(--color-surface-alt);
+  box-shadow: inset 0 -2px 0 var(--color-border);
+}
+.dv--result > .dv__table,
+.dv--result .dv__band .dv__table {
+  border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border-subtle));
+  border-top: 3px solid var(--color-primary);
 }
 
 // Selector «Resumen / Completa».
