@@ -115,6 +115,49 @@ Controles y navegación:
 7. **Recursos por categorías, Estudio con revelado progresivo y `/join` → `/live`.**
 8. **Pruebas:** suite de regresión visual y de desbordes.
 
+## Segunda pasada: addendum pedagógico (Challenge, Recursos y cierre)
+
+Revisión manual del responsable y medición propia sobre la versión local, antes de cambiar nada:
+
+| Hallazgo                             | Evidencia                                                                                                                                                                                                                         |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1 · Challenge dominado por la tabla | M01 y M03 mostraban EMPLEADOS completa (240 celdas) con barra de 1648 px a 1366×768 (1648>306 en móvil). M04: 100 celdas y «Comprobar» a 2680 px (3,5 pantallas).                                                                 |
+| A2 · Frase que acepta la limitación  | «Desplaza la tabla horizontalmente si necesitas ver más columnas.» en `DataTable`.                                                                                                                                                |
+| A3 · Feedback solo diagnóstico       | «Revisa tu respuesta» + un mensaje; sin tipo de error, sin lo que ya está bien, sin orientación progresiva. El acierto no explicaba el porqué.                                                                                    |
+| A4 · Resumen del Challenge           | Tabla de 6 columnas con barra en móvil.                                                                                                                                                                                           |
+| A5 · Escenas con poco contenido útil | Proporción de contenido a 1366×768: 02 = 0,44, 03 = 0,39, 06 = 0,38, 25 = 0,44, 29 = 0,47. La 02 era una rejilla de títulos sin objetivos; la 25 repetía la 02; la 28 listaba niveles; la 29 era la consulta integrada y enlaces. |
+| A6 · Recursos                        | Las fichas no decían para qué sirve cada pieza ni qué devuelve el ejemplo; faltaban la coma, los paréntesis e IS NOT NULL.                                                                                                        |
+| A7 · Color sin significado           | Todas las palabras clave en cian; los números y los operadores sin distinguir.                                                                                                                                                    |
+
+Cambios, sin rehacer la arquitectura (misma fuente conceptual, vista de datos, formateador, sistema de escenas, motor SQL, adaptador Oracle y motor del Challenge):
+
+- **Challenge (GAME_SPEC 3.1):**
+  - misión en dos columnas (objetivo y datos junto a la interacción) y «Datos necesarios para esta misión» con 4–7 columnas;
+  - M04 sobre una muestra de 10 registros que contiene todas las filas del resultado;
+  - la tabla completa como desplegable secundario;
+  - feedback con tipo, qué está bien, qué ajustar y orientación progresiva;
+  - acierto explicado;
+  - resumen como vista adaptable.
+    La puntuación, los intentos, las pistas, la sala y Oracle en M10 no cambian.
+- **Exposición:** mapa de aprendizaje A–H con objetivos (02), vocabulario y uso de SQL (03), fila, columna y celda (04), «Para qué sirve» en 03–06 y 11–19, «En esta consulta» (06), IS NOT NULL (18), anatomía con color por papel (20), seis errores reales (22), «Ahora ya puedes…» (25), cómo participar (27), ruta de continuidad de diez temas (28) y cierre ilustrado con tres ideas y preguntas de salida (29).
+- **Recursos:** ficha con «En una frase», «Para qué sirve», «Patrón», ejemplo, «Qué devuelve» y «Error frecuente».
+- **Estudio:** cada lección lista también sus otros términos (AS, `%`, `_`, IS NOT NULL, coma, paréntesis…) con la definición canónica.
+- **Sistema:** color semántico de SQL (proyección, fuente, filtro, operadores y orden) en todo el producto.
+- **Safari (WebKit), detectado por la suite en ese motor:**
+  - un `<details>` con `display: grid` no mostraba su contenido (esquema del laboratorio, error frecuente de Recursos y fichas de `/modules`);
+  - `/modules` desbordaba entre 3 y 34 px;
+  - el foco no volvía al botón «Escenas» al cerrar el navegador.
+
+Medición local después de la segunda pasada (servidor de desarrollo):
+
+- **Challenge a 1366×768:**
+  - «Comprobar» a 812–1435 px en M01–M09 (M04: 1678 → ~1200 px tras mover la consulta junto al pedido);
+  - sin barras;
+  - 60 celdas visibles como máximo;
+  - 390×844 y 320×568 sin desbordes.
+- **Escenas:** 0 desbordes y 0 invasiones a 1920×1080, 1600×900, 1366×768, 1280×720, 390×844, 360×800 y 320×568.
+- **Páginas a 1366, 390 y 320 px:** sin desbordes, sin regiones con barra y sin texto de menos de 12 px.
+
 ## Resultado después del refinamiento
 
 Pendiente: se completa con las mediciones de la vista previa y de producción al cerrar el trabajo.

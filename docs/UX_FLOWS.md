@@ -81,6 +81,8 @@ Portada → mapa de diez misiones → iniciar M01 → respuesta → validar → 
 
 Cada misión dispone de dos intentos puntuados y una pista. Al agotarlos se ofrece práctica sin puntuación, con explicación completa. Se guarda localmente la partida, su versión y el resultado. Un nuevo recorrido comienza en cero y no altera una sala en vivo. El cronómetro individual muestra tiempo transcurrido y se pausa al salir u ocultar la pestaña; es informativo y no determina ranking público.
 
+**Cada misión (GAME_SPEC 3.1):** a la izquierda, el objetivo (pedido y consulta), el concepto clave y los «Datos necesarios para esta misión»; a la derecha, la interacción, el feedback y las acciones. En móvil, todo en una columna. La tarea se resuelve en una pantalla o pantalla y media de escritorio, sin barra horizontal; la tabla completa se abre aparte. Un error se explica con su tipo, qué está bien, qué ajustar y una pista (conceptual en el primer intento, localizada después); un acierto dice por qué es correcto. Al cerrar M04, cada fila de la muestra indica si cumple la condición.
+
 U05: el usuario termina las diez misiones con ratón, toque o teclado. Regresar al mapa no reinicia los intentos ya consumidos. Los errores de conexión no se contabilizan como fallos académicos.
 
 ## Flujo F — Crear la sala y entrar

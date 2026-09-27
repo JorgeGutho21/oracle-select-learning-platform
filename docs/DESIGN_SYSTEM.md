@@ -142,4 +142,28 @@ Toda escena comparte la misma estructura, en este orden:
 
 ### Acciones normalizadas
 
-Estudiar · Abrir en Lab · Practicar SQL · Iniciar Challenge · Crear sala · Ver lección · Copiar.
+Estudiar · Abrir en Lab · Practicar SQL · Iniciar Challenge · Crear sala · Ver lección · Copiar. En las fichas de Recursos el enlace a la lección se llama «Repasar lección».
+
+### Color semántico de SQL (2.1)
+
+Un mismo concepto tiene el mismo tratamiento en la Exposición, el Estudio, los Recursos, el laboratorio y el Challenge. El color nunca va solo: acompaña al texto, a un borde o a una forma.
+
+| Papel | Qué incluye | Fondo claro | Fondo oscuro |
+| --- | --- | --- | --- |
+| Proyección | SELECT, DISTINCT, AS, `*` en SELECT, columnas y alias | `--color-sem-select` #0E7490 | `--color-sem-select-dark` #22D3EE |
+| Fuente | FROM y la tabla | `--color-sem-from` #1D4ED8 | `--color-sem-from-dark` #93B8FF |
+| Filtro | WHERE, AND, OR, NOT, BETWEEN, IN, LIKE, IS, NULL | `--color-sem-filter` #6D28D9 | `--color-sem-filter-dark` #C4B5FD |
+| Operadores | `=`, `<>`, `>`, `<`, `>=`, `<=`, `+`, `-`, `*`, `/`, `||` | `--color-sem-operator` #92400E | `--color-sem-operator-dark` #FCD34D |
+| Orden | ORDER BY, ASC, DESC | `--color-sem-order` #BE185D | `--color-sem-order-dark` #F9A8D4 |
+
+El verde (`--color-success`) queda para lo correcto y el rojo (`--color-danger`) para el error. Los números del código usan un tono neutro para no confundirse con los operadores. La fuente única del papel de cada palabra es `sqlRole` (`src/presentation/components/data/sql-semantics.ts`), que usan el resaltado de SQL, las piezas del Challenge, la anatomía de la escena 20 y el enlace código ↔ datos.
+
+### Componentes nuevos (2.1)
+
+- **«En esta consulta» (`QueryGlossary`):** explica solo los elementos presentes con la glosa breve de la fuente conceptual (`gloss`, 8 palabras como máximo) y el color de su papel.
+- **«Para qué sirve»:** línea opcional del bloque de definición de una escena (`use`), con el `whyItMatters` del concepto.
+- **Mapa de aprendizaje (`RouteMap`):** ocho bloques con letra, objetivo y conceptos; en móvil, línea de tiempo vertical.
+- **Competencias (`CompetencyGrid`), ruta de continuidad (`FutureRoadmap`) e ilustración «Del dato a la consulta» (`DataToQuery`, SVG original):** escenas 25, 28 y 29.
+- **Misión del Challenge:** contexto (pedido, consulta, concepto clave y «Datos necesarios para esta misión») junto a la interacción cuando la misión mide 52 rem o más; una columna en móvil. La tabla completa es un desplegable «Ver tabla completa» con selector Resumen / Completa.
+- **Selección de filas (`RowPicker`):** cada fila es una casilla con sus campos en una lista de definición; con ancho se alinea como una tabla, en estrecho cada campo lleva su nombre. Al cerrar la misión indica «Cumple» o «No cumple» con símbolo y texto.
+- **Feedback del Challenge:** tipo de error, «Qué está bien», «Qué necesita ajuste» y «Pista», en tono de advertencia, no de castigo.

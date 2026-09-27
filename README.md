@@ -18,7 +18,8 @@ Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 
 Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único dataset, `empleados-select-v2`: tabla EMPLEADOS de 12 columnas y 20 filas, cargada en Oracle desde `oracle/empleados-select-v2.sql`.
 
-- **Fuente conceptual única** (`src/domain/concepts/sql-concepts.ts`): 31 conceptos, cada uno con una definición y su categoría correcta (cláusula, operador lógico, condición, comodín…). La Exposición, el Estudio, los Recursos y el buscador la presentan sin reescribirla.
+- **Fuente conceptual única** (`src/domain/concepts/sql-concepts.ts`): 35 conceptos (incluidos la consulta, la coma, los paréntesis e IS NOT NULL), cada uno con una definición, su categoría correcta (cláusula, operador lógico, condición, comodín…), una glosa breve para «En esta consulta» y, cuando corresponde, el error frecuente. La Exposición, el Estudio, los Recursos, el Challenge y el buscador la presentan sin reescribirla.
+- **Color semántico de SQL:** proyección (SELECT) cian, fuente (FROM) azul, filtro (WHERE y condiciones) violeta, operadores ámbar y orden (ORDER BY) magenta, siempre con texto o forma, en todo el producto.
 - **Modo Estudio** (`/learn`): 22 lecciones en 8 bloques, desde qué es una base de datos hasta una consulta completa con WHERE y ORDER BY.
   - **Plantilla:** la misma en todas, con la definición canónica, la ubicación en el recorrido, un índice fijo, «Predice», la consulta, qué hace, la tabla original, el resultado, el error frecuente y una mini comprobación con pistas graduales.
   - **Pliegues:** lo secundario se abre al pedirlo.
@@ -30,10 +31,12 @@ Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único 
   - **Esquema:** agrupado; los 20 registros se abren solo si se piden.
   - **Ejecución:** «Ejecutar en Oracle» usa Oracle real. Tiene 24 ejemplos (LAB01–LAB24).
 - **Vista de datos adaptable:** tabla cuando cabe y fichas por registro cuando no. Ninguna tabla, consulta ni resultado educativo necesita barra horizontal, ni siquiera a 320 px.
-- **SQL Oracle Challenge** (`/challenge`, `select-challenge-v3`): diez misiones con puntuación, intentos y pistas. M10 se califica en Oracle real.
+- **SQL Oracle Challenge** (`/challenge`, `select-challenge-v3`, GAME_SPEC 3.1): diez misiones con puntuación, intentos y pistas. M10 se califica en Oracle real.
+  - **Densidad propia:** cada misión muestra el pedido, el concepto clave y solo los «Datos necesarios» (4–7 columnas y pocas filas); la tabla completa es un desplegable secundario y nunca hay barra horizontal.
+  - **Feedback:** tipo de error, qué está bien, qué ajustar y una orientación progresiva; el acierto explica por qué.
 - **Sala en vivo:** `/presenter`, `/join/{código}`, `/live` y `/results`, con Supabase en producción.
 - **Ruta de aprendizaje** (`/modules`): los niveles 2 a 7 (funciones, agrupación, JOIN, subconsultas, modificación de datos y DDL) con 46 fichas «Próximamente». No forman parte del contenido actual.
-- **Recursos** (`/resources`): chuleta de 18 fichas por categorías (definición, sintaxis y ejemplo formateado con «Copiar», «Abrir en Lab» y «Ver lección»), referencia rápida, ejemplos y los dos videos.
+- **Recursos** (`/resources`): chuleta de 18 fichas por categorías («En una frase», «Para qué sirve», «Patrón», ejemplo formateado, «Qué devuelve» y «Error frecuente», con «Copiar», «Abrir en Lab» y «Repasar lección»), referencia rápida, ejemplos y los dos videos.
 - **Buscador** Ctrl+K/Cmd+K: encuentra los temas actuales y los futuros, estos marcados «Próximamente».
 
 Oracle: local (Oracle Database Free 23ai en contenedor) y Oracle Autonomous Database 19c en la nube, con esquemas `SQL_LAB_V2_OWNER` (dueño) y `SQL_LAB_V2_READER` (solo lectura) ([ORACLE_SETUP.md](docs/ORACLE_SETUP.md)). Sin Oracle configurado, el laboratorio lo indica y no simula nada. Estado detallado en [PROJECT_STATUS.md](docs/PROJECT_STATUS.md).

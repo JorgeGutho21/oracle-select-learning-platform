@@ -159,17 +159,18 @@ Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
 | 24 | challenge | SQL Challenge | — |
 | 25 | aprendimos | Qué aprendimos | — |
 | 26 | video | Video resumen | — |
-| 27 | reto | Reto en vivo: revelar respuesta, QR y sala en vivo | — |
-| 28 | proximos | Próximos temas (enlaza a la ruta) | — |
+| 27 | reto | Reto en vivo: qué harás, cómo entrar, qué evalúa y tu resultado; QR | — |
+| 28 | proximos | Próximos temas: siguiente ruta recomendada (enlaza a la ruta) | — |
 | 29 | cierre | ¿Preguntas? | — |
 
 Cada escena representa su concepto:
 
 | Escenas | Representación |
 | --- | --- |
-| 02 y 25 | Mapa de los 8 bloques (en la 25, completados). |
-| 03 | Persona → SQL → base de datos → resultado. |
-| 04 | Cifras, tabla representativa y los 12 campos agrupados por tipo. |
+| 02 | Mapa de aprendizaje: 8 bloques A–H con objetivo y conceptos. |
+| 25 | «Ahora ya puedes…»: 9 competencias y una consulta integradora con su resultado. |
+| 03 | Persona → SQL → base de datos → resultado, y el vocabulario: tabla, fila, columna y consulta. |
+| 04 | Cifras, fila, columna y celda señaladas, 3 filas representativas y los 12 campos agrupados con su tipo. |
 | 05 | «¿Qué quieres?» y «¿De dónde?». |
 | 06 | Las 12 columnas por grupo. |
 | 07 | Mismos datos, distinto orden. |
@@ -185,22 +186,22 @@ Cada escena representa su concepto:
 | 17 | Patrones con ejemplos que cumplen y que no. |
 | 18 | NULL ≠ 0 ≠ 'NULL'. |
 | 19 | Antes y después de ORDER BY. |
-| 20 | Anatomía interactiva. |
+| 20 | Anatomía interactiva con color semántico: proyección, fuente, filtro y orden. |
 | 21 | Construcción en seis pasos desde la pregunta. |
-| 22 | Error, causa y corrección. |
+| 22 | Seis errores: coma, FROM, columna inexistente, = NULL, DISTINCT mal colocado y comillas; error, por qué y corrección. |
 | 23 | Vista del laboratorio. |
 | 24 | Las diez misiones. |
-| 27 | Flujo de la sala en vivo. |
-| 28 | Niveles 2 a 7. |
-| 29 | La consulta integrada leída en español. |
+| 27 | Cómo participar y QR de la práctica. |
+| 28 | Diez temas futuros con su nivel, marcados «Próximamente». |
+| 29 | Ilustración «Del dato a la consulta», tres ideas finales, preguntas de salida y accesos al laboratorio y al Challenge. |
 
 Las escenas de WHERE, IN, BETWEEN y NULL marcan cada fila: ✓ cumple, ✗ no cumple, ? desconocido por NULL.
 
 En las escenas 05 y 11, cada cláusula de la consulta es un botón que resalta sus columnas y filas.
 
-La consulta integrada (escenas 20, 21, 23 y 29) es `SELECT nombre, ciudad, salario FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' AND salario BETWEEN 4000000 AND 8000000 ORDER BY salario DESC;` y devuelve 3 filas.
+La consulta integrada (escenas 21 y 23) es `SELECT nombre, ciudad, salario FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' AND salario BETWEEN 4000000 AND 8000000 ORDER BY salario DESC;` y devuelve 3 filas.
 
-El reto de la escena 27 pregunta por `SELECT DISTINCT departamento FROM empleados WHERE ciudad = 'Bogotá';` (5 filas).
+La anatomía (escena 20) usa `SELECT nombre, salario FROM empleados WHERE ciudad = 'Cali' ORDER BY salario DESC;` y la síntesis (escena 25) `SELECT DISTINCT ciudad FROM empleados WHERE salario >= 4000000 ORDER BY ciudad;`.
 
 ## Laboratorio: LAB01–LAB24 y diagnóstico
 
@@ -230,15 +231,32 @@ Un tema futuro se anuncia como SQL válido en Oracle que pertenece a otro nivel,
 
 `select-challenge-v3`: M01–M10 conservan la puntuación, los intentos, las pistas, la sala en vivo y el ranking ([GAME_SPEC.md](GAME_SPEC.md)). M02, M04, M07, M09 y M10 incorporan WHERE u ORDER BY. M10 se califica con la salida real de Oracle.
 
+**Densidad propia (GAME_SPEC 3.1).** Cada misión muestra solo los datos que necesita: M01 siete columnas y una vista previa del resultado elegido; M03 el esquema numerado de las 12 columnas y el total de 20 filas, sin 240 celdas; M04 una muestra de 10 registros que contiene a los 5 de Cali; M05 tres empleados con NOMBRE, SALARIO y BONO; M07 una sola columna, con «Antes → DISTINCT → Después»; M08 lo que devuelve ahora la consulta con error; M10 el esquema relevante y 8 filas de vista previa. La tabla completa siempre está disponible como consulta secundaria.
+
+| Misión | Concepto | Habilidad | Datos necesarios | Error esperable | Orientación 1 → 2 |
+| --- | --- | --- | --- | --- | --- |
+| M01 | SELECT, lista de columnas | elegir y ordenar columnas | 7 columnas | orden invertido, columnas de más | qué muestra SELECT → releer el pedido |
+| M02 | SELECT, FROM, WHERE | orden de las cláusulas | 3 columnas | WHERE antes de FROM | orden fijo de la consulta → posición de cada palabra clave |
+| M03 | `*` | interpretar el comodín | esquema de 12 y 20 filas | tomar `*` como columna | `*` = todas las columnas → recorrer el esquema |
+| M04 | WHERE | predecir filas y columnas | 10 × 4 | incluir otra ciudad, poner CIUDAD | WHERE filtra filas → mirar CIUDAD |
+| M05 | expresión | calcular por fila | 3 × 3 | sumar 12, partir de BONO | qué es una expresión → meses de un año |
+| M06 | alias, AS | nombrar el resultado | NOMBRE, SALARIO | alias junto a NOMBRE o tras la tabla | alias temporal → junto a la expresión |
+| M07 | DISTINCT | quitar repeticiones | 1 columna, 7 filas | borrar todos los repetidos | qué quita DISTINCT → uno de cada |
+| M08 | coma, alias implícito | depurar | lo que devuelve ahora | coma en otro hueco | la coma separa columnas → lista de SELECT |
+| M09 | ORDER BY, DESC | traducir un pedido | 4 columnas | sin ORDER BY o ASC | qué hace ORDER BY → final de la consulta |
+| M10 | consulta completa | escribir y justificar | 5 columnas, 8 filas | sin paréntesis, alias sin AS | papel de cada cláusula → revisar cada parte |
+
+Las pistas y la orientación no escriben la consulta de la solución; la explicación completa solo aparece al cerrar la oportunidad puntuada.
+
 ## Chuleta y recursos
 
 `/resources` reúne cuatro cosas:
 
 - **Chuleta:** 18 fichas en seis categorías, más «Futuro».
   - Las categorías son Consultar, Transformar el resultado, Filtrar, Operadores de filtro, Valores ausentes y Ordenar.
-  - Cada ficha trae la definición canónica y los conceptos asociados (AS, OR y NOT, `%` y `_`, IS NULL, ASC y DESC).
-  - También trae la sintaxis y un ejemplo formateado, una cláusula por línea y sin barra horizontal.
-  - Acciones: «Copiar», «Abrir en Lab» y «Ver lección».
+  - Cada ficha sigue la misma estructura: nombre y categoría, «En una frase» (definición canónica), «Para qué sirve», «Patrón», los conceptos asociados (coma, paréntesis, AS, OR y NOT, `%` y `_`, IS NULL e IS NOT NULL, ASC y DESC), el ejemplo formateado, «Qué devuelve» (calculado por el motor) y el «Error frecuente» desplegable, con causa y corrección.
+  - El ejemplo va una cláusula por línea y sin barra horizontal; «Copiar» copia SQL limpio.
+  - Acciones: «Copiar», «Abrir en Lab» y «Repasar lección».
 - **Advertencias:** 8 recordatorios.
 - **Tabla de referencia:** el tamaño de cada resultado, calculado por el motor.
 - **Ejemplos y más:** los ejemplos LAB01–LAB18 (los de errores se estudian en el laboratorio y en L21), los dos videos y las fuentes.

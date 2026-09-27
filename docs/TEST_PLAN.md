@@ -202,6 +202,14 @@ La Exposición comprueba además que ningún bloque invade el título ni la idea
 
 La auditoría de antes y después (615 mediciones y 123 capturas por pasada) está en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md).
 
+**Pasada pedagógica del Challenge, Recursos y cierre (addendum):**
+
+- `tests/e2e/visual-challenge.spec.ts`: las diez misiones a 1366×768, 390×844 y 320×568 sin barra horizontal, con 60 celdas visibles como máximo y tablas de 7 columnas como máximo; la tabla completa plegada; «Comprobar» a menos de dos pantallas en escritorio; la tabla completa con sus 20 registros; M04 revela «Cumple / No cumple» solo al cerrar; el feedback muestra tipo, qué está bien, qué ajustar y pista.
+- `tests/unit/challenge/mission-density.test.tsx`: datos relevantes por misión, la muestra de M04 contiene todas las filas del resultado y basta para acertar, vista previa de M10, relación campo → valor accesible, orientación progresiva por intento sin revelar la solución, categoría de los errores del motor, explicación del acierto y punto y coma opcional.
+- `tests/unit/sql-highlight.test.tsx`: color semántico de cada cláusula y operador, y `*` como comodín.
+- `tests/unit/presentation-scenes.test.tsx`: mapa de la escena 02, síntesis de la 25, ruta de continuidad de la 28, cierre de la 29, los seis errores de la 22, vocabulario de la 03 y «Para qué sirve» en las escenas 11–19.
+- `tests/unit/concepts.test.ts`: glosas breves y fichas de la coma, los paréntesis, IS NOT NULL y la consulta.
+
 ## Salida a producción
 
 La entrega funcional se acepta cuando P01–P18 pasan, G01–G15 y LAB01–LAB16 están cubiertos, invariantes DB01–DB07 y reglas R01–R11 son verificadas, y C01–C05 y D01–D08 pasan revisión editorial/visual. U01–U08 y A01–A07 se verifican mediante flujos, seguridad y recuperación descritos aquí.
