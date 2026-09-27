@@ -1,27 +1,35 @@
-import { useId } from 'react';
+'use client';
+
+import { useId, useState } from 'react';
 import { conceptCategoryLabel, SQL_CONCEPTS, type ConceptId } from '@/application/sql-concepts';
-import { EMPLEADOS_VIEW_SCHEMA } from '@/application/dataset-view';
+import { EMPLEADOS_FIELD_GROUP_LIST, EMPLEADOS_VIEW_SCHEMA } from '@/application/dataset-view';
 import { DataView, type DataColumn } from '@/presentation/components/data/data-view';
 import { DatasetExplorer } from '@/presentation/components/data/dataset-explorer';
+import { Button, Dialog } from '@/presentation/components/ui';
 import { EMPLEADOS, type EmpleadosColumn } from '../application/challenge-api';
-import type { MissionDataSpec } from './mission-context';
+import type { MissionSampleSpec } from './mission-context';
 
-/** Tipo base de Oracle (VARCHAR2 en lugar de VARCHAR2(40 CHAR)) para chips compactos. */
+/** Tipo base de Oracle (VARCHAR2 en lugar de VARCHAR2(40 CHAR)) para el esquema compacto. */
 const baseType = (oracleType: string) => oracleType.replace(/\(.*\)$/, '');
 
-const columnsOf = (names: readonly string[]): DataColumn[] =>
-  EMPLEADOS.columns
-    .filter((column) => names.includes(column.name))
-    .map(({ name, type }) => ({ name, type }));
+export const columnsOf = (names: readonly string[]): DataColumn[] =>
+  names.map((name) => ({
+    name,
+    type: EMPLEADOS.columns.find((column) => column.name === name)?.type ?? 'text',
+  }));
 
-function rowsOf(ids: readonly number[], names: readonly string[]) {
+/** Filas de la muestra, en el orden de la tabla, con las columnas pedidas. */
+export function rowsOf(ids: readonly number[], names: readonly string[]) {
   return EMPLEADOS.rows
     .filter((row) => ids.includes(row.ID_EMPLEADO))
     .map((row) => names.map((name) => row[name as EmpleadosColumn]));
 }
 
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+
 /** Concepto clave de la misión, con la definición de la fuente canónica. */
 export function ConceptNote({ ids }: { readonly ids: readonly ConceptId[] }) {
+  if (ids.length === 0) return null;
   return (
     <section className="ch-concept" aria-label="Concepto clave">
       <p className="ch-concept__label">Concepto clave</p>
@@ -41,94 +49,126 @@ export function ConceptNote({ ids }: { readonly ids: readonly ConceptId[] }) {
 }
 
 /**
- * «Datos necesarios para esta misión»: esquema de las columnas que se usan para razonar.
- * La tabla EMPLEADOS completa queda como consulta secundaria, sin barra horizontal.
+ * Acceso secundario a EMPLEADOS completa (20 × 12): un enlace discreto que abre la tabla en
+ * un diálogo. La misión se resuelve sin abrirlo.
  */
-export function MissionData({
+export function FullDataset() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="ch-dataset">
+      <span className="ch-dataset__size">
+        Dataset completo: {plural(EMPLEADOS.rows.length, 'registro', 'registros')} ·{' '}
+        {plural(EMPLEADOS.columns.length, 'columna', 'columnas')}
+      </span>
+      <Button variant="text" className="ch-dataset__open" onClick={() => setOpen(true)}>
+        Consultar dataset EMPLEADOS completo
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Dataset EMPLEADOS completo"
+        description="Consulta de referencia: la misión se resuelve con la muestra de trabajo."
+        className="ch-dataset-dialog"
+      >
+        {open && (
+          <DatasetExplorer
+            caption="Tabla EMPLEADOS completa"
+            label="Datos de origen · EMPLEADOS"
+            columns={columnsOf(EMPLEADOS.columns.map((column) => column.name))}
+            rows={rowsOf(
+              EMPLEADOS.rows.map((row) => row.ID_EMPLEADO),
+              EMPLEADOS.columns.map((column) => column.name),
+            )}
+            schema={EMPLEADOS_VIEW_SCHEMA}
+          />
+        )}
+      </Dialog>
+    </div>
+  );
+}
+
+/**
+ * Muestra de trabajo de la misión: una tabla real con los registros y las columnas que
+ * importan para razonar (hasta 8 × 4). Las columnas que el estudiante ya usa se resaltan.
+ */
+export function WorkingSample({
   spec,
   highlighted = [],
 }: {
-  readonly spec: MissionDataSpec;
+  readonly spec: MissionSampleSpec;
   readonly highlighted?: readonly string[];
 }) {
   const titleId = useId();
-  const total = EMPLEADOS.rows.length;
-  const allColumns = EMPLEADOS.columns.length;
-  const shownColumns = spec.fullSchema ? allColumns : spec.columns.length;
-  const shownRows = spec.rowIds.length || spec.rowCount || 0;
   return (
     <section className="ch-data" aria-labelledby={titleId}>
       <h3 id={titleId} className="ch-data__title">
-        Datos necesarios para esta misión
+        {spec.title ?? 'Tabla original · EMPLEADOS'}
       </h3>
-      <p className="ch-data__meta">
-        Tabla <strong>EMPLEADOS</strong> · {shownRows > 0 ? `${shownRows} de ${total}` : total}{' '}
-        filas · {shownColumns} de {allColumns} columnas
-      </p>
-      {spec.fullSchema ? (
-        <ol className="ch-schema ch-schema--numbered" aria-label="Columnas de EMPLEADOS, en orden">
-          {EMPLEADOS.columns.map((column) => (
-            <li key={column.name}>
-              <code>{column.name}</code>
-              <span className="ch-schema__type">{baseType(column.oracleType)}</span>
-            </li>
-          ))}
-        </ol>
-      ) : (
-        <ul className="ch-schema" aria-label="Columnas de EMPLEADOS que usa la misión">
-          {EMPLEADOS.columns
-            .filter((column) => spec.columns.includes(column.name))
-            .map((column) => (
-              <li
-                key={column.name}
-                className={highlighted.includes(column.name) ? 'is-used' : undefined}
-              >
-                <code>{column.name}</code>
-                <span className="ch-schema__type">{baseType(column.oracleType)}</span>
-                {highlighted.includes(column.name) && (
-                  <span className="ds-sr-only"> (en tu SELECT)</span>
-                )}
-              </li>
-            ))}
-        </ul>
-      )}
+      <DataView
+        caption={`Muestra de trabajo: ${spec.title ?? 'tabla EMPLEADOS'}`}
+        columns={columnsOf(spec.columns)}
+        rows={rowsOf(spec.rowIds, spec.columns)}
+        schema={EMPLEADOS_VIEW_SCHEMA}
+        size="compact"
+        summary={`Muestra de trabajo: ${plural(spec.rowIds.length, 'registro', 'registros')} · ${plural(spec.columns.length, 'columna relevante', 'columnas relevantes')}`}
+        highlightedColumns={highlighted}
+        className="dv--source ch-sample"
+      />
       {spec.note && <p className="ch-data__note">{spec.note}</p>}
-      <details className="ch-data__more">
-        <summary>
-          Ver tabla completa{' '}
-          <span className="ch-data__more-size">· {total} filas × 12 columnas</span>
-        </summary>
-        <DatasetExplorer
-          caption="Tabla EMPLEADOS completa"
-          label="Datos de origen · EMPLEADOS"
-          columns={columnsOf(EMPLEADOS.columns.map((column) => column.name))}
-          rows={rowsOf(
-            EMPLEADOS.rows.map((row) => row.ID_EMPLEADO),
-            EMPLEADOS.columns.map((column) => column.name),
-          )}
-          schema={EMPLEADOS_VIEW_SCHEMA}
-        />
-      </details>
+      <FullDataset />
     </section>
   );
 }
 
 /**
- * Vista previa de filas a todo el ancho de la misión (debajo de la interacción): datos de
- * referencia, nunca protagonistas. Solo las columnas relevantes.
+ * Esquema compacto de EMPLEADOS (M03): las 12 columnas con su tipo, numeradas en el orden
+ * de la tabla, en 3 filas de 4 en escritorio y por grupos en el móvil.
  */
-export function MissionSample({ spec }: { readonly spec: MissionDataSpec }) {
-  if (spec.rowIds.length === 0) return null;
-  const total = EMPLEADOS.rows.length;
+export function SchemaOverview() {
+  const titleId = useId();
+  const position = (name: string) =>
+    EMPLEADOS.columns.findIndex((column) => column.name === name) + 1;
+  const item = (name: string) => {
+    const column = EMPLEADOS.columns.find((entry) => entry.name === name)!;
+    return (
+      <li key={name} className="ch-schema__item">
+        <span className="ch-schema__number" aria-hidden="true">
+          {position(name)}
+        </span>
+        <code>
+          {name.split(/(?<=_)/).map((part, index) => (
+            <span key={index}>
+              {index > 0 && <wbr />}
+              {part}
+            </span>
+          ))}
+        </code>
+        <span className="ch-schema__type">{baseType(column.oracleType)}</span>
+        {column.nullable && <span className="ch-schema__null">admite NULL</span>}
+      </li>
+    );
+  };
   return (
-    <DataView
-      caption={`Vista previa de EMPLEADOS: ${spec.rowIds.length} de ${total} filas`}
-      label="Vista previa"
-      columns={columnsOf(spec.columns)}
-      rows={rowsOf(spec.rowIds, spec.columns)}
-      schema={EMPLEADOS_VIEW_SCHEMA}
-      summary={`${spec.rowIds.length} de ${total} filas · ${spec.columns.length} columnas`}
-      className="ch-sample"
-    />
+    <section className="ch-data" aria-labelledby={titleId}>
+      <h3 id={titleId} className="ch-data__title">
+        Esquema de EMPLEADOS
+      </h3>
+      <p className="ch-data__meta">
+        Tabla <strong>EMPLEADOS</strong> · {plural(EMPLEADOS.rows.length, 'registro', 'registros')}
+      </p>
+      <ol className="ch-schema ch-schema--grid" aria-label="Columnas de EMPLEADOS, en orden">
+        {EMPLEADOS.columns.map((column) => item(column.name))}
+      </ol>
+      <div className="ch-schema ch-schema--groups">
+        {EMPLEADOS_FIELD_GROUP_LIST.map((group) => (
+          <section key={group.id} className="ch-schema__group" aria-label={group.title}>
+            <p className="ch-schema__group-title" aria-hidden="true">
+              {group.title}
+            </p>
+            <ul>{group.columns.map((name) => item(name))}</ul>
+          </section>
+        ))}
+      </div>
+    </section>
   );
 }

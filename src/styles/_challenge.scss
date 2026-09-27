@@ -22,8 +22,7 @@
 .ch-predictions,
 .ch-prediction,
 .ch-compare,
-.ch-compare__panel,
-.ch-rows {
+.ch-compare__panel {
   grid-template-columns: minmax(0, 1fr);
 }
 
@@ -71,6 +70,11 @@
     padding: var(--space-6);
   }
 }
+@media (max-width: 479px) {
+  .ch-mission {
+    padding: var(--space-4);
+  }
+}
 .ch-rules {
   display: grid;
   gap: var(--space-2);
@@ -110,6 +114,40 @@
 @media (min-width: 992px) {
   .ch-map__list {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+// En el móvil el mapa es una fila de números (el título de la misión abierta ya está en su
+// cabecera): la misión empieza sin recorrer diez fichas. El nombre accesible es completo.
+@media (max-width: 767px) {
+  .ch-map {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+  .ch-map__points strong {
+    font-size: 1.375rem;
+  }
+  .ch-map__list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .ch-map__item {
+    justify-content: center;
+    min-block-size: 48px;
+    padding: var(--space-1);
+  }
+  .ch-map__text {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .ch-map__item--current {
+    box-shadow: inset 0 -4px 0 var(--color-primary);
+  }
+  .ch-map__item--solved .ch-map__number::after {
+    content: '✓';
+    margin-inline-start: 1px;
   }
 }
 .ch-map__item {
@@ -239,8 +277,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-.ch-instructions,
-.ch-requirement {
+.ch-instructions {
   margin: 0;
   max-inline-size: var(--container-readable);
 }
@@ -445,18 +482,6 @@
   background: var(--color-page);
   border-radius: var(--radius-control);
 }
-.ch-check {
-  display: inline-grid;
-  place-items: center;
-  min-inline-size: 44px;
-  min-block-size: 44px;
-  cursor: pointer;
-}
-.ch-check input {
-  inline-size: 22px;
-  block-size: 22px;
-  accent-color: var(--color-primary);
-}
 
 /* ---------- Comparaciones: antes / después y tabla / resultado ---------- */
 .ch-compare {
@@ -482,16 +507,6 @@
 }
 // En la comparación de DISTINCT, las filas son fichas que fluyen: la lista entera cabe
 // en pocas líneas en lugar de una columna larga.
-.ch-compare--flow .ch-rows,
-.ch-compare--flow .ch-headers--column {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: stretch;
-}
-.ch-compare--flow .ch-row-toggle {
-  inline-size: auto;
-}
 .ch-compare__panel {
   display: grid;
   align-content: start;
@@ -504,80 +519,6 @@
 .ch-compare__panel--result {
   background: var(--color-soft);
   border-color: var(--color-primary);
-}
-.ch-compare__title {
-  margin: 0;
-  font-weight: 600;
-  overflow-wrap: anywhere;
-}
-.ch-headers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-family: var(--font-mono);
-}
-.ch-headers li {
-  // FECHA_INGRESO o DEPARTAMENTO se parten con zoom alto en lugar de ensanchar la página.
-  min-width: 0;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 8px;
-}
-.ch-headers .ch-headers__focus {
-  color: var(--color-primary);
-  font-weight: 700;
-  border-color: var(--color-primary);
-}
-.ch-headers--column {
-  flex-direction: column;
-  align-items: stretch;
-}
-.ch-rows {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.ch-row-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  inline-size: 100%;
-  min-block-size: 44px;
-  padding: var(--space-2) var(--space-3);
-  font: inherit;
-  color: var(--color-ink);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-control);
-  border-radius: var(--radius-control);
-  cursor: pointer;
-}
-.ch-row-toggle__value {
-  font-family: var(--font-mono);
-}
-.ch-row-toggle__state {
-  color: var(--color-primary);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-.ch-row-toggle--removed {
-  color: var(--color-muted);
-  background: var(--color-page);
-  border-style: dashed;
-}
-.ch-row-toggle--removed .ch-row-toggle__value {
-  text-decoration: line-through;
-}
-.ch-row-toggle--removed .ch-row-toggle__state {
-  color: var(--color-muted);
 }
 
 /* ---------- Hotspot ---------- */
@@ -596,30 +537,6 @@
 .ch-token--keyword {
   color: var(--color-cyan);
   font-weight: 600;
-}
-.ch-gap {
-  display: inline-grid;
-  place-items: center;
-  min-inline-size: 44px;
-  min-block-size: 44px;
-  padding: 0;
-  font: inherit;
-  color: var(--color-code-comment);
-  background: transparent;
-  border: 2px dashed var(--color-border-control);
-  border-radius: var(--radius-control);
-  cursor: pointer;
-  --color-focus: var(--color-cyan);
-}
-.ch-gap:hover:not(:disabled) {
-  border-color: var(--color-cyan);
-}
-.ch-gap--selected {
-  color: var(--color-night);
-  font-weight: 700;
-  background: var(--color-cyan);
-  border-style: solid;
-  border-color: var(--color-cyan);
 }
 
 /* ---------- Resumen ---------- */
@@ -680,10 +597,7 @@
   .ch-mission__title,
   .ch-request,
   .ch-instructions,
-  .ch-row-toggle {
+  .ch-claim__text {
     overflow-wrap: anywhere;
-  }
-  .ch-row-toggle {
-    flex-wrap: wrap;
   }
 }

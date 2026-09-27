@@ -229,7 +229,7 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
       if (!mission) return;
       setPending('submit');
       try {
-        const answer = drafts[mission.id] ?? emptyAnswer(mission);
+        const answer = drafts[mission.id] ?? emptyAnswer(mission, state.sessionId);
         const submitted = await engine.submit(answer);
         setOutcomes((items) => ({ ...items, [mission.id]: submitted.outcome }));
         // Al acertar desaparece el botón de enviar: el foco pasa a «Siguiente misión». Si no,
@@ -335,7 +335,7 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
               mission={mission}
               state={missionState}
               total={engine.missions.length}
-              draft={drafts[mission.id] ?? emptyAnswer(mission)}
+              draft={drafts[mission.id] ?? emptyAnswer(mission, state.sessionId)}
               onDraftChange={(answer) => setDrafts((items) => ({ ...items, [mission.id]: answer }))}
               outcome={outcomes[mission.id] ?? lastAttemptOutcome(missionState)}
               hint={hints[mission.id] ?? null}

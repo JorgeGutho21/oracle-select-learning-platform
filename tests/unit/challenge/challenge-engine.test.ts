@@ -44,8 +44,8 @@ function setup(options: { storage?: StorageLike | null; evaluator?: MissionEvalu
   return { engine: create(), create, clock, storage };
 }
 
-const M01_OK: MissionAnswer = { type: 'drag-column', columns: ['NOMBRE', 'SALARIO'] };
-const M01_WRONG: MissionAnswer = { type: 'drag-column', columns: ['SALARIO', 'NOMBRE'] };
+const M01_OK: MissionAnswer = { type: 'drag-column', columns: ['NOMBRE', 'CIUDAD', 'CORREO'] };
+const M01_WRONG: MissionAnswer = { type: 'drag-column', columns: ['CIUDAD', 'NOMBRE', 'CORREO'] };
 
 describe('Motor de partida individual', () => {
   it('iniciar crea una sesión, abre M01 y la guarda localmente', async () => {
@@ -166,12 +166,12 @@ describe('Motor de partida individual', () => {
       code: 'explanation-locked',
     });
     await engine.skip();
-    await expect(engine.getExplanation('M01')).resolves.toContain('SELECT nombre, salario');
+    await expect(engine.getExplanation('M01')).resolves.toContain('SELECT nombre, ciudad, correo');
   });
 
   const M10_OK: MissionAnswer = {
     type: 'write-query',
-    sql: "SELECT nombre, cargo, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY proyeccion_anual DESC;",
+    sql: "SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá', 'Cali') ORDER BY proyeccion_anual DESC;",
   };
 
   it('M10 con estructura correcta y sin Oracle es técnico y no consume intento', async () => {
@@ -197,18 +197,22 @@ describe('Motor de partida individual', () => {
 
   it('M10 se califica con el resultado real cuando Oracle responde', async () => {
     const rows = [
-      ['Ana', 'Gerente general', 109200000],
-      ['Carlos', 'Líder de área', 91200000],
-      ['Laura', 'Líder de área', 70800000],
-      ['Andrés', 'Analista', 51600000],
-      ['Mario', 'Representante comercial', 43200000],
-      ['Felipe', 'Asistente', 26400000],
+      ['Ana', 'Bogotá', 109200000],
+      ['Carlos', 'Bogotá', 91200000],
+      ['Jorge', 'Cali', 82800000],
+      ['Laura', 'Bogotá', 70800000],
+      ['Camila', 'Cali', 55200000],
+      ['Andrés', 'Bogotá', 51600000],
+      ['Mario', 'Bogotá', 43200000],
+      ['Valentina', 'Cali', 36000000],
+      ['Julián', 'Cali', 28800000],
+      ['Felipe', 'Bogotá', 26400000],
     ];
     const execute = vi.fn().mockResolvedValue({
       status: 'ok',
       columns: [
         { name: 'NOMBRE', type: 'text' },
-        { name: 'CARGO', type: 'text' },
+        { name: 'CIUDAD', type: 'text' },
         { name: 'PROYECCION_ANUAL', type: 'number' },
       ],
       rows,
@@ -222,7 +226,7 @@ describe('Motor de partida individual', () => {
     const result = await engine.submit(M10_OK);
     expect(execute).toHaveBeenCalledWith({
       statement:
-        "SELECT NOMBRE, CARGO, (SALARIO + 100000) * 12 AS PROYECCION_ANUAL FROM EMPLEADOS WHERE ESTADO = 'ACTIVO' AND CIUDAD = 'Bogotá' ORDER BY PROYECCION_ANUAL DESC",
+        "SELECT NOMBRE, CIUDAD, (SALARIO + 100000) * 12 AS PROYECCION_ANUAL FROM EMPLEADOS WHERE ESTADO = 'ACTIVO' AND CIUDAD IN ('Bogotá', 'Cali') ORDER BY PROYECCION_ANUAL DESC",
     });
     expect(result).toMatchObject({ outcome: { kind: 'correct' }, closedNow: true });
     expect(engine.getResult()?.missions[9]?.score.total).toBe(100);

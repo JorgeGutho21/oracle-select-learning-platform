@@ -416,21 +416,21 @@ describe.skipIf(!configured)('Oracle real (empleados-select-v2)', () => {
         answer: { type: 'write-query', sql },
       });
     const REFERENCE =
-      "SELECT nombre, cargo, (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados\nWHERE estado = 'ACTIVO' AND ciudad = 'Bogotá'\nORDER BY proyeccion_anual DESC;";
+      "SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados\nWHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá', 'Cali')\nORDER BY proyeccion_anual DESC;";
 
     it('la solución de referencia es correcta al ejecutarse en Oracle', async () => {
       expect(await evaluate(REFERENCE)).toMatchObject({ kind: 'correct' });
       const execution = await run(REFERENCE);
-      expect(execution.rows).toHaveLength(6);
-      expect(execution.rows[0]).toEqual(['Ana', 'Gerente general', 109200000]);
-      expect(execution.rows.at(-1)).toEqual(['Felipe', 'Asistente', 26400000]);
+      expect(execution.rows).toHaveLength(10);
+      expect(execution.rows[0]).toEqual(['Ana', 'Bogotá', 109200000]);
+      expect(execution.rows.at(-1)).toEqual(['Felipe', 'Bogotá', 26400000]);
     });
 
     it('acepta formas equivalentes: no se compara la cadena', async () => {
       for (const sql of [
-        "select NOMBRE, Cargo, 12 * (100000 + salario) AS Proyeccion_Anual from EMPLEADOS where ciudad = 'Bogotá' and estado = 'ACTIVO' order by 3 desc",
-        "SELECT nombre, cargo, salario * 12 + 1200000 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá') ORDER BY salario DESC",
-        "-- reto final\nSELECT nombre,\n       cargo,\n       (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados\nWHERE (estado = 'ACTIVO')\n  AND ciudad = 'Bogotá'\nORDER BY proyeccion_anual DESC",
+        "select NOMBRE, Ciudad, 12 * (100000 + salario) AS Proyeccion_Anual from EMPLEADOS where (ciudad = 'Bogotá' or ciudad = 'Cali') and estado = 'ACTIVO' order by 3 desc",
+        "SELECT nombre, ciudad, salario * 12 + 1200000 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad IN ('Cali', 'Bogotá') ORDER BY salario DESC",
+        "-- reto final\nSELECT nombre,\n       ciudad,\n       (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados\nWHERE (estado = 'ACTIVO')\n  AND ciudad IN ('Bogotá', 'Cali')\nORDER BY proyeccion_anual DESC",
       ]) {
         expect(await evaluate(sql), sql).toMatchObject({ kind: 'correct' });
       }
@@ -439,17 +439,21 @@ describe.skipIf(!configured)('Oracle real (empleados-select-v2)', () => {
     it('otros valores, otras filas u otro orden son incorrectos según la salida de Oracle', async () => {
       expect(
         await evaluate(
-          "SELECT nombre, cargo, salario * 12 + 100000 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY proyeccion_anual DESC",
+          "SELECT nombre, ciudad, salario * 12 + 100000 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá', 'Cali') ORDER BY proyeccion_anual DESC",
         ),
       ).toMatchObject({ kind: 'incorrect', feedback: expect.stringContaining('valores') });
+      // Sin paréntesis, AND se evalúa antes que OR: entra Oscar (Cali, INACTIVO).
       expect(
         await evaluate(
-          "SELECT nombre, cargo, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' OR ciudad = 'Bogotá' ORDER BY proyeccion_anual DESC",
+          "SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' OR ciudad = 'Cali' ORDER BY proyeccion_anual DESC",
         ),
-      ).toMatchObject({ kind: 'incorrect', feedback: expect.stringContaining('filas') });
+      ).toMatchObject({
+        kind: 'incorrect',
+        feedback: expect.stringContaining('AND se evalúa antes que OR'),
+      });
       expect(
         await evaluate(
-          "SELECT nombre, cargo, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY proyeccion_anual",
+          "SELECT nombre, ciudad, (salario + 100000) * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá', 'Cali') ORDER BY proyeccion_anual",
         ),
       ).toMatchObject({ kind: 'incorrect' });
     });
@@ -457,7 +461,7 @@ describe.skipIf(!configured)('Oracle real (empleados-select-v2)', () => {
     it('los requisitos del pedido se comprueban antes de ejecutar (AS explícito, tres columnas)', async () => {
       expect(
         await evaluate(
-          "SELECT nombre, cargo, (salario + 100000) * 12 proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY 3 DESC",
+          "SELECT nombre, ciudad, (salario + 100000) * 12 proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá', 'Cali') ORDER BY 3 DESC",
         ),
       ).toMatchObject({ kind: 'incorrect', feedback: expect.stringContaining('AS') });
       expect(await evaluate('SELECT * FROM empleados')).toMatchObject({ kind: 'incorrect' });

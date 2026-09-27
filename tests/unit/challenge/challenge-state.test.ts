@@ -300,8 +300,10 @@ describe('Resultado de la partida', () => {
       'L11',
       'L12',
       'L13',
+      'L14',
+      'L16',
+      'L18',
       'L19',
-      'L20',
     ]);
   });
 });

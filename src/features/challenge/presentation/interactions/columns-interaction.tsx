@@ -1,22 +1,32 @@
 'use client';
 
-import { DataView } from '@/presentation/components/data/data-view';
+import { ChangeSummary } from '@/presentation/components/data/change-summary';
 import { SequenceBuilder } from '@/presentation/components/interaction/sequence-builder';
-import { EMPLEADOS, previewResult } from '../../application/challenge-api';
+import { EMPLEADOS, sampleResult } from '../../application/challenge-api';
+import { MISSION_CONTEXT } from '../mission-context';
+import { SampleTable, sizeOf } from './sample-table';
 import type { InteractionProps } from './types';
 
-/** M01: arrastrar columnas de EMPLEADOS a la lista de SELECT; la muestra resalta la elección. */
+/**
+ * M01: elegir y ordenar las columnas de SELECT. El resultado se calcula en vivo sobre las
+ * mismas filas de la muestra: cambian las columnas, no las filas.
+ */
 export function ColumnsInteraction({
   mission,
   answer,
   onChange,
   disabled,
 }: InteractionProps<'drag-column'>) {
+  const sample = MISSION_CONTEXT[mission.id].sample;
   const pieces = mission.publicData.availableColumns.map((column) => ({
     id: column,
     text: column.toLowerCase(),
     role: 'column',
   }));
+  const result =
+    sample && answer.columns.length > 0
+      ? sampleResult(`SELECT ${answer.columns.join(', ')} FROM empleados`, sample.rowIds)
+      : null;
   return (
     <div className="ch-stack">
       <SequenceBuilder
@@ -28,36 +38,29 @@ export function ColumnsInteraction({
         prefix="SELECT"
         suffix="FROM empleados;"
         separator=","
-        emptyText="Arrastra o pulsa columnas para añadirlas"
+        emptyText="Arrastra o toca columnas para añadirlas"
         disabled={disabled}
       />
-      <ResultPreview columns={answer.columns} />
+      <div className="ch-result" aria-live="polite">
+        {result && sample ? (
+          <>
+            <ChangeSummary
+              rows={[sample.rowIds.length, result.rows.length]}
+              columns={[EMPLEADOS.columns.length, result.columns.length]}
+            />
+            <SampleTable
+              caption="Resultado de tu consulta sobre la muestra de trabajo"
+              label="Resultado de tu consulta"
+              result={result}
+              summary={`${sizeOf(result.rows.length, result.columns.length)} · las mismas filas de la muestra`}
+            />
+          </>
+        ) : (
+          <p className="ch-calc">
+            Cuando añadas columnas, aquí verás tu resultado sobre las mismas filas de la muestra.
+          </p>
+        )}
+      </div>
     </div>
-  );
-}
-
-/** Lo que mostraría tu SELECT en las tres primeras filas: SELECT decide qué se ve. */
-function ResultPreview({ columns }: { readonly columns: readonly string[] }) {
-  const preview =
-    columns.length > 0 ? previewResult(`SELECT ${columns.join(', ')} FROM empleados`, 3) : null;
-  if (!preview) {
-    return (
-      <p className="ch-calc" aria-live="polite">
-        Cuando añadas columnas, aquí verás las primeras filas de tu resultado.
-      </p>
-    );
-  }
-  return (
-    <DataView
-      caption="Vista previa de tu resultado"
-      label="Vista previa de tu resultado"
-      columns={preview.columns.map((name) => ({
-        name,
-        type: EMPLEADOS.columns.find((column) => column.name === name)?.type ?? 'text',
-      }))}
-      rows={preview.rows}
-      summary={`3 de ${preview.total} filas · ${preview.columns.length} columna${preview.columns.length === 1 ? '' : 's'}`}
-      className="ch-preview"
-    />
   );
 }

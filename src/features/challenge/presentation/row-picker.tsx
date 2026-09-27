@@ -1,13 +1,13 @@
 import { useId } from 'react';
 import { formatCell } from '@/presentation/components/data/cell-format';
+import { NullBadge } from '@/presentation/components/data/data-view';
 import { EMPLEADOS, type EmpleadoRow, type EmpleadosColumn } from '../application/challenge-api';
 
 /**
- * Selección de filas de una muestra de EMPLEADOS (M04). Cada fila es una casilla con sus
- * campos en una lista de definición: en pantallas anchas se alinean como una tabla con
- * encabezado visual; en estrechas, cada campo lleva su nombre. Sin barra horizontal.
- * Al cerrar la misión, cada fila indica si cumple la condición y se resalta la columna
- * que decide.
+ * Selección de filas sobre la muestra de trabajo (M04): una tabla real (thead, tbody, th)
+ * con una casilla por fila. Toda la fila se puede tocar; la casilla sigue siendo el control
+ * accesible. Al cerrar la misión, las filas que conserva la condición se resaltan y las
+ * descartadas se atenúan, con símbolo y texto además del color.
  */
 export function RowPicker({
   legend,
@@ -25,94 +25,124 @@ export function RowPicker({
   readonly selected: readonly number[];
   readonly onToggle: (id: number) => void;
   readonly disabled: boolean;
-  /** Filas que conserva la consulta: solo se pasa con la misión cerrada. */
+  /** Filas que conserva la condición: solo se pasa con la misión cerrada. */
   readonly kept?: readonly number[];
   /** Columnas que usa la condición, resaltadas al revelar. */
   readonly focusColumns?: readonly string[];
 }) {
-  const baseId = useId();
+  const captionId = useId();
   const rows = EMPLEADOS.rows.filter((row) => rowIds.includes(row.ID_EMPLEADO));
-  const cell = (row: EmpleadoRow, column: EmpleadosColumn) => {
-    const value = row[column];
-    return value === null ? 'NULL' : formatCell(value);
-  };
   const numeric = (column: EmpleadosColumn) =>
     EMPLEADOS.columns.find((item) => item.name === column)?.type === 'number';
   const revealed = kept !== undefined;
-  // Ancho proporcional al texto más largo de cada columna (y a su encabezado): la misma
-  // plantilla para todas las filas mantiene las columnas alineadas.
-  const template = columns
-    .map((column) => {
-      const longest = Math.max(column.length * 0.7, ...rows.map((row) => cell(row, column).length));
-      return `minmax(0, ${Math.ceil(longest)}fr)`;
-    })
-    .join(' ');
-  const focus = (column: string) => (revealed && focusColumns.includes(column) ? ' is-focus' : '');
+  const cell = (row: EmpleadoRow, column: EmpleadosColumn) => {
+    const value = row[column];
+    return value === null ? <NullBadge /> : formatCell(value);
+  };
+  const focus = (column: string) => (revealed && focusColumns.includes(column) ? 'is-focus' : '');
   return (
-    <fieldset
-      className={`ch-pick${revealed ? ' is-revealed' : ''}`}
-      style={{ ['--ch-pick-template' as string]: template }}
-    >
+    <fieldset className={`ch-pick${revealed ? ' is-revealed' : ''}`}>
       <legend className="ch-pick__legend">{legend}</legend>
-      <p className="ch-pick__meta">
-        Muestra de {rows.length} de {EMPLEADOS.rows.length} registros
+      <p className="ch-pick__meta" id={captionId}>
+        Muestra de trabajo: {rows.length} registros · {columns.length} columnas
+        {!revealed && ' · toca las filas que cumplirán la condición'}
       </p>
-      <div className="ch-pick__head" aria-hidden="true">
-        <span>Incluir</span>
-        {columns.map((column) => (
-          <span key={column} className={`${numeric(column) ? 'is-number' : ''}${focus(column)}`}>
-            {column}
-          </span>
-        ))}
-        {revealed && <span>¿Cumple?</span>}
+      <div className="ch-pick__frame">
+        <table className="ch-pick__table" aria-describedby={captionId}>
+          <caption className="visually-hidden">{legend}</caption>
+          <thead>
+            <tr>
+              <th scope="col" className="ch-pick__check">
+                <span className="visually-hidden">Incluir</span>
+                <span aria-hidden="true">✓</span>
+              </th>
+              {columns.map((column) => (
+                <th
+                  key={column}
+                  scope="col"
+                  className={
+                    [numeric(column) ? 'is-number' : '', focus(column)].filter(Boolean).join(' ') ||
+                    undefined
+                  }
+                >
+                  {column === 'ID_EMPLEADO' ? (
+                    <abbr title="ID_EMPLEADO">
+                      <span aria-hidden="true">ID</span>
+                      <span className="visually-hidden">ID_EMPLEADO</span>
+                    </abbr>
+                  ) : (
+                    column.split(/(?<=_)/).map((part, index) => (
+                      <span key={index}>
+                        {index > 0 && <wbr />}
+                        {part}
+                      </span>
+                    ))
+                  )}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => {
+              const id = row.ID_EMPLEADO;
+              const state = revealed ? (kept.includes(id) ? 'kept' : 'discarded') : null;
+              const checked = selected.includes(id);
+              return (
+                <tr
+                  key={id}
+                  className={[
+                    'ch-pick__row',
+                    checked ? 'is-selected' : '',
+                    state ? `is-${state}` : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={(event) => {
+                    if (disabled || (event.target as HTMLElement).closest('input')) return;
+                    onToggle(id);
+                  }}
+                >
+                  <td className="ch-pick__check">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => onToggle(id)}
+                      disabled={disabled}
+                      aria-label={`Incluir a ${row.NOMBRE} (ID ${id})`}
+                    />
+                    {state && (
+                      <span className={`ch-pick__state ch-pick__state--${state}`}>
+                        <span aria-hidden="true">{state === 'kept' ? '✓' : '✗'}</span>
+                        <span className="visually-hidden">
+                          {state === 'kept' ? ' Se conserva' : ' Se descarta'}
+                        </span>
+                      </span>
+                    )}
+                  </td>
+                  {columns.map((column) =>
+                    column === 'ID_EMPLEADO' ? (
+                      <th key={column} scope="row" className="is-number">
+                        {cell(row, column)}
+                      </th>
+                    ) : (
+                      <td
+                        key={column}
+                        className={
+                          [numeric(column) ? 'is-number' : '', focus(column)]
+                            .filter(Boolean)
+                            .join(' ') || undefined
+                        }
+                      >
+                        {cell(row, column)}
+                      </td>
+                    ),
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
-      <ul className="ch-pick__rows">
-        {rows.map((row) => {
-          const id = row.ID_EMPLEADO;
-          const fieldsId = `${baseId}-${id}`;
-          const state = revealed ? (kept.includes(id) ? 'kept' : 'discarded') : null;
-          return (
-            <li
-              key={id}
-              className={[
-                'ch-pick__row',
-                selected.includes(id) ? 'is-selected' : '',
-                state ? `is-${state}` : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              <label className="ch-pick__label">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(id)}
-                  onChange={() => onToggle(id)}
-                  disabled={disabled}
-                  aria-label={`Incluir a ${row.NOMBRE}`}
-                  aria-describedby={fieldsId}
-                />
-                <dl className="ch-pick__fields" id={fieldsId}>
-                  {columns.map((column) => (
-                    <div
-                      key={column}
-                      className={`ch-pick__field${numeric(column) ? ' is-number' : ''}${focus(column)}`}
-                    >
-                      <dt>{column}</dt>
-                      <dd>{cell(row, column)}</dd>
-                    </div>
-                  ))}
-                </dl>
-                {state && (
-                  <span className={`ch-pick__state ch-pick__state--${state}`}>
-                    <span aria-hidden="true">{state === 'kept' ? '✓ ' : '✗ '}</span>
-                    {state === 'kept' ? 'Cumple' : 'No cumple'}
-                  </span>
-                )}
-              </label>
-            </li>
-          );
-        })}
-      </ul>
     </fieldset>
   );
 }

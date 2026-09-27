@@ -54,23 +54,39 @@ export interface ReorderSqlData {
   /** Orden mezclado de presentación; nunca el orden de la solución. */
   readonly pieces: readonly Piece[];
 }
+/** Afirmación que el estudiante clasifica como cierta o falsa (qué hace y qué no hace). */
+export interface Claim {
+  readonly id: string;
+  readonly text: string;
+}
+
 export interface PredictResultData {
   readonly type: 'predict-result';
+  /** Consulta de la misión. `▢` marca la condición que construye el estudiante (M04). */
   readonly query: string;
   readonly headerOptions: readonly string[];
   readonly asks: {
     readonly headers: boolean;
-    /** Marcar qué filas de EMPLEADOS aparecen en el resultado. */
+    /** Marcar qué filas de la muestra conserva la consulta. */
     readonly rowSelection: boolean;
     readonly rowCount: boolean;
+    /** Indicar cuántas columnas tendrá el resultado. */
+    readonly columnCount?: boolean;
+    /** Clasificar afirmaciones sobre lo que hace la consulta. */
+    readonly claims?: boolean;
+    /** Construir con piezas la condición de WHERE. */
+    readonly condition?: boolean;
   };
   /** Columnas de EMPLEADOS que se muestran al marcar filas; por defecto, todas. */
   readonly sourceColumns?: readonly string[];
   /**
-   * Muestra de filas (ID_EMPLEADO) visible al marcar filas. Debe contener todas las filas
-   * que conserva la consulta: la respuesta nunca depende de filas que no se ven.
+   * Muestra de trabajo (ID_EMPLEADO) sobre la que se marcan filas: se corrige frente a esas
+   * mismas filas, así que la respuesta nunca depende de filas que no se ven.
    */
   readonly sampleIds?: readonly number[];
+  readonly claims?: readonly Claim[];
+  /** Piezas para construir la condición (algunas sobran). */
+  readonly conditionPieces?: readonly Piece[];
 }
 export interface ExpressionBuilderData {
   readonly type: 'expression-builder';
@@ -79,6 +95,11 @@ export interface ExpressionBuilderData {
   readonly palette: readonly Piece[];
   /** Empleados (ID) cuyo valor calculado se debe predecir. */
   readonly predictionEmployeeIds: readonly number[];
+  /**
+   * Expresiones cuyo valor se predice para cada empleado indicado (precedencia: con y sin
+   * paréntesis). Sin ellas, se predice el valor de la expresión construida.
+   */
+  readonly comparisons?: readonly string[];
 }
 export interface AliasBuilderData {
   readonly type: 'alias-builder';
@@ -86,19 +107,33 @@ export interface AliasBuilderData {
 }
 export interface DistinctResultData {
   readonly type: 'distinct-result';
+  /** Consulta con DISTINCT sobre una columna. */
   readonly query: string;
+  /** Consulta con DISTINCT sobre un par de columnas (mini reto). */
+  readonly pairQuery: string;
   readonly column: string;
-  /** Consulta sin DISTINCT que produce la lista de partida. */
+  /** Consulta sin DISTINCT que produce las filas de partida (la muestra de trabajo). */
   readonly sourceQuery: string;
-  /** Proyección sin DISTINCT, con repeticiones, de la que se retiran duplicados. */
-  readonly candidateValues: readonly string[];
+  /** Valores entre los que se predice el resultado (algunos no aparecen). */
+  readonly options: readonly string[];
 }
+
+/** Tipo de error de una consulta (M08): cómo reacciona Oracle ante ella. */
+export const ERROR_KINDS = ['sintaxis', 'semantica', 'concepto'] as const;
+export type ErrorKind = (typeof ERROR_KINDS)[number];
+
+/** Una consulta con un error estudiado; M08 presenta una de ellas. */
+export interface ErrorVariant {
+  readonly id: string;
+  /** Pedido que la consulta debía cumplir. */
+  readonly request: string;
+  /** Consulta con el error, en piezas que se pueden tocar. */
+  readonly tokens: readonly string[];
+}
+
 export interface HotspotErrorData {
   readonly type: 'hotspot-error';
-  readonly tokens: readonly string[];
-  readonly requirement: string;
-  /** Símbolo que se inserta en el hueco elegido. */
-  readonly insertToken: string;
+  readonly variants: readonly ErrorVariant[];
 }
 export interface BuildQueryData {
   readonly type: 'build-query';
@@ -127,6 +162,14 @@ export type MissionPublicData =
 export interface Prediction {
   readonly employeeId: number;
   readonly value: number | null;
+  /** Expresión cuyo valor se predice (M05 compara dos). */
+  readonly expression?: string;
+}
+
+export interface ClaimAnswer {
+  readonly id: string;
+  /** `true`: lo hace; `false`: no lo hace; `null`: sin responder. */
+  readonly value: boolean | null;
 }
 
 export type MissionAnswer =
@@ -137,6 +180,9 @@ export type MissionAnswer =
       readonly headers: readonly string[];
       readonly sourceRowIds: readonly number[];
       readonly rowCount: number | null;
+      readonly columnCount?: number | null;
+      readonly claims?: readonly ClaimAnswer[];
+      readonly conditionPieceIds?: readonly string[];
     }
   | {
       readonly type: 'expression-builder';
@@ -144,8 +190,22 @@ export type MissionAnswer =
       readonly predictions: readonly Prediction[];
     }
   | { readonly type: 'alias-builder'; readonly pieceIds: readonly string[] }
-  | { readonly type: 'distinct-result'; readonly keptIndexes: readonly number[] }
-  | { readonly type: 'hotspot-error'; readonly gapIndex: number | null }
+  | {
+      readonly type: 'distinct-result';
+      /** Valores que el estudiante predice en el resultado de DISTINCT. */
+      readonly values: readonly string[];
+      /** Filas que predice para DISTINCT sobre el par de columnas. */
+      readonly pairCount: number | null;
+    }
+  | {
+      readonly type: 'hotspot-error';
+      readonly variantId: string;
+      readonly kind: ErrorKind | null;
+      /** Pieza de la consulta donde está el error. */
+      readonly tokenIndex: number | null;
+      /** Consulta corregida. */
+      readonly sql: string;
+    }
   | { readonly type: 'build-query'; readonly pieceIds: readonly string[] }
   | { readonly type: 'write-query'; readonly sql: string };
 
@@ -163,6 +223,7 @@ export type TechnicalReason = 'service-unavailable' | 'oracle-unavailable' | 'ti
 export const FEEDBACK_CATEGORIES = [
   'sintaxis',
   'semantica',
+  'concepto',
   'orden',
   'columna',
   'condicion',

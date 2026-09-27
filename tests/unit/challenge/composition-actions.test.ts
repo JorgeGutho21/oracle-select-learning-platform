@@ -12,8 +12,8 @@ describe('Server Functions de corrección de la práctica', () => {
     await expect(
       evaluatePracticeAnswer({
         missionId: 'M01',
-        missionVersion: 3,
-        answer: { type: 'drag-column', columns: ['NOMBRE', 'SALARIO'] },
+        missionVersion: 4,
+        answer: { type: 'drag-column', columns: ['NOMBRE', 'CIUDAD', 'CORREO'] },
       }),
     ).resolves.toMatchObject({ kind: 'correct' });
   });
@@ -42,13 +42,13 @@ describe('Server Functions de corrección de la práctica', () => {
     ],
     [
       'campos malformados',
-      { missionId: 'M01', missionVersion: 3, answer: { type: 'drag-column', columns: 'NOMBRE' } },
+      { missionId: 'M01', missionVersion: 4, answer: { type: 'drag-column', columns: 'NOMBRE' } },
     ],
     [
       'intento fuera de rango',
       {
         missionId: 'M01',
-        missionVersion: 3,
+        missionVersion: 4,
         attempt: 0,
         answer: { type: 'drag-column', columns: ['NOMBRE'] },
       },
@@ -72,10 +72,8 @@ describe('Server Functions de corrección de la práctica', () => {
   });
 
   it('entregan pista y explicación solo para misiones existentes', async () => {
-    await expect(getPracticeHint('M08')).resolves.toContain('columnas');
-    await expect(getPracticeExplanation('M08')).resolves.toContain(
-      'Oracle lee salario como un alias',
-    );
+    await expect(getPracticeHint('M08')).resolves.toContain('sintaxis');
+    await expect(getPracticeExplanation('M08')).resolves.toContain('IS NULL');
     await expect(getPracticeHint('M99' as never)).rejects.toThrow('Misión desconocida');
   });
 });

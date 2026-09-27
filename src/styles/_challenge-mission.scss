@@ -1,5 +1,6 @@
-// Misión del Challenge: contexto (pedido, concepto y datos necesarios) junto a la
-// interacción. Densidad propia: nunca la tabla EMPLEADOS completa por defecto.
+// Misión del Challenge: contexto (pedido, consulta, concepto y muestra de trabajo) junto a
+// la interacción. Densidad propia: hasta 8 registros y 3–4 columnas, nunca la tabla
+// EMPLEADOS completa por defecto.
 
 .ch-mission {
   container: ch-mission / inline-size;
@@ -78,7 +79,7 @@
   line-height: 1.5;
 }
 
-/* Datos necesarios para esta misión */
+/* Muestra de trabajo y esquema */
 .ch-data {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -95,81 +96,102 @@
   padding-inline-start: var(--space-3);
   border-inline-start: 3px solid var(--color-border-subtle);
 }
-.ch-schema {
+// Acceso secundario al dataset completo: una línea discreta, nunca protagonista.
+.ch-dataset {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-3);
+  padding-block-start: var(--space-2);
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+.ch-dataset__open {
+  min-block-size: 44px;
+  padding-inline: 0;
+  font-size: 0.9375rem;
+}
+.ch-dataset-dialog {
+  max-inline-size: min(1240px, calc(100vw - 32px));
+}
+
+// Esquema compacto (M03): 3 filas de 4 columnas, numeradas en el orden de la tabla; en el
+// móvil, por grupos.
+.ch-schema {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ch-schema--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 100%), 1fr));
+  gap: var(--space-2);
+}
+.ch-schema--groups {
+  display: none;
+  gap: var(--space-3);
+}
+.ch-schema--groups ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(8rem, 100%), 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.ch-schema li {
-  display: inline-flex;
+.ch-schema__group {
+  display: grid;
+  gap: var(--space-1);
+}
+.ch-schema__group-title {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ch-schema__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: baseline;
-  gap: var(--space-2);
+  gap: 0 var(--space-2);
   min-inline-size: 0;
-  max-inline-size: 100%;
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-3);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-sm);
 }
-.ch-schema li code {
-  color: var(--color-ink);
-  font-size: 0.875rem;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-.ch-schema li.is-used {
-  background: var(--color-soft);
-  border-color: var(--color-primary);
-  box-shadow: inset 0 -3px 0 var(--color-primary);
-}
-.ch-schema__type {
-  color: var(--color-muted);
-  font-size: 0.8125rem;
-}
-.ch-schema--numbered {
-  counter-reset: ch-col;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(12.5rem, 100%), 1fr));
-}
-.ch-schema--numbered li {
-  counter-increment: ch-col;
-}
-.ch-schema--numbered li::before {
-  content: counter(ch-col);
-  min-inline-size: 1.5em;
+.ch-schema__number {
+  grid-row: span 2;
   color: var(--color-primary);
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   font-weight: 700;
 }
-.ch-data__more {
-  padding-block-start: var(--space-2);
-  border-block-start: 1px solid var(--color-border-subtle);
+.ch-schema__item code {
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+  font-weight: 700;
 }
-.ch-data__more > summary {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  min-block-size: 44px;
-  color: var(--color-primary);
-  font-weight: 600;
-  cursor: pointer;
-}
-.ch-data__more-size {
-  margin-inline-start: var(--space-1);
+.ch-schema__type,
+.ch-schema__null {
+  grid-column: 2;
   color: var(--color-muted);
-  font-weight: 400;
+  font-size: 0.75rem;
 }
-.ch-data__more[open] > summary {
-  margin-block-end: var(--space-3);
+@container ch-mission (width < 40rem) {
+  .ch-schema--grid {
+    display: none;
+  }
+  .ch-schema--groups {
+    display: grid;
+  }
 }
 
-/* Selección de filas de una muestra (M04) */
+/* Selección de filas sobre la muestra (M04): una tabla real con una casilla por fila */
 .ch-pick {
-  container: ch-pick / inline-size;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
@@ -190,145 +212,110 @@
   color: var(--color-muted);
   font-size: 0.9375rem;
 }
-.ch-pick__rows {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.ch-pick__head {
-  display: none;
-}
-.ch-pick__label {
-  display: grid;
-  grid-template-columns: 2.25rem minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-1) var(--space-3);
-  min-block-size: 44px;
-  padding: var(--space-1) var(--space-3);
+.ch-pick__frame {
+  container: ch-pick / inline-size;
+  overflow-x: auto;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-control);
-  cursor: pointer;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
 }
-.ch-pick__label input {
+.ch-pick__table {
+  inline-size: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: clamp(0.8125rem, 0.45vw + 0.45rem, 0.9375rem);
+  font-variant-numeric: tabular-nums;
+}
+.ch-pick__table th,
+.ch-pick__table td {
+  padding: 0.5em 0.65em;
+  text-align: start;
+  vertical-align: middle;
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+.ch-pick__table thead th {
+  color: var(--color-ink);
+  background: var(--color-surface-alt);
+  border-block-start: 0;
+  font-family: var(--font-mono);
+  font-size: max(0.8em, 12px);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  vertical-align: bottom;
+}
+.ch-pick__table tbody th {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.ch-pick__table .is-number {
+  text-align: end;
+}
+.ch-pick__check {
+  inline-size: 1%;
+  white-space: nowrap;
+}
+.ch-pick__check input {
   inline-size: 22px;
   block-size: 22px;
+  margin: 0;
+  vertical-align: middle;
   accent-color: var(--color-primary);
+  cursor: pointer;
 }
-.ch-pick__row.is-selected .ch-pick__label {
+.ch-pick__row {
+  cursor: pointer;
+}
+.ch-pick__row:hover > * {
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-surface));
+}
+.ch-pick__row.is-selected > * {
   background: var(--color-soft);
-  border-color: var(--color-primary);
 }
-.ch-pick__fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(6rem, 100%), 1fr));
-  gap: var(--space-1) var(--space-3);
-  margin: 0;
-  min-inline-size: 0;
+.ch-pick__row.is-selected > :first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary);
 }
-.ch-pick__field {
-  display: grid;
-  gap: 0;
-  min-inline-size: 0;
+// Al cerrar: las filas que conserva la condición se resaltan y las demás se atenúan.
+.ch-pick.is-revealed .ch-pick__row {
+  cursor: default;
 }
-.ch-pick__field dt {
+.ch-pick__row.is-kept > * {
+  background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface));
+  font-weight: 650;
+}
+.ch-pick__row.is-kept > :first-child {
+  box-shadow: inset 3px 0 0 var(--color-success);
+}
+.ch-pick__row.is-discarded > :not(:first-child) {
   color: var(--color-muted);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-.ch-pick__field dd {
-  margin: 0;
-  overflow-wrap: anywhere;
-}
-// Con zoom alto (contenedor muy estrecho) la casilla queda encima de los campos.
-@container ch-pick (width < 14rem) {
-  .ch-pick__label {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .ch-pick__state {
-    grid-column: 1;
-  }
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--color-danger) 50%, transparent);
 }
 .ch-pick__state {
-  grid-column: 2;
-  justify-self: start;
-  padding: 0 var(--space-2);
-  font-size: 0.875rem;
-  font-weight: 700;
-  border: 1px solid currentColor;
-  border-radius: var(--radius-pill);
+  display: inline-block;
+  margin-inline-start: var(--space-2);
+  font-weight: 800;
+  vertical-align: middle;
 }
 .ch-pick__state--kept {
   color: var(--color-success);
-  background: var(--color-success-soft);
 }
 .ch-pick__state--discarded {
-  color: var(--color-muted);
-  background: var(--color-surface-alt);
+  color: var(--color-danger);
 }
-.ch-pick__row.is-discarded .ch-pick__fields {
-  opacity: 0.72;
-}
-.ch-pick__field.is-focus dd {
-  padding: 0 var(--space-1);
-  font-weight: 700;
-  background: var(--color-soft);
+.ch-pick__table .is-focus {
   box-shadow: inset 0 -2px 0 var(--color-primary);
 }
-// Con ancho, la muestra se lee como una tabla: encabezado visual y campos alineados; los
-// nombres de campo siguen en el árbol de accesibilidad (dt), solo se ocultan a la vista.
-@container ch-pick (width >= 24rem) {
-  .ch-pick__head,
-  .ch-pick__fields {
-    display: grid;
-    grid-template-columns: var(--ch-pick-template);
-    gap: var(--space-3);
-  }
-  .ch-pick__head {
-    grid-template-columns: 2.25rem var(--ch-pick-template);
-    padding: 0 var(--space-3) var(--space-1);
-    color: var(--color-muted);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    border-block-end: 1px solid var(--color-border-subtle);
-  }
-  .ch-pick.is-revealed .ch-pick__head {
-    grid-template-columns: 2.25rem var(--ch-pick-template) 7.5rem;
-  }
-  .ch-pick.is-revealed .ch-pick__label {
-    grid-template-columns: 2.25rem minmax(0, 1fr) 7.5rem;
-  }
-  .ch-pick__state {
-    grid-column: 3;
-  }
-  .ch-pick__head .is-number,
-  .ch-pick__field.is-number {
-    justify-items: end;
-    text-align: end;
-  }
-  .ch-pick__head .is-focus {
-    color: var(--color-primary);
-  }
-  .ch-pick__field dd {
-    overflow-wrap: break-word;
-  }
-  .ch-pick__field dt {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+.ch-pick__table abbr {
+  text-decoration: none;
+}
+@container ch-pick (width < 26rem) {
+  .ch-pick__table th,
+  .ch-pick__table td {
+    padding-inline: 0.38em;
   }
 }
 
-/* Feedback: qué está bien, qué ajustar y pista */
+/* Feedback: tipo de error, qué está bien, qué revisar y pista */
 .ch-outcome__title {
   display: flex;
   flex-wrap: wrap;
@@ -381,37 +368,9 @@
   background: var(--color-surface-alt);
   border-radius: var(--radius-control);
 }
-.ch-calc code,
-.ch-alias-goal code,
-.ch-compare__query code {
+.ch-calc code {
   font-weight: 700;
   overflow-wrap: anywhere;
-}
-.ch-alias-goal {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2) var(--space-3);
-  margin: 0;
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface-alt);
-  border-radius: var(--radius-control);
-}
-.ch-alias-goal__label {
-  color: var(--color-muted);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.ch-alias-goal__arrow {
-  color: var(--color-primary);
-  font-weight: 700;
-}
-.ch-compare__query {
-  margin: 0;
-  color: var(--color-muted);
-  font-size: 0.875rem;
 }
 .ch-compare__arrow {
   display: grid;
@@ -438,8 +397,280 @@
   }
 }
 
-/* Vista previa a todo el ancho, bajo la interacción */
-.ch-sample {
-  padding-block-start: var(--space-4);
-  border-block-start: 1px solid var(--color-border-subtle);
+/* Resultado junto a la consulta y comparaciones con tablas */
+.ch-result,
+.ch-reveal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+.ch-compare--tables .ch-compare__panel,
+.ch-compare--tables .ch-compare__panel--result {
+  padding: 0;
+  background: none;
+  border: 0;
+}
+// Tablas de una columna: antes y después caben lado a lado incluso en el móvil.
+@container ch-work (width >= 18rem) {
+  .ch-compare.ch-compare--narrow {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: start;
+  }
+  .ch-compare--narrow .ch-compare__arrow {
+    align-self: center;
+  }
+  .ch-compare--narrow .ch-compare__arrow::after {
+    content: '→';
+  }
+}
+.ch-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+}
+.ch-actions--inline {
+  margin: 0;
+}
+.ch-outcome__category-label {
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Afirmaciones: «Lo hace» / «No lo hace» (M03) */
+.ch-claims {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ch-claims__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ch-claim {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-control);
+}
+.ch-claim__text {
+  flex: 1 1 13rem;
+  min-inline-size: 0;
+}
+.ch-claim__options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: 3px;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-pill);
+}
+.ch-claim__option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 40px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ch-claim__option input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.ch-claim__option:has(input:checked) {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+}
+.ch-claim__option:has(input:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Opciones que se marcan (M07) */
+.ch-options {
+  display: grid;
+  gap: var(--space-3);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ch-options__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.ch-option {
+  min-block-size: 44px;
+  padding: 0 var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  cursor: pointer;
+}
+.ch-option[aria-pressed='true'] {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Tipos de error y depuración (M08) */
+.ch-kinds {
+  display: grid;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ch-kinds__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(8.5rem, 100%), 1fr));
+  gap: var(--space-2);
+}
+.ch-kind {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+.ch-kind input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.ch-kind:has(input:checked) {
+  background: var(--color-soft);
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+.ch-kind:has(input:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.ch-kind__label {
+  font-weight: 800;
+}
+.ch-kind:has(input:checked) .ch-kind__label {
+  color: var(--color-primary);
+}
+.ch-kind__hint {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.ch-hotspot .ch-token {
+  min-block-size: 44px;
+  padding: 0 var(--space-2);
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  --color-focus: var(--color-cyan);
+}
+.ch-hotspot .ch-token--keyword {
+  color: var(--color-cyan);
+}
+.ch-hotspot .ch-token:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--color-cyan) 60%, transparent);
+}
+.ch-hotspot .ch-token.is-selected {
+  color: var(--color-night);
+  background: var(--color-cyan);
+  border-color: var(--color-cyan);
+  font-weight: 700;
+}
+.ch-sql {
+  min-block-size: 5.5rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+.ch-try {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 4px solid currentColor;
+  border-radius: var(--radius-control);
+}
+.ch-try--error {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 7%, var(--color-surface));
+}
+.ch-try--warning {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface));
+}
+.ch-try strong {
+  color: var(--color-ink);
+}
+
+/* Orden de cálculo (M05) */
+.ch-calc {
+  display: grid;
+  gap: var(--space-2);
+}
+.ch-calc p {
+  margin: 0;
+}
+.ch-calc__title {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ch-steps {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: 1.5em;
+}
+.ch-steps code {
+  font-weight: 700;
+}
+.ch-prediction-set {
+  display: grid;
+  gap: var(--space-2);
+}
+fieldset.ch-predictions {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ch-prediction code {
+  font-weight: 700;
+  overflow-wrap: anywhere;
 }

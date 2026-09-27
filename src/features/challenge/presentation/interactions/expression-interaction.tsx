@@ -1,89 +1,126 @@
 'use client';
 
 import { SequenceBuilder } from '@/presentation/components/interaction/sequence-builder';
-import { EMPLEADOS, previewHeaders } from '../../application/challenge-api';
+import { calculationSteps, EMPLEADOS, sampleResult } from '../../application/challenge-api';
 import { formatNumber, parseTypedNumber } from '../format';
+import { MISSION_CONTEXT } from '../mission-context';
+import { SampleTable } from './sample-table';
 import type { InteractionProps } from './types';
 
-/** M05: construir la columna calculada y predecir sus valores. */
+/**
+ * M05: predecir el valor de dos expresiones (con y sin paréntesis) y construir la que pide el
+ * enunciado. Mientras se construye se ve el ORDEN de cálculo, no los valores; al cerrar la
+ * misión, las dos columnas calculadas sobre la muestra.
+ */
 export function ExpressionInteraction({
   mission,
   answer,
   onChange,
   disabled,
+  reveal = false,
 }: InteractionProps<'expression-builder'>) {
-  const { palette, predictionEmployeeIds } = mission.publicData;
+  const { palette, predictionEmployeeIds, comparisons = [] } = mission.publicData;
+  const sample = MISSION_CONTEXT[mission.id].sample;
   const employees = EMPLEADOS.rows.filter((row) => predictionEmployeeIds.includes(row.ID_EMPLEADO));
-  const texts = answer.pieceIds.map((id) => palette.find((piece) => piece.id === id)?.text ?? '');
-  // Encabezado que tendría la columna calculada: muestra la expresión, no su valor.
-  const header =
-    texts.length > 0
-      ? (previewHeaders([
-          'SELECT',
-          'nombre',
-          ',',
-          'salario',
-          ',',
-          ...texts,
-          'FROM',
-          'empleados',
-        ])?.[2] ?? null)
-      : null;
-  const valueOf = (id: number) =>
-    answer.predictions.find((item) => item.employeeId === id)?.value ?? null;
-  const setPrediction = (employeeId: number, text: string) =>
+  const text = answer.pieceIds
+    .map((id) => palette.find((piece) => piece.id === id)?.text ?? '')
+    .join(' ');
+  const steps = text ? calculationSteps(text) : null;
+  const valueOf = (employeeId: number, expression?: string) =>
+    answer.predictions.find(
+      (item) => item.employeeId === employeeId && item.expression === expression,
+    )?.value ?? null;
+  const setPrediction = (employeeId: number, expression: string | undefined, typed: string) =>
     onChange({
       ...answer,
-      predictions: predictionEmployeeIds.map((id) => ({
-        employeeId: id,
-        value: id === employeeId ? parseTypedNumber(text) : valueOf(id),
-      })),
+      predictions: answer.predictions.map((item) =>
+        item.employeeId === employeeId && item.expression === expression
+          ? { ...item, value: parseTypedNumber(typed) }
+          : item,
+      ),
     });
+  const compared =
+    reveal && sample && comparisons.length > 0
+      ? sampleResult(
+          `SELECT nombre, salario, bono, ${comparisons.join(', ')} FROM empleados`,
+          sample.rowIds,
+        )
+      : null;
+
   return (
     <div className="ch-stack">
+      {comparisons.length > 0 && (
+        <fieldset className="ch-predictions">
+          <legend className="ch-builder__label">
+            Paso 1 · ¿Dan lo mismo? Predice el valor para{' '}
+            {employees.map((row) => row.NOMBRE).join(' y ')}
+          </legend>
+          {employees.map((row) => (
+            <div key={row.ID_EMPLEADO} className="ch-prediction-set">
+              <p className="ch-muted">
+                <strong>{row.NOMBRE}</strong> · SALARIO {formatNumber(row.SALARIO)} · BONO{' '}
+                {row.BONO === null ? 'NULL' : formatNumber(row.BONO)}
+              </p>
+              <div className="ch-predictions__grid">
+                {comparisons.map((expression) => (
+                  <label key={expression} className="ch-prediction">
+                    <code>{expression}</code>
+                    <input
+                      className="ch-input"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="Valor"
+                      defaultValue={valueOf(row.ID_EMPLEADO, expression)?.toString() ?? ''}
+                      onChange={(event) =>
+                        setPrediction(row.ID_EMPLEADO, expression, event.target.value)
+                      }
+                      disabled={disabled}
+                      aria-label={`Valor de ${expression} para ${row.NOMBRE}`}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </fieldset>
+      )}
+
       <SequenceBuilder
-        label="Tercera columna: expresión"
+        label="Paso 2 · Expresión del ingreso anual"
         paletteLabel="Piezas reutilizables"
         pieces={palette}
         value={answer.pieceIds}
         onChange={(pieceIds) => onChange({ ...answer, pieceIds })}
         reusable
-        emptyText="Arrastra o pulsa piezas para formar la expresión"
+        emptyText="Arrastra o toca piezas para formar la expresión"
         disabled={disabled}
       />
-      <p className="ch-calc" aria-live="polite">
-        {header ? (
+      <div className="ch-calc" aria-live="polite">
+        {steps && steps.length > 0 ? (
           <>
-            Columna calculada: <code>{header}</code> · Oracle la calcula en cada fila; la tabla no
-            cambia.
+            <p className="ch-calc__title">Orden en que Oracle calcula tu expresión</p>
+            <ol className="ch-steps">
+              {steps.map((step, index) => (
+                <li key={index}>
+                  <code>{step}</code>
+                </li>
+              ))}
+            </ol>
           </>
         ) : (
-          'Cuando la expresión esté completa, aquí verás el encabezado de la columna calculada.'
+          <p>Cuando la expresión esté completa, aquí verás en qué orden la calcula Oracle.</p>
         )}
-      </p>
-      <div className="ch-predictions">
-        <p className="ch-builder__label">¿Qué valor mostrará la columna calculada?</p>
-        <div className="ch-predictions__grid">
-          {employees.map((row) => (
-            <label key={row.ID_EMPLEADO} className="ch-prediction">
-              <span>
-                <strong>{row.NOMBRE}</strong>
-                <span className="ch-muted"> · SALARIO {formatNumber(row.SALARIO)}</span>
-              </span>
-              <input
-                className="ch-input"
-                inputMode="numeric"
-                autoComplete="off"
-                placeholder="Valor calculado"
-                defaultValue={valueOf(row.ID_EMPLEADO)?.toString() ?? ''}
-                onChange={(event) => setPrediction(row.ID_EMPLEADO, event.target.value)}
-                disabled={disabled}
-                aria-label={`Valor calculado para ${row.NOMBRE}`}
-              />
-            </label>
-          ))}
-        </div>
       </div>
+
+      {compared && (
+        <SampleTable
+          caption="Las dos expresiones sobre la muestra"
+          label="Comparación sobre la muestra"
+          result={compared}
+          highlightedColumns={compared.columns.slice(3)}
+          summary="Mismas filas; cada expresión es una columna calculada"
+        />
+      )}
     </div>
   );
 }

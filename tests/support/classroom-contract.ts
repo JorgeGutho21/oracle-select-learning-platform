@@ -23,8 +23,8 @@ import { UnconfiguredOracleExecutor } from '@/infrastructure/oracle/unconfigured
 
 export const ACCESS_CODE = 'clave-profesor-pruebas';
 const M01_VERSION = PUBLIC_MISSIONS.find(({ id }) => id === 'M01')!.version;
-const M01_OK: MissionAnswer = { type: 'drag-column', columns: ['NOMBRE', 'SALARIO'] };
-const M01_WRONG: MissionAnswer = { type: 'drag-column', columns: ['SALARIO', 'NOMBRE'] };
+const M01_OK: MissionAnswer = { type: 'drag-column', columns: ['NOMBRE', 'CIUDAD', 'CORREO'] };
+const M01_WRONG: MissionAnswer = { type: 'drag-column', columns: ['CIUDAD', 'NOMBRE', 'CORREO'] };
 const CODE_PATTERN = new RegExp(`^[${ROOM_CODE_ALPHABET}]{6}$`);
 
 export function answer(answerValue: MissionAnswer = M01_OK, requestId = randomUUID()) {

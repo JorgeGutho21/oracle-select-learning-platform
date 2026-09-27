@@ -7,4 +7,6 @@ export interface InteractionProps<T extends InteractionType> {
   disabled: boolean;
   /** Misión cerrada: puede mostrarse por qué cada fila cumple o no (nunca antes). */
   reveal?: boolean;
+  /** Misión resuelta: la respuesta del estudiante es la correcta. */
+  solved?: boolean;
 }

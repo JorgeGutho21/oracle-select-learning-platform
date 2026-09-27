@@ -1,13 +1,44 @@
 'use client';
 
-import { Fragment } from 'react';
-import { DataView } from '@/presentation/components/data/data-view';
-import { previewResult } from '../../application/challenge-api';
+import { useId, useState } from 'react';
+import { Button } from '@/presentation/components/ui';
+import {
+  checkSql,
+  previewResult,
+  variantSql,
+  type ErrorKind,
+  type ResultPreview,
+  type SqlCheckItem,
+} from '../../application/challenge-api';
+import { SampleTable, sizeOf } from './sample-table';
 import type { InteractionProps } from './types';
 
+const KINDS: readonly { readonly id: ErrorKind; readonly label: string; readonly hint: string }[] =
+  [
+    {
+      id: 'sintaxis',
+      label: 'Sintaxis',
+      hint: 'Oracle no puede leerla: sobra, falta o está fuera de lugar un símbolo o una palabra.',
+    },
+    {
+      id: 'semantica',
+      label: 'Semántica',
+      hint: 'Se puede leer, pero nombra algo que no existe (una columna, una tabla).',
+    },
+    {
+      id: 'concepto',
+      label: 'Concepto',
+      hint: 'Oracle la ejecuta sin error, pero no hace lo que se pidió.',
+    },
+  ];
+
+/** Filas que se muestran al probar la corrección: una muestra, nunca la tabla entera. */
+const TRY_ROWS = 6;
+
 /**
- * M08: localizar el hueco donde falta un símbolo. Se muestra qué devuelve ahora la consulta
- * (el diagnóstico) con un esquema mínimo, sin tabla completa.
+ * M08: depuración real en tres pasos: clasificar el error, tocar la parte de la consulta
+ * donde está y escribir la consulta corregida. «Probar» revisa la corrección con el motor
+ * educativo sin puntuar.
  */
 export function HotspotInteraction({
   mission,
@@ -15,55 +46,122 @@ export function HotspotInteraction({
   onChange,
   disabled,
 }: InteractionProps<'hotspot-error'>) {
-  const { tokens, requirement, insertToken } = mission.publicData;
-  const selected = answer.gapIndex;
-  const current = previewResult(tokens.join(' '), 3);
+  const kindName = useId();
+  const sqlId = useId();
+  const variant = mission.publicData.variants.find((entry) => entry.id === answer.variantId);
+  const [tried, setTried] = useState<{
+    sql: string;
+    items: readonly SqlCheckItem[];
+    result: ResultPreview | null;
+  } | null>(null);
+  if (!variant) return null;
+  const set = (patch: Partial<typeof answer>) => onChange({ ...answer, ...patch });
+  const current = tried && tried.sql === answer.sql ? tried : null;
+  const errors = current?.items.filter((item) => item.severity === 'error') ?? [];
+  const warnings = current?.items.filter((item) => item.severity === 'warning') ?? [];
+  const tryFix = () => {
+    const check = checkSql(answer.sql);
+    setTried({
+      sql: answer.sql,
+      items: check.items,
+      result: check.valid ? previewResult(answer.sql, TRY_ROWS) : null,
+    });
+  };
+
   return (
-    <div className="ch-stack">
-      <p className="ch-requirement">
-        <strong>Requisito:</strong> {requirement}
-      </p>
-      <div className="ch-hotspot" role="group" aria-label="Consulta con huecos seleccionables">
-        {tokens.map((token, index) => (
-          <Fragment key={index}>
-            {index > 0 && (
-              <button
-                type="button"
-                className={`ch-gap${selected === index ? ' ch-gap--selected' : ''}`}
-                aria-pressed={selected === index}
-                aria-label={`Hueco entre ${tokens[index - 1]} y ${token}`}
-                onClick={() =>
-                  onChange({ type: 'hotspot-error', gapIndex: selected === index ? null : index })
-                }
+    <div className="ch-stack" data-variant={variant.id}>
+      <fieldset className="ch-kinds">
+        <legend className="ch-builder__label">Paso 1 · ¿Qué tipo de error es?</legend>
+        <div className="ch-kinds__list">
+          {KINDS.map((kind) => (
+            <label key={kind.id} className="ch-kind">
+              <input
+                type="radio"
+                name={kindName}
+                checked={answer.kind === kind.id}
+                onChange={() => set({ kind: kind.id })}
                 disabled={disabled}
-              >
-                <span aria-hidden="true">{selected === index ? insertToken : '·'}</span>
-              </button>
-            )}
-            <span className={`ch-token${/^[A-Z]+$/.test(token) ? ' ch-token--keyword' : ''}`}>
+              />
+              <span className="ch-kind__label">{kind.label}</span>
+              <span className="ch-kind__hint">{kind.hint}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div className="ch-field">
+        <p className="ch-builder__label" id={`${sqlId}-zone`}>
+          Paso 2 · Toca la parte de la consulta donde está el error
+        </p>
+        <div className="ch-hotspot" role="group" aria-labelledby={`${sqlId}-zone`}>
+          {variant.tokens.map((token, index) => (
+            <button
+              key={index}
+              type="button"
+              className={`ch-token${/^[A-Z][A-Z ]*$/.test(token) ? ' ch-token--keyword' : ''}${answer.tokenIndex === index ? ' is-selected' : ''}`}
+              aria-pressed={answer.tokenIndex === index}
+              onClick={() => set({ tokenIndex: answer.tokenIndex === index ? null : index })}
+              disabled={disabled}
+            >
               {token}
-            </span>
-          </Fragment>
-        ))}
+            </button>
+          ))}
+        </div>
       </div>
-      {current && (
-        <DataView
-          caption="Resultado actual de la consulta con error"
-          label="Qué devuelve ahora"
-          columns={current.columns.map((name, index) => ({
-            name,
-            type: typeof current.rows[0]?.[index] === 'number' ? 'number' : 'text',
-          }))}
-          rows={current.rows}
-          summary={`${current.rows.length} de ${current.total} filas · ${current.columns.length} columna${current.columns.length === 1 ? '' : 's'}`}
-          className="ch-diagnosis"
+
+      <div className="ch-field">
+        <label htmlFor={sqlId} className="ch-builder__label">
+          Paso 3 · Escribe la consulta corregida
+        </label>
+        <textarea
+          id={sqlId}
+          className="ch-input ch-sql"
+          rows={3}
+          spellCheck={false}
+          autoCapitalize="off"
+          autoComplete="off"
+          value={answer.sql}
+          onChange={(event) => set({ sql: event.target.value })}
+          disabled={disabled}
         />
-      )}
-      <p className="ch-muted" aria-live="polite">
-        {selected === null
-          ? 'Selecciona el hueco donde debería ir el símbolo que falta.'
-          : `Insertarás «${insertToken}» entre ${tokens[selected - 1]} y ${tokens[selected]}.`}
-      </p>
+        <div className="ch-actions ch-actions--inline">
+          <Button
+            variant="secondary"
+            onClick={tryFix}
+            disabled={disabled || answer.sql.trim() === ''}
+          >
+            Probar la corrección (sin puntuar)
+          </Button>
+          <Button
+            variant="text"
+            onClick={() => set({ sql: variantSql(variant) })}
+            disabled={disabled}
+          >
+            Restaurar la consulta original
+          </Button>
+        </div>
+      </div>
+
+      <div aria-live="polite" className="ch-stack">
+        {current && errors.length > 0 && (
+          <p className="ch-try ch-try--error">
+            <strong>Oracle no podría ejecutarla:</strong> {errors[0]!.message}
+          </p>
+        )}
+        {current && errors.length === 0 && warnings.length > 0 && (
+          <p className="ch-try ch-try--warning">
+            <strong>Atención:</strong> {warnings[0]!.message}
+          </p>
+        )}
+        {current?.result && (
+          <SampleTable
+            caption="Qué devuelve tu corrección"
+            label="Qué devuelve tu corrección"
+            result={current.result}
+            summary={`${sizeOf(current.result.total, current.result.columns.length)} · se muestran ${Math.min(TRY_ROWS, current.result.total)}`}
+          />
+        )}
+      </div>
     </div>
   );
 }

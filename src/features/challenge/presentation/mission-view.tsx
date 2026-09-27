@@ -17,7 +17,7 @@ import {
 import { formatDuration } from './format';
 import { MissionInteraction } from './interactions/mission-interaction';
 import { MISSION_CONTEXT } from './mission-context';
-import { ConceptNote, MissionData, MissionSample } from './mission-data';
+import { ConceptNote, FullDataset, SchemaOverview, WorkingSample } from './mission-data';
 import { useNow } from './use-challenge';
 
 const difficultyLabel: Record<Difficulty, string> = {
@@ -65,6 +65,7 @@ const QUERY_LABEL: Partial<Record<AnyPublicMission['interactionType'], string>> 
 const CATEGORY_LABEL: Record<FeedbackCategory, string> = {
   sintaxis: 'Sintaxis',
   semantica: 'Semántica',
+  concepto: 'Concepto',
   orden: 'Orden de las cláusulas',
   columna: 'Columnas',
   condicion: 'Condición',
@@ -73,13 +74,18 @@ const CATEGORY_LABEL: Record<FeedbackCategory, string> = {
   alcance: 'Alcance educativo',
 };
 
-/** Respuesta incorrecta sin tono de castigo: qué está bien, qué ajustar y una pista. */
+/**
+ * Respuesta incorrecta sin tono de castigo: tipo de error, qué está bien, qué revisar y una
+ * pista (conceptual en el primer intento, más localizada después).
+ */
 function IncorrectFeedback({
   outcome,
   retry,
+  attempts,
 }: {
   outcome: Extract<EvaluationOutcome, { kind: 'incorrect' }>;
   retry: boolean;
+  attempts: number;
 }) {
   return (
     <div className="ds-alert ds-alert--warning ch-outcome" role="alert">
@@ -91,7 +97,7 @@ function IncorrectFeedback({
           <strong>Revisa tu respuesta</strong>
           {outcome.category && (
             <span className="ch-outcome__category">
-              <span className="ds-sr-only">Tipo de error: </span>
+              <span className="ch-outcome__category-label">Tipo de error: </span>
               {CATEGORY_LABEL[outcome.category]}
             </span>
           )}
@@ -107,14 +113,15 @@ function IncorrectFeedback({
           )}
           <div className="ch-outcome__part ch-outcome__part--adjust">
             <dt>
-              <span aria-hidden="true">→ </span>Qué necesita ajuste
+              <span aria-hidden="true">→ </span>Qué debes revisar
             </dt>
             <dd>{outcome.feedback}</dd>
           </div>
           {outcome.guidance && (
             <div className="ch-outcome__part ch-outcome__part--guide">
               <dt>
-                <span aria-hidden="true">? </span>Pista
+                <span aria-hidden="true">? </span>
+                {attempts > 1 ? 'Dónde mirar' : 'Pista conceptual'}
               </dt>
               <dd>{outcome.guidance}</dd>
             </div>
@@ -126,16 +133,25 @@ function IncorrectFeedback({
   );
 }
 
-function OutcomeAlert({ outcome, retry }: { outcome: EvaluationOutcome; retry: boolean }) {
+function OutcomeAlert({
+  outcome,
+  retry,
+  attempts,
+}: {
+  outcome: EvaluationOutcome;
+  retry: boolean;
+  attempts: number;
+}) {
   switch (outcome.kind) {
     case 'correct':
       return (
         <Alert tone="success" title="Correcto" live>
-          {outcome.feedback}
+          {/* El título ya dice «Correcto»: el texto empieza por el porqué. */}
+          {outcome.feedback.replace(/^Correcto[.:]\s*/, '')}
         </Alert>
       );
     case 'incorrect':
-      return <IncorrectFeedback outcome={outcome} retry={retry} />;
+      return <IncorrectFeedback outcome={outcome} retry={retry} attempts={attempts} />;
     case 'invalid-input':
       return (
         <Alert tone="info" title="Completa tu respuesta" live>
@@ -180,6 +196,12 @@ export function MissionView({
   // La consulta de la misión acompaña al pedido: es parte de la pregunta, no de la respuesta.
   const query = 'query' in mission.publicData ? mission.publicData.query : null;
   const highlighted = draft.type === 'drag-column' ? draft.columns : [];
+  // M08 presenta una de sus variantes: su pedido es el de la consulta con error.
+  const variant =
+    mission.publicData.type === 'hotspot-error' && draft.type === 'hotspot-error'
+      ? mission.publicData.variants.find((entry) => entry.id === draft.variantId)
+      : undefined;
+  const request = variant?.request ?? mission.request;
 
   return (
     <article className="ch-mission" aria-labelledby={titleId}>
@@ -212,16 +234,22 @@ export function MissionView({
         <div className="ch-mission__context">
           <blockquote className="ch-request">
             <span className="ch-request__label">Pedido</span>
-            <p>«{mission.request}»</p>
+            <p>«{request}»</p>
           </blockquote>
+          {variant && <p className="ch-muted">{mission.request}</p>}
           {query && (
             <CodeBlock code={query} label={QUERY_LABEL[mission.interactionType] ?? 'Consulta'} />
           )}
           <ConceptNote ids={context.concepts} />
-          <MissionData spec={context.data} highlighted={highlighted} />
+          {context.sample ? (
+            <WorkingSample spec={context.sample} highlighted={highlighted} />
+          ) : (
+            <FullDataset />
+          )}
         </div>
         <div className="ch-mission__work">
           <p className="ch-instructions">{mission.instructions}</p>
+          {context.schema && <SchemaOverview />}
 
           <MissionInteraction
             mission={mission}
@@ -229,10 +257,11 @@ export function MissionView({
             onChange={onDraftChange}
             disabled={inputDisabled}
             reveal={closed}
+            solved={state.status === 'solved'}
           />
 
           <div className="ch-feedback">
-            {outcome && <OutcomeAlert outcome={outcome} retry={!closed} />}
+            {outcome && <OutcomeAlert outcome={outcome} retry={!closed} attempts={used} />}
             {hint && (
               <Alert tone="info" title={`Pista (−${PRACTICE_RULES.hintPenalty} puntos)`}>
                 {hint}
@@ -296,8 +325,6 @@ export function MissionView({
           </div>
         </div>
       </div>
-
-      <MissionSample spec={context.data} />
 
       <Dialog
         open={confirmSkip}

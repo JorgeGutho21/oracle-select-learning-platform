@@ -1,6 +1,8 @@
-import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
-import { analyzeSql, conditionColumns } from '@/domain/sql/analyzer';
+import { EMPLEADOS_DATASET, type EducationalDataset } from '@/domain/dataset/empleados';
+import { analyzeExpression, analyzeSql, conditionColumns } from '@/domain/sql/analyzer';
+import type { Expression } from '@/domain/sql/ast';
 import { runEducational } from '@/domain/sql/educational-run';
+import type { ErrorVariant, HotspotErrorData } from '../domain/types';
 import { PUBLIC_MISSIONS } from '../domain/missions/public-catalog';
 import { GAME_SPEC_SCORING_POLICY } from '../domain/scoring';
 
@@ -21,7 +23,10 @@ export type { ScoreBreakdown } from '../domain/scoring';
 export type {
   AnswerFor,
   AnyPublicMission,
+  ClaimAnswer,
   Difficulty,
+  ErrorKind,
+  ErrorVariant,
   EvaluationOutcome,
   FeedbackCategory,
   InteractionType,
@@ -59,6 +64,100 @@ export function previewResult(sql: string, limit: number): ResultPreview | null 
   const table = runEducational(sql).result?.table;
   if (!table) return null;
   return { columns: table.columns, rows: table.rows.slice(0, limit), total: table.rows.length };
+}
+
+/** EMPLEADOS reducida a los registros de una muestra de trabajo, en el orden de la tabla. */
+function sampleDataset(sampleIds: readonly number[]): EducationalDataset {
+  return {
+    ...EMPLEADOS_DATASET,
+    rows: EMPLEADOS_DATASET.rows.filter((row) => sampleIds.includes(row.ID_EMPLEADO)),
+  };
+}
+
+/** Resultado de una consulta sobre la muestra de trabajo, con las filas que conserva. */
+export interface SampleResult extends ResultPreview {
+  /** ID_EMPLEADO de las filas de la muestra que conserva WHERE. */
+  readonly keptIds: readonly number[];
+}
+
+/**
+ * Qué devuelve una consulta sobre la muestra de trabajo de una misión (las mismas filas que
+ * ve el estudiante). Describe el resultado; no corrige nada. `null` si no es válida.
+ */
+export function sampleResult(sql: string, sampleIds: readonly number[]): SampleResult | null {
+  const dataset = sampleDataset(sampleIds);
+  const run = runEducational(sql, dataset);
+  if (!run.result || run.analysis.errors.length > 0) return null;
+  const table = run.result.table;
+  return {
+    columns: table.columns,
+    rows: table.rows,
+    total: table.rows.length,
+    keptIds: run.result.trace.keptRows.map((index) => dataset.rows[index]!.ID_EMPLEADO),
+  };
+}
+
+/** Tipo de una columna del resultado: el de EMPLEADOS o, si es calculada, el de sus valores. */
+export function columnTypeOf(
+  name: string,
+  values: readonly (string | number | null)[],
+): 'number' | 'text' | 'date' {
+  const known = EMPLEADOS_DATASET.columns.find((column) => column.name === name);
+  if (known) return known.type;
+  return values.some((value) => typeof value === 'number') ? 'number' : 'text';
+}
+
+const STEP_MARKS = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
+
+/**
+ * Orden en que Oracle calcula una expresión aritmética: cada paso con sus operandos (los
+ * pasos anteriores se citan por su número). Muestra la precedencia sin calcular valores.
+ * `null` si la expresión todavía no es válida.
+ */
+export function calculationSteps(text: string): readonly string[] | null {
+  const { expression, errors } = analyzeExpression(text);
+  if (!expression || errors.length > 0) return null;
+  const steps: string[] = [];
+  const visit = (node: Expression): string => {
+    switch (node.kind) {
+      case 'group':
+        return visit(node.expression);
+      case 'binary': {
+        const left = visit(node.left);
+        const right = visit(node.right);
+        steps.push(`${left} ${node.operator} ${right}`);
+        return STEP_MARKS[steps.length - 1] ?? `(${steps.length})`;
+      }
+      case 'unary':
+        return `${node.operator}${visit(node.operand)}`;
+      case 'column':
+        return node.name.toLowerCase();
+      case 'number':
+        return node.raw;
+      default:
+        return 'valor';
+    }
+  };
+  visit(expression);
+  return steps;
+}
+
+/**
+ * Variante de M08 que corresponde a una partida: se elige con la sesión, así que es estable
+ * al recargar y distinta entre estudiantes.
+ */
+export function errorVariantFor(data: HotspotErrorData, seed: string): ErrorVariant {
+  let hash = 0;
+  for (const char of seed) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return data.variants[hash % data.variants.length]!;
+}
+
+/** Consulta de una variante como se escribiría (sin espacios antes de comas ni tras «(»). */
+export function variantSql(variant: ErrorVariant): string {
+  return variant.tokens
+    .join(' ')
+    .replace(/ ([,;)])/g, '$1')
+    .replace(/\( /g, '(');
 }
 
 /**
