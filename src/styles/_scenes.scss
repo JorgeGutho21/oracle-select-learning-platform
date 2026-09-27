@@ -2093,8 +2093,26 @@
   align-items: center;
 }
 .data-to-query {
+  display: grid;
+  gap: 0.3em;
+  margin: 0;
+}
+.data-to-query__art {
   width: 100%;
   height: auto;
+}
+.data-to-query__labels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-inverse);
+  font-size: max(0.72em, 12px);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
 }
 .data-to-query__node rect:first-child {
   fill: rgb(247 250 255 / 6%);
@@ -2119,10 +2137,6 @@
   stroke-width: 3.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-.data-to-query__label {
-  fill: var(--color-inverse);
-  font: 700 17px var(--font-sans);
 }
 .data-to-query__arrow {
   fill: none;

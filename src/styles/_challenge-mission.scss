@@ -224,7 +224,7 @@
 }
 .ch-pick__fields {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(7rem, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(6rem, 100%), 1fr));
   gap: var(--space-1) var(--space-3);
   margin: 0;
   min-inline-size: 0;

@@ -700,51 +700,58 @@ const JOURNEY_NODES = [
 /** Ilustración vectorial original: base de datos → SELECT/FROM → filtro → resultado. */
 export function DataToQuery() {
   return (
-    <svg
-      className="data-to-query"
-      viewBox="0 0 640 170"
-      role="img"
-      aria-label="Del dato a la consulta: la base de datos, SELECT y FROM, el filtro y el resultado."
-    >
-      {JOURNEY_NODES.map((node, index) => {
-        const x = 20 + index * 160;
-        return (
-          <g key={node.label} className={`data-to-query__node data-to-query__node--${node.role}`}>
-            <rect x={x} y={14} width={120} height={104} rx={16} />
-            {node.role === 'from' && (
-              <g className="data-to-query__icon">
-                <ellipse cx={x + 60} cy={44} rx={30} ry={10} />
-                <path d={`M${x + 30} 44 v38 a30 10 0 0 0 60 0 v-38`} />
-                <path d={`M${x + 30} 63 a30 10 0 0 0 60 0`} />
-              </g>
-            )}
-            {node.role === 'select' && (
-              <g className="data-to-query__icon">
-                <path d={`M${x + 42} 40 l-14 26 l14 26`} />
-                <path d={`M${x + 78} 40 l14 26 l-14 26`} />
-                <path d={`M${x + 50} 58 h20 M${x + 50} 74 h14`} />
-              </g>
-            )}
-            {node.role === 'filter' && (
-              <g className="data-to-query__icon">
-                <path d={`M${x + 28} 38 h64 l-24 30 v22 l-16 8 v-30 z`} />
-              </g>
-            )}
-            {node.role === 'result' && (
-              <g className="data-to-query__icon">
-                <rect x={x + 28} y={36} width={64} height={56} rx={6} />
-                <path d={`M${x + 28} 54 h64 M${x + 28} 73 h64 M${x + 56} 36 v56`} />
-              </g>
-            )}
-            <text x={x + 60} y={148} textAnchor="middle" className="data-to-query__label">
-              {node.label}
-            </text>
-            {index < JOURNEY_NODES.length - 1 && (
-              <path className="data-to-query__arrow" d={`M${x + 128} 66 h24 m-8 -8 l8 8 l-8 8`} />
-            )}
-          </g>
-        );
-      })}
-    </svg>
+    <figure className="data-to-query">
+      <svg
+        className="data-to-query__art"
+        viewBox="0 0 640 132"
+        role="img"
+        aria-label="Del dato a la consulta: la base de datos, SELECT y FROM, el filtro y el resultado."
+      >
+        {JOURNEY_NODES.map((node, index) => {
+          const x = 20 + index * 160;
+          return (
+            <g key={node.label} className={`data-to-query__node data-to-query__node--${node.role}`}>
+              <rect x={x} y={14} width={120} height={104} rx={16} />
+              {node.role === 'from' && (
+                <g className="data-to-query__icon">
+                  <ellipse cx={x + 60} cy={44} rx={30} ry={10} />
+                  <path d={`M${x + 30} 44 v38 a30 10 0 0 0 60 0 v-38`} />
+                  <path d={`M${x + 30} 63 a30 10 0 0 0 60 0`} />
+                </g>
+              )}
+              {node.role === 'select' && (
+                <g className="data-to-query__icon">
+                  <path d={`M${x + 42} 40 l-14 26 l14 26`} />
+                  <path d={`M${x + 78} 40 l14 26 l-14 26`} />
+                  <path d={`M${x + 50} 58 h20 M${x + 50} 74 h14`} />
+                </g>
+              )}
+              {node.role === 'filter' && (
+                <g className="data-to-query__icon">
+                  <path d={`M${x + 28} 38 h64 l-24 30 v22 l-16 8 v-30 z`} />
+                </g>
+              )}
+              {node.role === 'result' && (
+                <g className="data-to-query__icon">
+                  <rect x={x + 28} y={36} width={64} height={56} rx={6} />
+                  <path d={`M${x + 28} 54 h64 M${x + 28} 73 h64 M${x + 56} 36 v56`} />
+                </g>
+              )}
+              {index < JOURNEY_NODES.length - 1 && (
+                <path className="data-to-query__arrow" d={`M${x + 128} 66 h24 m-8 -8 l8 8 l-8 8`} />
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      {/* Rótulos en HTML: con el lienzo estrecho, un texto dentro del SVG bajaría de 12 px. */}
+      <ol className="data-to-query__labels" aria-hidden="true">
+        {JOURNEY_NODES.map((node) => (
+          <li key={node.label} className={`data-to-query__label--${node.role}`}>
+            {node.label}
+          </li>
+        ))}
+      </ol>
+    </figure>
   );
 }
