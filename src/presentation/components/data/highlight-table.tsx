@@ -12,7 +12,7 @@ import {
 
 /**
  * Tabla didáctica de Estudio, Exposición y Home. Es la vista de datos adaptable con el
- * esquema de EMPLEADOS: tabla cuando cabe y fichas por registro cuando no.
+ * esquema de EMPLEADOS: tabla cuando cabe y, si no, partes o grupos de columnas.
  */
 
 export type HighlightCell = DataCell;
@@ -41,9 +41,9 @@ export interface HighlightTableProps {
   readonly size?: 'regular' | 'large';
   /** Resumen visible, por ejemplo «8 de 20 filas · 3 columnas». */
   readonly summary?: string;
-  readonly detail?: 'summary' | 'full';
   readonly schema?: DataViewSchema;
-  readonly mode?: 'auto' | 'table' | 'bands' | 'records';
+  readonly mode?: 'auto' | 'table' | 'bands' | 'groups';
+  readonly fallback?: 'groups' | 'bands';
   readonly className?: string;
 }
 

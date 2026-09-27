@@ -672,6 +672,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
             caption="Resultado de SELECT *: las 12 columnas de EMPLEADOS"
             columns={P.star.sample.result!.columns}
             rows={P.star.sample.result!.rows}
+            fallback="bands"
             className="dv--free"
           />
         </FlowStep>

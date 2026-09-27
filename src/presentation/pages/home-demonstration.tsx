@@ -91,7 +91,8 @@ export function HomeDemonstration() {
               label="Resultado"
               columns={preview.columns}
               rows={preview.rows.slice(0, VISIBLE_ROWS)}
-              detail={preview.columns.length > 7 ? 'summary' : 'full'}
+              // Ocho filas: si no cabe, las partes se apilan para verlas a la vez.
+              fallback="bands"
               summary={`${shown} de ${plural(preview.rows.length, 'fila', 'filas')} · ${plural(
                 preview.columns.length,
                 'columna',

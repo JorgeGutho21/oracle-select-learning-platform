@@ -1,18 +1,26 @@
 import { Fragment, type ReactNode } from 'react';
 import { formatCell } from './cell-format';
+import { ColumnTabs } from './column-tabs';
 
 /**
  * Vista de datos adaptable (ResponsiveDataView): la única forma de mostrar filas en la
- * plataforma. Con espacio suficiente es una tabla completa. Si no cabe y tiene muchas
- * columnas (7–12), se reparte en dos o tres bandas tabulares sincronizadas: las mismas filas
- * en el mismo orden, con ID_EMPLEADO (o la primera columna) repetido para unirlas. Solo si
- * tampoco caben las bandas, cada fila pasa a ser una ficha con sus campos agrupados. Los
- * datos son los mismos: nunca se encoge la letra ni se añade una barra horizontal.
+ * plataforma. Una consulta SQL devuelve filas y columnas, así que su representación es
+ * siempre tabular:
  *
- * La decisión es de CSS, sin JavaScript ni saltos de diseño: el componente calcula el ancho
- * que necesita cada representación (en em, según columnas y contenido) y las consultas de
- * contenedor muestran la primera que cabe en el espacio real disponible. Solo una está
- * visible (y en el árbol de accesibilidad) a la vez.
+ * 1. con espacio suficiente, la tabla completa;
+ * 2. si no cabe, las columnas se reparten en dos o tres partes (pestañas o, con pocas filas,
+ *    bandas apiladas) con las mismas filas y en el mismo orden;
+ * 3. en pantallas estrechas, grupos semánticos de como mucho cuatro columnas (Identidad,
+ *    Organización, Compensación…), uno a la vista, con ID_EMPLEADO y NOMBRE repetidos para
+ *    identificar cada fila.
+ *
+ * Nunca se encoge la letra ni hay barra horizontal de página. Las fichas por registro solo
+ * existen para tablas de referencia que no son resultados SQL (`fallback="records"`).
+ *
+ * La decisión es de CSS, sin saltos de diseño: el componente calcula el ancho que necesita
+ * cada representación (en em, según columnas y contenido) y las consultas de contenedor
+ * muestran la primera que cabe en el espacio real disponible. Solo una está visible (y en el
+ * árbol de accesibilidad) a la vez.
  *
  * También marca lo didáctico sin depender solo del color: columnas pedidas, filas que
  * cumplen o no una condición, repetidas, coincidencias de LIKE, NULL, estado y orden.
@@ -47,17 +55,25 @@ export interface DataFieldGroup {
   readonly columns: readonly string[];
 }
 
-/** Cómo se presentan los registros de una tabla conocida (EMPLEADOS) en fichas. */
+/** Cómo se identifican y agrupan las filas y columnas de una tabla conocida (EMPLEADOS). */
 export interface DataViewSchema {
-  /** Columnas que forman el título de la ficha («Ana Rojas»). */
-  readonly titleColumns: readonly string[];
-  /** Identificador visible como insignia («#1»). */
+  /** Identificador de cada fila (ID_EMPLEADO): se repite en cada parte o grupo. */
   readonly idColumn?: string;
-  /** Columna que se muestra bajo el título («Gerente general»). */
+  /** Nombre legible de cada fila (NOMBRE): también se repite en los grupos. */
+  readonly nameColumn?: string;
+  /**
+   * Grupos semánticos de dos columnas (sin las de identidad) para pantallas estrechas:
+   * Identidad, Organización, Compensación, Empleo, Contacto y jefe.
+   */
+  readonly tabGroups?: readonly DataFieldGroup[];
+  /** Fichas (solo tablas de referencia): columnas del título («Ana Rojas»). */
+  readonly titleColumns?: readonly string[];
+  /** Fichas: columna bajo el título. */
   readonly subtitleColumn?: string;
-  /** Columnas del resumen; el resto se abre con «Ver registro completo». */
-  readonly priorityColumns: readonly string[];
-  readonly fieldGroups: readonly DataFieldGroup[];
+  /** Fichas: campos del resumen. */
+  readonly priorityColumns?: readonly string[];
+  /** Fichas: agrupación de los demás campos. */
+  readonly fieldGroups?: readonly DataFieldGroup[];
 }
 
 /** Rótulos canónicos de contexto (nunca una tabla sin decir qué es). */
@@ -80,8 +96,8 @@ export interface DataViewProps {
   readonly rows: readonly (readonly DataCell[])[];
   readonly schema?: DataViewSchema;
   /**
-   * Detalle de las fichas: `summary` muestra los campos prioritarios del esquema y pliega el
-   * resto; `full`, todos. La tabla y las bandas muestran siempre todas las columnas.
+   * Detalle de las fichas (`fallback="records"`): `summary` muestra los campos prioritarios
+   * del esquema y pliega el resto; `full`, todos.
    */
   readonly detail?: 'summary' | 'full';
   readonly highlightedColumns?: readonly string[];
@@ -101,12 +117,17 @@ export interface DataViewProps {
   /** Resumen visible, por ejemplo «8 de 20 filas · 3 columnas». */
   readonly summary?: string;
   /**
-   * Última representación cuando ni la tabla ni las bandas caben: fichas por registro o más
-   * bandas (hasta seis). El laboratorio usa bandas: un resultado SQL siempre se ve como tabla.
+   * Cómo se reparten las columnas cuando la tabla no cabe. `groups` (por defecto): pestañas
+   * con las partes y, en pantallas estrechas, grupos de como mucho cuatro columnas. `bands`:
+   * con pocas filas, las partes se apilan para verlas todas a la vez (los grupos estrechos
+   * siguen en pestañas). `records`: fichas, solo para tablas de referencia que no son un
+   * resultado SQL.
    */
-  readonly fallback?: 'records' | 'bands';
+  readonly fallback?: 'groups' | 'bands' | 'records';
   /** Fuerza una representación (pruebas, lienzo 16:9 y casos especiales). */
-  readonly mode?: 'auto' | 'table' | 'bands' | 'records';
+  readonly mode?: 'auto' | 'table' | 'bands' | 'groups' | 'records';
+  /** Columnas simultáneas de un grupo en pantallas estrechas (con las de identidad). */
+  readonly groupColumns?: number;
   readonly className?: string;
   /** Columna que encabeza cada fila (`<th scope="row">`). */
   readonly rowHeader?: number;
@@ -237,81 +258,210 @@ export function widthBucket(width: number): number {
   return DATA_VIEW_BUCKETS.find((bucket) => bucket >= width) ?? DATA_VIEW_BUCKETS.at(-1)!;
 }
 
+/** Columnas simultáneas en pantallas estrechas: identidad incluida. */
+export const GROUP_COLUMNS = 4;
+
+/** A partir de cuántas columnas se ofrecen partes intermedias (tableta). */
+export const BAND_MIN_COLUMNS = 7;
+
 /**
- * Reparto de un resultado ancho (7–12 columnas) en bandas tabulares: las mismas filas, en
- * el mismo orden, con la columna ancla (ID_EMPLEADO o la primera) repetida en cada banda
- * para unirlas. Las columnas conservan su orden; los cortes minimizan la banda más ancha.
+ * Columnas que identifican cada fila en las partes y grupos: ID_EMPLEADO y NOMBRE cuando el
+ * resultado las tiene; si no, la primera columna.
  */
-export interface DataBandPlan {
-  /** Índice (en `columns`) de la columna ancla. */
-  readonly anchor: number;
-  /** Índices de las columnas de cada banda, sin el ancla. */
-  readonly bands: readonly (readonly number[])[];
-  /** Ancho (em) que necesita la banda más ancha. */
+export function anchorIndexes(
+  columns: readonly DataColumn[],
+  schema?: Pick<DataViewSchema, 'idColumn' | 'nameColumn'>,
+): number[] {
+  const find = (name: string | undefined) =>
+    name ? columns.findIndex((column) => column.name === name) : -1;
+  const found = [find(schema?.idColumn), find(schema?.nameColumn)].filter((index) => index >= 0);
+  return found.length > 0 ? found : [0];
+}
+
+/** Unidad de reparto: un grupo semántico o unas columnas consecutivas, sin la identidad. */
+export interface ColumnUnit {
+  /** Nombre visible: el grupo («Compensación») si está completo; si no, sus columnas. */
+  readonly label: string;
+  /** El nombre es un grupo semántico completo. */
+  readonly semantic: boolean;
+  readonly indexes: readonly number[];
+}
+
+/**
+ * Grupos estrechos (como mucho `slots` columnas además de la identidad): cada columna va con
+ * su grupo semántico, en el orden del resultado; los trozos vecinos incompletos se unen
+ * mientras quepan.
+ */
+export function columnUnits(
+  columns: readonly DataColumn[],
+  anchors: readonly number[],
+  slots: number,
+  groups: readonly DataFieldGroup[] = [],
+): ColumnUnit[] {
+  const size = Math.max(1, slots);
+  const groupOf = (index: number) =>
+    groups.find((group) => group.columns.includes(columns[index]!.name));
+  const complete = (group: DataFieldGroup | undefined, indexes: readonly number[]) =>
+    group !== undefined &&
+    group.columns.length === indexes.length &&
+    group.columns.every((name) => indexes.some((index) => columns[index]!.name === name));
+  const runs: { group: DataFieldGroup | undefined; indexes: number[] }[] = [];
+  for (const index of columns.keys()) {
+    if (anchors.includes(index)) continue;
+    const group = groupOf(index);
+    const last = runs.at(-1);
+    if (last && last.group === group && last.indexes.length < size) last.indexes.push(index);
+    else runs.push({ group, indexes: [index] });
+  }
+  const merged: { groups: (DataFieldGroup | undefined)[]; indexes: number[] }[] = [];
+  for (const run of runs) {
+    const last = merged.at(-1);
+    const lastComplete = last?.groups.length === 1 && complete(last.groups[0], last.indexes);
+    if (
+      last &&
+      !lastComplete &&
+      !complete(run.group, run.indexes) &&
+      last.indexes.length + run.indexes.length <= size
+    ) {
+      last.indexes.push(...run.indexes);
+      last.groups.push(run.group);
+    } else merged.push({ groups: [run.group], indexes: [...run.indexes] });
+  }
+  return merged.map(({ groups: owners, indexes }) => {
+    const semantic = owners.length === 1 && complete(owners[0], indexes);
+    return {
+      label: semantic ? owners[0]!.title : indexes.map((index) => columns[index]!.name).join(' · '),
+      semantic,
+      indexes,
+    };
+  });
+}
+
+/** Reparto en partes contiguas: las mismas filas, en el mismo orden, con la identidad repetida. */
+export interface DataPartition {
+  /** Columnas repetidas en cada parte (ID_EMPLEADO y NOMBRE, o la primera). */
+  readonly anchors: readonly number[];
+  readonly parts: readonly { readonly label: string; readonly indexes: readonly number[] }[];
+  /** Ancho (em) que necesita la parte más ancha. */
   readonly need: number;
 }
 
-/** A partir de cuántas columnas se ofrece el reparto en bandas. */
-export const BAND_MIN_COLUMNS = 7;
+const joinLabels = (labels: readonly string[]) =>
+  labels.length <= 1
+    ? labels.join('')
+    : [labels[0], ...labels.slice(1).map((label) => label.toLowerCase())]
+        .join(', ')
+        .replace(/, ([^,]+)$/, ' y $1');
 
-export function planBands(
+interface WidthOptions {
+  readonly states?: boolean;
+  readonly duplicates?: boolean;
+  readonly size?: DataViewSize;
+  readonly wrap?: readonly string[];
+}
+
+/**
+ * Parte los grupos en `count` partes contiguas minimizando la más ancha (y, a igualdad de
+ * umbral CSS, con el reparto más equilibrado). Las partes se nombran con sus grupos.
+ */
+export function planPartition(
   columns: readonly DataColumn[],
   rows: readonly (readonly DataCell[])[],
+  units: readonly ColumnUnit[],
+  anchors: readonly number[],
   count: number,
-  options: {
-    readonly anchorColumn?: string | undefined;
-    readonly states?: boolean;
-    readonly duplicates?: boolean;
-    readonly size?: DataViewSize;
-    readonly wrap?: readonly string[];
-    /** Columnas mínimas para ofrecer bandas (por defecto, BAND_MIN_COLUMNS). */
-    readonly minColumns?: number;
-  } = {},
-): DataBandPlan | null {
-  if (columns.length < (options.minColumns ?? BAND_MIN_COLUMNS)) return null;
-  const named = options.anchorColumn
-    ? columns.findIndex((column) => column.name === options.anchorColumn)
-    : -1;
-  const anchor = named >= 0 ? named : 0;
-  const rest = columns.map((_, index) => index).filter((index) => index !== anchor);
-  // Con dos o tres bandas, al menos dos columnas por banda; con más, basta una.
-  const minimum = count <= 3 ? 2 : 1;
-  if (rest.length < count * minimum) return null;
+  options: WidthOptions = {},
+): DataPartition | null {
+  if (count < 1 || units.length < count) return null;
   const widths = columnWidths(columns, rows, options);
-  const bandWidth = (indexes: readonly number[]) =>
-    finishWidth(widths[anchor]! + indexes.reduce((total, index) => total + widths[index]!, 0), {
-      ...options,
-      compact: options.size === 'compact',
-    });
-  const best: {
-    value: { readonly bands: number[][]; readonly need: number; readonly spread: number } | null;
-  } = { value: null };
-  // Cortes contiguos, sin cambiar el orden de las columnas. Gana la banda más ancha más
-  // estrecha (por umbral CSS) y, a igualdad, el reparto más equilibrado.
-  const split = (start: number, left: number, bands: number[][]): void => {
+  const anchorWidth = anchors.reduce((total, index) => total + widths[index]!, 0);
+  const partWidth = (part: readonly ColumnUnit[]) =>
+    finishWidth(
+      anchorWidth +
+        part.flatMap((unit) => unit.indexes).reduce((total, index) => total + widths[index]!, 0),
+      { ...options, compact: options.size === 'compact' },
+    );
+  const best: { value: { parts: ColumnUnit[][]; need: number; spread: number } | null } = {
+    value: null,
+  };
+  const split = (start: number, left: number, parts: ColumnUnit[][]): void => {
     if (left === 1) {
-      const last = rest.slice(start);
-      if (last.length < minimum) return;
-      const all = [...bands, last];
-      const widths = all.map(bandWidth);
-      const need = Math.max(...widths);
-      const spread = need - Math.min(...widths);
+      const all = [...parts, units.slice(start)];
+      const needs = all.map(partWidth);
+      const need = Math.max(...needs);
+      const spread = need - Math.min(...needs);
       const current = best.value;
       if (
         !current ||
         widthBucket(need) < widthBucket(current.need) ||
         (widthBucket(need) === widthBucket(current.need) && spread < current.spread)
       ) {
-        best.value = { bands: all, need, spread };
+        best.value = { parts: all, need, spread };
       }
       return;
     }
-    for (let end = start + minimum; end <= rest.length - (left - 1) * minimum; end += 1) {
-      split(end, left - 1, [...bands, rest.slice(start, end)]);
+    for (let end = start + 1; end <= units.length - (left - 1); end += 1) {
+      split(end, left - 1, [...parts, units.slice(start, end)]);
     }
   };
   split(0, count, []);
-  return best.value ? { anchor, bands: best.value.bands, need: best.value.need } : null;
+  if (!best.value) return null;
+  return {
+    anchors,
+    need: best.value.need,
+    parts: best.value.parts.map((part, index) => ({
+      label:
+        part.length === 1 || part.every((unit) => unit.semantic)
+          ? joinLabels(part.map((unit) => unit.label))
+          : `Parte ${index + 1} de ${count}`,
+      indexes: part.flatMap((unit) => unit.indexes),
+    })),
+  };
+}
+
+/**
+ * Grupos estrechos: como mucho `groupColumns` columnas a la vez (identidad incluida), por
+ * grupos semánticos. `null` si la tabla ya tiene pocas columnas.
+ */
+export function planGroups(
+  columns: readonly DataColumn[],
+  rows: readonly (readonly DataCell[])[],
+  options: WidthOptions & {
+    readonly schema?: DataViewSchema | undefined;
+    readonly groupColumns?: number;
+  } = {},
+): DataPartition | null {
+  const limit = options.groupColumns ?? GROUP_COLUMNS;
+  if (columns.length <= limit) return null;
+  const anchors = anchorIndexes(columns, options.schema);
+  const units = columnUnits(columns, anchors, limit - anchors.length, options.schema?.tabGroups);
+  if (units.length < 2) return null;
+  return planPartition(columns, rows, units, anchors, units.length, options);
+}
+
+/**
+ * Partes intermedias (tableta): los grupos estrechos reunidos en dos o tres partes. Solo con
+ * muchas columnas (7–12).
+ */
+export function planParts(
+  columns: readonly DataColumn[],
+  rows: readonly (readonly DataCell[])[],
+  count: number,
+  options: WidthOptions & {
+    readonly schema?: DataViewSchema | undefined;
+    readonly groupColumns?: number;
+  } = {},
+): DataPartition | null {
+  if (columns.length < BAND_MIN_COLUMNS) return null;
+  const anchors = anchorIndexes(columns, options.schema);
+  const units = columnUnits(
+    columns,
+    anchors,
+    (options.groupColumns ?? GROUP_COLUMNS) - anchors.length,
+    options.schema?.tabGroups,
+  );
+  if (units.length <= count) return null;
+  return planPartition(columns, rows, units, anchors, count, options);
 }
 
 export function NullBadge() {
@@ -413,7 +563,8 @@ export function DataView({
   size = 'regular',
   summary,
   mode = 'auto',
-  fallback = 'records',
+  fallback = 'groups',
+  groupColumns = GROUP_COLUMNS,
   className = '',
   rowHeader,
   wrapColumns = [],
@@ -427,25 +578,25 @@ export function DataView({
   };
   const need = requiredTableWidth(columns, rows, widthOptions);
   const bucket = widthBucket(need);
-  // Alternativas en bandas, solo si caben donde la anterior no cabe: dos y tres partes; con
-  // bandas como último recurso, hasta seis (móvil).
-  const bandsOnly = fallback === 'bands';
-  const plans: DataBandPlan[] = [];
-  if (mode === 'auto' || mode === 'bands') {
+  const auto = mode === 'auto';
+  const records = fallback === 'records';
+  const planOptions = { ...widthOptions, schema, groupColumns };
+
+  // Partes intermedias (dos o tres), solo si caben donde la anterior no cabe.
+  const parts: DataPartition[] = [];
+  if ((auto && !records) || mode === 'bands') {
     let limit = bucket;
-    // Sin fichas, hasta una columna por banda en los móviles más estrechos (320 px).
-    for (const count of bandsOnly ? [2, 3, 4, 6, 8, 11] : [2, 3]) {
-      const plan = planBands(columns, rows, count, {
-        ...widthOptions,
-        anchorColumn: schema?.idColumn,
-        ...(bandsOnly ? { minColumns: 3 } : {}),
-      });
-      if (!plan || (mode === 'auto' && widthBucket(plan.need) >= limit)) continue;
-      plans.push(plan);
+    for (const count of [2, 3]) {
+      const plan = planParts(columns, rows, count, planOptions);
+      if (!plan || (auto && widthBucket(plan.need) >= limit)) continue;
+      parts.push(plan);
       limit = widthBucket(plan.need);
       if (mode === 'bands') break;
     }
   }
+  // Grupos estrechos: el último recurso, siempre disponible cuando hay muchas columnas.
+  const groups =
+    (auto && !records) || mode === 'groups' ? planGroups(columns, rows, planOptions) : null;
 
   const state = (name: string) =>
     highlightedColumns.includes(name)
@@ -473,14 +624,14 @@ export function DataView({
       </div>
     ) : null;
 
-  /** Tabla con las columnas indicadas; en las bandas, el ancla encabeza cada fila. */
+  /** Tabla con las columnas indicadas; en partes y grupos, la identidad encabeza cada fila. */
   const renderTable = (
     indexes: readonly number[],
     tableCaption: string,
     extraClass: string,
-    anchor: number | null = null,
+    anchors: readonly number[] = [],
   ) => {
-    const headerColumn = anchor ?? rowHeader;
+    const headerColumn = anchors[0] ?? rowHeader;
     return (
       <div
         className={['dv__table', extraClass].filter(Boolean).join(' ')}
@@ -510,7 +661,7 @@ export function DataView({
                         column.type === 'number' ? 'is-number' : '',
                         sort ? 'is-sorted' : '',
                         roleClasses(column.name),
-                        columnIndex === anchor ? 'is-anchor' : '',
+                        anchors.includes(columnIndex) ? 'is-anchor' : '',
                       ]
                         .filter(Boolean)
                         .join(' ') || undefined
@@ -560,7 +711,7 @@ export function DataView({
                       mark ? 'is-match' : '',
                       column ? roleClasses(column.name) : '',
                       column && wrapColumns.includes(column.name) ? 'is-wrap' : '',
-                      columnIndex === anchor ? 'is-anchor' : '',
+                      anchors.includes(columnIndex) ? 'is-anchor' : '',
                     ]
                       .filter(Boolean)
                       .join(' ');
@@ -595,60 +746,105 @@ export function DataView({
     );
   };
 
-  // Cadena de representaciones: tabla → bandas (2, 3) → fichas. En modo automático cada
-  // una se oculta si no cabe en el contenedor o si cabe la anterior.
-  const auto = mode === 'auto';
-  const needs = [bucket, ...plans.map((plan) => widthBucket(plan.need))];
-  const showTable = auto || mode === 'table' || (mode === 'bands' && plans.length === 0);
-  const showRecords = (auto && !bandsOnly) || mode === 'records';
-  // Sin fichas, la última representación (la tabla o la banda más estrecha) queda siempre
-  // disponible: solo se oculta si cabe una anterior.
-  const lastFit = (index: number) =>
-    auto && bandsOnly && index === needs.length - 1 ? null : needs[index]!;
-
-  const bands = plans.map((plan, planIndex) => {
-    const anchorName = columns[plan.anchor]!.name;
-    const total = plan.bands.length;
+  // Cadena: tabla → partes (2, 3) → grupos estrechos. En modo automático cada una se oculta
+  // si no cabe en el contenedor o si cabe la anterior; la última no se oculta por falta de
+  // espacio (con fichas, las fichas son la última).
+  const tiers = [bucket, ...parts.map((plan) => widthBucket(plan.need))];
+  const lastIndex = groups ? tiers.length : tiers.length - 1;
+  const fit = (index: number) => (auto && !records && index === lastIndex ? null : tiers[index]!);
+  const above = (index: number) => (index === 0 ? null : tiers[index - 1]!);
+  const showTable =
+    auto ||
+    mode === 'table' ||
+    (mode === 'bands' && parts.length === 0) ||
+    (mode === 'groups' && !groups);
+  const showRecords = (auto && records) || mode === 'records';
+  const anchorNames = (plan: DataPartition) => plan.anchors.map((index) => columns[index]!.name);
+  const anchorNote = (plan: DataPartition, text: string) => {
+    const names = anchorNames(plan);
     return (
-      <div
-        key={total}
-        className={[
-          'dv__bands',
-          `dv__bands--${total}`,
-          auto ? fitClasses(lastFit(planIndex + 1), needs[planIndex]!) : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        role="group"
-        aria-label={`${caption}, en ${total} partes`}
-      >
-        <p className="dv__bands-note">
-          Mismo resultado en {total} partes: las mismas filas, en el mismo orden.{' '}
-          <code>{anchorName}</code> se repite para unirlas.
-        </p>
-        {plan.bands.map((band, index) => {
-          const first = columns[band[0]!]!.name;
-          const last = columns[band.at(-1)!]!.name;
-          return (
-            <section key={first} className="dv__band" aria-label={`Parte ${index + 1} de ${total}`}>
+      <p className="dv__bands-note">
+        {text}{' '}
+        {names.map((name, index) => (
+          <Fragment key={name}>
+            {index > 0 && ' y '}
+            <code>{name}</code>
+          </Fragment>
+        ))}{' '}
+        {names.length > 1 ? 'se repiten' : 'se repite'} para identificar cada fila.
+      </p>
+    );
+  };
+  const partCaption = (plan: DataPartition, index: number) =>
+    `${caption} · ${plan.parts[index]!.label}: ${[...plan.anchors, ...plan.parts[index]!.indexes]
+      .map((column) => columns[column]!.name)
+      .join(', ')}`;
+  const partTable = (plan: DataPartition, index: number, extra: string) =>
+    renderTable(
+      [...plan.anchors, ...plan.parts[index]!.indexes],
+      partCaption(plan, index),
+      extra,
+      plan.anchors,
+    );
+  const tiered = (index: number) => (auto ? fitClasses(fit(index), above(index)) : '');
+
+  const partViews = parts.map((plan, planIndex) => {
+    const total = plan.parts.length;
+    const tier = planIndex + 1;
+    // Con pocas filas (bandas), las partes se apilan; si no, una a la vista con pestañas.
+    if (fallback === 'bands' || mode === 'bands') {
+      return (
+        <div
+          key={total}
+          className={['dv__bands', `dv__bands--${total}`, tiered(tier)].filter(Boolean).join(' ')}
+          role="group"
+          aria-label={`${caption}, en ${total} partes`}
+        >
+          {anchorNote(
+            plan,
+            `Mismo resultado en ${total} partes, con las mismas filas y en el mismo orden:`,
+          )}
+          {plan.parts.map((part, index) => (
+            <section key={part.label} className="dv__band" aria-label={part.label}>
               <p className="dv__band-title" aria-hidden="true">
                 <span>
                   Parte {index + 1} de {total}
                 </span>{' '}
-                {first === last ? first : `${first} … ${last}`}
+                {part.label}
               </p>
-              {renderTable(
-                [plan.anchor, ...band],
-                `${caption} · parte ${index + 1} de ${total}: ${first === last ? first : `${first} a ${last}`}`,
-                'dv__table--band',
-                plan.anchor,
-              )}
+              {partTable(plan, index, 'dv__table--band')}
             </section>
-          );
-        })}
-      </div>
+          ))}
+        </div>
+      );
+    }
+    return (
+      <ColumnTabs
+        key={total}
+        className={['dv__groups--parts', tiered(tier)].filter(Boolean).join(' ')}
+        label={`${caption}, en ${total} partes`}
+        note={anchorNote(plan, `Mismas ${rows.length} filas en cada parte;`)}
+        tabs={plan.parts.map((part, index) => ({
+          key: part.label,
+          label: part.label,
+          panel: partTable(plan, index, 'dv__table--band'),
+        }))}
+      />
     );
   });
+
+  const groupView = groups && (
+    <ColumnTabs
+      className={['dv__groups--narrow', tiered(tiers.length)].filter(Boolean).join(' ')}
+      label={`${caption}, por grupos de columnas`}
+      note={anchorNote(groups, `Mismas ${rows.length} filas en cada grupo;`)}
+      tabs={groups.parts.map((part, index) => ({
+        key: part.label,
+        label: part.label,
+        panel: partTable(groups, index, 'dv__table--band'),
+      }))}
+    />
+  );
 
   return (
     <div
@@ -657,7 +853,7 @@ export function DataView({
         `dv--${size}`,
         `dv--need-${bucket}`,
         `dv--mode-${mode}`,
-        bandsOnly ? 'dv--tabular' : '',
+        records ? '' : 'dv--tabular',
         className,
       ]
         .filter(Boolean)
@@ -669,9 +865,10 @@ export function DataView({
         renderTable(
           columns.map((_, index) => index),
           caption,
-          auto ? fitClasses(lastFit(0), null) : '',
+          auto ? fitClasses(records || tiers.length > 1 || groups ? tiers[0]! : null, null) : '',
         )}
-      {bands}
+      {partViews}
+      {groupView}
       {showRecords && (
         <Records
           caption={caption}
@@ -687,7 +884,7 @@ export function DataView({
           duplicateRows={duplicateRows}
           roleClasses={roleClasses}
           codeColumns={codeColumns}
-          className={auto ? fitClasses(null, needs.at(-1)!) : ''}
+          className={auto ? fitClasses(null, bucket) : ''}
         />
       )}
     </div>

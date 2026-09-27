@@ -49,8 +49,6 @@ export function FlowTableView({
       {...(table.cellMarks ? { cellMarks: table.cellMarks } : {})}
       {...(table.duplicateRows ? { duplicateRows: table.duplicateRows } : {})}
       {...(table.sortedBy ? { sortedBy: table.sortedBy } : {})}
-      // Con más de 8 columnas (SELECT *), resumen por registro y el resto plegado.
-      detail={table.columns.length > 8 ? 'summary' : 'full'}
       summary={summary ?? flowSummary(table)}
     />
   );

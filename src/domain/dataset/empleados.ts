@@ -23,8 +23,8 @@ export const EMPLEADOS_COLUMNS = [
 export type EmpleadosColumn = (typeof EMPLEADOS_COLUMNS)[number];
 
 /**
- * Agrupación semántica de las 12 columnas: organiza las fichas por registro, el esquema del
- * laboratorio y la presentación del dataset sin cambiar su orden en la tabla.
+ * Agrupación semántica de las 12 columnas: organiza el esquema y la presentación del dataset
+ * sin cambiar su orden en la tabla.
  */
 export const EMPLEADOS_FIELD_GROUPS: readonly {
   readonly id: 'identidad' | 'organizacion' | 'compensacion' | 'empleo' | 'contacto';
@@ -38,17 +38,6 @@ export const EMPLEADOS_FIELD_GROUPS: readonly {
   { id: 'contacto', title: 'Contacto', columns: ['CORREO'] },
 ];
 
-/** Columnas del resumen de un empleado; el resto se abre con «Ver registro completo». */
-export const EMPLEADOS_PRIORITY_COLUMNS: readonly EmpleadosColumn[] = [
-  'ID_EMPLEADO',
-  'NOMBRE',
-  'APELLIDO',
-  'CARGO',
-  'DEPARTAMENTO',
-  'CIUDAD',
-  'SALARIO',
-  'ESTADO',
-];
 /** Valor de una celda. `null` es la ausencia de valor (NULL); una fecha es 'AAAA-MM-DD'. */
 export type CellValue = string | number | null;
 export type ColumnType = 'number' | 'text' | 'date';

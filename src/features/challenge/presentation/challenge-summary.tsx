@@ -13,11 +13,13 @@ import type {
 } from '../application/challenge-api';
 import { formatDuration, formatPercent } from './format';
 
-/** En pantallas estrechas cada misión es una ficha titulada con su nombre. */
+/**
+ * Tabla de referencia (no es un resultado SQL): en pantallas estrechas cada misión es una
+ * ficha titulada con su nombre.
+ */
 const SUMMARY_SCHEMA: DataViewSchema = {
   titleColumns: ['MISIÓN'],
   priorityColumns: ['MISIÓN', 'ESTADO', 'INTENTOS', 'PISTA', 'TIEMPO', 'PUNTOS'],
-  fieldGroups: [],
 };
 
 const statusText: Record<MissionStatus, string> = {
@@ -90,6 +92,7 @@ export function ChallengeSummary({ result, missions, onRestart, onReview }: Chal
           `${row.score.total} / ${row.score.max}`,
         ])}
         schema={SUMMARY_SCHEMA}
+        fallback="records"
         rowHeader={0}
         wrapColumns={['MISIÓN']}
       />

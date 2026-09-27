@@ -311,11 +311,12 @@ export function ResourcesPage() {
           rowHeader={0}
           wrapColumns={['QUÉ HACE', 'SINTAXIS']}
           codeColumns={['SINTAXIS']}
+          // Tabla de referencia, no un resultado SQL: en el móvil, una ficha por elemento.
           schema={{
             titleColumns: ['ELEMENTO'],
             priorityColumns: ['QUÉ HACE', 'SINTAXIS', 'RESULTADO DEL EJEMPLO'],
-            fieldGroups: [],
           }}
+          fallback="records"
         />
       </section>
 

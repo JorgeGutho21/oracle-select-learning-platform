@@ -164,13 +164,13 @@ Rama `claude-final-ui-polish-20260926`, sobre el commit `e6871ac` (checkpoint `c
 
 ### Hallazgos
 
-| # | Hallazgo | Evidencia |
-| --- | --- | --- |
-| T1 | **Laboratorio:** `SELECT *` se mostraba como 20 fichas con «Ver registro completo»; editor y resultado compartían el ancho a medias. La tabla en «Resumen» ocultaba 4 columnas. | `/lab` a 1366×768: resultado de 564 px de ancho y fichas de 12 campos. |
-| T2 | **Home:** con 8–12 columnas el resultado de la demostración pasaba a fichas verticales largas en media página. | 12 columnas a 1366×768: ocho fichas de 12 campos. |
-| T3 | **Escenas 05–19 sin modelo común:** unas mostraban tabla de origen y resultado; otras solo código, recuentos o nombres. Faltaba «qué hace cada parte». | 06 sin datos, 07 sin tabla de origen, 12 y 14 sin resultado tabular, 13 y 14 con nombres sueltos. |
-| T4 | **Zoom 125 % (1093×614):** el lienzo quedaba en 807×454 y la letra de las tablas en 10–11 px; 26 escenas con problemas en producción. | Medido en la producción anterior. |
-| T5 | **Ruta (02):** bloques con objetivo y conceptos, sin el resultado esperado. | — |
+| #   | Hallazgo                                                                                                                                                                        | Evidencia                                                                                         |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| T1  | **Laboratorio:** `SELECT *` se mostraba como 20 fichas con «Ver registro completo»; editor y resultado compartían el ancho a medias. La tabla en «Resumen» ocultaba 4 columnas. | `/lab` a 1366×768: resultado de 564 px de ancho y fichas de 12 campos.                            |
+| T2  | **Home:** con 8–12 columnas el resultado de la demostración pasaba a fichas verticales largas en media página.                                                                  | 12 columnas a 1366×768: ocho fichas de 12 campos.                                                 |
+| T3  | **Escenas 05–19 sin modelo común:** unas mostraban tabla de origen y resultado; otras solo código, recuentos o nombres. Faltaba «qué hace cada parte».                          | 06 sin datos, 07 sin tabla de origen, 12 y 14 sin resultado tabular, 13 y 14 con nombres sueltos. |
+| T4  | **Zoom 125 % (1093×614):** el lienzo quedaba en 807×454 y la letra de las tablas en 10–11 px; 26 escenas con problemas en producción.                                           | Medido en la producción anterior.                                                                 |
+| T5  | **Ruta (02):** bloques con objetivo y conceptos, sin el resultado esperado.                                                                                                     | —                                                                                                 |
 
 ### Cambios
 

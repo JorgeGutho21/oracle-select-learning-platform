@@ -291,7 +291,6 @@ export function ResultTableView({
       rows={rows}
       schema={EMPLEADOS_VIEW_SCHEMA}
       size="compact"
-      fallback="bands"
       className="dv--result"
       {...(sortedBy ? { sortedBy } : {})}
     />

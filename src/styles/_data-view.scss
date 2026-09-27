@@ -1,8 +1,10 @@
-// Vista de datos adaptable (data-view.tsx). Cadena de representaciones: tabla completa →
-// dos bandas → tres bandas → fichas. Cada representación lleva el ancho que necesita
-// (clases dv-fit-N y dv-above-N, en em) y una consulta de contenedor muestra la primera que
-// cabe en el espacio real. Nunca hay barra horizontal: la barra de .dv__table es solo la red
-// de seguridad de navegadores sin consultas de contenedor.
+// Vista de datos adaptable (data-view.tsx). Cadena de representaciones, siempre tabular:
+// tabla completa → dos o tres partes (pestañas o bandas apiladas) → grupos de como mucho
+// cuatro columnas con pestañas. Cada representación lleva el ancho que necesita (clases
+// dv-fit-N y dv-above-N, en em) y una consulta de contenedor muestra la primera que cabe en
+// el espacio real. Nunca hay barra horizontal: la barra de .dv__table es solo la red de
+// seguridad de navegadores sin consultas de contenedor. Las fichas (.dv__records) solo
+// existen para tablas de referencia que no son resultados SQL.
 
 $dv-buckets:
   12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
@@ -443,11 +445,18 @@ $dv-buckets:
 .dv--compact td.is-date {
   font-variant-numeric: tabular-nums;
 }
+@container dv (width < 26em) {
+  .dv--compact th,
+  .dv--compact td {
+    padding-inline: 0.42em;
+  }
+}
 // La tabla que cabe no necesita región con barra: así el encabezado fijo acompaña a la
 // página. La representación de último recurso conserva la barra como red de seguridad.
 @supports (container-type: inline-size) {
   .dv--compact > .dv__table[class*='dv-fit-'],
-  .dv--compact > .dv__bands[class*='dv-fit-'] .dv__table {
+  .dv--compact > .dv__bands[class*='dv-fit-'] .dv__table,
+  .dv--compact > .dv__groups[class*='dv-fit-'] .dv__table {
     overflow-x: visible;
   }
 }
@@ -508,14 +517,74 @@ $dv-buckets:
   font-weight: 700;
 }
 
+// Grupos de columnas con pestañas: una parte a la vista, con las mismas filas.
+.dv__groups {
+  display: none;
+  gap: 0.45em;
+  min-width: 0;
+}
+.dv-tabs__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4em 0.6em;
+  min-width: 0;
+}
+.dv-tabs__legend {
+  color: var(--color-muted);
+  font-size: max(0.75em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dv-tabs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  min-width: 0;
+  padding: 3px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 0.9em;
+}
+.dv-tabs__tab {
+  min-height: 36px;
+  padding: 0.3em 0.85em;
+  color: var(--color-ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.7em;
+  font-size: max(0.85em, 13px);
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.dv-tabs__tab:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border-subtle);
+}
+.dv-tabs__tab[aria-selected='true'] {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.dv-tabs__panel {
+  min-width: 0;
+}
+.dv__groups .dv__bands-note {
+  font-size: max(0.75em, 12px);
+}
+
 // Cambio de representación por contenedor: todas se ocultan solas si no caben
 // (dv-fit-N) o si cabe la anterior (dv-above-N); solo una queda visible.
 .dv--mode-records > .dv__records,
-.dv--mode-bands > .dv__bands {
+.dv--mode-bands > .dv__bands,
+.dv--mode-groups > .dv__groups {
   display: grid;
 }
 @supports (container-type: inline-size) {
   .dv--mode-auto > .dv__bands,
+  .dv--mode-auto > .dv__groups,
   .dv--mode-auto > .dv__records {
     display: grid;
   }
@@ -651,45 +720,14 @@ $dv-buckets:
   white-space: normal;
 }
 
-// Explorador de una tabla completa: selector de columnas por grupos. Los datos de origen se
-// enmarcan en gris (no son un resultado); el resultado de una consulta lleva el acento azul.
-.dv-explorer {
-  display: grid;
-  gap: var(--space-3);
-  min-width: 0;
-}
-.dv-explorer__bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
-.dv-explorer__legend {
-  margin-right: var(--space-2);
-  color: var(--color-muted);
-  font-size: 0.875rem;
-  font-weight: 700;
-}
-.dv-explorer__bar button {
-  min-height: 40px;
-  padding: 0 var(--space-4);
-  color: var(--color-ink);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-pill);
-  font-size: 0.9375rem;
-  font-weight: 700;
-}
-.dv-explorer__bar button[aria-pressed='true'] {
-  color: var(--color-inverse);
-  background: var(--color-night);
-  border-color: var(--color-night);
-}
+// Datos de origen frente a resultado: los datos se enmarcan en gris (no son un resultado);
+// el resultado de una consulta lleva el acento azul.
 .dv--source .dv__label {
   color: var(--color-muted);
 }
 .dv--source > .dv__table,
-.dv--source .dv__band .dv__table {
+.dv--source .dv__band .dv__table,
+.dv--source .dv__groups .dv__table {
   border-style: dashed;
   border-color: var(--color-border);
 }
@@ -699,37 +737,60 @@ $dv-buckets:
   box-shadow: inset 0 -2px 0 var(--color-border);
 }
 .dv--result > .dv__table,
-.dv--result .dv__band .dv__table {
+.dv--result .dv__band .dv__table,
+.dv--result .dv__groups .dv__table {
   border-color: color-mix(in srgb, var(--color-primary) 35%, var(--color-border-subtle));
   border-top: 3px solid var(--color-primary);
 }
 
-// Selector «Resumen / Completa».
-.dv-toggle {
-  display: grid;
-  gap: var(--space-3);
-  min-width: 0;
-}
-.dv-toggle__bar {
-  display: inline-flex;
+// «Qué cambió en los datos»: filas y columnas antes → después; lo que cambia se destaca con
+// texto y peso, no solo con color.
+.change-summary {
+  display: flex;
   flex-wrap: wrap;
-  justify-self: start;
-  max-width: 100%;
-  padding: 3px;
+  align-items: center;
+  gap: 0.4em 0.8em;
+  min-width: 0;
+  padding: 0.5em 0.8em;
   background: var(--color-surface-alt);
+  border-radius: var(--radius-control);
+}
+.change-summary__label {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: max(0.75em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.change-summary__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.change-summary__item {
+  padding: 0.15em 0.65em;
+  background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-pill);
+  font-size: max(0.875em, 13px);
+  font-variant-numeric: tabular-nums;
 }
-.dv-toggle__bar button {
-  min-height: 40px;
-  padding: 0 var(--space-4);
+.change-summary__name {
   color: var(--color-muted);
-  background: transparent;
-  border: 0;
-  border-radius: var(--radius-pill);
   font-weight: 700;
 }
-.dv-toggle__bar button[aria-pressed='true'] {
-  color: var(--color-inverse);
-  background: var(--color-primary);
+.change-summary__item.is-changed {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+.change-summary__item.is-changed .change-summary__value {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+.change-summary__note {
+  color: var(--color-muted);
 }
