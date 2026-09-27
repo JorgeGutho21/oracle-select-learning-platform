@@ -75,6 +75,11 @@
     padding: var(--space-4);
   }
 }
+@media (max-width: 359px) {
+  .ch-mission {
+    padding-inline: var(--space-3);
+  }
+}
 .ch-rules {
   display: grid;
   gap: var(--space-2);

@@ -3,6 +3,7 @@
 import { useId, type CSSProperties, type ReactNode } from 'react';
 import type { ConceptProjection, ProjectedPart } from '@/application/didactic-projection';
 import type { FlowTable } from '@/features/laboratory/application/lab-api';
+import { ChangeSummary } from '@/presentation/components/data/change-summary';
 import { requiredTableWidth } from '@/presentation/components/data/data-view';
 import { highlightSql } from '@/presentation/components/data/sql-code';
 import { ClauseCode, conceptRole, Data, Reveal, useClauseLink, type ClauseRole } from './scene-kit';
@@ -11,6 +12,9 @@ import { ClauseCode, conceptRole, Data, Reveal, useClauseLink, type ClauseRole }
  * Flujo pedagógico común de las escenas de conceptos (05–19):
  *
  *   1 TABLA ORIGEN → 2 CONSULTA → 3 QUÉ HACE CADA PARTE → 4 RESULTADO   (+ idea clave)
+ *
+ * Bajo el resultado, «Qué cambió»: filas y columnas antes y después (y si solo cambió el
+ * orden o el encabezado), calculado sobre la misma muestra.
  *
  * La tabla de origen es una muestra de EMPLEADOS con solo las columnas del concepto; el
  * resultado es el de la consulta sobre esas mismas filas (proyección didáctica), con el
@@ -169,12 +173,17 @@ export function ConceptFlow({
     <FlowStep number={4} title="Resultado" className="flow-step--result">
       {result ??
         (sample.result && (
-          <Data
-            table={sample.result}
-            caption={resultCaption}
-            summary={resultSummary(projection)}
-            explained={sample}
-          />
+          <>
+            {/* «Qué cambió» ocupa la línea de resumen del resultado: la misma altura. */}
+            <ChangeSummary
+              rows={[sample.source.rows.length, sample.result.rows.length]}
+              columns={[sample.source.columns.length, sample.result.columns.length]}
+              reordered={Boolean(sample.clauses.orderBy)}
+              extra={`tabla completa: ${projection.full.result} de ${projection.full.rows}`}
+              className="flow-change"
+            />
+            <Data table={sample.result} caption={resultCaption} summary="" explained={sample} />
+          </>
         ))}
       {resultAfter}
     </FlowStep>

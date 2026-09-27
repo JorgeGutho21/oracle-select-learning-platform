@@ -186,9 +186,12 @@ function longestWord(text: string): number {
   );
 }
 
-/** Longitud del encabezado cuando se parte tras cada guion bajo («FECHA_» / «INGRESO»). */
+/**
+ * Trozos de un encabezado que pueden ir en líneas distintas: tras cada guion bajo
+ * («FECHA_» / «INGRESO») y tras los operadores de una expresión («(SALARIO+» / «BONO)*12»).
+ */
 export function headerSegments(name: string): string[] {
-  return name.split(/(?<=_)/);
+  return name.split(/(?<=[_+*/,])/);
 }
 
 /**
@@ -580,7 +583,12 @@ export function DataView({
   const bucket = widthBucket(need);
   const auto = mode === 'auto';
   const records = fallback === 'records';
-  const planOptions = { ...widthOptions, schema, groupColumns };
+  // La columna «¿Cumple?» también ocupa sitio: cuenta dentro del límite de columnas.
+  const planOptions = {
+    ...widthOptions,
+    schema,
+    groupColumns: groupColumns - (rowStates ? 1 : 0),
+  };
 
   // Partes intermedias (dos o tres), solo si caben donde la anterior no cabe.
   const parts: DataPartition[] = [];
@@ -645,7 +653,10 @@ export function DataView({
             <tr>
               {rowStates && (
                 <th scope="col" className="dv__state">
-                  ¿Cumple?
+                  <span className="dv__state-long">¿Cumple?</span>
+                  <span className="dv__state-short" aria-hidden="true">
+                    ¿?
+                  </span>
                 </th>
               )}
               {indexes.map((columnIndex) => {

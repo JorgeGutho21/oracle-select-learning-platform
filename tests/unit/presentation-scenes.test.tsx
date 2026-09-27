@@ -103,6 +103,22 @@ describe('escenas del Modo Exposición', () => {
     expect(container.textContent).toContain('ASC: de menor a mayor');
   });
 
+  it('cada escena de concepto dice qué cambió en los datos: filas, columnas u orden', () => {
+    const change = (number: number) =>
+      render(<>{renderScene(number)}</>).container.querySelector('.flow-change')?.textContent ?? '';
+    // SELECT cambia columnas y conserva las filas.
+    expect(change(5)).toMatch(/Filas\s*4\s*sin cambios/);
+    expect(change(5)).toMatch(/Columnas\s*3\s*→/);
+    // WHERE cambia filas y conserva las columnas.
+    expect(change(11)).toMatch(/Filas\s*6\s*→/);
+    expect(change(11)).toMatch(/Columnas\s*3\s*sin cambios/);
+    // ORDER BY: mismas filas y columnas, en otro orden.
+    expect(change(19)).toMatch(/Filas\s*5\s*sin cambios/);
+    expect(change(19)).toContain('nuevo orden de las mismas filas');
+    for (const number of [5, 11, 12, 16, 17, 18, 19])
+      expect(change(number), `${number}`).toContain('tabla completa');
+  });
+
   it('IN se define antes de compararlo con OR', () => {
     const { container } = render(<>{renderScene(16)}</>);
     const text = container.textContent ?? '';

@@ -79,6 +79,11 @@ $dv-buckets:
 .dv tbody tr:first-child td {
   border-top: 0;
 }
+// Los textos largos (CARGO, DEPARTAMENTO) pasan a dos líneas solo si la tabla no cabe; los
+// números, las fechas y las insignias nunca se parten.
+.dv td:not(.is-number):not(.is-date):not(.dv__state) {
+  white-space: normal;
+}
 .dv tbody tr:hover td {
   background: color-mix(in srgb, var(--color-primary) 5%, var(--color-surface));
 }
@@ -168,6 +173,40 @@ $dv-buckets:
 }
 .dv__state-label {
   font-size: max(0.85em, 12px);
+}
+.dv__state-short {
+  display: none;
+}
+
+// Teléfonos: menos relleno lateral y «¿Cumple?» solo con su símbolo (el texto sigue para
+// lectores de pantalla), para que las tablas de cuatro columnas quepan sin barra.
+@container dv (width < 26em) {
+  .dv th,
+  .dv td {
+    padding-inline: 0.42em;
+  }
+  .dv__state-long,
+  .dv__state-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .dv__state-short {
+    display: inline;
+  }
+}
+// Teléfonos de 320 px: letra de 12–13 px y relleno mínimo; nunca más pequeña.
+@container dv (width < 20em) {
+  .dv table {
+    font-size: max(0.75em, 12px);
+  }
+  .dv th,
+  .dv td {
+    padding-inline: 0.24em;
+  }
 }
 .dv td.is-match {
   box-shadow: inset 0 0 0 2px var(--color-primary);
@@ -449,6 +488,16 @@ $dv-buckets:
   .dv--compact th,
   .dv--compact td {
     padding-inline: 0.42em;
+  }
+}
+// 320 px: la tabla de resultados conserva 12 px y reduce el relleno.
+@container dv (width < 23em) {
+  .dv--compact table {
+    font-size: 12px;
+  }
+  .dv--compact th,
+  .dv--compact td {
+    padding-inline: 0.25em;
   }
 }
 // La tabla que cabe no necesita región con barra: así el encabezado fijo acompaña a la

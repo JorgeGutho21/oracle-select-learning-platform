@@ -2651,3 +2651,36 @@
 .deck[data-flow] {
   @include scene-flow-4;
 }
+
+// «Qué cambió» en la línea de resumen del resultado: texto en línea, sin fichas, para no
+// añadir altura al lienzo 16:9. Lo que cambia va en color y negrita.
+.scene .flow-change {
+  display: block;
+  padding: 0;
+  background: none;
+  font-size: max(0.8em, 12px);
+  line-height: 1.35;
+  text-align: end;
+}
+.scene .flow-change .change-summary__label {
+  display: none;
+}
+.scene .flow-change .change-summary__list {
+  display: inline;
+}
+.scene .flow-change .change-summary__item {
+  display: inline;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  font-size: 1em;
+}
+.scene .flow-change .change-summary__item + .change-summary__item::before {
+  content: ' · ';
+  color: var(--color-muted);
+}
+.scene .flow-change .change-summary__note,
+.scene .flow-change .change-summary__extra {
+  color: var(--color-muted);
+}

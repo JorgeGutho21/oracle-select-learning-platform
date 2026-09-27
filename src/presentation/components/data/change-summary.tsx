@@ -10,6 +10,8 @@ export interface ChangeSummaryProps {
   readonly reordered?: boolean;
   /** Solo cambian los encabezados (AS). */
   readonly renamed?: boolean;
+  /** Dato complementario al final («tabla completa: 5 de 20»). */
+  readonly extra?: string;
   readonly label?: string;
   readonly className?: string;
 }
@@ -56,6 +58,7 @@ export function ChangeSummary({
   columns,
   reordered = false,
   renamed = false,
+  extra,
   label = 'Qué cambió',
   className = '',
 }: ChangeSummaryProps) {
@@ -83,6 +86,7 @@ export function ChangeSummary({
             <span className="change-summary__note">nuevo nombre, mismos valores</span>
           </li>
         )}
+        {extra && <li className="change-summary__item change-summary__extra">{extra}</li>}
       </ul>
     </div>
   );

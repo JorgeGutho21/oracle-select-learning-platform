@@ -195,6 +195,12 @@
     padding: var(--space-4) var(--space-3);
   }
 }
+// 320 px: el resultado gana el ancho del relleno lateral.
+@media (max-width: 359px) {
+  .lab-panel {
+    padding-inline: var(--space-1);
+  }
+}
 
 /* ---------- Traducción ---------- */
 .lab-translation__summary,

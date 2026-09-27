@@ -810,7 +810,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     </Scene>
   ),
   where: () => (
-    <Scene id="where" concepts={['where']} use layout="pipeline">
+    <Scene id="where" concepts={['where']} use layout="pipeline" takeaway={P.where.keyIdea}>
       <ConceptFlow projection={P.where} stepClauses={{ 2: 'where', 3: 'where' }} />
     </Scene>
   ),
@@ -983,7 +983,7 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
     </Scene>
   ),
   'order-by': () => (
-    <Scene id="order-by" concepts={['order-by']} use layout="pipeline">
+    <Scene id="order-by" concepts={['order-by']} use layout="pipeline" takeaway={P.orderBy.keyIdea}>
       <ConceptFlow
         projection={P.orderBy}
         after={

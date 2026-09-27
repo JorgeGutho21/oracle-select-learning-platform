@@ -8,7 +8,8 @@ import type { ConceptId } from './sql-concepts';
  * resultado de cada consulta lo calcula el motor educativo sobre esas mismas filas.
  *
  * Modelo que siguen las escenas: TABLA DE ORIGEN → CONSULTA → QUÉ HACE CADA PARTE →
- * RESULTADO → IDEA CLAVE.
+ * RESULTADO (con qué cambió: filas, columnas, orden o encabezado) → IDEA CLAVE. En las
+ * escenas de filtro, SELECT repite las columnas de origen: así solo cambian las filas.
  */
 
 export interface ProjectionPart {
@@ -52,6 +53,7 @@ export const CONCEPT_PROJECTIONS = {
     sampleIds: [1, 2, 3, 4],
     parts: SELECT_FROM,
     purpose: 'Distinguir qué se muestra (SELECT) de dónde salen los datos (FROM).',
+    keyIdea: 'Cambian las columnas visibles; las filas siguen siendo las mismas.',
   },
   star: {
     id: 'star',
@@ -138,11 +140,19 @@ export const CONCEPT_PROJECTIONS = {
   where: {
     id: 'where',
     concept: 'where',
-    sql: "SELECT nombre, ciudad\nFROM empleados\nWHERE ciudad = 'Cali';",
+    sql: "SELECT nombre, ciudad,\n       salario\nFROM empleados\nWHERE ciudad = 'Cali';",
     columns: ['NOMBRE', 'CIUDAD', 'SALARIO'],
     sampleIds: [1, 3, 4, 8, 12, 13],
-    parts: [...SELECT_FROM, { code: "WHERE ciudad = 'Cali'", concept: 'where' }],
+    parts: [
+      { code: "WHERE ciudad = 'Cali'", concept: 'where' },
+      {
+        code: 'SELECT nombre, ciudad, salario',
+        concept: 'select',
+        detail: 'las mismas columnas de origen: ninguna se quita',
+      },
+    ],
     purpose: 'Ver qué filas cumplen la condición y cuáles quedan fuera.',
+    keyIdea: 'Las columnas no cambian: WHERE decide qué filas permanecen.',
   },
   comparison: {
     id: 'comparison',
@@ -192,7 +202,7 @@ export const CONCEPT_PROJECTIONS = {
   like: {
     id: 'like',
     concept: 'like',
-    sql: "SELECT nombre\nFROM empleados\nWHERE nombre LIKE 'A%';",
+    sql: "SELECT nombre, ciudad\nFROM empleados\nWHERE nombre LIKE 'A%';",
     columns: ['NOMBRE', 'CIUDAD'],
     sampleIds: [1, 2, 3, 6, 19],
     parts: [
@@ -224,6 +234,7 @@ export const CONCEPT_PROJECTIONS = {
       { code: 'DESC', concept: 'desc' },
     ],
     purpose: 'Ver que ORDER BY reordena las filas del resultado sin cambiar la tabla.',
+    keyIdea: 'Mismas filas y columnas: ORDER BY solo cambia su orden.',
   },
 } as const satisfies Readonly<Record<string, ConceptProjectionSpec>>;
 
