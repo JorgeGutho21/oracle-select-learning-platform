@@ -73,7 +73,7 @@ U03: consultas con tildes o mayúsculas encuentran el mismo título; una búsque
 
 U04: `SELECT DISTINCT ciudad FROM empleados;` muestra tres filas reales. Una caída de Oracle conserva el editor y muestra servicio no disponible, sin presentar una tabla precalculada como ejecución.
 
-El laboratorio (refinamiento final) muestra primero el editor y el resultado, y debajo el diagnóstico, la lectura en español, la anatomía y el esquema. Los 20 registros se abren con «Ver los 20 registros», con el selector «Resumen / Completa». Un resultado que no cabe como tabla se muestra como fichas por registro, sin barra horizontal.
+El laboratorio muestra primero el editor, a todo el ancho, y debajo el resultado, también a todo el ancho; después, el diagnóstico, la lectura en español, la anatomía y el esquema. El resultado es siempre una tabla SQL: en escritorio, `SELECT *` muestra las 12 columnas y las 20 filas en una sola tabla sin barra horizontal; en tableta y móvil, bandas con el número de empleado repetido. Los 20 registros de origen se abren con «Ver los 20 registros», rotulados como datos (no resultado) y con un selector de columnas por grupos.
 
 ## Flujo E — Challenge individual
 

@@ -35,6 +35,8 @@ El driver admite conexiones a Oracle y agrupación de conexiones; su configuraci
 | Dominio | Definiciones de misión, reglas de puntuación, alcance SQL, transiciones e invariantes. | Tipos y reglas propias; sin dependencia de React, Supabase o red. |
 | Infraestructura | Oracle, PostgreSQL, autenticación, Realtime, reloj y almacenamiento local. | Implementa contratos de aplicación y dominio. |
 
+Proyección didáctica (27 de septiembre de 2026): el catálogo de qué parte de EMPLEADOS enseña cada concepto vive en el dominio (`domain/concepts/concept-projections.ts`); la aplicación (`application/didactic-projection.ts`) ejecuta cada consulta con el motor educativo sobre esas filas y la Exposición solo la presenta. No es otro dataset: son selecciones del dataset único.
+
 Módulos funcionales: contenido, exposición, estudio, búsqueda, laboratorio, Challenge, salas y resultados. Cada uno tiene responsabilidades delimitadas; se comparten datos y contratos, no un único componente gigante. No se propone una red de microservicios: solo se separa Oracle por su conexión persistente y aislamiento.
 
 ## Flujos de datos y contratos

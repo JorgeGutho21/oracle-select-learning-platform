@@ -158,6 +158,30 @@ Medición local después de la segunda pasada (servidor de desarrollo):
 - **Escenas:** 0 desbordes y 0 invasiones a 1920×1080, 1600×900, 1366×768, 1280×720, 390×844, 360×800 y 320×568.
 - **Páginas a 1366, 390 y 320 px:** sin desbordes, sin regiones con barra y sin texto de menos de 12 px.
 
+## Tercera pasada: flujo de datos, bandas y laboratorio (27 de septiembre de 2026)
+
+Rama `claude-final-ui-polish-20260926`, sobre el commit `e6871ac` (checkpoint `checkpoint-pre-data-flow-20260927`). Auditoría previa de producción (`dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b`) a 1920×1080, 1366×768, 1280×720 y 390×844, más `/lab` con `SELECT *` en 13 tamaños.
+
+### Hallazgos
+
+| # | Hallazgo | Evidencia |
+| --- | --- | --- |
+| T1 | **Laboratorio:** `SELECT *` se mostraba como 20 fichas con «Ver registro completo»; editor y resultado compartían el ancho a medias. La tabla en «Resumen» ocultaba 4 columnas. | `/lab` a 1366×768: resultado de 564 px de ancho y fichas de 12 campos. |
+| T2 | **Home:** con 8–12 columnas el resultado de la demostración pasaba a fichas verticales largas en media página. | 12 columnas a 1366×768: ocho fichas de 12 campos. |
+| T3 | **Escenas 05–19 sin modelo común:** unas mostraban tabla de origen y resultado; otras solo código, recuentos o nombres. Faltaba «qué hace cada parte». | 06 sin datos, 07 sin tabla de origen, 12 y 14 sin resultado tabular, 13 y 14 con nombres sueltos. |
+| T4 | **Zoom 125 % (1093×614):** el lienzo quedaba en 807×454 y la letra de las tablas en 10–11 px; 26 escenas con problemas en producción. | Medido en la producción anterior. |
+| T5 | **Ruta (02):** bloques con objetivo y conceptos, sin el resultado esperado. | — |
+
+### Cambios
+
+- **Bandas sincronizadas** (`DataView`): tabla → dos bandas → tres bandas → fichas, según el espacio real del contenedor. Las bandas repiten ID_EMPLEADO (o la primera columna) como encabezado de fila y conservan filas y orden.
+- **Laboratorio:** editor y resultado a todo el ancho, uno debajo del otro. Tabla de resultados compacta compartida por la vista previa y Oracle (`ResultTableView`), con encabezado fijo, filas alternas, números a la derecha, NULL e INACTIVO como insignias. En escritorio, una sola tabla de 12 columnas; en tableta y móvil, bandas; nunca fichas. Los datos de origen se abren aparte, rotulados «Datos de origen» y con un selector de columnas por grupos.
+- **Home:** 1–4 columnas lado a lado; 5–7, resultado a todo el ancho; 8–12, además, bandas. Rótulos «Tu consulta» y «Resultado · N de 20 filas · M columnas».
+- **Proyección didáctica** (catálogo en el dominio y cálculo en la aplicación) y **flujo de escena** `ConceptFlow`: 1 Tabla de origen → 2 Consulta → 3 Qué hace cada parte → 4 Resultado → idea clave, en 05–12 y 15–19; 13 y 14 con tablas de verdad de filas candidatas. «Paso a paso» de cuatro pasos. La 06 muestra las 12 columnas en bandas; la 07, dos resultados con el orden cambiado; la 08, el cálculo de Ana; la 09, antes y después de AS; la 10, antes y después de DISTINCT.
+- **Escenas 02, 04, 25 y 29:** resultado esperado por bloque; fila = registro y columna = atributo, con los tipos; resumen con «qué hace cada parte» de la consulta integradora; tercera idea del cierre explícita.
+- **Recursos:** «En una frase» pasa a «Qué es».
+- **Zoom 125 %:** si el lienzo quedaría por debajo de 870 px en la ventana, la exposición pasa al modo fluido (`data-flow`), como ya hacía con zoom 150 % y en móvil. En pantalla completa siempre hay lienzo 16:9.
+
 ## Resultado después del refinamiento
 
 Mediciones con el mismo guion que la auditoría inicial:

@@ -115,7 +115,8 @@ Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
 - la lectura en español cuando aporta;
 - la idea clave;
 - poco texto: una prueba lo limita a 95 palabras explicativas;
-- tablas de 8 filas como máximo, solo con las columnas del concepto.
+- tablas de 8 filas como máximo, solo con las columnas del concepto;
+- en las escenas de concepto (05–19), el flujo **1 Tabla de origen → 2 Consulta → 3 Qué hace cada parte → 4 Resultado**, más la idea clave (ver «Proyecciones didácticas»).
 
 **Lienzo:** 16:9, sin desbordes a 1920×1080, 1366×768, 1280×720 ni 1024×768 (pruebas E2E y visuales).
 
@@ -125,7 +126,7 @@ Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
 
 - botones Anterior y Siguiente, flechas, Av Pág/Re Pág, Inicio y Fin;
 - panel «Escenas» agrupado por bloque;
-- «Paso a paso» en las escenas 05, 10, 11 y 19;
+- «Paso a paso» de cuatro pasos (origen, consulta, partes y resultado) en las escenas 05–12 y 14–19;
 - notas del expositor con la tecla N;
 - vista del presentador en `/presentation/presentador`;
 - pantalla completa con controles que se atenúan;
@@ -202,6 +203,28 @@ En las escenas 05 y 11, cada cláusula de la consulta es un botón que resalta s
 La consulta integrada (escenas 21 y 23) es `SELECT nombre, ciudad, salario FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' AND salario BETWEEN 4000000 AND 8000000 ORDER BY salario DESC;` y devuelve 3 filas.
 
 La anatomía (escena 20) usa `SELECT nombre, salario FROM empleados WHERE ciudad = 'Cali' ORDER BY salario DESC;` y la síntesis (escena 25) `SELECT DISTINCT ciudad FROM empleados WHERE salario >= 4000000 ORDER BY ciudad;`.
+
+### Proyecciones didácticas (escenas 05–19, 27 de septiembre de 2026)
+
+Cada escena muestra una muestra real de EMPLEADOS (filas por ID_EMPLEADO y solo las columnas del concepto) y el resultado de la consulta sobre esas mismas filas; el resumen indica además el recuento en la tabla completa. Catálogo: `src/domain/concepts/concept-projections.ts`.
+
+| Escena | Consulta | Columnas de origen | Filas (ID) | Resultado en la muestra · tabla completa |
+| --- | --- | --- | --- | --- |
+| 05 SELECT y FROM | `SELECT nombre, ciudad FROM empleados` | NOMBRE, CARGO, CIUDAD | 1–4 | 4 · 20 |
+| 06 SELECT * | `SELECT * FROM empleados` | las 12 (bandas) | 1, 2 | 2 · 20 |
+| 07 Columnas | `SELECT nombre, ciudad` y `SELECT ciudad, nombre` | NOMBRE, CARGO, CIUDAD, SALARIO | 1, 3, 4 | 3 · 20 |
+| 08 Expresiones | `salario + bono * 12` y `(salario + bono) * 12` | NOMBRE, SALARIO, BONO | 1, 2, 4 | 3 · 20 |
+| 09 Alias | `salario * 12` antes y después de `AS salario_anual` | NOMBRE, SALARIO | 1, 2, 3 | 3 · 20 |
+| 10 DISTINCT | `SELECT DISTINCT ciudad` | NOMBRE, CIUDAD | 1, 2, 3, 4, 5, 7 | 3 · 5 |
+| 11 WHERE | `WHERE ciudad = 'Cali'` | NOMBRE, CIUDAD, SALARIO | 1, 3, 4, 8, 12, 13 | 3 · 5 |
+| 12 Comparaciones | `WHERE salario >= 6000000` | NOMBRE, SALARIO | 1, 2, 3, 5, 6, 15 | 4 · 5 |
+| 15 BETWEEN | `WHERE salario BETWEEN 3000000 AND 6000000` | NOMBRE, SALARIO | 3, 6, 9, 11, 15 | 3 · 12 |
+| 16 IN | `WHERE ciudad IN ('Medellín', 'Cali')` | NOMBRE, CIUDAD | 1, 3, 4, 12, 17 | 3 · 10 |
+| 17 LIKE | `WHERE nombre LIKE 'A%'` | NOMBRE, CIUDAD | 1, 2, 3, 6, 19 | 3 · 3 |
+| 18 IS NULL | `WHERE bono IS NULL` | NOMBRE, BONO | 1, 4, 7, 10, 12 | 3 · 6 |
+| 19 ORDER BY | `ORDER BY salario DESC` | NOMBRE, SALARIO | 3, 4, 5, 9, 15 | 5 · 20 |
+
+La 13 (AND y OR) y la 14 (paréntesis) usan tablas de verdad con filas candidatas: cada condición fila por fila y el resultado en la tabla completa. La 04 presenta el dataset: 20 empleados (filas), 12 atributos (columnas) en cinco grupos, los tipos NUMBER, VARCHAR2 y DATE, y BONO que admite NULL.
 
 ## Laboratorio: LAB01–LAB24 y diagnóstico
 

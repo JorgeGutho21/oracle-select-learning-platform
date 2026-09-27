@@ -210,6 +210,16 @@ La auditoría de antes y después (615 mediciones y 123 capturas por pasada) est
 - `tests/unit/presentation-scenes.test.tsx`: mapa de la escena 02, síntesis de la 25, ruta de continuidad de la 28, cierre de la 29, los seis errores de la 22, vocabulario de la 03 y «Para qué sirve» en las escenas 11–19.
 - `tests/unit/concepts.test.ts`: glosas breves y fichas de la coma, los paréntesis, IS NOT NULL y la consulta.
 
+**Flujo de datos, bandas y laboratorio (27 de septiembre de 2026):**
+
+- `tests/e2e/lab-result-table.spec.ts`: `SELECT *` es una sola tabla de 12 columnas y 20 filas sin barra ni fichas a 1920, 1600, 1440, 1366 y 1280 píxeles, con el editor a todo el ancho y el resultado debajo; bandas con ID_EMPLEADO y las 20 filas a 1024, 768, 390 y 360 píxeles; `SELECT nombre, ciudad` muestra exactamente dos columnas; WHERE reduce a 5 filas con las columnas pedidas en su orden; ORDER BY marca el encabezado con `aria-sort`; NULL se distingue de 0.
+- `tests/unit/lab-result-table.test.tsx`: la vista previa y la ejecución en Oracle usan el mismo renderer (compacto, sin fichas) con rótulos distintos; la tabla muestra los datos de EMPLEADOS sin cambios.
+- `tests/unit/data-view.test.tsx`: reparto en bandas con ID_EMPLEADO repetido y las mismas filas; una tabla de resultados SQL nunca se convierte en fichas.
+- `tests/unit/didactic-projection.test.ts`: el dataset sigue completo; cada proyección tiene SQL válido, 2–6 filas reales y como mucho 7 columnas (salvo SELECT *); origen y resultado salen de las mismas filas; los filtros muestran filas que cumplen y que no.
+- `tests/e2e/home.spec.ts`: con 12 columnas la demostración pasa a ancho completo con dos bandas de 8 filas, conserva el orden elegido y no usa fichas.
+- `tests/e2e/presentation.spec.ts`: las escenas de filtro y orden muestran los cuatro pasos del flujo; «Paso a paso» resalta WHERE en el paso 2.
+- `tests/integration/oracle-real.test.ts`: las consultas de las proyecciones didácticas dan en Oracle el mismo resultado que el motor.
+
 ## Salida a producción
 
 La entrega funcional se acepta cuando P01–P18 pasan, G01–G15 y LAB01–LAB16 están cubiertos, invariantes DB01–DB07 y reglas R01–R11 son verificadas, y C01–C05 y D01–D08 pasan revisión editorial/visual. U01–U08 y A01–A07 se verifican mediante flujos, seguridad y recuperación descritos aquí.

@@ -100,17 +100,19 @@ La Exposición, el Estudio, los Recursos y el buscador la presentan de formas di
 
 ### Vista de datos adaptable
 
-`src/presentation/components/data/data-view.tsx` calcula el ancho, en em, que necesita la tabla. Una consulta de contenedor (`_data-view.scss`, umbrales de 14 a 120 em) decide la representación sin JavaScript ni saltos de diseño:
+`src/presentation/components/data/data-view.tsx` calcula el ancho, en em, que necesita cada representación. Las consultas de contenedor (`_data-view.scss`, umbrales de 12 a 120 em, clases `dv-fit-N` y `dv-above-N`) muestran la primera que cabe en el espacio real, sin JavaScript ni saltos de diseño. La decisión depende del ancho disponible, no de un punto de corte de la ventana.
 
 | Espacio | Representación |
 | --- | --- |
 | Suficiente | Tabla completa: encabezado discreto, separadores suaves, hover, radio y sombra mínima. |
-| Medio, en resumen | Tabla con las columnas prioritarias; cada ficha abre «Ver registro completo». |
-| Tableta | Rejilla de fichas: dos o tres por fila, con los campos agrupados. |
-| Móvil | Una ficha por empleado: nombre y apellido, número, cargo y campos con rótulo. |
+| No cabe y hay 7–12 columnas | **Bandas sincronizadas**: el mismo resultado en dos o tres tablas con las mismas filas, en el mismo orden, y la columna ancla (ID_EMPLEADO o la primera) repetida en cada banda como encabezado de fila. Una nota lo dice: «Mismo resultado en 2 partes…». |
+| Tampoco caben las bandas | Fichas por registro con los campos agrupados (Estudio, Exposición en móvil). |
 
 - **Grupos de EMPLEADOS:** Identidad, Organización, Compensación, Empleo y Contacto.
-- **Resumen / Completa:** el selector `DataViewToggle` alterna entre ambos modos, sin barra horizontal en ninguno.
+- **Cortes de las bandas (`planBands`):** contiguos, sin cambiar el orden de las columnas; ganan la banda más ancha más estrecha y, a igualdad, el reparto más equilibrado.
+- **Resumen de fichas:** `detail="summary"` solo afecta a las fichas (campos prioritarios y «Ver registro completo»); la tabla y las bandas muestran siempre todas las columnas.
+- **Tabla de resultados SQL (`size="compact"`, `fallback="bands"`):** la del laboratorio y la de datos completos. Letra de 13–14 px, encabezados monoespaciados que se parten tras «_» (FECHA_ / INGRESO), textos largos en dos líneas (CARGO, DEPARTAMENTO, CORREO tras la arroba), números y fechas enteros a la derecha, filas alternas muy suaves y encabezado fijo al desplazar la página. Nunca se convierte en fichas: en tableta y móvil se reparte en 2 a 11 bandas.
+- **Explorador de datos (`DatasetExplorer`):** la tabla EMPLEADOS completa con un selector de columnas por grupos («Todas», Identidad…); ID_EMPLEADO siempre a la vista. Se enmarca en gris y con borde discontinuo (datos de origen); el resultado de una consulta lleva el acento azul (`dv--result`).
 - **Esquema:** `SchemaCards` muestra el esquema por grupos (nombre, tipo Oracle y NULL) y sustituye los diccionarios en tabla.
 - **Excepción:** en el lienzo 16:9 de la Exposición las tablas se diseñan para caber y se muestran siempre como tabla. Las pruebas visuales lo verifican a 1920, 1366, 1280 y 1024 píxeles.
 
@@ -127,7 +129,17 @@ Toda escena comparte la misma estructura, en este orden:
 - **Composiciones:** CONCEPT, COMPARISON, PIPELINE, TRANSFORMATION, STEPS, PRACTICE, SUMMARY, MEDIA y LIVE.
 - **Contenido centrado:** con `align-content: safe center`, para que nunca invada el título.
 - **Tipografía:** `clamp(14px, 1,72cqi, 52px)`, con mínimos en píxeles para el texto secundario.
-- **Flujo:** en móvil, en vertical y con poca altura (zoom de 150 % en adelante), la escena fluye con 17 px de base.
+- **Flujo:** en móvil, en vertical y con poca altura (zoom de 150 % en adelante), la escena fluye con 17 px de base. También cuando el lienzo quedaría por debajo de 870 px en la ventana (zoom 125 %, portátil con poca altura): la exposición marca `data-flow` y aplica las mismas reglas. En pantalla completa siempre hay lienzo 16:9.
+
+### Flujo pedagógico de escena (2.2)
+
+Las escenas de concepto (05–19) siguen el mismo modelo: **1 Tabla de origen → 2 Consulta → 3 Qué hace cada parte → 4 Resultado**, más la idea clave. Lo componen `ConceptFlow`, `FlowStep`, `QueryParts` y `FlowArrow` (`scene-flow.tsx`):
+
+- **Proyección didáctica** (`src/domain/concepts/concept-projections.ts` y `src/application/didactic-projection.ts`): por concepto, columnas relevantes, filas de muestra por ID_EMPLEADO, partes de la consulta, propósito e idea clave. El motor educativo calcula el resultado sobre esas mismas filas y el recuento en la tabla completa. No hay datos nuevos: EMPLEADOS sigue con 20 filas y 12 columnas.
+- **Composición:** en fila (origen → consulta y partes → resultado) o en dos columnas que se leen de arriba abajo (origen y consulta | partes y resultado). Los anchos son proporcionales a lo que pide cada tabla y cada línea de código.
+- **Antes y después:** en los filtros, las filas de origen llevan «Cumple / No cumple» (símbolo y texto); el resultado muestra solo las filas que quedan, sin esa marca.
+- **Paso a paso:** los cuatro bloques aparecen en su paso; en 05 y 11 la cláusula de cada paso se resalta en los datos.
+- **Qué hace cada parte:** fragmento del SQL con su color semántico y la glosa de la fuente conceptual (o el detalle de esa consulta).
 
 ### Controles de la Exposición
 
@@ -162,8 +174,8 @@ El verde (`--color-success`) queda para lo correcto y el rojo (`--color-danger`)
 
 - **«En esta consulta» (`QueryGlossary`):** explica solo los elementos presentes con la glosa breve de la fuente conceptual (`gloss`, 8 palabras como máximo) y el color de su papel.
 - **«Para qué sirve»:** línea opcional del bloque de definición de una escena (`use`), con el `whyItMatters` del concepto.
-- **Mapa de aprendizaje (`RouteMap`):** ocho bloques con letra, objetivo y conceptos; en móvil, línea de tiempo vertical.
+- **Mapa de aprendizaje (`RouteMap`):** ocho bloques con letra, objetivo, conceptos y resultado esperado («✓ Filtrar… »); en móvil, línea de tiempo vertical.
 - **Competencias (`CompetencyGrid`), ruta de continuidad (`FutureRoadmap`) e ilustración «Del dato a la consulta» (`DataToQuery`, SVG original):** escenas 25, 28 y 29.
-- **Misión del Challenge:** contexto (pedido, consulta, concepto clave y «Datos necesarios para esta misión») junto a la interacción cuando la misión mide 52 rem o más; una columna en móvil. La tabla completa es un desplegable «Ver tabla completa» con selector Resumen / Completa.
+- **Misión del Challenge:** contexto (pedido, consulta, concepto clave y «Datos necesarios para esta misión») junto a la interacción cuando la misión mide 52 rem o más; una columna en móvil. La tabla completa es un desplegable «Ver tabla completa» con el explorador de datos (selector de columnas por grupos).
 - **Selección de filas (`RowPicker`):** cada fila es una casilla con sus campos en una lista de definición; con ancho se alinea como una tabla, en estrecho cada campo lleva su nombre. Al cerrar la misión indica «Cumple» o «No cumple» con símbolo y texto.
 - **Feedback del Challenge:** tipo de error, «Qué está bien», «Qué necesita ajuste» y «Pista», en tono de advertencia, no de castigo.
