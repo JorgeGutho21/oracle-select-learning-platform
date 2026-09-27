@@ -2,7 +2,9 @@
 
 Versión 2.0 · Producción v2 · 26 de septiembre de 2026 · Rama `claude-finish-20260923`. La Fase 11 y las anteriores se conservan debajo.
 
-**CONTENT_REDESIGN_COMPLETE = true · PRODUCTION_V2_READY = true.**
+**CONTENT_REDESIGN_COMPLETE = true · PRODUCTION_V2_READY = true · PRODUCTION_FINAL_READY = true (refinamiento final, `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b`).**
+
+El refinamiento pedagógico y visual final (26 de septiembre de 2026, rama `claude-final-ui-polish-20260926`, commit `023581c`) se documenta en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md). No cambió Oracle, Supabase, Realtime, la puntuación, el protocolo de salas ni las variables de producción.
 
 **URL pública final: <https://sql-select-lab.vercel.app>**
 

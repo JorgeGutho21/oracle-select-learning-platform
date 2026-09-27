@@ -10,6 +10,20 @@ Esta auditoría no modifica código. Solo añade este archivo y [CHALLENGE_STATU
 
 **Actualización (Fase 3, Challenge interactivo):** M01–M09 del Challenge v2 son jugables en `/challenge` con arrastre (dnd-kit), toque y teclado. M10 queda bloqueada sin Oracle. La corrección se ejecuta en el servidor mediante Server Functions en una nueva raíz de composición (`src/composition`). Se corrigió un desbordamiento móvil del `DataTable` base. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md) y [Verificaciones tras la Fase 3](#verificaciones-tras-la-fase-3).
 
+**Actualización (refinamiento pedagógico y visual final, 26 de septiembre de 2026): PEDAGOGICAL_POLISH_COMPLETE, VISUAL_POLISH_COMPLETE, RESPONSIVE_DATA_COMPLETE, ACCESSIBILITY_COMPLETE y PRODUCTION_FINAL_READY = true.** Rama `claude-final-ui-polish-20260926`.
+
+- **Qué cambió:** fuente conceptual de 35 conceptos con glosas; vista de datos adaptable sin barra horizontal; exposición rediseñada (definición o propósito en 29/29, mapa, síntesis, ruta de continuidad y cierre); Challenge con densidad propia y feedback pedagógico (GAME_SPEC 3.1, sin tocar la puntuación); Recursos por fichas completas; color semántico de SQL; laboratorio con el SQL primero. Detalle en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md).
+- **Verificación:**
+  - lint, typecheck y format;
+  - 676/676 unitarias e integración (Oracle local 102 y sala en PostgreSQL);
+  - build;
+  - E2E en Chromium 223/223;
+  - Edge y WebKit en las suites afectadas en verde tras corregir tres fallos reales de WebKit;
+  - vista previa 138/138;
+  - producción 104/104;
+  - 246 mediciones visuales en la vista previa y 123 en producción, sin problemas.
+- **Producción:** `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b` en <https://sql-select-lab.vercel.app> (commit `023581c`). Vuelta atrás: `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w`.
+
 **Actualización (reingeniería educativa, 25 de septiembre de 2026): CONTENT_REDESIGN_COMPLETE = true · PRODUCTION_V2_READY = true (26 de septiembre de 2026).** Unidad completa de Oracle SQL fundamental sobre el dataset `empleados-select-v2` (12 columnas, 20 filas). Plan y decisiones en [CONTENT_REDESIGN_PLAN.md](CONTENT_REDESIGN_PLAN.md); mapa en [CONTENT_MAP.md](CONTENT_MAP.md).
 
 - **Contenido:** 22 lecciones en 8 bloques con plantilla de 12 partes y mini comprobaciones con pistas graduales; 29 escenas; laboratorio con LAB01–LAB24 y diagnóstico en cinco grupos; Challenge `select-challenge-v3` (M01–M10, M10 en Oracle); ruta con 46 temas «Próximamente» en los niveles 2 a 7; buscador de temas actuales y futuros.

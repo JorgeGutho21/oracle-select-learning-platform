@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 26 de septiembre de 2026 (producción v2 activa). Punto de entrada para Codex u otra IA.
+Actualizado: 26 de septiembre de 2026 (refinamiento pedagógico y visual final en producción). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -197,3 +197,28 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - Prueba de humo 14/14 en el dominio público y sala en vivo contra el Supabase real 5/5 (servidor local, clave de prueba).
   - Vuelta atrás: `vercel promote dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd` y variables `ORACLE_CLOUD_PREVIOUS_*`; v1 sigue intacta en Oracle.
   - Pendiente del responsable: crear una sala en el dominio público con su clave (no se escribe en pruebas automáticas).
+- 2026-09-26: **refinamiento pedagógico y visual final** en `claude-final-ui-polish-20260926` (sin tocar `main`). Commits `ac39977`, `173261d`, `1e32dff`, `5fd5eda` y `023581c`, más la documentación de cierre.
+  - **Qué se hizo:**
+    - fuente conceptual única de 35 conceptos con glosas;
+    - vista de datos adaptable (tabla o fichas) sin barra horizontal;
+    - formateador SQL;
+    - Exposición con definición o propósito en las 29 escenas, navegador por bloques, «Paso a paso», notas, vista del presentador y pantalla completa;
+    - Challenge con densidad propia y feedback pedagógico (GAME_SPEC 3.1; la puntuación no cambia);
+    - Recursos por fichas completas y Estudio con términos relacionados;
+    - color semántico de SQL.
+  - **Evidencia:** `docs/FINAL_UX_PEDAGOGICAL_AUDIT.md`, que incluye la auditoría inicial, la segunda pasada y los resultados con la tabla de las 29 escenas.
+  - **Verificado:**
+    - lint, typecheck, format y 676/676 unitarias e integración;
+    - build;
+    - E2E en Chromium 223/223, y en Edge y WebKit en las suites afectadas, en verde tras corregir tres fallos reales de Safari;
+    - vista previa `dpl_CQCuhceYxVh2e4jq19yC3B6b68VY` 138/138;
+    - producción `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b` 104/104;
+    - 246 + 123 mediciones visuales sin problemas.
+  - **Sin cambios:** Oracle, Supabase, Realtime, la puntuación, el protocolo de salas y las variables de producción. Vuelta atrás: `vercel promote dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w`.
+  - **No versionado a propósito:**
+    - `docs/Guia_herramientas_SQL_SELECT_LAB.docx`;
+    - la QA remota de otra herramienta (`tests/remote/`, `scripts/audit-responsive.mjs` y los cambios locales de `playwright.remote.config.ts`), que se conservan en el árbol de trabajo.
+  - **Nota de entorno:** el contenedor Oracle local puede detenerse; `npm run oracle:up` lo reinicia sin tocar datos.
+  - **Pendiente del responsable:**
+    - crear una sala en producción con su clave (no se escribe en pruebas automáticas);
+    - revisar las notas del expositor antes de clase.

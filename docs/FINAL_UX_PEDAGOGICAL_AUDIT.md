@@ -160,4 +160,53 @@ Medición local después de la segunda pasada (servidor de desarrollo):
 
 ## Resultado después del refinamiento
 
-Pendiente: se completa con las mediciones de la vista previa y de producción al cerrar el trabajo.
+Mediciones con el mismo guion que la auditoría inicial:
+
+- **Vista previa** `dpl_CQCuhceYxVh2e4jq19yC3B6b68VY` (commit `023581c`): 6 tamaños (1920×1080, 1366×768, 1280×720, 390×844, 360×800 y 320×568) × 41 vistas = 246 mediciones y 123 capturas. **0 desbordes de página, 0 regiones con barra horizontal, 0 textos recortados, 0 invasiones del título o de la idea clave, letra mínima de 12 px y 0 errores de consola.**
+- **Producción** `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b`: 1920×1080, 1366×768 y 390×844, 123 mediciones y 123 capturas, con el mismo resultado.
+- **Challenge en la vista previa** (1366×768, 390×844 y 320×568): 0 barras. «Comprobar» a 793–1435 px en escritorio (antes: hasta 2680 px en M04). Como máximo 60 celdas visibles (antes: 240 en M01 y M03).
+
+| Indicador                                            | Antes (producción al empezar)                        | Después            |
+| ---------------------------------------------------- | ---------------------------------------------------- | ------------------ |
+| Regiones con barra horizontal a 1366×768             | Recursos 12, Estudio 1–2, laboratorio 1, Challenge 1 | 0                  |
+| Letra mínima en escenas a 1366×768                   | 9,3 px                                               | 12 px              |
+| Escenas que invaden título o idea clave              | varias (hasta 30 px)                                 | 0 en los 6 tamaños |
+| Definición o propósito visible                       | parcial                                              | 29/29              |
+| Código de Recursos en una línea con barra            | 12 bloques                                           | 0 (formateado)     |
+| Tabla EMPLEADOS completa por defecto en el Challenge | M01 y M03                                            | ninguna misión     |
+
+Calidad por escena (revisión visual de las capturas de la vista previa a 1920×1080, 1366×768 y 390×844; «ocupación» es la proporción de la pista usada a 1366×768):
+
+| Escena | Título                    | Definición / propósito | SQL           | Visual                                          | Resultado      | Legibilidad | Ocupación | Responsive   | A11y |
+| ------ | ------------------------- | ---------------------- | ------------- | ----------------------------------------------- | -------------- | ----------- | --------- | ------------ | ---- |
+| 01     | Portada                   | Propósito              | —             | identidad y objetivos                           | —              | ≥ 12 px     | 0,46      | sin desborde | ✓    |
+| 02     | Ruta de aprendizaje       | Propósito              | —             | mapa A–H con objetivos                          | —              | ≥ 12 px     | 0,68      | sin desborde | ✓    |
+| 03     | Qué es SQL                | Definición + uso       | sí            | pregunta → SQL → base → resultado; vocabulario  | nombres        | ≥ 12 px     | 0,47      | sin desborde | ✓    |
+| 04     | Conoce EMPLEADOS          | Definición + uso       | —             | fila, columna y celda; 12 campos agrupados      | 3 filas        | ≥ 12 px     | 0,69      | sin desborde | ✓    |
+| 05     | SELECT y FROM             | Definición             | sí, enlazada  | preguntas → cláusulas → datos                   | tabla          | ≥ 12 px     | 0,64      | sin desborde | ✓    |
+| 06     | SELECT *                  | Definición + uso       | sí            | 12 columnas numeradas; «En esta consulta»       | 12 × 20        | ≥ 12 px     | 0,43      | sin desborde | ✓    |
+| 07     | Columnas específicas      | Definición             | sí            | mismo dato, distinto orden                      | 2 tablas       | ≥ 12 px     | 0,61      | sin desborde | ✓    |
+| 08     | Expresiones y precedencia | Definición             | sí            | tres cálculos y su orden                        | tabla          | ≥ 12 px     | 0,59      | sin desborde | ✓    |
+| 09     | Alias con AS              | Definición ×2          | sí            | antes / después del encabezado                  | 2 tablas       | ≥ 12 px     | 0,60      | sin desborde | ✓    |
+| 10     | DISTINCT                  | Definición             | sí            | 20 → DISTINCT → 5                               | tabla          | ≥ 12 px     | 0,67      | sin desborde | ✓    |
+| 11     | WHERE                     | Definición + uso       | sí, enlazada  | cumple / no cumple                              | tabla          | ≥ 12 px     | 0,68      | sin desborde | ✓    |
+| 12     | Comparaciones             | Definición + uso       | sí            | escala de seis operadores                       | recuentos      | ≥ 12 px     | 0,52      | sin desborde | ✓    |
+| 13     | AND y OR                  | Definición ×2 + uso    | sí            | tablas de verdad con casos reales               | nombres        | ≥ 12 px     | 0,56      | sin desborde | ✓    |
+| 14     | Paréntesis                | Definición + uso       | sí            | agrupación y filas de diferencia                | nombres        | ≥ 12 px     | 0,50      | sin desborde | ✓    |
+| 15     | BETWEEN                   | Definición + uso       | sí            | recta con límites incluidos                     | tabla          | ≥ 12 px     | 0,60      | sin desborde | ✓    |
+| 16     | IN                        | Definición + uso       | sí            | OR repetitivo → IN                              | tabla          | ≥ 12 px     | 0,56      | sin desborde | ✓    |
+| 17     | LIKE                      | Definición + uso       | sí            | cuatro patrones con coincidencias               | nombres        | ≥ 12 px     | 0,61      | sin desborde | ✓    |
+| 18     | NULL e IS NULL            | Definición ×2 + uso    | sí            | NULL ≠ 0, = NULL frente a IS NULL / IS NOT NULL | tabla          | ≥ 12 px     | 0,62      | sin desborde | ✓    |
+| 19     | ORDER BY                  | Definición + uso       | sí            | antes / después, ASC y DESC                     | tabla          | ≥ 12 px     | 0,65      | sin desborde | ✓    |
+| 20     | Anatomía                  | Propósito              | sí            | cláusulas con color por papel                   | recuento       | ≥ 12 px     | 0,67      | sin desborde | ✓    |
+| 21     | Construimos una consulta  | Propósito              | sí, por pasos | seis pasos                                      | tabla por paso | ≥ 12 px     | 0,62      | sin desborde | ✓    |
+| 22     | Errores frecuentes        | Propósito              | sí            | seis errores: error, por qué, corrección        | —              | ≥ 12 px     | 0,62      | sin desborde | ✓    |
+| 23     | Laboratorio               | Propósito              | sí            | vista del laboratorio y pasos                   | tabla          | ≥ 12 px     | 0,73      | sin desborde | ✓    |
+| 24     | SQL Challenge             | Propósito              | —             | diez misiones y reglas                          | —              | ≥ 12 px     | 0,50      | sin desborde | ✓    |
+| 25     | Qué aprendimos            | Propósito              | sí            | nueve competencias                              | ciudades       | ≥ 12 px     | 0,58      | sin desborde | ✓    |
+| 26     | Video resumen             | Propósito              | —             | video con subtítulos                            | —              | ≥ 12 px     | 0,64      | sin desborde | ✓    |
+| 27     | Reto en vivo              | Propósito              | —             | cómo participar y QR                            | —              | ≥ 12 px     | 0,53      | sin desborde | ✓    |
+| 28     | Próximos temas            | Propósito              | —             | diez temas «Próximamente»                       | —              | ≥ 12 px     | 0,68      | sin desborde | ✓    |
+| 29     | Cierre                    | Propósito              | —             | del dato a la consulta; preguntas de salida     | —              | ≥ 12 px     | 0,58      | sin desborde | ✓    |
+
+Las pruebas de accesibilidad automáticas (axe, WCAG 2 A y AA) pasan en las escenas y páginas cubiertas por la suite E2E en Chromium, Edge y WebKit. Las relaciones campo → valor se conservan en tablas (`th` con `scope`) y en fichas (`dl`).

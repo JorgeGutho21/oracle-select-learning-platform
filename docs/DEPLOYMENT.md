@@ -8,9 +8,9 @@ Versión 2.0 · Producción v2 · 26 de septiembre de 2026. Requisitos y variabl
 
 | Elemento            | Estado                                                                                                                                                                                                                                                                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rama y código       | `claude-finish-20260923`, sin fusionar con `main`. El código desplegado corresponde al commit `37a2271` (dataset v2); los commits posteriores solo cambian documentación.                                                                                                                                     |
+| Rama y código       | `claude-final-ui-polish-20260926` (desde `claude-finish-20260923`), sin fusionar con `main`. El código desplegado corresponde al commit `023581c` (refinamiento pedagógico y visual final).                                                                                                                   |
 | Proyecto Vercel     | `sql-select-lab` en el equipo personal `jorge-gutierrez1` (plan Hobby, gratuito). Preset Next.js, Node 24.x y funciones en `iad1` (Washington, D.C.).                                                                                                                                                         |
-| Producción          | **v2:** `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w` (`sql-select-7z5254ibo-jorge-gutierrez1.vercel.app`), publicada en `sql-select-lab.vercel.app` desde el 26 de septiembre. Prueba de humo: 14/14 (más la sala real 5/5). Vuelta atrás: `dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd` (v1).                                     |
+| Producción          | **Refinamiento final:** `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b` (`sql-select-peydr17fp-jorge-gutierrez1.vercel.app`), commit `023581c`, publicado en `sql-select-lab.vercel.app` el 26 de septiembre. Prueba de humo y suites clave: 104/104. Vuelta atrás: `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w` (v2 anterior).      |
 | Vista previa        | **v2:** `sql-select-l0pnwv46e-jorge-gutierrez1.vercel.app` (`dpl_GpSFNR32nxPh8RXZPrXgDQJMudbB`), código del commit `45c3a70` con Oracle Cloud v2. Prueba de humo: 19/19. Protegida por la autenticación de Vercel.                                                                                            |
 | Oracle              | Oracle Autonomous Database 19c (Always Free, sa-bogota-1), con mTLS y cartera en variables de servidor ([ORACLE_SETUP.md](ORACLE_SETUP.md), opción C). Production y Preview usan v2 (`SQL_LAB_V2_OWNER`/`SQL_LAB_V2_READER`); v1 (`SQL_LAB_OWNER`/`SQL_LAB_READER`, 6 filas) sigue intacta para volver atrás. |
 | Supabase            | Proyecto real con la migración aplicada, RLS verificado y Realtime conectado ([SUPABASE_SETUP.md](SUPABASE_SETUP.md)).                                                                                                                                                                                        |
@@ -18,15 +18,18 @@ Versión 2.0 · Producción v2 · 26 de septiembre de 2026. Requisitos y variabl
 
 ### Despliegues
 
-| Fecha (2026) | Despliegue                                         | Destino    | Resultado                                                                                          |
-| ------------ | -------------------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------- |
-| 24 sep.      | `dpl_J2N2BAFzWSjGH7hGt5DkURQtLCMs`                 | Producción | Involuntario, con preset «Other» (ver incidencia). Alias retirado; no sirve la aplicación.         |
-| 24 sep.      | Vista previa sin variables                         | Preview    | Lanzada sin verificar (bloqueo de permisos de aquella sesión).                                     |
-| 25 sep.      | `sql-select-9shg68ptn-jorge-gutierrez1.vercel.app` | Preview    | 20/22: la barra de Vercel chocaba con la CSP y había un error en el guion de prueba.               |
-| 25 sep.      | `sql-select-k0pfbzctk-jorge-gutierrez1.vercel.app` | Preview    | 22/22.                                                                                             |
-| 25 sep.      | `dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd`                 | Producción | 24/24 en `sql-select-lab.vercel.app`.                                                              |
-| 25 sep.      | `dpl_GpSFNR32nxPh8RXZPrXgDQJMudbB`                 | Preview    | v2 (commit `45c3a70`, variables Oracle de Preview en v2): 19/19.                                   |
-| 26 sep.      | `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w`                 | Producción | v2 (commit `37a2271`, variables Oracle de Production en v2): 14/14 en `sql-select-lab.vercel.app`. |
+| Fecha (2026) | Despliegue                                         | Destino    | Resultado                                                                                             |
+| ------------ | -------------------------------------------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| 24 sep.      | `dpl_J2N2BAFzWSjGH7hGt5DkURQtLCMs`                 | Producción | Involuntario, con preset «Other» (ver incidencia). Alias retirado; no sirve la aplicación.            |
+| 24 sep.      | Vista previa sin variables                         | Preview    | Lanzada sin verificar (bloqueo de permisos de aquella sesión).                                        |
+| 25 sep.      | `sql-select-9shg68ptn-jorge-gutierrez1.vercel.app` | Preview    | 20/22: la barra de Vercel chocaba con la CSP y había un error en el guion de prueba.                  |
+| 25 sep.      | `sql-select-k0pfbzctk-jorge-gutierrez1.vercel.app` | Preview    | 22/22.                                                                                                |
+| 25 sep.      | `dpl_61KPNiQvtuk6NAKFag4tonXAG2Fd`                 | Producción | 24/24 en `sql-select-lab.vercel.app`.                                                                 |
+| 25 sep.      | `dpl_GpSFNR32nxPh8RXZPrXgDQJMudbB`                 | Preview    | v2 (commit `45c3a70`, variables Oracle de Preview en v2): 19/19.                                      |
+| 26 sep.      | `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w`                 | Producción | v2 (commit `37a2271`, variables Oracle de Production en v2): 14/14 en `sql-select-lab.vercel.app`.    |
+| 26 sep.      | `dpl_GnNgFiM175PvfKDSa131BD81j4sG`                 | Preview    | Refinamiento final (commit `5fd5eda`): 138/138 contra la vista previa.                                |
+| 26 sep.      | `dpl_CQCuhceYxVh2e4jq19yC3B6b68VY`                 | Preview    | Refinamiento final (commit `023581c`): 138/138; 246 mediciones visuales sin problemas.                |
+| 26 sep.      | `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b`                 | Producción | Refinamiento final (commit `023581c`), sin cambiar variables: 104/104 y 123 mediciones sin problemas. |
 
 ### Prueba de humo de producción (25 de septiembre)
 
