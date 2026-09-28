@@ -213,6 +213,7 @@
   font-size: 0.9375rem;
 }
 .ch-pick__frame {
+  position: relative;
   container: ch-pick / inline-size;
   overflow-x: auto;
   background: var(--color-surface);

@@ -38,8 +38,10 @@ $dv-buckets:
   font-variant-numeric: tabular-nums;
 }
 
-// Tabla.
+// Tabla. Es el bloque contenedor de los textos ocultos para lectores de pantalla (posición
+// absoluta): si la tabla se desplaza en su marco, no ensanchan la página.
 .dv__table {
+  position: relative;
   overflow-x: auto;
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
@@ -180,32 +182,43 @@ $dv-buckets:
 
 // Teléfonos: menos relleno lateral y «¿Cumple?» solo con su símbolo (el texto sigue para
 // lectores de pantalla), para que las tablas de cuatro columnas quepan sin barra.
-@container dv (width < 26em) {
-  .dv th,
-  .dv td {
-    padding-inline: 0.42em;
+// Solo en pantallas de teléfono: en el lienzo del proyector, una columna estrecha conserva su
+// letra y sus rótulos.
+@media (max-width: 767px) {
+  @container dv (width < 26em) {
+    .dv th,
+    .dv td {
+      padding-inline: 0.42em;
+    }
+    // Los encabezados largos se parten tras «_» (ID_ / EMPLEADO).
+    .dv thead th {
+      white-space: normal;
+    }
+    .dv__state-long,
+    .dv__state-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .dv__state-short {
+      display: inline;
+    }
   }
-  .dv__state-long,
-  .dv__state-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .dv__state-short {
-    display: inline;
-  }
-}
-// Teléfonos de 320 px: letra de 12–13 px y relleno mínimo; nunca más pequeña.
-@container dv (width < 20em) {
-  .dv table {
-    font-size: max(0.75em, 12px);
-  }
-  .dv th,
-  .dv td {
-    padding-inline: 0.24em;
+  // Teléfonos de 320 px: letra de 12–13 px y relleno mínimo; nunca más pequeña.
+  @container dv (width < 20em) {
+    .dv table {
+      font-size: max(0.75em, 12px);
+    }
+    .dv--regular table {
+      font-size: 12px;
+    }
+    .dv th,
+    .dv td {
+      padding-inline: 0.2em;
+    }
   }
 }
 .dv td.is-match {
