@@ -207,6 +207,12 @@ $dv-buckets:
       display: inline;
     }
   }
+  // Letra grande del Estudio (18 px): en un teléfono la tabla baja a 14 px.
+  @container dv (width < 24em) {
+    .dv--regular table {
+      font-size: max(0.78em, 13px);
+    }
+  }
   // Teléfonos de 320 px: letra de 12–13 px y relleno mínimo; nunca más pequeña.
   @container dv (width < 20em) {
     .dv table {
