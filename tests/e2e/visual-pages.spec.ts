@@ -54,6 +54,9 @@ test('el laboratorio muestra primero el editor y el resultado', async ({ page })
   // origen (no el resultado): una sola tabla de 12 columnas en escritorio.
   await expect(page.getByText('Ver los 20 registros')).toBeVisible();
   await expect(page.getByRole('table', { name: /Tabla EMPLEADOS · 20 filas/ })).toBeHidden();
+  // Con la página hidratada (el editor solo existe en el cliente): WebKit ignora el clic en
+  // un <details> antes de hidratar.
+  await expect(page.locator('.cm-content[contenteditable="true"]')).toBeVisible();
   await page.getByText('Ver los 20 registros').click();
   await expect(page.getByText('No es el resultado de tu consulta')).toBeVisible();
   const source = page.getByRole('table', { name: /Tabla EMPLEADOS · 20 filas/ });
