@@ -31,7 +31,7 @@ Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único 
   - **Esquema:** agrupado; los 20 registros se abren solo si se piden.
   - **Ejecución:** «Ejecutar en Oracle» usa Oracle real. Tiene 24 ejemplos (LAB01–LAB24).
 - **Vista de datos adaptable:** tabla cuando cabe y fichas por registro cuando no. Ninguna tabla, consulta ni resultado educativo necesita barra horizontal, ni siquiera a 320 px.
-- **SQL Oracle Challenge** (`/challenge`, `select-challenge-v3`, GAME_SPEC 3.1): diez misiones con puntuación, intentos y pistas. M10 se califica en Oracle real.
+- **SQL Oracle Challenge** (`/challenge`, `select-challenge-v4`, GAME_SPEC 4): diez misiones que razonan sobre una muestra de trabajo (como mucho 8 registros y 3–4 columnas, siempre en tabla) con puntuación, intentos, pistas y feedback por tipo de error. M10 se califica en Oracle real.
   - **Densidad propia:** cada misión muestra el pedido, el concepto clave y solo los «Datos necesarios» (4–7 columnas y pocas filas); la tabla completa es un desplegable secundario y nunca hay barra horizontal.
   - **Feedback:** tipo de error, qué está bien, qué ajustar y una orientación progresiva; el acierto explica por qué.
 - **Sala en vivo:** `/presenter`, `/join/{código}`, `/live` y `/results`, con Supabase en producción.

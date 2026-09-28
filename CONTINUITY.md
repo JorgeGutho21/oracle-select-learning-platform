@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 26 de septiembre de 2026 (refinamiento pedagógico y visual final en producción). Punto de entrada para Codex u otra IA.
+Actualizado: 28 de septiembre de 2026 (rediseño pedagógico de la representación de datos y del Challenge en producción). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -222,3 +222,13 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - **Pendiente del responsable:**
     - crear una sala en producción con su clave (no se escribe en pruebas automáticas);
     - revisar las notas del expositor antes de clase.
+- 2026-09-27/28: **rediseño pedagógico de la representación de datos y del Challenge** en `claude-final-ui-polish-20260926` (sin tocar `main`). Checkpoint `cf8d6f3` (etiqueta `checkpoint-pre-challenge-redesign-20260927`); commits `74fd5b3`, `55d8959`, `fd5ffbe`, `e7382cd`, `f62b15a`, `98b2586`, `3d3aba2`, `3dfcbd5` y `daa4dfd`.
+  - **Qué se hizo:**
+    - vista de datos siempre tabular: tabla, partes con pestañas y grupos de ≤ 4 columnas (ID_EMPLEADO y NOMBRE repetidos); fichas solo en tablas de referencia;
+    - Challenge v4 (GAME_SPEC 4): muestra de trabajo ≤ 8 × 3–4 como tabla original, dataset completo en un diálogo, M01–M10 rediseñadas (observar, predecir, construir, comparar, corregir), ocho variantes de M08, feedback con tipo de error, qué está bien, qué revisar y pista;
+    - Exposición: «Qué cambió» bajo el resultado de las escenas de concepto; WHERE y LIKE solo cambian filas;
+    - teléfonos: tablas de 12 px como mínimo sin barra hasta 320 px; página sin desborde a 180 px.
+  - **Verificado:** 732/732 unitarias e integración (Oracle local); E2E Chromium 252/252, Edge 186/186 y WebKit 186/186 en las suites afectadas; vista previa `dpl_9oRqwJsZYXTLFtQ8f2eo7dSjovqz` 230/230; producción `dpl_5N1YJrvvWABzHFJWJPHQBPRsigdd` 160/160 con Oracle Cloud; mediciones visuales de páginas, 29 escenas, 10 misiones y el laboratorio en hasta 17 tamaños sin problemas.
+  - **Sin cambios:** Oracle, Supabase, Realtime, la puntuación, los tiempos base, el protocolo de salas y las variables de producción. Las partidas guardadas con `select-challenge-v3` se descartan (cambió la versión). Vuelta atrás: `vercel promote dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b`.
+  - **No versionado a propósito:** `docs/Guia_herramientas_SQL_SELECT_LAB.docx` y la QA remota de otra herramienta (`tests/remote/`, `scripts/audit-responsive.mjs`, cambios locales de `playwright.remote.config.ts`).
+  - **Pendiente del responsable:** crear una sala en producción con su clave (la sala real de Supabase no se prueba con la clave docente en las pruebas automáticas).
