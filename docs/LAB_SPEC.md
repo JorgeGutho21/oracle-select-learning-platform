@@ -18,14 +18,14 @@ Si Oracle no está disponible, se dice. Nunca se sustituye en silencio la ejecuc
 Seis paneles, en una sola columna a todo el ancho y en este orden (27 de septiembre de 2026):
 
 1. **Editor SQL:** CodeMirror, ejemplos en grupos, Analizar (Ctrl+Enter), Ejecutar en Oracle y Restablecer. Ocupa el ancho útil de la página.
-2. **Resultado:** debajo del editor y con el mismo ancho. «Vista previa educativa» (con la advertencia «No es una ejecución en Oracle») y «Ejecución en Oracle» usan el mismo componente de tabla (`ResultTableView`: `DataView` compacta con `fallback="bands"`), cada uno con su rótulo: «Resultado · vista educativa» y «Resultado Oracle». La tabla se construye con las columnas y filas reales del resultado, en el orden de la consulta, e indica «N filas · M columnas» y el sentido de ORDER BY.
+2. **Resultado:** debajo del editor y con el mismo ancho. «Vista previa educativa» (con la advertencia «No es una ejecución en Oracle») y «Ejecución en Oracle» usan el mismo componente de tabla (`ResultTableView`: `DataView` compacta), cada uno con su rótulo: «Resultado · vista educativa» y «Resultado Oracle». La tabla se construye con las columnas y filas reales del resultado, en el orden de la consulta, e indica «N filas · M columnas» y el sentido de ORDER BY.
    - **Escritorio (1280 px o más):** `SELECT * FROM empleados;` es una sola tabla de 12 columnas y 20 filas, sin barra horizontal, con letra de 13–14 px.
-   - **Tableta y zoom 125 %:** dos o tres bandas sincronizadas con ID_EMPLEADO en cada una.
-   - **Móvil:** de cuatro a seis bandas estrechas. Nunca fichas por empleado ni «Ver registro completo».
+   - **Tableta y zoom 125 %:** dos o tres partes con pestañas («Identidad, organización y compensación» / «Empleo, contacto y jefe»), con ID_EMPLEADO y NOMBRE en cada una y las 20 filas.
+   - **Móvil (320–767 px):** cinco grupos con pestañas —Identidad, Organización, Compensación, Empleo, Contacto y jefe—, cada uno con como mucho cuatro columnas (ID_EMPLEADO, NOMBRE y dos más) y las 20 filas, sin barra horizontal ni a 320 px. Nunca fichas por empleado ni «Ver registro completo».
 3. **Diagnóstico.**
 4. **En lenguaje cotidiano:** traducción de la consulta, con el recorrido lógico FROM → WHERE → SELECT → DISTINCT → ORDER BY.
 5. **Anatomía:** cada parte coloreada con su función.
-6. **Esquema disponible:** columnas, tipo y «admite NULL», con resaltado de las columnas que lee la consulta. «Ver los 20 registros» abre los DATOS de origen, rotulados como tales y enmarcados distinto del resultado, con un selector de columnas por grupos.
+6. **Esquema disponible:** columnas, tipo y «admite NULL», con resaltado de las columnas que lee la consulta. «Ver los 20 registros» abre los DATOS de origen, rotulados como tales y enmarcados distinto del resultado, en una sola tabla en escritorio y por grupos con pestañas en tableta y móvil.
 
 Estados: vacío, editando, analizada (válida o con errores), ejecutando, resultado de Oracle, error ORA, rechazada, servicio no disponible. Un resultado previo queda identificado como anterior si la consulta cambia.
 

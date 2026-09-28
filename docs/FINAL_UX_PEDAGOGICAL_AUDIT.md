@@ -182,6 +182,28 @@ Rama `claude-final-ui-polish-20260926`, sobre el commit `e6871ac` (checkpoint `c
 - **Recursos:** «En una frase» pasa a «Qué es».
 - **Zoom 125 %:** si el lienzo quedaría por debajo de 870 px en la ventana, la exposición pasa al modo fluido (`data-flow`), como ya hacía con zoom 150 % y en móvil. En pantalla completa siempre hay lienzo 16:9.
 
+## Cuarta pasada: modelo pedagógico de representación de datos (28 de septiembre de 2026)
+
+Rama `claude-final-ui-polish-20260926`, sobre `cf8d6f3` (etiqueta `checkpoint-pre-challenge-redesign-20260927`). Motivo: revisión del responsable del proyecto en PC y móvil.
+
+### Hallazgos
+
+| #                     | Hallazgo                                                                                                                                                                                                                                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| C1                    | En móvil, los resultados SQL y los datos del Challenge se convertían en listas de fichas por empleado: páginas larguísimas sin idea de tabla.                                                                                                                                                                   |
+| C2                    | El Challenge mostraba el dataset (20 × 12) como protagonista y columnas irrelevantes para la misión.                                                                                                                                                                                                            |
+| C3                    | Misiones mecánicas: nombrar dos columnas, ordenar todas las piezas, construir 12 encabezados, retirar repetidas de una lista, poner una coma en un hueco.                                                                                                                                                       |
+| C4                    | Feedback sin distinguir tipo de error en la depuración; sin comparación visual entre tabla original y resultado en varias misiones.                                                                                                                                                                             |
+| C5                    | Exposición: el resultado no decía qué había cambiado; en WHERE y LIKE cambiaban a la vez filas y columnas.                                                                                                                                                                                                      |
+| C6 (auditoría propia) | A 320 px, tablas de cuatro columnas de Aprender y del laboratorio con barra interna; a 180 px, textos ocultos para lectores de pantalla ensanchaban la página; el mapa de misiones ocupaba una pantalla antes de la misión en el móvil; piezas largas desbordaban a zoom 200 %; «Correcto: Correcto» duplicado. |
+
+### Cambios
+
+- **Vista de datos siempre tabular:** tabla completa; partes con pestañas en tableta; grupos de como mucho cuatro columnas con pestañas en el móvil (ID_EMPLEADO y NOMBRE repetidos). Fichas solo para tablas de referencia que no son resultados SQL.
+- **Challenge v4:** muestra de trabajo (≤ 8 × 3–4) como tabla original junto al pedido; dataset completo en un diálogo secundario; M01–M10 rediseñadas (ver GAME_SPEC 4); feedback con tipo de error, qué está bien, qué revisar y pista conceptual o localizada; antes → después en M04, M06 y M07; mapa compacto en el móvil.
+- **Exposición:** «Qué cambió» en la línea de resumen del resultado de las escenas de concepto; WHERE y LIKE conservan las columnas de origen; ideas clave de SELECT, WHERE y ORDER BY con la frase de lo que cambia.
+- **Teléfonos:** relleno y letra de tabla ajustados (12 px mínimo) solo por debajo de 768 px; marcos de tabla que contienen sus textos ocultos.
+
 ## Resultado después del refinamiento
 
 Mediciones con el mismo guion que la auditoría inicial:

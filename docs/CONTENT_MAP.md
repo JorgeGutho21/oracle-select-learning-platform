@@ -4,7 +4,7 @@ Versión 2.1 (26 de septiembre de 2026) · Reingeniería descrita en [CONTENT_RE
 
 Este mapa separa dos cosas que la plataforma nunca mezcla:
 
-- **Contenido actual (Nivel 1, SELECT fundamental):** 22 lecciones en 8 bloques, 29 escenas, laboratorio LAB01–LAB24 y Challenge M01–M10. Todo usa el dataset `empleados-select-v2`.
+- **Contenido actual (Nivel 1, SELECT fundamental):** 22 lecciones en 8 bloques, 29 escenas, laboratorio LAB01–LAB24 y Challenge M01–M10 (`select-challenge-v4`). Todo usa el dataset `empleados-select-v2`.
 - **Próximos niveles (2 a 7):** 46 temas con ficha completa y estado «Próximamente». No tienen lecciones, ni escenas, ni misiones, ni cuentan en el progreso.
 
 ## Principio de enseñanza
@@ -116,7 +116,7 @@ Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
 - la idea clave;
 - poco texto: una prueba lo limita a 95 palabras explicativas;
 - tablas de 8 filas como máximo, solo con las columnas del concepto;
-- en las escenas de concepto (05–19), el flujo **1 Tabla de origen → 2 Consulta → 3 Qué hace cada parte → 4 Resultado**, más la idea clave (ver «Proyecciones didácticas»).
+- en las escenas de concepto (05–19), el flujo **1 Tabla de origen → 2 Consulta → 3 Qué hace cada parte → 4 Resultado**, con «Qué cambió» (filas y columnas antes → después, orden, tabla completa) en la línea de resumen del resultado, más la idea clave (ver «Proyecciones didácticas»). Cada escena responde: qué es, para qué sirve, cómo se escribe y qué cambia en los datos.
 
 **Lienzo:** 16:9, sin desbordes a 1920×1080, 1366×768, 1280×720 ni 1024×768 (pruebas E2E y visuales).
 
@@ -216,11 +216,11 @@ Cada escena muestra una muestra real de EMPLEADOS (filas por ID_EMPLEADO y solo 
 | 08 Expresiones | `salario + bono * 12` y `(salario + bono) * 12` | NOMBRE, SALARIO, BONO | 1, 2, 4 | 3 · 20 |
 | 09 Alias | `salario * 12` antes y después de `AS salario_anual` | NOMBRE, SALARIO | 1, 2, 3 | 3 · 20 |
 | 10 DISTINCT | `SELECT DISTINCT ciudad` | NOMBRE, CIUDAD | 1, 2, 3, 4, 5, 7 | 3 · 5 |
-| 11 WHERE | `WHERE ciudad = 'Cali'` | NOMBRE, CIUDAD, SALARIO | 1, 3, 4, 8, 12, 13 | 3 · 5 |
+| 11 WHERE | `SELECT nombre, ciudad, salario … WHERE ciudad = 'Cali'` (mismas columnas: solo cambian las filas) | NOMBRE, CIUDAD, SALARIO | 1, 3, 4, 8, 12, 13 | 3 · 5 |
 | 12 Comparaciones | `WHERE salario >= 6000000` | NOMBRE, SALARIO | 1, 2, 3, 5, 6, 15 | 4 · 5 |
 | 15 BETWEEN | `WHERE salario BETWEEN 3000000 AND 6000000` | NOMBRE, SALARIO | 3, 6, 9, 11, 15 | 3 · 12 |
 | 16 IN | `WHERE ciudad IN ('Medellín', 'Cali')` | NOMBRE, CIUDAD | 1, 3, 4, 12, 17 | 3 · 10 |
-| 17 LIKE | `WHERE nombre LIKE 'A%'` | NOMBRE, CIUDAD | 1, 2, 3, 6, 19 | 3 · 3 |
+| 17 LIKE | `SELECT nombre, ciudad … WHERE nombre LIKE 'A%'` | NOMBRE, CIUDAD | 1, 2, 3, 6, 19 | 3 · 3 |
 | 18 IS NULL | `WHERE bono IS NULL` | NOMBRE, BONO | 1, 4, 7, 10, 12 | 3 · 6 |
 | 19 ORDER BY | `ORDER BY salario DESC` | NOMBRE, SALARIO | 3, 4, 5, 9, 15 | 5 · 20 |
 
@@ -250,24 +250,24 @@ Primero la pista, después la zona; la corrección no se regala.
 
 Un tema futuro se anuncia como SQL válido en Oracle que pertenece a otro nivel, con enlace a su ficha en Próximamente.
 
-## SQL Challenge v3
+## SQL Challenge v4
 
-`select-challenge-v3`: M01–M10 conservan la puntuación, los intentos, las pistas, la sala en vivo y el ranking ([GAME_SPEC.md](GAME_SPEC.md)). M02, M04, M07, M09 y M10 incorporan WHERE u ORDER BY. M10 se califica con la salida real de Oracle.
+`select-challenge-v4` (28 de septiembre de 2026): M01–M10 conservan la puntuación, los intentos, las pistas, los tiempos base, la sala en vivo y el ranking ([GAME_SPEC.md](GAME_SPEC.md)). M10 se califica con la salida real de Oracle.
 
-**Densidad propia (GAME_SPEC 3.1).** Cada misión muestra solo los datos que necesita: M01 siete columnas y una vista previa del resultado elegido; M03 el esquema numerado de las 12 columnas y el total de 20 filas, sin 240 celdas; M04 una muestra de 10 registros que contiene a los 5 de Cali; M05 tres empleados con NOMBRE, SALARIO y BONO; M07 una sola columna, con «Antes → DISTINCT → Después»; M08 lo que devuelve ahora la consulta con error; M10 el esquema relevante y 8 filas de vista previa. La tabla completa siempre está disponible como consulta secundaria.
+**Muestra de trabajo.** Cada misión razona sobre una tabla real de como mucho 8 registros y 3–4 columnas relevantes; el dataset completo es una consulta secundaria en un diálogo y nunca hace falta para resolver. No hay preguntas de opción única: se observa, predice, construye, compara, corrige y justifica.
 
-| Misión | Concepto | Habilidad | Datos necesarios | Error esperable | Orientación 1 → 2 |
+| Misión | Concepto | Tarea | Muestra de trabajo | Error esperable | Orientación 1 → 2 |
 | --- | --- | --- | --- | --- | --- |
-| M01 | SELECT, lista de columnas | elegir y ordenar columnas | 7 columnas | orden invertido, columnas de más | qué muestra SELECT → releer el pedido |
-| M02 | SELECT, FROM, WHERE | orden de las cláusulas | 3 columnas | WHERE antes de FROM | orden fijo de la consulta → posición de cada palabra clave |
-| M03 | `*` | interpretar el comodín | esquema de 12 y 20 filas | tomar `*` como columna | `*` = todas las columnas → recorrer el esquema |
-| M04 | WHERE | predecir filas y columnas | 10 × 4 | incluir otra ciudad, poner CIUDAD | WHERE filtra filas → mirar CIUDAD |
-| M05 | expresión | calcular por fila | 3 × 3 | sumar 12, partir de BONO | qué es una expresión → meses de un año |
-| M06 | alias, AS | nombrar el resultado | NOMBRE, SALARIO | alias junto a NOMBRE o tras la tabla | alias temporal → junto a la expresión |
-| M07 | DISTINCT | quitar repeticiones | 1 columna, 7 filas | borrar todos los repetidos | qué quita DISTINCT → uno de cada |
-| M08 | coma, alias implícito | depurar | lo que devuelve ahora | coma en otro hueco | la coma separa columnas → lista de SELECT |
-| M09 | ORDER BY, DESC | traducir un pedido | 4 columnas | sin ORDER BY o ASC | qué hace ORDER BY → final de la consulta |
-| M10 | consulta completa | escribir y justificar | 5 columnas, 8 filas | sin paréntesis, alias sin AS | papel de cada cláusula → revisar cada parte |
+| M01 | SELECT, lista de columnas | elegir columnas para contactar, en orden y sin datos salariales | 6 × NOMBRE, CIUDAD, SALARIO, CORREO | incluir SALARIO, orden, falta CORREO | SELECT decide columnas y orden → comparar con el pedido |
+| M02 | SELECT, FROM | construir solo con las piezas necesarias | 6 × NOMBRE, CARGO, CIUDAD, SALARIO | usar WHERE, DISTINCT o * | cuándo sobran WHERE y DISTINCT → revisar cada pieza |
+| M03 | `*` | columnas, filas y qué hace y qué no hace | esquema 3 × 4 y 20 registros | «* es una columna», «descarta NULL» | * = todas las columnas → esquema y consulta |
+| M04 | WHERE | marcar filas y construir la condición | 8 × ID, NOMBRE, CIUDAD, SALARIO | otra ciudad, texto sin comillas | WHERE filtra filas → columna CIUDAD y comillas |
+| M05 | expresión, precedencia | predecir con y sin paréntesis y construir | 4 × NOMBRE, SALARIO, BONO | olvidar los paréntesis | * antes que + → qué se calcula primero |
+| M06 | alias, AS | construir con AS y comparar encabezados | 4 × NOMBRE, SALARIO | alias entre comillas simples, sin AS | AS solo cambia el encabezado → posición y comillas |
+| M07 | DISTINCT | predecir valores únicos y pares | 6 analistas × NOMBRE, CIUDAD, DEPARTAMENTO | inventar valores, contar ciudades en el par | DISTINCT quita repetidas del resultado → par completo |
+| M08 | depuración | clasificar, localizar y corregir (8 variantes) | — | confundir sintaxis, semántica y concepto | tres tipos de error → comas, comillas, paréntesis, palabras clave |
+| M09 | WHERE combinado, ORDER BY | traducir con bloques de nivel token | 8 × NOMBRE, CIUDAD, SALARIO | OR en lugar de AND, > en lugar de >=, ASC | AND exige ambas → condiciones y orden |
+| M10 | consulta completa | escribir y justificar (Oracle real) | 8 × NOMBRE, CIUDAD, SALARIO, ESTADO | OR sin paréntesis, alias sin AS | papel de cada cláusula → revisar cada parte |
 
 Las pistas y la orientación no escriben la consulta de la solución; la explicación completa solo aparece al cerrar la oportunidad puntuada.
 

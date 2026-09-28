@@ -57,7 +57,7 @@ Estudio: índice lateral a partir de 992 px; en móvil, botón «Temario». Cent
 | Buscador | Etiqueta «Buscar tema o recurso», resultados agrupados, fragmento contextual, vacío y sin coincidencias. Reabre sin perder el contexto anterior. |
 | Bloque SQL | Monoespaciado, una cláusula por línea (formateador sobre el analizador léxico), líneas largas con sangría francesa y sin barra horizontal. Acciones normalizadas: «Copiar», «Abrir en Lab» y «Ver lección». |
 | Editor | Etiqueta accesible, ayuda de atajos, estado pendiente/ejecutando/resultado/error y salida por Tab sin trampa de teclado. |
-| Vista de datos | `DataView`: rótulo de contexto (Tabla original, Vista educativa, Resultado, Resultado Oracle, Antes, Después), recuento, `caption`, encabezados semánticos, números a la derecha y tabulares, NULL como insignia con texto «valor nulo» y ESTADO con símbolo y texto. Tabla cuando cabe; fichas por registro con campos agrupados cuando no. |
+| Vista de datos | `DataView`: rótulo de contexto (Tabla original, Vista educativa, Resultado, Resultado Oracle, Antes, Después), recuento, `caption`, encabezados semánticos, números a la derecha y tabulares, NULL como insignia con texto «valor nulo» y ESTADO con símbolo y texto. Siempre tabular para resultados SQL: tabla completa cuando cabe; si no, partes o grupos de columnas con pestañas. |
 | Pieza arrastrable | Texto de la columna o fragmento SQL, estado disponible/seleccionado/ubicado y controles alternativos para insertar, mover y retirar. |
 | Feedback | «Correcto», «Revisa…» o «Servicio no disponible» con explicación específica. No usar solo verde/rojo. |
 | Temporizador | Tiempo restante o transcurrido y modo explícito. Avisos accesibles a 30 y 10 segundos; no anunciar cada segundo. |
@@ -102,17 +102,22 @@ La Exposición, el Estudio, los Recursos y el buscador la presentan de formas di
 
 `src/presentation/components/data/data-view.tsx` calcula el ancho, en em, que necesita cada representación. Las consultas de contenedor (`_data-view.scss`, umbrales de 12 a 120 em, clases `dv-fit-N` y `dv-above-N`) muestran la primera que cabe en el espacio real, sin JavaScript ni saltos de diseño. La decisión depende del ancho disponible, no de un punto de corte de la ventana.
 
+Una consulta SQL devuelve filas y columnas, así que su representación es **siempre tabular** (28 de septiembre de 2026). Las fichas verticales por registro quedan prohibidas como representación de un resultado.
+
 | Espacio | Representación |
 | --- | --- |
-| Suficiente | Tabla completa: encabezado discreto, separadores suaves, hover, radio y sombra mínima. |
-| No cabe y hay 7–12 columnas | **Bandas sincronizadas**: el mismo resultado en dos o tres tablas con las mismas filas, en el mismo orden, y la columna ancla (ID_EMPLEADO o la primera) repetida en cada banda como encabezado de fila. Una nota lo dice: «Mismo resultado en 2 partes…». |
-| Tampoco caben las bandas | Fichas por registro con los campos agrupados (Estudio, Exposición en móvil). |
+| Suficiente (escritorio, 1280 px o más) | Tabla completa: encabezado discreto, separadores suaves, hover, radio y sombra mínima. |
+| No cabe y hay 7–12 columnas (tableta, zoom 125 %) | **Dos o tres partes** con pestañas (`ColumnTabs`): los grupos semánticos reunidos («Identidad, organización y compensación»), con ID_EMPLEADO y NOMBRE repetidos y las mismas filas. Con pocas filas (Home, escena 06, `fallback="bands"`), las partes se apilan en bandas para verlas a la vez. |
+| Teléfono | **Grupos de como mucho cuatro columnas**, uno a la vista con pestañas: ID_EMPLEADO, NOMBRE y dos columnas de un grupo (Identidad, Organización, Compensación, Empleo, Contacto y jefe). La columna «¿Cumple?» cuenta dentro de las cuatro. |
 
-- **Grupos de EMPLEADOS:** Identidad, Organización, Compensación, Empleo y Contacto.
-- **Cortes de las bandas (`planBands`):** contiguos, sin cambiar el orden de las columnas; ganan la banda más ancha más estrecha y, a igualdad, el reparto más equilibrado.
-- **Resumen de fichas:** `detail="summary"` solo afecta a las fichas (campos prioritarios y «Ver registro completo»); la tabla y las bandas muestran siempre todas las columnas.
-- **Tabla de resultados SQL (`size="compact"`, `fallback="bands"`):** la del laboratorio y la de datos completos. Letra de 13–14 px, encabezados monoespaciados que se parten tras «_» (FECHA_ / INGRESO), textos largos en dos líneas (CARGO, DEPARTAMENTO, CORREO tras la arroba), números y fechas enteros a la derecha, filas alternas muy suaves y encabezado fijo al desplazar la página. Nunca se convierte en fichas: en tableta y móvil se reparte en 2 a 11 bandas.
-- **Explorador de datos (`DatasetExplorer`):** la tabla EMPLEADOS completa con un selector de columnas por grupos («Todas», Identidad…); ID_EMPLEADO siempre a la vista. Se enmarca en gris y con borde discontinuo (datos de origen); el resultado de una consulta lleva el acento azul (`dv--result`).
+- **Grupos de pestañas (`EMPLEADOS_TAB_GROUPS`):** Identidad (APELLIDO, CARGO), Organización (DEPARTAMENTO, CIUDAD), Compensación (SALARIO, BONO), Empleo (FECHA_INGRESO, ESTADO) y Contacto y jefe (CORREO, ID_JEFE). Un resultado parcial agrupa cada columna con su grupo; si un grupo está incompleto, la pestaña se nombra con sus columnas.
+- **Pestañas accesibles:** `role="tablist"`, `tab` y `tabpanel`; flechas, Inicio y Fin; un solo panel visible (el resto con `hidden`).
+- **Teléfonos (menos de 768 px):** si el contenedor es estrecho, relleno menor, encabezados que se parten tras «_», textos largos en dos líneas solo si hace falta, «¿Cumple?» solo con su símbolo (el texto sigue para lectores de pantalla) y letra de tabla de 12 px como mínimo. Estas reglas no afectan al lienzo del proyector.
+- **Marco de la tabla:** `.dv__table` es el bloque contenedor de sus textos ocultos, así que una tabla que se desplaza en su marco (solo a 180 px) nunca ensancha la página.
+- **Fichas:** solo `fallback="records"`, para tablas de referencia que no son un resultado SQL (resumen del Challenge, tabla de referencia de Recursos).
+- **Tabla de resultados SQL (`size="compact"`):** la del laboratorio y la de datos completos. Letra de 13–14 px (12 px a 320), encabezados monoespaciados que se parten tras «_» (FECHA_ / INGRESO), textos largos en dos líneas (CARGO, DEPARTAMENTO, CORREO tras la arroba), números y fechas enteros a la derecha, filas alternas muy suaves y encabezado fijo al desplazar la página.
+- **Datos de origen (`DatasetExplorer`):** la tabla EMPLEADOS completa, enmarcada en gris y con borde discontinuo; el resultado de una consulta lleva el acento azul (`dv--result`).
+- **«Qué cambió» (`ChangeSummary`):** filas y columnas antes → después (lo que cambia en color y negrita, con texto para lectores de pantalla), orden nuevo o encabezado nuevo, y el recuento en la tabla completa. En la Exposición ocupa la línea de resumen del resultado; en el Challenge acompaña al resultado de la consulta.
 - **Esquema:** `SchemaCards` muestra el esquema por grupos (nombre, tipo Oracle y NULL) y sustituye los diccionarios en tabla.
 - **Excepción:** en el lienzo 16:9 de la Exposición las tablas se diseñan para caber y se muestran siempre como tabla. Las pruebas visuales lo verifican a 1920, 1366, 1280 y 1024 píxeles.
 

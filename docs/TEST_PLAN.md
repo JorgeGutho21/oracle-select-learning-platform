@@ -220,6 +220,17 @@ La auditoría de antes y después (615 mediciones y 123 capturas por pasada) est
 - `tests/e2e/presentation.spec.ts`: las escenas de filtro y orden muestran los cuatro pasos del flujo; «Paso a paso» resalta WHERE en el paso 2.
 - `tests/integration/oracle-real.test.ts`: las consultas de las proyecciones didácticas dan en Oracle el mismo resultado que el motor.
 
+**Rediseño pedagógico del Challenge y de las tablas (28 de septiembre de 2026):**
+
+- `tests/unit/challenge/missions.test.ts`: Challenge v4 (68 pruebas): cada misión acepta su solución y formas equivalentes, y explica cada error esperable con tipo, qué está bien y qué revisar; M03 orienta cada afirmación sin revelarla; M04 no nombra las filas que faltan; M05 no da el valor; las ocho variantes de M08 (tipo, zona y corrección); M09 distingue OR/AND y >/>=; M10 califica la salida de Oracle y recuerda que AND va antes que OR; la parte pública no contiene pistas, explicaciones ni correcciones.
+- `tests/unit/challenge/mission-density.test.tsx`: muestras de trabajo de 4–8 registros y como mucho 4 columnas, tabla real con el dataset completo como consulta secundaria, esquema 3 × 4 de M03, tabla de selección con casillas y estados con texto, resultado sobre la muestra, orden de cálculo sin valores y variante estable de M08.
+- `tests/unit/data-view.test.tsx`: cinco grupos de cuatro columnas con ID_EMPLEADO y NOMBRE, pestañas con teclado, dos partes en tableta, bandas apiladas con pocas filas, tablas de hasta cuatro columnas sin reparto, resultados parciales, nunca fichas para un resultado SQL.
+- `tests/unit/presentation-scenes.test.tsx`: «Qué cambió» en las escenas de concepto (SELECT cambia columnas, WHERE filas, ORDER BY solo el orden).
+- `tests/e2e/challenge-m01-m03.spec.ts`, `challenge-m04-m07.spec.ts` y `challenge-m08-m10.spec.ts`: recorridos con toque, ratón y teclado, feedback por tipo, antes/después de M04, M06 y M07, variantes de M08 y M10 con Oracle real.
+- `tests/e2e/visual-challenge.spec.ts`: las diez misiones a 1920, 1366, 1280, 1024, 820, 768, 430, 390, 360 y 320 px sin barra horizontal, con como mucho 8 registros, 4 columnas a la vez en el móvil (5 con la casilla de M04), sin fichas y sin texto de menos de 12 px; dataset completo en un diálogo y por grupos en el móvil.
+- `tests/e2e/lab-result-table.spec.ts`: `SELECT *` por partes o grupos con pestañas a 1024, 768, 430, 390, 360 y 320 px, con las 12 columnas entre todos los grupos, las 20 filas en cada uno y navegación con teclado.
+- `tests/e2e/audit-regressions.spec.ts` y `reflow.spec.ts`: sin desborde de página a 180 px (zoom 200 % sobre 360) en Aprender y en las diez misiones.
+
 ## Salida a producción
 
 La entrega funcional se acepta cuando P01–P18 pasan, G01–G15 y LAB01–LAB16 están cubiertos, invariantes DB01–DB07 y reglas R01–R11 son verificadas, y C01–C05 y D01–D08 pasan revisión editorial/visual. U01–U08 y A01–A07 se verifican mediante flujos, seguridad y recuperación descritos aquí.
