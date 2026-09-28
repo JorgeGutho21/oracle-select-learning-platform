@@ -710,7 +710,79 @@
   font-size: 1.1em;
 }
 
-/* ---------- 04 EMPLEADOS ---------- */
+/* ---------- 04 Tabla EMPLEADOS ---------- */
+
+// La tabla base completa (20 filas × 12 columnas) antes de la primera consulta. En el lienzo
+// 16:9 se ve entera, sin barra ni pestañas: letra y relleno más compactos solo en esta tabla
+// y filas alternas. En flujo (móvil, zoom alto) es una vista de datos más, con grupos de
+// columnas en pestañas.
+.scene-full-table {
+  display: grid;
+  gap: 0.4em;
+  align-content: start;
+  min-width: 0;
+}
+.scene-full-table__intro {
+  font-size: 0.74em;
+}
+.scene-full-table__legend {
+  color: var(--scene-muted);
+  font-size: max(0.66em, 12px);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.scene .dv--dataset-full tbody tr:nth-child(even) > * {
+  background: color-mix(in srgb, var(--color-page) 55%, var(--color-surface));
+}
+.scene .dv--dataset-full tbody tr:hover > * {
+  background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface));
+}
+@mixin full-table-canvas {
+  // La tabla ocupa parte del margen lateral del lienzo (el título no se mueve): así los 12
+  // atributos caben en una línea por registro también en 1366×768 y 1280×720.
+  .dv--dataset-full {
+    margin-inline: -1em;
+    font-size: 0.6em;
+  }
+  .dv--dataset-full table {
+    line-height: 1.2;
+  }
+  .dv--dataset-full > .dv__groups {
+    display: none;
+  }
+  .dv--dataset-full th,
+  .dv--dataset-full td {
+    padding: 0.16em 0.3em;
+  }
+  .dv--dataset-full td:not(.dv__state):not(.is-wrap) {
+    white-space: nowrap;
+  }
+  // Encabezados a la altura de los datos; los largos se parten tras «_» (FECHA_ / INGRESO).
+  .dv--dataset-full thead th {
+    font-size: 1em;
+    line-height: 1.2;
+    vertical-align: bottom;
+    white-space: normal;
+  }
+  // Insignias de NULL y ESTADO en línea, sin alto extra: la fila mide lo que su texto
+  // aunque la insignia conserve sus 12 px mínimos en lienzos pequeños.
+  .dv--dataset-full .dv-null,
+  .dv--dataset-full .dv-status {
+    display: inline;
+    padding: 0 0.45em;
+    line-height: 1;
+  }
+}
+@media (min-width: 768px) and (orientation: landscape) and (min-height: 561px) {
+  .deck:not([data-flow]) .deck__stage .scene {
+    @include full-table-canvas;
+  }
+}
+.presenter-stage .scene {
+  @include full-table-canvas;
+}
+
+/* ---------- 05 EMPLEADOS ---------- */
 
 .metric-strip {
   display: flex;
@@ -776,7 +848,7 @@
   padding: 0.05em 0.2em;
 }
 
-/* ---------- 05 SELECT y FROM ---------- */
+/* ---------- 06 SELECT y FROM ---------- */
 
 .ask-cards {
   display: grid;
@@ -819,7 +891,7 @@
   background: var(--color-sem-from);
 }
 
-/* ---------- 06 SELECT * ---------- */
+/* ---------- 07 SELECT * ---------- */
 
 .column-grid {
   display: grid;
@@ -865,7 +937,7 @@
   vertical-align: -0.05em;
   content: '';
 }
-/* ---------- 08 Expresiones ---------- */
+/* ---------- 09 Expresiones ---------- */
 
 .expression-card {
   display: grid;
@@ -916,7 +988,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- 12 Comparaciones ---------- */
+/* ---------- 13 Comparaciones ---------- */
 
 .comparator-scale {
   display: grid;
@@ -980,7 +1052,7 @@
   font-size: 1.35em;
 }
 
-/* ---------- 13 AND y OR ---------- */
+/* ---------- 14 AND y OR ---------- */
 
 .logic-panel {
   display: grid;
@@ -1084,7 +1156,7 @@
   color: var(--color-primary);
 }
 
-/* ---------- 15 BETWEEN ---------- */
+/* ---------- 16 BETWEEN ---------- */
 
 .range-line {
   display: grid;
@@ -1139,7 +1211,7 @@
   font-weight: 700;
 }
 
-/* ---------- 16 IN ---------- */
+/* ---------- 17 IN ---------- */
 
 .list-chips {
   display: flex;
@@ -1171,7 +1243,7 @@
   font-weight: 700;
 }
 
-/* ---------- 17 LIKE ---------- */
+/* ---------- 18 LIKE ---------- */
 
 .scene-wildcards {
   display: grid;
@@ -1245,7 +1317,7 @@
   text-decoration-color: color-mix(in srgb, var(--color-danger) 55%, transparent);
 }
 
-/* ---------- 18 NULL ---------- */
+/* ---------- 19 NULL ---------- */
 
 .null-facts {
   display: flex;
@@ -1270,7 +1342,7 @@
   font-weight: 500;
 }
 
-/* ---------- 19 ORDER BY ---------- */
+/* ---------- 20 ORDER BY ---------- */
 
 .sort-badges {
   display: grid;
@@ -1291,7 +1363,7 @@
   border-color: var(--color-cyan);
 }
 
-/* ---------- 20 Anatomía ---------- */
+/* ---------- 21 Anatomía ---------- */
 
 .anatomy {
   display: grid;
@@ -1400,7 +1472,7 @@
   font-size: 1.3em;
 }
 
-/* ---------- 21 Construcción ---------- */
+/* ---------- 22 Construcción ---------- */
 
 .scene-stepper {
   display: grid;
@@ -1453,7 +1525,7 @@
   gap: 0.5em;
 }
 
-/* ---------- 22 Errores ---------- */
+/* ---------- 23 Errores ---------- */
 
 .error-cards {
   display: grid;
@@ -1521,7 +1593,7 @@
   line-height: 1.3;
 }
 
-/* ---------- 23 Laboratorio ---------- */
+/* ---------- 24 Laboratorio ---------- */
 
 .lab-preview {
   display: grid;
@@ -1604,7 +1676,7 @@
   transform: translateY(-50%);
 }
 
-/* ---------- 24 Challenge ---------- */
+/* ---------- 25 Challenge ---------- */
 
 .mission-path {
   display: grid;
@@ -1665,7 +1737,7 @@
   align-items: center;
 }
 
-/* ---------- 26 Video y 27 Reto ---------- */
+/* ---------- 27 Video y 28 Reto ---------- */
 
 .scene .video-player {
   width: min(100%, 36em);
@@ -1745,7 +1817,7 @@
   font-weight: 650;
 }
 
-/* ---------- 28 Próximamente ---------- */
+/* ---------- 29 Próximamente ---------- */
 
 .level-roadmap {
   display: grid;
@@ -1785,7 +1857,7 @@
   font-weight: 700;
 }
 
-/* ---------- 29 Cierre ---------- */
+/* ---------- 30 Cierre ---------- */
 
 .scene-closing {
   display: grid;
@@ -2154,7 +2226,7 @@
   color: var(--color-danger);
 }
 
-// 06 SELECT *: la tabla como objeto, la consulta y sus partes arriba; el resultado con las
+// 07 SELECT *: la tabla como objeto, la consulta y sus partes arriba; el resultado con las
 // 12 columnas (en bandas) a todo el ancho.
 .star-flow {
   display: grid;
@@ -2219,7 +2291,7 @@
   white-space: nowrap;
 }
 
-// 12 Comparaciones: los seis operadores en una línea.
+// 13 Comparaciones: los seis operadores en una línea.
 .operator-strip {
   display: flex;
   flex-wrap: wrap;
@@ -2241,7 +2313,7 @@
   font-weight: 800;
 }
 
-// 14 Paréntesis: candidatas → dos consultas → dos resultados.
+// 15 Paréntesis: candidatas → dos consultas → dos resultados.
 .scene-grid--paren {
   grid-template-columns: minmax(0, 1.05fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 0.6em 0.75em;
@@ -2267,7 +2339,7 @@
   font-weight: 700;
 }
 
-// 15 BETWEEN: la recta reducida bajo el resultado.
+// 16 BETWEEN: la recta reducida bajo el resultado.
 .range-line--compact svg {
   max-height: 4.2em;
 }
@@ -2275,7 +2347,7 @@
   font-size: max(0.7em, 12px);
 }
 
-// 17 LIKE: otros tres patrones en una fila, cada uno con sus ejemplos en una línea.
+// 18 LIKE: otros tres patrones en una fila, cada uno con sus ejemplos en una línea.
 .pattern-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2376,7 +2448,7 @@
   line-height: 1.3;
 }
 
-/* ---------- 20 Anatomía: resultado ---------- */
+/* ---------- 21 Anatomía: resultado ---------- */
 
 .anatomy-result {
   color: var(--scene-muted);
@@ -2386,7 +2458,7 @@
   color: var(--color-cyan);
 }
 
-/* ---------- 25 Qué aprendimos ---------- */
+/* ---------- 26 Qué aprendimos ---------- */
 
 .scene-subtitle {
   margin: 0;
@@ -2438,7 +2510,7 @@
   font-weight: 700;
 }
 
-/* ---------- 27 Reto en vivo ---------- */
+/* ---------- 28 Reto en vivo ---------- */
 
 .scene-grid--live {
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
@@ -2472,7 +2544,7 @@
   line-height: 1.3;
 }
 
-/* ---------- 28 Siguiente ruta recomendada ---------- */
+/* ---------- 29 Siguiente ruta recomendada ---------- */
 
 .future-roadmap {
   display: grid;
@@ -2512,7 +2584,7 @@
   font-weight: 700;
 }
 
-/* ---------- 29 Cierre ---------- */
+/* ---------- 30 Cierre ---------- */
 
 .scene-grid--closing {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);

@@ -120,9 +120,9 @@ test.describe('Videos de la unidad', () => {
       page.getByRole('region', { name: 'Repasa y pon a prueba lo aprendido' }),
     ).toHaveCount(0);
 
-    await page.goto('/presentation?scene=26');
+    await page.goto('/presentation?scene=27');
     await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true');
-    const scene = page.locator('[data-scene="26"] .video-player');
+    const scene = page.locator('[data-scene="27"] .video-player');
     await expect(scene.locator('video, [role="alert"]')).toHaveCount(1);
     const frame = await scene.locator('.video-player__frame').boundingBox();
     expect(frame!.width / frame!.height).toBeCloseTo(16 / 9, 1);

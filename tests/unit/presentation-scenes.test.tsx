@@ -10,6 +10,8 @@ import {
   RENDERED_SCENES,
   renderScene,
 } from '@/features/presentation/presentation/presentation-scenes';
+import { datasetRows, EMPLEADOS } from '@/features/laboratory/application/lab-api';
+import { formatCell } from '@/presentation/components/data/cell-format';
 
 /**
  * Palabras explicativas visibles: sin tablas, código, controles ni textos ocultos. Los
@@ -49,36 +51,37 @@ describe('escenas del Modo Exposición', () => {
   );
 
   it('las definiciones de las escenas son las de la fuente conceptual única', () => {
-    const { container } = render(<>{renderScene(11)}</>);
+    const { container } = render(<>{renderScene(12)}</>);
     expect(container.querySelector('.concept-intro__text')?.textContent).toBe(
       SQL_CONCEPTS.where.definition,
     );
-    const inScene = render(<>{renderScene(16)}</>).container;
+    const inScene = render(<>{renderScene(17)}</>).container;
     expect(inScene.querySelector('.concept-intro__text')?.textContent).toBe(
       SQL_CONCEPTS.in.definition,
     );
     // La categoría correcta: IN es una condición; AND, un operador lógico.
     expect(inScene.querySelector('.scene__category')?.textContent).toBe('Condición');
-    const andOr = render(<>{renderScene(13)}</>).container;
+    const andOr = render(<>{renderScene(14)}</>).container;
     expect(andOr.querySelector('.scene__category')?.textContent).toBe('Operador lógico');
   });
 
   it('las tablas de las escenas muestran como máximo 8 filas y anuncian el total', () => {
-    for (const scene of SCENES) {
+    // La tabla base (04) es la excepción deliberada: presenta EMPLEADOS completa.
+    for (const scene of SCENES.filter(({ id }) => id !== 'tabla-empleados')) {
       const { container, unmount } = render(<>{renderScene(scene.number)}</>);
       for (const table of container.querySelectorAll('.dv__table tbody')) {
         expect(table.querySelectorAll('tr').length, scene.id).toBeLessThanOrEqual(8);
       }
       unmount();
     }
-    const { container } = render(<>{renderScene(4)}</>);
+    const { container } = render(<>{renderScene(5)}</>);
     expect(container.textContent).toContain('3 de 20 filas');
     // EMPLEADOS presenta sus 12 campos agrupados, no solo una tabla.
     expect(container.querySelectorAll('.schema-group li')).toHaveLength(12);
   });
 
   it('BETWEEN muestra los límites incluidos, los valores justo fuera y el rango', () => {
-    const { container } = render(<>{renderScene(15)}</>);
+    const { container } = render(<>{renderScene(16)}</>);
     const text = container.textContent ?? '';
     for (const name of ['Sofía', 'María', 'Valentina', 'Daniela']) expect(text).toContain(name);
     expect(container.querySelectorAll('tr.is-discarded').length).toBeGreaterThan(0);
@@ -92,12 +95,12 @@ describe('escenas del Modo Exposición', () => {
   });
 
   it('LIKE marca la parte coincidente de cada nombre', () => {
-    const { container } = render(<>{renderScene(17)}</>);
+    const { container } = render(<>{renderScene(18)}</>);
     expect(container.querySelectorAll('.dv-like__literal').length).toBeGreaterThan(0);
   });
 
   it('ORDER BY compara el orden original con el ordenado e indica el sentido', () => {
-    const { container } = render(<>{renderScene(19)}</>);
+    const { container } = render(<>{renderScene(20)}</>);
     expect(container.querySelectorAll('th[aria-sort="descending"]').length).toBeGreaterThan(0);
     expect(container.textContent).toContain('Tabla de origen');
     expect(container.textContent).toContain('ASC: de menor a mayor');
@@ -107,20 +110,20 @@ describe('escenas del Modo Exposición', () => {
     const change = (number: number) =>
       render(<>{renderScene(number)}</>).container.querySelector('.flow-change')?.textContent ?? '';
     // SELECT cambia columnas y conserva las filas.
-    expect(change(5)).toMatch(/Filas\s*4\s*sin cambios/);
-    expect(change(5)).toMatch(/Columnas\s*3\s*→/);
+    expect(change(6)).toMatch(/Filas\s*4\s*sin cambios/);
+    expect(change(6)).toMatch(/Columnas\s*3\s*→/);
     // WHERE cambia filas y conserva las columnas.
-    expect(change(11)).toMatch(/Filas\s*6\s*→/);
-    expect(change(11)).toMatch(/Columnas\s*3\s*sin cambios/);
+    expect(change(12)).toMatch(/Filas\s*6\s*→/);
+    expect(change(12)).toMatch(/Columnas\s*3\s*sin cambios/);
     // ORDER BY: mismas filas y columnas, en otro orden.
-    expect(change(19)).toMatch(/Filas\s*5\s*sin cambios/);
-    expect(change(19)).toContain('nuevo orden de las mismas filas');
-    for (const number of [5, 11, 12, 16, 17, 18, 19])
+    expect(change(20)).toMatch(/Filas\s*5\s*sin cambios/);
+    expect(change(20)).toContain('nuevo orden de las mismas filas');
+    for (const number of [6, 12, 13, 17, 18, 19, 20])
       expect(change(number), `${number}`).toContain('tabla completa');
   });
 
   it('IN se define antes de compararlo con OR', () => {
-    const { container } = render(<>{renderScene(16)}</>);
+    const { container } = render(<>{renderScene(17)}</>);
     const text = container.textContent ?? '';
     expect(text.indexOf('Equivale a')).toBeGreaterThan(-1);
     expect(text.indexOf(SQL_CONCEPTS.in.definition)).toBeLessThan(text.indexOf('Equivale a'));
@@ -128,7 +131,7 @@ describe('escenas del Modo Exposición', () => {
 });
 
 describe('estructura de la exposición', () => {
-  it('cinco bloques cubren las 29 escenas en orden', () => {
+  it('cinco bloques cubren las 30 escenas en orden', () => {
     expect(SCENE_BLOCKS.map(({ title }) => title)).toEqual([
       'Fundamentos',
       'Consulta',
@@ -183,16 +186,16 @@ describe('cierre pedagógico y mapa de la unidad', () => {
     expect(route.textContent).toContain('Pasaremos de entender una tabla');
   });
 
-  it('«Qué aprendimos» (25) sintetiza nueve competencias y una consulta integradora', () => {
-    const summary = scene(25);
+  it('«Qué aprendimos» (26) sintetiza nueve competencias y una consulta integradora', () => {
+    const summary = scene(26);
     expect(summary.textContent).toContain('Ahora ya puedes…');
     expect(summary.querySelectorAll('.competency-grid__item')).toHaveLength(9);
     expect(summary.querySelector('pre')?.textContent).toMatch(/SELECT DISTINCT ciudad/);
     expect(summary.querySelectorAll('.name-chips li').length).toBeGreaterThan(1);
   });
 
-  it('«Próximos temas» (28) es una ruta de continuidad marcada como próxima', () => {
-    const next = scene(28);
+  it('«Próximos temas» (29) es una ruta de continuidad marcada como próxima', () => {
+    const next = scene(29);
     const topics = next.querySelectorAll('.future-roadmap__item');
     expect(topics).toHaveLength(10);
     for (const topic of topics) expect(topic.textContent).toContain('Próximamente');
@@ -209,8 +212,8 @@ describe('cierre pedagógico y mapa de la unidad', () => {
     expect(next.textContent).toContain('No forman parte de la evaluación');
   });
 
-  it('el cierre (29) ilustra del dato a la consulta, deja tres ideas y preguntas de salida', () => {
-    const closing = scene(29);
+  it('el cierre (30) ilustra del dato a la consulta, deja tres ideas y preguntas de salida', () => {
+    const closing = scene(30);
     const figure = closing.querySelector('svg[role="img"]');
     expect(figure?.getAttribute('aria-label')).toMatch(/Del dato a la consulta/);
     expect(closing.querySelectorAll('.closing-ideas li')).toHaveLength(3);
@@ -222,8 +225,8 @@ describe('cierre pedagógico y mapa de la unidad', () => {
     expect(closing.textContent).toContain('ahora sabes hacerle preguntas');
   });
 
-  it('los errores frecuentes (22) cubren coma, FROM, columna, = NULL, DISTINCT y comillas', () => {
-    const titles = [...scene(22).querySelectorAll('.error-card__title')].map((t) => t.textContent);
+  it('los errores frecuentes (23) cubren coma, FROM, columna, = NULL, DISTINCT y comillas', () => {
+    const titles = [...scene(23).querySelectorAll('.error-card__title')].map((t) => t.textContent);
     expect(titles).toEqual([
       'Falta la coma',
       'Falta FROM',
@@ -234,6 +237,36 @@ describe('cierre pedagógico y mapa de la unidad', () => {
     ]);
   });
 
+  it('la tabla base (04) muestra EMPLEADOS completa: 20 filas y 12 columnas del dataset', () => {
+    const base = scene(4);
+    expect(base.querySelector('h1')?.textContent).toBe('Tabla EMPLEADOS');
+    expect(base.querySelector('.concept-intro__text')?.textContent).toBe(
+      'Estos son los datos que utilizaremos durante toda la unidad.',
+    );
+    expect(base.textContent).toContain('La tabla EMPLEADOS contiene 20 registros y 12 atributos.');
+    expect(base.textContent).toContain('20 empleados · 12 atributos · tabla base de la unidad');
+    // La tabla completa (la primera representación) repite el dataset celda a celda.
+    const table = base.querySelector('.dv__table table')!;
+    const headers = [...table.querySelectorAll('thead th')].map((th) => th.textContent);
+    expect(headers).toEqual(EMPLEADOS.columns.map(({ name }) => name));
+    const body = [...table.querySelectorAll('tbody tr')];
+    expect(body).toHaveLength(20);
+    body.forEach((row, index) => {
+      const cells = [...row.children].map((cell) =>
+        cell.querySelector('.dv-null') ? null : cell.textContent,
+      );
+      const expected = datasetRows()[index]!.map((value, column) =>
+        value === null
+          ? null
+          : EMPLEADOS.columns[column]!.name === 'ESTADO'
+            ? expect.stringMatching(new RegExp(`\\s${String(value)}$`))
+            : formatCell(value),
+      );
+      expect(cells, `fila ${index + 1}`).toEqual(expected);
+    });
+    expect(base.querySelectorAll('.dv-record')).toHaveLength(0);
+  });
+
   it('SQL (03) define el lenguaje y su vocabulario: tabla, fila, columna y consulta', () => {
     const sql = scene(3);
     expect(sql.querySelector('.concept-intro__use')?.textContent).toContain('mediante SELECT');
@@ -242,7 +275,7 @@ describe('cierre pedagógico y mapa de la unidad', () => {
   });
 
   it('las escenas de filtrado dicen para qué sirve cada concepto', () => {
-    for (const number of [11, 12, 13, 14, 15, 16, 17, 18, 19]) {
+    for (const number of [12, 13, 14, 15, 16, 17, 18, 19, 20]) {
       expect(scene(number).querySelector('.concept-intro__use'), `escena ${number}`).not.toBeNull();
     }
   });

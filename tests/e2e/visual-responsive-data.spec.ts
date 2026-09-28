@@ -10,14 +10,14 @@ test('EMPLEADOS: tabla en escritorio ancho y grupos de cuatro columnas en móvil
   page,
 }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.goto('/presentation?scene=4');
-  const scene = page.locator('[data-scene="4"]');
+  await page.goto('/presentation?scene=5');
+  const scene = page.locator('[data-scene="5"]');
   await expect(scene.getByRole('table')).toBeVisible();
   await expect(scene.getByRole('columnheader')).toHaveCount(8);
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/presentation?scene=4');
-  const mobile = page.locator('[data-scene="4"]');
+  await page.goto('/presentation?scene=5');
+  const mobile = page.locator('[data-scene="5"]');
   const groups = mobile.locator('.dv__groups:visible');
   await expect(groups).toHaveCount(1);
   await expect(mobile.locator('.dv-record:visible')).toHaveCount(0);
@@ -44,8 +44,8 @@ test('en el Estudio la tabla de origen cabe entera junto a la columna pedida', a
 });
 
 test('NULL es una insignia con texto accesible en todas las vistas', async ({ page }) => {
-  await page.goto('/presentation?scene=18');
-  const nulls = page.locator('[data-scene="18"] .dv-null');
+  await page.goto('/presentation?scene=19');
+  const nulls = page.locator('[data-scene="19"] .dv-null');
   await expect(nulls.first()).toBeVisible();
   await expect(nulls.first()).toContainText('NULL');
   await expect(nulls.first().locator('.visually-hidden')).toHaveText(' (valor nulo)');

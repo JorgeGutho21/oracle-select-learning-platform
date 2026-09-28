@@ -75,13 +75,21 @@ export async function layoutReport(page: Page, scope = 'main'): Promise<LayoutRe
   }, scope);
 }
 
-/** Falla si la página o una región educativa necesita desplazamiento horizontal. */
-export async function expectNoHorizontalScroll(page: Page, label: string, scope = 'main') {
+/**
+ * Falla si la página o una región educativa necesita desplazamiento horizontal. `minFont` es
+ * el tamaño mínimo de texto visible (12 px salvo excepción justificada por quien llama).
+ */
+export async function expectNoHorizontalScroll(
+  page: Page,
+  label: string,
+  scope = 'main',
+  minFont = 12,
+) {
   const report = await layoutReport(page, scope);
   expect(report.pageOverflow, `${label}: la página se desplaza en horizontal`).toBe(0);
   expect(report.scrollers, `${label}: regiones con barra horizontal`).toEqual([]);
   expect(report.clipped, `${label}: texto recortado`).toEqual([]);
-  expect(report.minFont, `${label}: texto demasiado pequeño`).toBeGreaterThanOrEqual(12);
+  expect(report.minFont, `${label}: texto demasiado pequeño`).toBeGreaterThanOrEqual(minFont);
   return report;
 }
 

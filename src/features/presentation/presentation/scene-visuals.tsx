@@ -15,7 +15,7 @@ import {
  * los recuentos se calculan en `presentation-scenes.tsx` con el motor educativo.
  */
 
-/* ---------- Ruta de aprendizaje (escenas 02 y 25) ---------- */
+/* ---------- Ruta de aprendizaje (escenas 02 y 26) ---------- */
 
 export interface RouteStage {
   /** Letra del bloque en el mapa: A, B, C… */
@@ -100,7 +100,7 @@ export function SqlJourney({
   );
 }
 
-/* ---------- Cifras (escena 04) ---------- */
+/* ---------- Cifras (escena 05) ---------- */
 
 export function MetricStrip({
   items,
@@ -118,7 +118,7 @@ export function MetricStrip({
   );
 }
 
-/* ---------- AND y OR (escena 13) ---------- */
+/* ---------- AND y OR (escena 14) ---------- */
 
 function Truth({ value }: { readonly value: boolean }) {
   return (
@@ -196,7 +196,7 @@ export function LogicPanel({
   );
 }
 
-/* ---------- BETWEEN (escena 15) ---------- */
+/* ---------- BETWEEN (escena 16) ---------- */
 
 export function RangeLine({
   low,
@@ -289,7 +289,7 @@ export function RangeLine({
   );
 }
 
-/* ---------- LIKE (escena 17) ---------- */
+/* ---------- LIKE (escena 18) ---------- */
 
 export function PatternCard({
   pattern,
@@ -339,7 +339,7 @@ export function PatternCard({
   );
 }
 
-/* ---------- Tabla como objeto (escena 06) ---------- */
+/* ---------- Tabla como objeto (escena 07) ---------- */
 
 /** La tabla de origen como objeto: nombre y dimensiones, con un icono de rejilla. */
 export function TableCard({
@@ -363,7 +363,7 @@ export function TableCard({
   );
 }
 
-/* ---------- Operadores de comparación (escena 12) ---------- */
+/* ---------- Operadores de comparación (escena 13) ---------- */
 
 export function OperatorStrip({
   items,
@@ -381,7 +381,7 @@ export function OperatorStrip({
   );
 }
 
-/* ---------- Paréntesis (escena 14) ---------- */
+/* ---------- Paréntesis (escena 15) ---------- */
 
 export interface ParenthesesRow {
   readonly name: string;
@@ -428,7 +428,7 @@ export function ParenthesesTable({ rows }: { readonly rows: readonly Parentheses
   );
 }
 
-/* ---------- Anatomía (escena 20) ---------- */
+/* ---------- Anatomía (escena 21) ---------- */
 
 export interface AnatomyClause {
   readonly role: 'select' | 'from' | 'where' | 'order';
@@ -490,7 +490,7 @@ export function SqlAnatomy({ clauses }: { readonly clauses: readonly AnatomyClau
   );
 }
 
-/* ---------- Errores (escena 22) ---------- */
+/* ---------- Errores (escena 23) ---------- */
 
 export function ErrorCard({
   title,
@@ -523,7 +523,7 @@ export function ErrorCard({
   );
 }
 
-/* ---------- Challenge (escena 24) ---------- */
+/* ---------- Challenge (escena 25) ---------- */
 
 const DIFFICULTY_LABEL = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' } as const;
 
@@ -554,7 +554,7 @@ export function MissionPath({
   );
 }
 
-/* ---------- Flujos de pasos (escenas 23 y 27) ---------- */
+/* ---------- Flujos de pasos (escenas 24 y 28) ---------- */
 
 export function StepFlow({
   steps,
@@ -578,7 +578,7 @@ export function StepFlow({
   );
 }
 
-/* ---------- Próximos niveles (escena 28) ---------- */
+/* ---------- Próximos niveles (escena 29) ---------- */
 
 export function LevelRoadmap({
   levels,
@@ -604,7 +604,7 @@ export function LevelRoadmap({
   );
 }
 
-/* ---------- Competencias (escena 25) ---------- */
+/* ---------- Competencias (escena 26) ---------- */
 
 export function CompetencyGrid({
   items,
@@ -626,7 +626,7 @@ export function CompetencyGrid({
   );
 }
 
-/* ---------- Ruta de continuidad (escena 28) ---------- */
+/* ---------- Ruta de continuidad (escena 29) ---------- */
 
 export interface FutureTopic {
   readonly title: string;
@@ -654,7 +654,7 @@ export function FutureRoadmap({ topics }: { readonly topics: readonly FutureTopi
   );
 }
 
-/* ---------- Cierre (escena 29): del dato a la consulta ---------- */
+/* ---------- Cierre (escena 30): del dato a la consulta ---------- */
 
 const JOURNEY_NODES = [
   { label: 'Base de datos', role: 'from' },

@@ -11,6 +11,7 @@ import { SQL_CONCEPTS, type ConceptId } from '@/application/sql-concepts';
 import { MISSION_OVERVIEW, PRACTICE_RULES } from '@/features/challenge/application/challenge-api';
 import {
   analyzeLabQuery,
+  datasetRows,
   EMPLEADOS,
   explainQuery,
   type ExplainOptions,
@@ -84,11 +85,11 @@ const nameOf = (id: number) => EMPLEADOS.rows[id - 1]!.NOMBRE;
 const INTEGRATED =
   "SELECT nombre, ciudad, salario\nFROM empleados\nWHERE estado = 'ACTIVO'\n  AND ciudad = 'Bogotá'\n  AND salario BETWEEN 4000000 AND 8000000\nORDER BY salario DESC;";
 
-/** Consulta integradora de «Qué aprendimos» (escena 25). */
+/** Consulta integradora de «Qué aprendimos» (escena 26). */
 const SYNTHESIS =
   'SELECT DISTINCT ciudad\nFROM empleados\nWHERE salario >= 4000000\nORDER BY ciudad;';
 
-/** Qué hace cada parte de la consulta integradora (escena 25). */
+/** Qué hace cada parte de la consulta integradora (escena 26). */
 function part(code: string, concept: ConceptId, text: string): ProjectedPart {
   return { code, concept, title: SQL_CONCEPTS[concept].title, text };
 }
@@ -100,14 +101,14 @@ const SYNTHESIS_PARTS: readonly ProjectedPart[] = [
   part('ORDER BY ciudad', 'order-by', 'en orden alfabético'),
 ];
 
-/** Consulta de la anatomía (escena 20). */
+/** Consulta de la anatomía (escena 21). */
 const ANATOMY_SQL =
   "SELECT nombre, salario\nFROM empleados\nWHERE ciudad = 'Cali'\nORDER BY salario DESC;";
 
 const INTEGRATED_QUESTION =
   'Quiero ver nombre, ciudad y salario de los empleados activos de Bogotá con salarios entre 4 y 8 millones, del mayor al menor.';
 
-// Proyecciones didácticas de las escenas 05–19: muestra de EMPLEADOS, consulta, partes y
+// Proyecciones didácticas de las escenas 06–20: muestra de EMPLEADOS, consulta, partes y
 // resultado sobre esas mismas filas (application/didactic-projection).
 const P = {
   selectFrom: conceptProjection('select-from'),
@@ -161,7 +162,7 @@ const F = {
 const PAREN_WITHOUT = "WHERE ciudad = 'Bogotá'\n   OR ciudad = 'Medellín'\n  AND salario > 5000000";
 const PAREN_WITH = "WHERE (ciudad = 'Bogotá'\n    OR ciudad = 'Medellín')\n  AND salario > 5000000";
 
-/** Candidatas de la escena 14: el veredicto de cada versión sale del motor. */
+/** Candidatas de la escena 15: el veredicto de cada versión sale del motor. */
 const PAREN_ROWS: readonly ParenthesesRow[] = (() => {
   const without = matching(PAREN_WITHOUT.replace(/^WHERE /, ''));
   const withGroup = matching(PAREN_WITH.replace(/^WHERE /, ''));
@@ -293,7 +294,7 @@ const ROUTE: readonly RouteStage[] = [
   },
 ];
 
-/** Lo que el estudiante ya puede hacer (escena 25). */
+/** Lo que el estudiante ya puede hacer (escena 26). */
 const COMPETENCIES = [
   { text: 'Elegir columnas', sql: 'SELECT' },
   { text: 'Consultar una tabla', sql: 'FROM' },
@@ -306,7 +307,7 @@ const COMPETENCIES = [
   { text: 'Ordenar resultados', sql: 'ORDER BY' },
 ] as const;
 
-/** Siguiente ruta recomendada (escena 28): temas futuros, fuera de la evaluación actual. */
+/** Siguiente ruta recomendada (escena 29): temas futuros, fuera de la evaluación actual. */
 const FUTURE_TOPICS: readonly FutureTopic[] = [
   { title: 'Funciones de texto', examples: 'UPPER · LOWER · INITCAP · SUBSTR · LENGTH', level: 2 },
   { title: 'Funciones numéricas', examples: 'ROUND · TRUNC', level: 2 },
@@ -518,6 +519,12 @@ function datasetPreview(names: readonly string[], count: number) {
   };
 }
 
+/** Tabla EMPLEADOS completa (escena 04): todas las filas y columnas del dataset canónico. */
+const FULL_DATASET = {
+  columns: EMPLEADOS.columns.map(({ name, type }) => ({ name, type })),
+  rows: datasetRows(),
+};
+
 /* ---------- Escenas ---------- */
 
 const RENDER: Readonly<Record<string, () => ReactNode>> = {
@@ -581,6 +588,35 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
       </div>
     </Scene>
   ),
+  'tabla-empleados': () => {
+    const rowCount = EMPLEADOS.rows.length;
+    const columnCount = EMPLEADOS.columns.length;
+    return (
+      <Scene
+        id="tabla-empleados"
+        purpose="Estos son los datos que utilizaremos durante toda la unidad."
+        layout="concept"
+        takeaway={false}
+      >
+        <div className="scene-full-table">
+          <p className="scene-full-table__intro">
+            La tabla EMPLEADOS contiene {rowCount} registros y {columnCount} atributos. A partir de
+            ella construiremos y analizaremos las consultas SQL de las siguientes diapositivas.
+          </p>
+          <HighlightTable
+            size="large"
+            caption={`Tabla EMPLEADOS completa: ${rowCount} filas y ${columnCount} columnas`}
+            columns={FULL_DATASET.columns}
+            rows={FULL_DATASET.rows}
+            className="dv--dataset-full"
+          />
+          <p className="scene-full-table__legend">
+            {rowCount} empleados · {columnCount} atributos · tabla base de la unidad
+          </p>
+        </div>
+      </Scene>
+    );
+  },
   empleados: () => {
     const preview = datasetPreview(DATASET_COLUMNS, 3);
     return (
@@ -1237,8 +1273,8 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
           </ol>
         </div>
         <div className="scene-closing">
-          <section className="exit-questions" aria-labelledby="scene-29-questions">
-            <h2 id="scene-29-questions" className="exit-questions__title">
+          <section className="exit-questions" aria-labelledby="scene-30-questions">
+            <h2 id="scene-30-questions" className="exit-questions__title">
               Preguntas de salida
             </h2>
             <ol>

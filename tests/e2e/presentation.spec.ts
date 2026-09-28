@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
-const SCENE_TOTAL = 29;
+const SCENE_TOTAL = 30;
 
 async function sceneTitle(page: Page) {
   return page.locator('.scene__title');
@@ -41,8 +41,13 @@ test.describe('Modo Exposición', () => {
 
     await page.locator('body').press('ArrowRight');
     await expectScene(page, 3, 'Qué es SQL');
+    // 03 → 04 (tabla EMPLEADOS completa) → 05 (Conoce EMPLEADOS) y vuelta.
     await page.locator('body').press('PageDown');
-    await expectScene(page, 4, 'Conoce EMPLEADOS');
+    await expectScene(page, 4, 'Tabla EMPLEADOS');
+    await page.locator('body').press('ArrowRight');
+    await expectScene(page, 5, 'Conoce EMPLEADOS');
+    await page.locator('body').press('ArrowLeft');
+    await expectScene(page, 4, 'Tabla EMPLEADOS');
     await page.locator('body').press('ArrowLeft');
     await expectScene(page, 3, 'Qué es SQL');
     await page.getByRole('button', { name: 'Escena anterior' }).click();
@@ -53,7 +58,7 @@ test.describe('Modo Exposición', () => {
     await page.locator('body').press('Home');
     await expectScene(page, 1, 'SELECT en Oracle SQL');
 
-    // Navegador de escenas: panel con las 29 escenas en cinco bloques.
+    // Navegador de escenas: panel con las 30 escenas en cinco bloques.
     const trigger = page.getByRole('button', { name: 'Escenas' });
     await trigger.click();
     const navigator = page.getByRole('dialog', { name: 'Escenas' });
@@ -68,11 +73,17 @@ test.describe('Modo Exposición', () => {
     await expect(navigator.locator('.deck-navigator__scene')).toHaveCount(SCENE_TOTAL);
     // El foco va a la escena actual.
     await expect(navigator.getByRole('button', { name: 'Escena 1: Portada' })).toBeFocused();
-    await navigator.getByRole('button', { name: 'Escena 10: DISTINCT' }).click();
+    await expect(navigator.locator('.deck-navigator__scene').nth(3)).toContainText(
+      'Tabla EMPLEADOS',
+    );
+    await expect(navigator.locator('.deck-navigator__scene').nth(4)).toContainText(
+      'Conoce EMPLEADOS',
+    );
+    await navigator.getByRole('button', { name: 'Escena 11: DISTINCT' }).click();
     await expect(navigator).toBeHidden();
-    await expectScene(page, 10, 'DISTINCT');
-    await expect(page.getByRole('status').filter({ hasText: 'Escena 10 de' })).toHaveText(
-      `Escena 10 de ${SCENE_TOTAL}: DISTINCT`,
+    await expectScene(page, 11, 'DISTINCT');
+    await expect(page.getByRole('status').filter({ hasText: 'Escena 11 de' })).toHaveText(
+      `Escena 11 de ${SCENE_TOTAL}: DISTINCT`,
     );
     await expect(page.locator('.deck-status__block')).toHaveText('Consulta');
     // Escape cierra el panel sin cambiar de escena y devuelve el foco al botón.
@@ -82,10 +93,13 @@ test.describe('Modo Exposición', () => {
     await page.keyboard.press('Escape');
     await expect(navigator).toBeHidden();
     await expect(trigger).toBeFocused();
-    await expectScene(page, 10, 'DISTINCT');
+    await expectScene(page, 11, 'DISTINCT');
     await trigger.click();
-    await navigator.getByRole('button', { name: 'Escena 19: ORDER BY' }).click();
-    await expectScene(page, 19, 'ORDER BY');
+    await navigator.getByRole('button', { name: 'Escena 4: Tabla EMPLEADOS' }).click();
+    await expectScene(page, 4, 'Tabla EMPLEADOS');
+    await trigger.click();
+    await navigator.getByRole('button', { name: 'Escena 20: ORDER BY' }).click();
+    await expectScene(page, 20, 'ORDER BY');
   });
 
   test('cada escena define su concepto o dice su propósito', async ({ page }) => {
@@ -99,15 +113,15 @@ test.describe('Modo Exposición', () => {
       );
       if (scene < SCENE_TOTAL) await page.locator('body').press('ArrowRight');
     }
-    await openDeck(page, '/presentation?scene=16');
+    await openDeck(page, '/presentation?scene=17');
     await expect(page.locator('.concept-intro')).toContainText(
       'IN comprueba si un valor pertenece a una lista de opciones.',
     );
   });
 
   test('«Paso a paso» revela la escena por partes y se puede desactivar', async ({ page }) => {
-    await openDeck(page, '/presentation?scene=11');
-    const result = page.locator('[data-scene="11"] .reveal').last();
+    await openDeck(page, '/presentation?scene=12');
+    const result = page.locator('[data-scene="12"] .reveal').last();
     await expect(result).toBeVisible();
     await page.getByRole('button', { name: 'Paso a paso' }).click();
     await expect(page.getByRole('button', { name: 'Paso a paso' })).toHaveAttribute(
@@ -125,7 +139,7 @@ test.describe('Modo Exposición', () => {
     await expect(result).not.toHaveAttribute('data-hidden', 'true');
     // Tras el último paso, la flecha pasa a la escena siguiente.
     await page.locator('body').press('ArrowRight');
-    await expectScene(page, 12, 'Comparaciones');
+    await expectScene(page, 13, 'Comparaciones');
     await page.getByRole('button', { name: 'Paso a paso' }).click();
     await expect(page.locator('.deck-status__step')).toHaveCount(0);
   });
@@ -133,16 +147,16 @@ test.describe('Modo Exposición', () => {
   test('las notas del expositor se abren con N y no forman parte de la escena', async ({
     page,
   }) => {
-    await openDeck(page, '/presentation?scene=9');
+    await openDeck(page, '/presentation?scene=10');
     await expect(page.getByRole('complementary', { name: /Notas del expositor/ })).toHaveCount(0);
     await page.locator('body').press('n');
-    const notes = page.getByRole('complementary', { name: 'Notas del expositor · escena 9' });
+    const notes = page.getByRole('complementary', { name: 'Notas del expositor · escena 10' });
     await expect(notes).toBeVisible();
     await expect(notes).toContainText('Pregunta primero qué encabezado aparecerá con salario * 12');
-    await expect(page.locator('[data-scene="9"]')).not.toContainText('Pregunta primero');
+    await expect(page.locator('[data-scene="10"]')).not.toContainText('Pregunta primero');
     await expect(notes.getByRole('link', { name: /vista del presentador/ })).toHaveAttribute(
       'href',
-      '/presentation/presentador?scene=9',
+      '/presentation/presentador?scene=10',
     );
     await page.getByRole('button', { name: 'Notas' }).click();
     await expect(notes).toBeHidden();
@@ -151,22 +165,22 @@ test.describe('Modo Exposición', () => {
   test('la vista del presentador muestra escena, siguiente, notas y controles', async ({
     page,
   }) => {
-    await page.goto('/presentation/presentador?scene=5');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('05 · SELECT y FROM');
+    await page.goto('/presentation/presentador?scene=6');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('06 · SELECT y FROM');
     await expect(page.getByRole('region', { name: 'Escena actual' })).toContainText(
       'SELECT y FROM',
     );
     await expect(page.getByRole('region', { name: 'Escena siguiente' })).toContainText(
-      '06 · SELECT *',
+      '07 · SELECT *',
     );
     await expect(page.getByRole('heading', { name: 'Notas' })).toBeVisible();
     await expect(page.getByRole('timer')).toContainText('00:00');
     await page.getByRole('button', { name: 'Siguiente →' }).click();
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('06 · SELECT *');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('07 · SELECT *');
   });
 
   test('señalar una cláusula resalta sus datos, también con el teclado', async ({ page }) => {
-    await openDeck(page, '/presentation?scene=5');
+    await openDeck(page, '/presentation?scene=6');
     const query = page.locator('.concept-flow');
     const select = query.locator('.sql-clause[data-clause="select"]');
     await select.focus();
@@ -179,28 +193,28 @@ test.describe('Modo Exposición', () => {
   });
 
   test('las flechas no cambian de escena con el buscador abierto', async ({ page }) => {
-    await openDeck(page, '/presentation?scene=5');
+    await openDeck(page, '/presentation?scene=6');
     await expect(page.getByRole('button', { name: 'Buscar' })).toBeEnabled();
     await page.keyboard.press('Control+k');
     const search = page.getByRole('dialog', { name: 'Buscar en SQL SELECT LAB' });
     await expect(search).toBeVisible();
     await page.keyboard.press('ArrowRight');
     await page.keyboard.press('PageDown');
-    await expect(page).toHaveURL(/scene=5$/);
+    await expect(page).toHaveURL(/scene=6$/);
     await page.keyboard.press('Escape');
     await expect(search).toBeHidden();
     await page.locator('body').press('ArrowRight');
-    await expect(page).toHaveURL(/scene=6$/);
+    await expect(page).toHaveURL(/scene=7$/);
   });
 
   test('ofrece reanudar la última escena proyectada', async ({ page }) => {
-    await openDeck(page, '/presentation?scene=7');
+    await openDeck(page, '/presentation?scene=8');
     await expect(await sceneTitle(page)).toHaveText('Columnas específicas');
     await openDeck(page, '/presentation');
     const resume = page.getByRole('region', { name: 'Reanudar la exposición' });
-    await expect(resume).toContainText('7 · Columnas específicas');
-    await resume.getByRole('button', { name: 'Continuar en la escena 7' }).click();
-    await expectScene(page, 7, 'Columnas específicas');
+    await expect(resume).toContainText('8 · Columnas específicas');
+    await resume.getByRole('button', { name: 'Continuar en la escena 8' }).click();
+    await expectScene(page, 8, 'Columnas específicas');
 
     await openDeck(page, '/presentation');
     await page
@@ -215,7 +229,7 @@ test.describe('Modo Exposición', () => {
     page,
   }) => {
     // WHERE, AND y OR, BETWEEN, IN, LIKE, NULL y ORDER BY: evidencia visual del cambio.
-    const scenes = [11, 12, 13, 14, 15, 16, 17, 18, 19];
+    const scenes = [12, 13, 14, 15, 16, 17, 18, 19, 20];
     // Una carga por escena: unos 6 s cada una en WebKit con la CPU del equipo ocupada.
     test.setTimeout(scenes.length * 8_000);
     for (const scene of scenes) {
@@ -226,7 +240,7 @@ test.describe('Modo Exposición', () => {
       const data = node.locator('table');
       await expect(data.first(), `escena ${scene}`).toBeVisible();
       expect(await data.count(), `escena ${scene}`).toBeGreaterThanOrEqual(1);
-      if (scene !== 13 && scene !== 14) {
+      if (scene !== 14 && scene !== 15) {
         for (const step of ['Tabla de origen', 'Consulta', 'Qué hace cada parte', 'Resultado']) {
           await expect(node.locator('.flow-step__title', { hasText: step }).first()).toBeVisible();
         }
@@ -294,22 +308,79 @@ test.describe('Modo Exposición', () => {
     });
   }
 
+  for (const [width, height] of [
+    [1920, 1080],
+    [1366, 768],
+  ] as const) {
+    test(`la tabla EMPLEADOS completa (escena 4) se ve entera a ${width}×${height}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height });
+      await openDeck(page, '/presentation?scene=4');
+      const scene = page.locator('[data-scene="4"]');
+      await expect(scene.locator('.scene__title')).toHaveText('Tabla EMPLEADOS');
+      await expect(scene).toContainText(
+        'Estos son los datos que utilizaremos durante toda la unidad.',
+      );
+      await expect(scene).toContainText('20 empleados · 12 atributos · tabla base de la unidad');
+      // Una sola tabla real, sin pestañas ni fichas: 20 filas y las 12 columnas.
+      const table = scene.getByRole('table', { name: /Tabla EMPLEADOS completa/ });
+      await expect(table).toHaveCount(1);
+      await expect(scene.getByRole('tab')).toHaveCount(0);
+      await expect(scene.locator('.dv-record')).toHaveCount(0);
+      await expect(table.getByRole('columnheader')).toHaveText([
+        'ID_EMPLEADO',
+        'NOMBRE',
+        'APELLIDO',
+        'CARGO',
+        'DEPARTAMENTO',
+        'CIUDAD',
+        'SALARIO',
+        'BONO',
+        'FECHA_INGRESO',
+        'ESTADO',
+        'CORREO',
+        'ID_JEFE',
+      ]);
+      await expect(table.locator('tbody tr')).toHaveCount(20);
+      await expect(table.locator('tbody tr').first()).toContainText('ana.rojas@empresa.example');
+      await expect(table.locator('tbody tr').last()).toContainText('Esteban');
+      const metrics = await table.evaluate((element) => {
+        const stage = document.querySelector('.deck__stage')!.getBoundingClientRect();
+        const region = element.closest('.dv__table')!;
+        const box = element.getBoundingClientRect();
+        return {
+          scroll: region.scrollWidth - region.clientWidth,
+          inside: box.left >= stage.left && box.right <= stage.right && box.bottom <= stage.bottom,
+          // Cada registro en una línea: ninguna fila del cuerpo el doble de alta que otra.
+          rows: [...element.querySelectorAll('tbody tr')].map((row) => row.clientHeight),
+          font: Number.parseFloat(getComputedStyle(element.querySelector('td')!).fontSize),
+        };
+      });
+      expect(metrics.scroll, 'barra horizontal de la tabla').toBeLessThanOrEqual(0);
+      expect(metrics.inside, 'la tabla entera dentro del lienzo').toBe(true);
+      expect(Math.max(...metrics.rows)).toBeLessThan(Math.min(...metrics.rows) * 1.5);
+      // Letra algo menor solo en esta tabla, legible: 11 px en una ventana de 1366×768.
+      expect(metrics.font).toBeGreaterThanOrEqual(11);
+    });
+  }
+
   test('el laboratorio vuelve a la misma escena (U01)', async ({ page }) => {
-    await openDeck(page, '/presentation?scene=23');
+    await openDeck(page, '/presentation?scene=24');
     await expect(await sceneTitle(page)).toHaveText('Laboratorio');
     await page.getByRole('link', { name: /Abrir en Lab/ }).click();
     await expect(page).toHaveURL(/\/lab\?/);
     await page.getByRole('link', { name: /Volver a la escena/ }).click();
-    await expectScene(page, 23, 'Laboratorio');
+    await expectScene(page, 24, 'Laboratorio');
   });
 
   test('el reto explica cómo participar, el QR abre la práctica y enlaza la sala en vivo', async ({
     page,
   }) => {
-    await openDeck(page, '/presentation?scene=27');
+    await openDeck(page, '/presentation?scene=28');
     await expect(await sceneTitle(page)).toHaveText('Reto en vivo');
     // Qué harás, cómo entrar, qué evalúa y qué pasa con el resultado.
-    await expect(page.locator('[data-scene="27"] .live-facts dt')).toHaveText([
+    await expect(page.locator('[data-scene="28"] .live-facts dt')).toHaveText([
       'Qué harás',
       'Cómo entrar',
       'Qué evalúa',
@@ -329,9 +400,9 @@ test.describe('Modo Exposición', () => {
   test('los próximos temas enlazan con la ruta y no se presentan como contenido actual', async ({
     page,
   }) => {
-    await openDeck(page, '/presentation?scene=28');
+    await openDeck(page, '/presentation?scene=29');
     await expect(await sceneTitle(page)).toHaveText('Próximos temas');
-    const scene = page.locator('[data-scene="28"]');
+    const scene = page.locator('[data-scene="29"]');
     await expect(scene).toContainText('JOIN');
     await expect(scene.getByRole('link', { name: 'la ruta de aprendizaje' })).toHaveAttribute(
       'href',
@@ -356,7 +427,7 @@ test.describe('Modo Exposición', () => {
   });
 
   // Una prueba por escena: cada análisis axe tiene su propio presupuesto de tiempo.
-  for (const scene of [1, 5, 9, 10, 11, 13, 17, 18, 19, 21, 23, 27, 28, 29]) {
+  for (const scene of [1, 4, 6, 10, 11, 12, 14, 18, 19, 20, 22, 24, 28, 29, 30]) {
     test(`la escena ${scene} cumple WCAG 2 AA`, async ({ page }) => {
       await openDeck(page, `/presentation?scene=${scene}`);
       await expect(page.locator(`[data-scene="${scene}"]`)).toBeVisible();
@@ -367,7 +438,7 @@ test.describe('Modo Exposición', () => {
 
   test('en móvil la escena fluye sin desplazamiento horizontal', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    const scenes = [1, 5, 9, 10, 14, 17, 19, 21, 27];
+    const scenes = [1, 4, 6, 10, 11, 15, 18, 20, 22, 28];
     test.setTimeout(scenes.length * 8_000);
     for (const scene of scenes) {
       await openDeck(page, `/presentation?scene=${scene}`);

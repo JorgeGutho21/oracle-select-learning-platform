@@ -1,5 +1,5 @@
 /**
- * Guion del Modo Exposición (CONTENT_MAP, «Exposición»): veintinueve escenas para proyector,
+ * Guion del Modo Exposición (CONTENT_MAP, «Exposición»): treinta escenas para proyector,
  * una idea por escena, agrupadas en cinco bloques. El número es el identificador público de
  * `?scene=N`; `id` es estable aunque cambie el orden. `lessons` enlaza cada escena con las
  * lecciones del Modo Estudio que desarrollan el mismo tema en profundidad.
@@ -87,6 +87,20 @@ const OUTLINE: readonly SceneInput[] = [
       mistake: 'Creer que SELECT cambia los datos: solo los lee.',
       question: '¿Qué le preguntarían a la tabla de empleados de una empresa?',
       transition: 'Conozcamos la tabla con la que trabajaremos.',
+    },
+  },
+  {
+    id: 'tabla-empleados',
+    title: 'Tabla EMPLEADOS',
+    shortTitle: 'Tabla completa',
+    block: 'fundamentos',
+    lessons: ['empleados'],
+    notes: {
+      explain:
+        'Muestra la tabla completa antes de consultarla: cada fila es un empleado, cada columna un atributo y cada celda un valor. Todas las consultas de la unidad salen de estos datos.',
+      mistake: 'Leer NULL como cero o como texto vacío: es ausencia de valor.',
+      question: '¿Quiénes no tienen jefe? (Ana y Esteban: ID_JEFE es NULL)',
+      transition: 'Veamos cómo se lee la tabla: fila, columna, celda y tipos de dato.',
     },
   },
   {

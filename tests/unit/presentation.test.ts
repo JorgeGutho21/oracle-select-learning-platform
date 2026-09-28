@@ -14,16 +14,17 @@ import { LESSON_INDEX } from '@/features/study/application/lesson-index';
 import { FUTURE_TOPICS } from '@/features/modules/application/modules-api';
 
 describe('guion del Modo Exposición', () => {
-  it('tiene 29 escenas numeradas en orden, con identificadores únicos', () => {
-    expect(SCENE_TOTAL).toBe(29);
+  it('tiene 30 escenas numeradas en orden, con identificadores únicos', () => {
+    expect(SCENE_TOTAL).toBe(30);
     expect(SCENES.map(({ number }) => number)).toEqual(
-      Array.from({ length: 29 }, (_, index) => index + 1),
+      Array.from({ length: 30 }, (_, index) => index + 1),
     );
-    expect(new Set(SCENES.map(({ id }) => id)).size).toBe(29);
+    expect(new Set(SCENES.map(({ id }) => id)).size).toBe(30);
     expect(SCENES.map(({ title }) => title)).toEqual([
       'Portada',
       'Ruta de aprendizaje',
       'Qué es SQL',
+      'Tabla EMPLEADOS',
       'Conoce EMPLEADOS',
       'SELECT y FROM',
       'SELECT *',
@@ -51,7 +52,9 @@ describe('guion del Modo Exposición', () => {
       'Próximos temas',
       'Cierre',
     ]);
-    expect(sceneNumber('where')).toBe(11);
+    expect(sceneNumber('tabla-empleados')).toBe(4);
+    expect(sceneNumber('empleados')).toBe(5);
+    expect(sceneNumber('where')).toBe(12);
   });
 
   it('cada escena de contenido enlaza con lecciones actuales, nunca con temas futuros', () => {
@@ -71,12 +74,12 @@ describe('guion del Modo Exposición', () => {
   it('interpreta el parámetro de escena sin aceptar valores fuera de rango', () => {
     expect(parseSceneParam('7')).toBe(7);
     expect(parseSceneParam(['12', '3'])).toBe(12);
-    expect(parseSceneParam('29')).toBe(29);
-    for (const value of [undefined, '', '0', '30', '2.5', 'abc', '-1']) {
+    expect(parseSceneParam('30')).toBe(30);
+    for (const value of [undefined, '', '0', '31', '2.5', 'abc', '-1']) {
       expect(parseSceneParam(value)).toBeNull();
     }
     expect(clampScene(0)).toBe(1);
-    expect(clampScene(99)).toBe(29);
+    expect(clampScene(99)).toBe(30);
     expect(clampScene(Number.NaN)).toBe(1);
   });
 });

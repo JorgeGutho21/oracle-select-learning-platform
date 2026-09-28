@@ -4,7 +4,7 @@ Versión 2.1 (26 de septiembre de 2026) · Reingeniería descrita en [CONTENT_RE
 
 Este mapa separa dos cosas que la plataforma nunca mezcla:
 
-- **Contenido actual (Nivel 1, SELECT fundamental):** 22 lecciones en 8 bloques, 29 escenas, laboratorio LAB01–LAB24 y Challenge M01–M10 (`select-challenge-v4`). Todo usa el dataset `empleados-select-v2`.
+- **Contenido actual (Nivel 1, SELECT fundamental):** 22 lecciones en 8 bloques, 30 escenas, laboratorio LAB01–LAB24 y Challenge M01–M10 (`select-challenge-v4`). Todo usa el dataset `empleados-select-v2`.
 - **Próximos niveles (2 a 7):** 46 temas con ficha completa y estado «Próximamente». No tienen lecciones, ni escenas, ni misiones, ni cuentan en el progreso.
 
 ## Principio de enseñanza
@@ -104,7 +104,7 @@ Las partes 7 y 8 salen del SQL del ejemplo. Algunas lecciones añaden comparacio
 
 La navegación entre lecciones cruza los bloques en orden: por ejemplo, de DISTINCT (bloque C) se pasa a WHERE (bloque D). La última lección lleva al SQL Challenge. El progreso guardado de la versión anterior (9 lecciones) se detecta y se ofrece reiniciar; no se mezcla con el actual.
 
-## Modo Exposición: 29 escenas
+## Modo Exposición: 30 escenas
 
 Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
 
@@ -115,18 +115,18 @@ Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
 - la lectura en español cuando aporta;
 - la idea clave;
 - poco texto: una prueba lo limita a 95 palabras explicativas;
-- tablas de 8 filas como máximo, solo con las columnas del concepto;
-- en las escenas de concepto (05–19), el flujo **1 Tabla de origen → 2 Consulta → 3 Qué hace cada parte → 4 Resultado**, con «Qué cambió» (filas y columnas antes → después, orden, tabla completa) en la línea de resumen del resultado, más la idea clave (ver «Proyecciones didácticas»). Cada escena responde: qué es, para qué sirve, cómo se escribe y qué cambia en los datos.
+- tablas de 8 filas como máximo, solo con las columnas del concepto (salvo la tabla base de la 04, que muestra EMPLEADOS completa);
+- en las escenas de concepto (06–20), el flujo **1 Tabla de origen → 2 Consulta → 3 Qué hace cada parte → 4 Resultado**, con «Qué cambió» (filas y columnas antes → después, orden, tabla completa) en la línea de resumen del resultado, más la idea clave (ver «Proyecciones didácticas»). Cada escena responde: qué es, para qué sirve, cómo se escribe y qué cambia en los datos.
 
 **Lienzo:** 16:9, sin desbordes a 1920×1080, 1366×768, 1280×720 ni 1024×768 (pruebas E2E y visuales).
 
-**Bloques:** Fundamentos (01–04), Consulta (05–10), Filtrado (11–18), Orden e integración (19–22), y Práctica y cierre (23–29).
+**Bloques:** Fundamentos (01–05), Consulta (06–11), Filtrado (12–19), Orden e integración (20–23), y Práctica y cierre (24–30).
 
 **Navegación y herramientas:**
 
 - botones Anterior y Siguiente, flechas, Av Pág/Re Pág, Inicio y Fin;
 - panel «Escenas» agrupado por bloque;
-- «Paso a paso» de cuatro pasos (origen, consulta, partes y resultado) en las escenas 05–12 y 14–19;
+- «Paso a paso» de cuatro pasos (origen, consulta, partes y resultado) en las escenas 06–13 y 15–20;
 - notas del expositor con la tecla N;
 - vista del presentador en `/presentation/presentador`;
 - pantalla completa con controles que se atenúan;
@@ -137,94 +137,96 @@ Ruta `/presentation`; `?scene=N` vuelve al mismo punto.
 | 01 | portada | SELECT en Oracle SQL (portada) | — |
 | 02 | ruta | Ruta de aprendizaje | — |
 | 03 | que-es-sql | Qué es SQL | L00 |
-| 04 | empleados | Conoce EMPLEADOS | L01 |
-| 05 | select-from | SELECT y FROM | L02, L03 |
-| 06 | asterisco | SELECT * | L04 |
-| 07 | columnas | Columnas específicas | L05 |
-| 08 | expresiones | Expresiones y precedencia | L06, L07 |
-| 09 | alias | Alias con AS | L08, L09 |
-| 10 | distinct | DISTINCT | L10 |
-| 11 | where | WHERE | L11 |
-| 12 | comparaciones | Comparaciones | L12 |
-| 13 | and-or | AND y OR | L13 |
-| 14 | parentesis | Paréntesis y precedencia lógica | L14 |
-| 15 | between | BETWEEN | L15 |
-| 16 | in | IN | L16 |
-| 17 | like | LIKE | L17 |
-| 18 | null | NULL e IS NULL | L18 |
-| 19 | order-by | ORDER BY | L19 |
-| 20 | anatomia | Anatomía de una consulta | L20 |
-| 21 | paso-a-paso | Construimos una consulta (seis pasos) | L20 |
-| 22 | errores | Errores frecuentes | L21 |
-| 23 | laboratorio | Laboratorio (abre el ejemplo y vuelve a la escena) | — |
-| 24 | challenge | SQL Challenge | — |
-| 25 | aprendimos | Qué aprendimos | — |
-| 26 | video | Video resumen | — |
-| 27 | reto | Reto en vivo: qué harás, cómo entrar, qué evalúa y tu resultado; QR | — |
-| 28 | proximos | Próximos temas: siguiente ruta recomendada (enlaza a la ruta) | — |
-| 29 | cierre | ¿Preguntas? | — |
+| 04 | tabla-empleados | Tabla EMPLEADOS (la tabla completa, antes de la primera consulta) | L01 |
+| 05 | empleados | Conoce EMPLEADOS | L01 |
+| 06 | select-from | SELECT y FROM | L02, L03 |
+| 07 | asterisco | SELECT * | L04 |
+| 08 | columnas | Columnas específicas | L05 |
+| 09 | expresiones | Expresiones y precedencia | L06, L07 |
+| 10 | alias | Alias con AS | L08, L09 |
+| 11 | distinct | DISTINCT | L10 |
+| 12 | where | WHERE | L11 |
+| 13 | comparaciones | Comparaciones | L12 |
+| 14 | and-or | AND y OR | L13 |
+| 15 | parentesis | Paréntesis y precedencia lógica | L14 |
+| 16 | between | BETWEEN | L15 |
+| 17 | in | IN | L16 |
+| 18 | like | LIKE | L17 |
+| 19 | null | NULL e IS NULL | L18 |
+| 20 | order-by | ORDER BY | L19 |
+| 21 | anatomia | Anatomía de una consulta | L20 |
+| 22 | paso-a-paso | Construimos una consulta (seis pasos) | L20 |
+| 23 | errores | Errores frecuentes | L21 |
+| 24 | laboratorio | Laboratorio (abre el ejemplo y vuelve a la escena) | — |
+| 25 | challenge | SQL Challenge | — |
+| 26 | aprendimos | Qué aprendimos | — |
+| 27 | video | Video resumen | — |
+| 28 | reto | Reto en vivo: qué harás, cómo entrar, qué evalúa y tu resultado; QR | — |
+| 29 | proximos | Próximos temas: siguiente ruta recomendada (enlaza a la ruta) | — |
+| 30 | cierre | ¿Preguntas? | — |
 
 Cada escena representa su concepto:
 
 | Escenas | Representación |
 | --- | --- |
 | 02 | Mapa de aprendizaje: 8 bloques A–H con objetivo y conceptos. |
-| 25 | «Ahora ya puedes…»: 9 competencias y una consulta integradora con su resultado. |
+| 26 | «Ahora ya puedes…»: 9 competencias y una consulta integradora con su resultado. |
 | 03 | Persona → SQL → base de datos → resultado, y el vocabulario: tabla, fila, columna y consulta. |
-| 04 | Cifras, fila, columna y celda señaladas, 3 filas representativas y los 12 campos agrupados con su tipo. |
-| 05 | «¿Qué quieres?» y «¿De dónde?». |
-| 06 | Las 12 columnas por grupo. |
-| 07 | Mismos datos, distinto orden. |
-| 08 | Orden de cálculo de cada expresión. |
-| 09 | Antes y después del alias. |
-| 10 | 20 → 5 con las repetidas marcadas. |
-| 11 | Embudo de filas. |
-| 12 | Escala de comparadores con su recuento. |
-| 13 | Tabla de verdad con empleados reales. |
-| 14 | Empleados que cambian sin paréntesis. |
-| 15 | Recta de salarios con los límites. |
-| 16 | La lista como fichas. |
-| 17 | Patrones con ejemplos que cumplen y que no. |
-| 18 | NULL ≠ 0 ≠ 'NULL'. |
-| 19 | Antes y después de ORDER BY. |
-| 20 | Anatomía interactiva con color semántico: proyección, fuente, filtro y orden. |
-| 21 | Construcción en seis pasos desde la pregunta. |
-| 22 | Seis errores: coma, FROM, columna inexistente, = NULL, DISTINCT mal colocado y comillas; error, por qué y corrección. |
-| 23 | Vista del laboratorio. |
-| 24 | Las diez misiones. |
-| 27 | Cómo participar y QR de la práctica. |
-| 28 | Diez temas futuros con su nivel, marcados «Próximamente». |
-| 29 | Ilustración «Del dato a la consulta», tres ideas finales, preguntas de salida y accesos al laboratorio y al Challenge. |
+| 04 | La tabla EMPLEADOS completa: 20 filas × 12 columnas en una sola tabla, sin barra ni pestañas en el lienzo 16:9 (letra algo menor solo en esta tabla); en el móvil, grupos de columnas con pestañas. |
+| 05 | Cifras, fila, columna y celda señaladas, 3 filas representativas y los 12 campos agrupados con su tipo. |
+| 06 | «¿Qué quieres?» y «¿De dónde?». |
+| 07 | Las 12 columnas por grupo. |
+| 08 | Mismos datos, distinto orden. |
+| 09 | Orden de cálculo de cada expresión. |
+| 10 | Antes y después del alias. |
+| 11 | 20 → 5 con las repetidas marcadas. |
+| 12 | Embudo de filas. |
+| 13 | Escala de comparadores con su recuento. |
+| 14 | Tabla de verdad con empleados reales. |
+| 15 | Empleados que cambian sin paréntesis. |
+| 16 | Recta de salarios con los límites. |
+| 17 | La lista como fichas. |
+| 18 | Patrones con ejemplos que cumplen y que no. |
+| 19 | NULL ≠ 0 ≠ 'NULL'. |
+| 20 | Antes y después de ORDER BY. |
+| 21 | Anatomía interactiva con color semántico: proyección, fuente, filtro y orden. |
+| 22 | Construcción en seis pasos desde la pregunta. |
+| 23 | Seis errores: coma, FROM, columna inexistente, = NULL, DISTINCT mal colocado y comillas; error, por qué y corrección. |
+| 24 | Vista del laboratorio. |
+| 25 | Las diez misiones. |
+| 28 | Cómo participar y QR de la práctica. |
+| 29 | Diez temas futuros con su nivel, marcados «Próximamente». |
+| 30 | Ilustración «Del dato a la consulta», tres ideas finales, preguntas de salida y accesos al laboratorio y al Challenge. |
 
 Las escenas de WHERE, IN, BETWEEN y NULL marcan cada fila: ✓ cumple, ✗ no cumple, ? desconocido por NULL.
 
-En las escenas 05 y 11, cada cláusula de la consulta es un botón que resalta sus columnas y filas.
+En las escenas 06 y 12, cada cláusula de la consulta es un botón que resalta sus columnas y filas.
 
-La consulta integrada (escenas 21 y 23) es `SELECT nombre, ciudad, salario FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' AND salario BETWEEN 4000000 AND 8000000 ORDER BY salario DESC;` y devuelve 3 filas.
+La consulta integrada (escenas 22 y 24) es `SELECT nombre, ciudad, salario FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' AND salario BETWEEN 4000000 AND 8000000 ORDER BY salario DESC;` y devuelve 3 filas.
 
-La anatomía (escena 20) usa `SELECT nombre, salario FROM empleados WHERE ciudad = 'Cali' ORDER BY salario DESC;` y la síntesis (escena 25) `SELECT DISTINCT ciudad FROM empleados WHERE salario >= 4000000 ORDER BY ciudad;`.
+La anatomía (escena 21) usa `SELECT nombre, salario FROM empleados WHERE ciudad = 'Cali' ORDER BY salario DESC;` y la síntesis (escena 26) `SELECT DISTINCT ciudad FROM empleados WHERE salario >= 4000000 ORDER BY ciudad;`.
 
-### Proyecciones didácticas (escenas 05–19, 27 de septiembre de 2026)
+### Proyecciones didácticas (escenas 06–20, 27 de septiembre de 2026)
 
 Cada escena muestra una muestra real de EMPLEADOS (filas por ID_EMPLEADO y solo las columnas del concepto) y el resultado de la consulta sobre esas mismas filas; el resumen indica además el recuento en la tabla completa. Catálogo: `src/domain/concepts/concept-projections.ts`.
 
 | Escena | Consulta | Columnas de origen | Filas (ID) | Resultado en la muestra · tabla completa |
 | --- | --- | --- | --- | --- |
-| 05 SELECT y FROM | `SELECT nombre, ciudad FROM empleados` | NOMBRE, CARGO, CIUDAD | 1–4 | 4 · 20 |
-| 06 SELECT * | `SELECT * FROM empleados` | las 12 (bandas) | 1, 2 | 2 · 20 |
-| 07 Columnas | `SELECT nombre, ciudad` y `SELECT ciudad, nombre` | NOMBRE, CARGO, CIUDAD, SALARIO | 1, 3, 4 | 3 · 20 |
-| 08 Expresiones | `salario + bono * 12` y `(salario + bono) * 12` | NOMBRE, SALARIO, BONO | 1, 2, 4 | 3 · 20 |
-| 09 Alias | `salario * 12` antes y después de `AS salario_anual` | NOMBRE, SALARIO | 1, 2, 3 | 3 · 20 |
-| 10 DISTINCT | `SELECT DISTINCT ciudad` | NOMBRE, CIUDAD | 1, 2, 3, 4, 5, 7 | 3 · 5 |
-| 11 WHERE | `SELECT nombre, ciudad, salario … WHERE ciudad = 'Cali'` (mismas columnas: solo cambian las filas) | NOMBRE, CIUDAD, SALARIO | 1, 3, 4, 8, 12, 13 | 3 · 5 |
-| 12 Comparaciones | `WHERE salario >= 6000000` | NOMBRE, SALARIO | 1, 2, 3, 5, 6, 15 | 4 · 5 |
-| 15 BETWEEN | `WHERE salario BETWEEN 3000000 AND 6000000` | NOMBRE, SALARIO | 3, 6, 9, 11, 15 | 3 · 12 |
-| 16 IN | `WHERE ciudad IN ('Medellín', 'Cali')` | NOMBRE, CIUDAD | 1, 3, 4, 12, 17 | 3 · 10 |
-| 17 LIKE | `SELECT nombre, ciudad … WHERE nombre LIKE 'A%'` | NOMBRE, CIUDAD | 1, 2, 3, 6, 19 | 3 · 3 |
-| 18 IS NULL | `WHERE bono IS NULL` | NOMBRE, BONO | 1, 4, 7, 10, 12 | 3 · 6 |
-| 19 ORDER BY | `ORDER BY salario DESC` | NOMBRE, SALARIO | 3, 4, 5, 9, 15 | 5 · 20 |
+| 06 SELECT y FROM | `SELECT nombre, ciudad FROM empleados` | NOMBRE, CARGO, CIUDAD | 1–4 | 4 · 20 |
+| 07 SELECT * | `SELECT * FROM empleados` | las 12 (bandas) | 1, 2 | 2 · 20 |
+| 08 Columnas | `SELECT nombre, ciudad` y `SELECT ciudad, nombre` | NOMBRE, CARGO, CIUDAD, SALARIO | 1, 3, 4 | 3 · 20 |
+| 09 Expresiones | `salario + bono * 12` y `(salario + bono) * 12` | NOMBRE, SALARIO, BONO | 1, 2, 4 | 3 · 20 |
+| 10 Alias | `salario * 12` antes y después de `AS salario_anual` | NOMBRE, SALARIO | 1, 2, 3 | 3 · 20 |
+| 11 DISTINCT | `SELECT DISTINCT ciudad` | NOMBRE, CIUDAD | 1, 2, 3, 4, 5, 7 | 3 · 5 |
+| 12 WHERE | `SELECT nombre, ciudad, salario … WHERE ciudad = 'Cali'` (mismas columnas: solo cambian las filas) | NOMBRE, CIUDAD, SALARIO | 1, 3, 4, 8, 12, 13 | 3 · 5 |
+| 13 Comparaciones | `WHERE salario >= 6000000` | NOMBRE, SALARIO | 1, 2, 3, 5, 6, 15 | 4 · 5 |
+| 16 BETWEEN | `WHERE salario BETWEEN 3000000 AND 6000000` | NOMBRE, SALARIO | 3, 6, 9, 11, 15 | 3 · 12 |
+| 17 IN | `WHERE ciudad IN ('Medellín', 'Cali')` | NOMBRE, CIUDAD | 1, 3, 4, 12, 17 | 3 · 10 |
+| 18 LIKE | `SELECT nombre, ciudad … WHERE nombre LIKE 'A%'` | NOMBRE, CIUDAD | 1, 2, 3, 6, 19 | 3 · 3 |
+| 19 IS NULL | `WHERE bono IS NULL` | NOMBRE, BONO | 1, 4, 7, 10, 12 | 3 · 6 |
+| 20 ORDER BY | `ORDER BY salario DESC` | NOMBRE, SALARIO | 3, 4, 5, 9, 15 | 5 · 20 |
 
-La 13 (AND y OR) y la 14 (paréntesis) usan tablas de verdad con filas candidatas: cada condición fila por fila y el resultado en la tabla completa. La 04 presenta el dataset: 20 empleados (filas), 12 atributos (columnas) en cinco grupos, los tipos NUMBER, VARCHAR2 y DATE, y BONO que admite NULL.
+La 14 (AND y OR) y la 15 (paréntesis) usan tablas de verdad con filas candidatas: cada condición fila por fila y el resultado en la tabla completa. La 04 muestra la tabla EMPLEADOS completa, tal como está en el dataset; la 05 explica cómo leerla: 20 empleados (filas), 12 atributos (columnas) en cinco grupos, los tipos NUMBER, VARCHAR2 y DATE, y BONO que admite NULL.
 
 ## Laboratorio: LAB01–LAB24 y diagnóstico
 

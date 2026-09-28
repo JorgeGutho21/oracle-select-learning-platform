@@ -29,7 +29,7 @@ test.describe('Ruta de aprendizaje', () => {
       'Nivel 1: SELECT fundamental',
     );
     await expect(current).toContainText('Ahora');
-    await expect(current).toContainText('22 lecciones · 29 escenas de exposición');
+    await expect(current).toContainText('22 lecciones · 30 escenas de exposición');
     await expect(current.locator('.level__blocks > li')).toHaveCount(8);
     await expect(current.locator('.level__blocks a')).toHaveCount(22);
     await expect(current.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '0');

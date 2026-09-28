@@ -7,7 +7,9 @@ import { attachShot, expectNoHorizontalScroll, watchConsole } from './support/la
  * recortado ni diminuto) y adjunta la captura de cada escena para la revisión humana.
  */
 
-const KEY_SCENES = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 28];
+const KEY_SCENES = [
+  3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 29,
+];
 
 for (const [width, height] of [
   [1920, 1080],
@@ -24,7 +26,11 @@ for (const [width, height] of [
       await page.goto(`/presentation?scene=${scene}`);
       const node = page.locator(`[data-scene="${scene}"]`);
       await expect(node).toBeVisible();
-      await expectNoHorizontalScroll(page, `escena ${scene} a ${width}`, '.deck');
+      // Única excepción: la tabla base completa (04) usa letra algo menor para que sus 20 × 12
+      // datos quepan enteros en el lienzo; en una ventana de 1366×768 queda en 11 px (más de
+      // 14 px en pantalla completa).
+      const minFont = scene === 4 && width === 1366 ? 11 : 12;
+      await expectNoHorizontalScroll(page, `escena ${scene} a ${width}`, '.deck', minFont);
       if (width >= 768) {
         // En el lienzo 16:9 ningún bloque invade el título ni la idea clave.
         const spill = await page.evaluate(() => {
@@ -48,7 +54,7 @@ for (const [width, height] of [
 test('la pantalla completa oculta la navegación del sitio y atenúa los controles', async ({
   page,
 }) => {
-  await page.goto('/presentation?scene=5');
+  await page.goto('/presentation?scene=6');
   await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true');
   await page.getByRole('button', { name: 'Pantalla completa' }).click();
   const entered = await page
@@ -75,5 +81,5 @@ test('la pantalla completa oculta la navegación del sitio y atenúa los control
   await expect(page.locator('.deck')).toHaveAttribute('data-idle', 'true', { timeout: 6_000 });
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('.deck')).not.toHaveAttribute('data-idle', 'true');
-  await expect(page).toHaveURL(/scene=6$/);
+  await expect(page).toHaveURL(/scene=7$/);
 });

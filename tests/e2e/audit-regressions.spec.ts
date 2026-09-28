@@ -32,7 +32,7 @@ test('las respuestas llevan las cabeceras de seguridad y la CSP no bloquea nada'
   expect(headers['x-content-type-options']).toBe('nosniff');
   expect(headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
   expect(headers['x-powered-by']).toBeUndefined();
-  for (const route of ['/lab', '/challenge', '/presentation?scene=15', '/presenter', '/live']) {
+  for (const route of ['/lab', '/challenge', '/presentation?scene=16', '/presenter', '/live']) {
     await page.goto(route);
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
   }
@@ -73,7 +73,7 @@ for (const [width, height] of [
     });
   }
 
-  for (const scene of [1, 2, 5, 8, 9, 10, 11, 13, 15, 17, 19, 20, 21, 27, 28]) {
+  for (const scene of [1, 2, 4, 6, 9, 10, 11, 12, 14, 16, 18, 20, 21, 22, 28, 29]) {
     test(`a ${width} px la escena ${scene} se lee sin desplazamiento interno`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto(`/presentation?scene=${scene}`);
