@@ -147,14 +147,15 @@ test('los iconos, el título y la vista previa social identifican la unidad', as
     'content',
     /Jorge Gutierrez Thomas.*Amilkar Sierra/,
   );
+  // Un ICO puede servirse como image/x-icon (next start) o image/vnd.microsoft.icon (Vercel).
   for (const [path, type] of [
-    ['/favicon.ico', 'image/x-icon'],
-    ['/icon.svg', 'image/svg+xml'],
-    ['/apple-icon.png', 'image/png'],
-    ['/opengraph-image.png', 'image/png'],
+    ['/favicon.ico', /^image\/(x-icon|vnd\.microsoft\.icon)/],
+    ['/icon.svg', /^image\/svg\+xml/],
+    ['/apple-icon.png', /^image\/png/],
+    ['/opengraph-image.png', /^image\/png/],
   ] as const) {
     const response = await request.get(path);
     expect(response.status(), path).toBe(200);
-    expect(response.headers()['content-type'], path).toContain(type);
+    expect(response.headers()['content-type'], path).toMatch(type);
   }
 });
