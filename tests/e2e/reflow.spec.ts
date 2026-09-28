@@ -89,8 +89,7 @@ test('con zoom 200 % el laboratorio sigue siendo usable', async ({ page }) => {
 test('con zoom 200 % las diez misiones del Challenge caben y se juegan', async ({ page }) => {
   await page.setViewportSize({ width: 180, height: 400 });
   await startChallenge(page);
-  await addPiece(page, 'nombre');
-  await addPiece(page, 'salario');
+  for (const column of ['nombre', 'ciudad', 'correo']) await addPiece(page, column);
   await submit(page);
   await expectCorrect(page);
   expect(await horizontalOverflow(page), 'M01').toBeLessThanOrEqual(0);
@@ -99,7 +98,7 @@ test('con zoom 200 % las diez misiones del Challenge caben y se juegan', async (
     'El orden de SQL',
     '¿Qué trae el asterisco?',
     'Predice las filas',
-    'Columnas calculadas',
+    'Expresiones y precedencia',
     'Encabezados con AS',
     'Valores únicos con DISTINCT',
     'Detecta el error',

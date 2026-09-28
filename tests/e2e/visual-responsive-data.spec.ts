@@ -2,11 +2,13 @@ import { expect, test } from '@playwright/test';
 
 /**
  * Vista de datos adaptable: los mismos datos cambian de representación según el espacio.
- * Con espacio, tabla; sin él, fichas por registro. Nunca una tabla comprimida ni una barra
- * horizontal como experiencia principal.
+ * Con espacio, la tabla completa; sin él, grupos de columnas con pestañas, siempre tablas.
+ * Nunca fichas por registro ni una barra horizontal como experiencia principal.
  */
 
-test('EMPLEADOS completa: tabla en escritorio ancho, fichas en móvil', async ({ page }) => {
+test('EMPLEADOS: tabla en escritorio ancho y grupos de cuatro columnas en móvil', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await page.goto('/presentation?scene=4');
   const scene = page.locator('[data-scene="4"]');
@@ -16,11 +18,14 @@ test('EMPLEADOS completa: tabla en escritorio ancho, fichas en móvil', async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/presentation?scene=4');
   const mobile = page.locator('[data-scene="4"]');
-  await expect(mobile.getByRole('table')).toBeHidden();
-  const cards = mobile.getByRole('list', { name: /Primeras filas de EMPLEADOS/ });
-  await expect(cards.getByRole('listitem')).toHaveCount(3);
-  await expect(cards.getByRole('listitem').first()).toContainText('Ana Rojas');
-  await expect(cards.getByRole('listitem').first()).toContainText('ACTIVO');
+  const groups = mobile.locator('.dv__groups:visible');
+  await expect(groups).toHaveCount(1);
+  await expect(mobile.locator('.dv-record:visible')).toHaveCount(0);
+  const table = groups.getByRole('tabpanel').getByRole('table');
+  const headers = await table.getByRole('columnheader').allTextContents();
+  expect(headers.slice(0, 2)).toEqual(['ID_EMPLEADO', 'NOMBRE']);
+  expect(headers.length).toBeLessThanOrEqual(4);
+  await expect(table.locator('tbody tr').first()).toContainText('Ana');
 });
 
 test('en el Estudio la tabla de origen cabe entera junto a la columna pedida', async ({ page }) => {

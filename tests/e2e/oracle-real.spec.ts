@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import {
   expectCorrect,
-  expectFeedback,
   fillEditor,
   mapScore,
   openMission,
@@ -66,15 +65,15 @@ test('M10: una salida distinta falla y una forma equivalente acierta en Oracle',
   const editor = page.getByRole('textbox', { name: 'Tu consulta para el reto final' });
   await fillEditor(
     editor,
-    "SELECT nombre, cargo, salario * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad = 'Bogotá' ORDER BY proyeccion_anual DESC;",
+    "SELECT nombre, ciudad, salario * 12 AS proyeccion_anual FROM empleados WHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá', 'Cali') ORDER BY proyeccion_anual DESC;",
   );
   await page.getByRole('button', { name: 'Enviar para evaluar' }).click();
-  await expectFeedback(page, 'valores');
+  await expect(page.locator('.ch-outcome')).toContainText('valores');
   await expect(page.getByText('Intento 2 de 2')).toBeVisible();
 
   await fillEditor(
     editor,
-    "select NOMBRE, cargo, 12 * (100000 + salario) as Proyeccion_Anual from EMPLEADOS where ciudad = 'Bogotá' and estado = 'ACTIVO' order by 3 desc",
+    "select NOMBRE, ciudad, 12 * (100000 + salario) as Proyeccion_Anual from EMPLEADOS where (ciudad = 'Bogotá' or ciudad = 'Cali') and estado = 'ACTIVO' order by 3 desc",
   );
   await page.getByRole('button', { name: 'Enviar para evaluar' }).click();
   await expectCorrect(page);

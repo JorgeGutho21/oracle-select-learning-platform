@@ -3,8 +3,9 @@ import { expectNoHorizontalScroll, watchConsole } from './support/layout';
 
 /**
  * El resultado del laboratorio es una tabla SQL reconocible: las columnas y filas reales del
- * resultado, en una sola tabla en escritorio y en bandas con el número de empleado en
- * tableta y móvil. Nunca fichas por empleado ni «Ver registro completo».
+ * resultado, en una sola tabla en escritorio y, en tableta y móvil, por grupos de columnas
+ * con pestañas (ID_EMPLEADO y NOMBRE en todos). Nunca fichas por empleado ni «Ver registro
+ * completo».
  */
 
 const panel = (page: Page) => page.getByRole('region', { name: 'Resultado' });
@@ -47,34 +48,57 @@ for (const [width, height] of [
   });
 }
 
-test('en tableta y móvil las 12 columnas se reparten en bandas con la misma identidad de fila', async ({
-  page,
-}) => {
-  for (const [width, height] of [
-    [1024, 768],
-    [768, 1024],
-    [390, 844],
-    [360, 800],
-  ] as const) {
+for (const [width, height, parts, perTab] of [
+  [1024, 768, 2, 8],
+  [768, 1024, 3, 6],
+  [430, 932, 5, 4],
+  [390, 844, 5, 4],
+  [360, 800, 5, 4],
+  [320, 568, 5, 4],
+] as const) {
+  test(`a ${width}×${height} las 12 columnas se reparten en ${parts} grupos con pestañas`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width, height });
     await analyze(page, 'SELECT *\nFROM empleados;');
-    const bands = panel(page).locator('.dv__bands:visible');
-    await expect(bands, `${width}`).toHaveCount(1);
-    const tables = bands.getByRole('table');
-    const count = await tables.count();
-    expect(count, `${width}: bandas`).toBeGreaterThanOrEqual(2);
-    let columns = 0;
-    for (let index = 0; index < count; index += 1) {
-      const headers = tables.nth(index).getByRole('columnheader');
-      // Cada banda empieza por ID_EMPLEADO y tiene las 20 filas.
-      await expect(headers.first()).toHaveText('ID_EMPLEADO');
-      await expect(tables.nth(index).locator('tbody tr')).toHaveCount(20);
-      columns += (await headers.count()) - 1;
+    const groups = panel(page).locator('.dv__groups:visible');
+    await expect(groups).toHaveCount(1);
+    const tabs = groups.getByRole('tab');
+    await expect(tabs).toHaveCount(parts);
+    const seen = new Set<string>();
+    for (let index = 0; index < parts; index += 1) {
+      await tabs.nth(index).click();
+      await expect(tabs.nth(index)).toHaveAttribute('aria-selected', 'true');
+      const table = groups.getByRole('tabpanel').getByRole('table');
+      const headers = await table.getByRole('columnheader').allTextContents();
+      // Cada grupo es una tabla con ID_EMPLEADO (y NOMBRE) y las 20 filas.
+      expect(headers[0]).toBe('ID_EMPLEADO');
+      expect(headers[1]).toBe('NOMBRE');
+      expect(headers.length, `${width}: columnas a la vez`).toBeLessThanOrEqual(perTab);
+      await expect(table.locator('tbody tr')).toHaveCount(20);
+      for (const header of headers) seen.add(header);
     }
-    expect(columns + 1, `${width}: columnas`).toBe(12);
+    expect(seen.size, `${width}: columnas entre todos los grupos`).toBe(12);
     await expect(panel(page).locator('.dv-record:visible')).toHaveCount(0);
-    await expectNoHorizontalScroll(page, `bandas a ${width}`);
-  }
+    await expectNoHorizontalScroll(page, `grupos a ${width}`);
+    const scroll = await groups
+      .getByRole('tabpanel')
+      .locator('.dv__table')
+      .evaluate((node) => node.scrollWidth - node.clientWidth);
+    expect(scroll, 'barra horizontal del grupo').toBeLessThanOrEqual(0);
+  });
+}
+
+test('las pestañas de grupos se recorren con el teclado', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await analyze(page, 'SELECT *\nFROM empleados;');
+  const tabs = panel(page).locator('.dv__groups:visible').getByRole('tab');
+  await tabs.first().focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(tabs.nth(1)).toBeFocused();
+  await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+  await page.keyboard.press('End');
+  await expect(tabs.last()).toHaveAttribute('aria-selected', 'true');
 });
 
 test('SELECT nombre, ciudad muestra exactamente esas dos columnas', async ({ page }) => {

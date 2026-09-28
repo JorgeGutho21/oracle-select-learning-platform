@@ -47,8 +47,7 @@ test.describe('Sala en vivo', () => {
     await expect(ana.page.getByRole('button', { name: 'Terminar y ver resultados' })).toHaveCount(
       0,
     );
-    await addPiece(ana.page, 'nombre');
-    await addPiece(ana.page, 'salario');
+    for (const column of ['nombre', 'ciudad', 'correo']) await addPiece(ana.page, column);
     await submit(ana.page);
     await expectCorrect(ana.page);
     await expect(ana.page.locator('.classroom-live-bar')).toContainText(

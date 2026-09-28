@@ -1,11 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import {
   addPiece,
   expectCorrect,
   expectFeedback,
-  mapScore,
   fillEditor,
+  mapScore,
   mouseDrag,
   openMission,
   startChallenge,
@@ -13,50 +13,148 @@ import {
 } from './challenge-helpers';
 import { ORACLE_CONFIGURED } from './support/oracle';
 
-async function solveM01(page: import('@playwright/test').Page) {
-  await addPiece(page, 'nombre');
-  await addPiece(page, 'salario');
+async function solveM01(page: Page) {
+  for (const name of ['nombre', 'ciudad', 'correo']) await addPiece(page, name);
   await submit(page);
   await expectCorrect(page);
 }
 
+/** Respuesta de cada variante de M08: tipo, pieza con el error y consulta corregida. */
+const M08: Record<string, { kind: RegExp; token: number; fix: string; request: RegExp }> = {
+  coma: {
+    kind: /^Concepto/,
+    token: 2,
+    fix: 'SELECT nombre, salario FROM empleados;',
+    request: /nombre y el salario/,
+  },
+  from: {
+    kind: /^Sintaxis/,
+    token: 4,
+    fix: 'SELECT nombre, ciudad FROM empleados;',
+    request: /nombre y la ciudad/,
+  },
+  comillas: {
+    kind: /^Semántica/,
+    token: 7,
+    fix: "SELECT nombre FROM empleados WHERE ciudad = 'Cali';",
+    request: /empleados de Cali\./,
+  },
+  'doble-coma': {
+    kind: /^Sintaxis/,
+    token: 3,
+    fix: 'SELECT nombre, cargo, ciudad FROM empleados;',
+    request: /el cargo y la ciudad/,
+  },
+  parentesis: {
+    kind: /^Sintaxis/,
+    token: 6,
+    fix: 'SELECT nombre, (salario + bono) * 12 FROM empleados;',
+    request: /ingreso anual/,
+  },
+  'igual-null': {
+    kind: /^Concepto/,
+    token: 7,
+    fix: 'SELECT nombre FROM empleados WHERE bono IS NULL;',
+    request: /bono registrado/,
+  },
+  in: {
+    kind: /^Sintaxis/,
+    token: 6,
+    fix: "SELECT nombre FROM empleados WHERE ciudad IN ('Cali', 'Medellín');",
+    request: /Cali o de Medellín/,
+  },
+  distinct: {
+    kind: /^Sintaxis/,
+    token: 2,
+    fix: 'SELECT DISTINCT ciudad FROM empleados;',
+    request: /una sola vez/,
+  },
+};
+
 test.describe('Challenge M08–M10 y resultados', () => {
-  test('M08: localizar la coma ausente con un hueco interactivo', async ({ page }) => {
+  test('M08: clasificar el error, tocar dónde está y corregir la consulta', async ({ page }) => {
     await startChallenge(page);
     await openMission(page, 8, 'Detecta el error');
-    await page.getByRole('button', { name: 'Hueco entre SELECT y nombre' }).click();
+    const variant = await page.locator('[data-variant]').getAttribute('data-variant');
+    const answer = M08[variant!]!;
+    await expect(page.locator('.ch-request')).toContainText(answer.request);
+    // Primer intento: tipo equivocado. La orientación no revela el tipo.
+    const wrongKind = answer.kind.source.includes('Sintaxis') ? /^Concepto/ : /^Sintaxis/;
+    await page.getByRole('radio', { name: wrongKind }).check();
+    await page.locator('.ch-hotspot button').nth(answer.token).click();
+    await page.getByLabel('Paso 3 · Escribe la consulta corregida').fill(answer.fix);
+    await page.getByRole('button', { name: 'Probar la corrección (sin puntuar)' }).click();
+    await expect(page.getByRole('table', { name: 'Qué devuelve tu corrección' })).toBeVisible();
     await submit(page);
-    await expectFeedback(page, 'sigue sin cumplir el pedido');
-    await page.getByRole('button', { name: 'Hueco entre nombre y salario' }).click();
-    await expect(page.getByText('Insertarás «,» entre nombre y salario.')).toBeVisible();
+    await expectFeedback(page, '¿Oracle podría leer esta consulta?');
+    await expect(page.locator('.ch-outcome')).toContainText(
+      'Localizaste bien la parte con el error.',
+    );
+    await page.getByRole('radio', { name: answer.kind }).check();
     await submit(page);
     await expectCorrect(page);
-    await expect(page.getByText(/Oracle lee salario como un alias de NOMBRE/)).toBeVisible();
+    await expect(mapScore(page)).toContainText('80');
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(results.violations).toEqual([]);
   });
 
-  test('M09: bloques con distractores; sin ORDER BY no se cumple el orden pedido', async ({
-    page,
-  }) => {
+  test('M08: una corrección sin cambios no consume intento', async ({ page }) => {
+    await startChallenge(page);
+    await openMission(page, 8, 'Detecta el error');
+    await page.getByRole('radio', { name: /^Sintaxis/ }).check();
+    await page.locator('.ch-hotspot button').first().click();
+    await submit(page);
+    await expect(
+      page.getByRole('status').filter({ hasText: 'todavía es igual a la original' }),
+    ).toBeVisible();
+    await expect(page.getByText('Intento 1 de 2')).toBeVisible();
+  });
+
+  test('M09: bloques con distractores; AND frente a OR y el orden pedido', async ({ page }) => {
     await startChallenge(page);
     await openMission(page, 9, 'Del lenguaje al SQL');
+    const sample = page.getByRole('table', { name: /^Muestra de trabajo/ });
+    await expect(sample.locator('tbody tr')).toHaveCount(8);
     await mouseDrag(
       page,
       page.getByRole('button', { name: 'Añadir SELECT', exact: true }),
       page.locator('.ch-zone--target'),
     );
     await expect(page.getByRole('button', { name: 'SELECT, posición 1' })).toBeVisible();
-    for (const piece of ['nombre', ',', 'ciudad', ',', 'salario', 'FROM', 'empleados']) {
+    const select = [
+      'nombre',
+      ',',
+      'ciudad',
+      ',',
+      'salario',
+      'FROM',
+      'empleados',
+      'WHERE',
+      'ciudad',
+      'IN',
+      "('Bogotá', 'Cali')",
+    ];
+    for (const piece of select) await addPiece(page, piece);
+    for (const piece of ['OR', 'salario', '>=', '4200000', 'ORDER BY', 'salario', 'DESC'])
       await addPiece(page, piece);
-    }
     await submit(page);
-    // Filas y columnas correctas, pero el pedido indica un orden.
-    await expectFeedback(page, 'sin ORDER BY Oracle no garantiza ninguno');
-    for (const piece of ['ORDER BY', 'salario', 'DESC']) await addPiece(page, piece);
+    await expectFeedback(page, 'Sobran empleados de otras ciudades');
+    await page.getByRole('button', { name: 'OR, posición 13' }).click();
+    await page.getByRole('button', { name: 'Quitar' }).click();
+    await addPiece(page, 'AND');
+    // AND queda al final: se lleva a la posición de OR (13) con «Mover antes».
+    await page.getByRole('button', { name: 'AND, posición 19' }).click();
+    for (let index = 0; index < 6; index++) {
+      await page.getByRole('button', { name: /Mover antes/ }).click();
+    }
+    await expect(page.getByRole('button', { name: 'AND, posición 13' })).toBeVisible();
     await submit(page);
     await expectCorrect(page);
     await expect(mapScore(page)).toContainText('80');
+    // Al cerrar se ve qué devuelve la consulta sobre la muestra.
+    await expect(
+      page.getByRole('table', { name: /^Resultado de tu consulta/ }).locator('tbody tr'),
+    ).toHaveCount(4);
   });
 
   test('M10: revisión sin puntuar, intento por SQL que no cumple y corrección final en Oracle', async ({
@@ -77,7 +175,7 @@ test.describe('Challenge M08–M10 y resultados', () => {
 
     await fillEditor(
       editor,
-      "SELECT nombre, cargo,\n  (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados\nWHERE estado = 'ACTIVO' AND ciudad = 'Bogotá'\nORDER BY proyeccion_anual DESC;",
+      "SELECT nombre, ciudad,\n  (salario + 100000) * 12 AS proyeccion_anual\nFROM empleados\nWHERE estado = 'ACTIVO' AND ciudad IN ('Bogotá', 'Cali')\nORDER BY proyeccion_anual DESC;",
     );
     await page.getByRole('button', { name: 'Enviar para evaluar' }).click();
     if (ORACLE_CONFIGURED) {
@@ -153,7 +251,7 @@ test.describe('Challenge M08–M10 y resultados', () => {
     await expect(mapScore(page)).toContainText('100 / 1000');
   });
 
-  test('G15: los recursos enviados al navegador no contienen pistas ni explicaciones', async ({
+  test('G15: los recursos enviados al navegador no contienen pistas, explicaciones ni correcciones', async ({
     page,
     request,
   }) => {
@@ -163,11 +261,12 @@ test.describe('Challenge M08–M10 y resultados', () => {
     );
     expect(sources.length).toBeGreaterThan(0);
     const secrets = [
-      'El pedido menciona dos datos de cada empleado',
-      'se obtienen las dos columnas pedidas',
-      'Filtra primero las filas (activos y de Bogotá)',
-      'Cada dato mencionado es una columna',
-      'WHERE conserva solo las filas cuya ciudad es Cali',
+      'El pedido nombra tres datos, en un orden',
+      'SALARIO y BONO siguen en la tabla',
+      'Filtra primero las filas: activos',
+      'Cada dato mencionado es una columna, en ese orden',
+      'SELECT nombre FROM empleados WHERE bono IS NULL',
+      'Oracle la ejecuta, pero una comparación con = NULL',
     ];
     for (const source of sources) {
       const body = await (await request.get(source)).text();

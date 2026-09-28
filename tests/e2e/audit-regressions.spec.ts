@@ -90,7 +90,7 @@ test('al acertar con teclado el foco pasa a «Siguiente misión» y no se pierde
   await page.evaluate(() => window.localStorage.clear());
   await page.reload();
   await page.getByRole('button', { name: 'Comenzar práctica' }).click();
-  for (const column of ['nombre', 'salario']) {
+  for (const column of ['nombre', 'ciudad', 'correo']) {
     await page.getByRole('button', { name: `Añadir ${column}`, exact: true }).focus();
     await page.keyboard.press('Enter');
   }

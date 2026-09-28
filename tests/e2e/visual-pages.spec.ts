@@ -51,19 +51,13 @@ test('el laboratorio muestra primero el editor y el resultado', async ({ page })
     /Esquema disponible/,
   ]);
   // Los 20 registros no ocupan la pantalla: se abren solo si se piden, y son los datos de
-  // origen (no el resultado), con un selector de columnas por grupos.
+  // origen (no el resultado): una sola tabla de 12 columnas en escritorio.
   await expect(page.getByText('Ver los 20 registros')).toBeVisible();
   await expect(page.getByRole('table', { name: /Tabla EMPLEADOS · 20 filas/ })).toBeHidden();
   await page.getByText('Ver los 20 registros').click();
   await expect(page.getByText('No es el resultado de tu consulta')).toBeVisible();
-  const columns = page.getByRole('group', { name: 'Columnas a la vista' });
-  await expect(columns.getByRole('button', { name: 'Todas' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
-  await columns.getByRole('button', { name: 'Contacto' }).click();
   const source = page.getByRole('table', { name: /Tabla EMPLEADOS · 20 filas/ });
-  await expect(source.getByRole('columnheader')).toHaveText(['ID_EMPLEADO', 'CORREO']);
+  await expect(source.getByRole('columnheader')).toHaveCount(12);
   await expect(source.locator('tbody tr')).toHaveCount(20);
 });
 
