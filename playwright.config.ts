@@ -36,6 +36,18 @@ export default defineConfig({
     timeout: 300_000,
     // La sala en vivo se prueba con el almacenamiento en memoria del proceso (sin
     // credenciales); el adaptador Supabase se prueba contra Postgres en tests/integration.
-    env: { CLASSROOM_BACKEND: 'memory', PRESENTER_ACCESS_CODE: E2E_PRESENTER_ACCESS_CODE },
+    // Las cuentas (tests/e2e/accounts.spec.ts) necesitan un Supabase de PRUEBA: con
+    // E2E_SUPABASE_URL y E2E_SUPABASE_PUBLISHABLE_KEY el servidor lo usa; sin ellas, la
+    // plataforma funciona como invitado y esas pruebas se omiten.
+    env: {
+      CLASSROOM_BACKEND: 'memory',
+      PRESENTER_ACCESS_CODE: E2E_PRESENTER_ACCESS_CODE,
+      ...(process.env.E2E_SUPABASE_URL
+        ? {
+            NEXT_PUBLIC_SUPABASE_URL: process.env.E2E_SUPABASE_URL,
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.E2E_SUPABASE_PUBLISHABLE_KEY ?? '',
+          }
+        : {}),
+    },
   },
 });
