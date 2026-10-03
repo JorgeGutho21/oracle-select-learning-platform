@@ -58,7 +58,7 @@ export interface SectionDefinition {
 const PENDING_EVALUATION: SectionMode = {
   id: 'evaluation',
   label: 'Evaluación',
-  description: 'Llegará con las cuentas de estudiante y el banco de preguntas.',
+  description: 'Llegará con el banco de preguntas y las evaluaciones del profesor.',
   href: null,
   action: null,
 };

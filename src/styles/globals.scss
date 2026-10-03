@@ -23,5 +23,6 @@
 @use 'classroom';
 @use 'effects';
 @use 'sections';
+@use 'accounts';
 
 @include tokens.emit;

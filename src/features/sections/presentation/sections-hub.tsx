@@ -18,7 +18,11 @@ const MODE_GUIDE: readonly { id: SectionModeId; label: string; text: string }[] 
   { id: 'practice', label: 'Practicar', text: 'Laboratorio con diagnóstico y Oracle.' },
   { id: 'challenge', label: 'Challenge', text: 'Misiones con puntos, solo o en vivo.' },
   { id: 'resources', label: 'Recursos', text: 'Chuleta, referencia y fuentes.' },
-  { id: 'evaluation', label: 'Evaluación', text: 'Llegará con las cuentas de estudiante.' },
+  {
+    id: 'evaluation',
+    label: 'Evaluación',
+    text: 'Llegará con el banco de preguntas del profesor.',
+  },
 ];
 
 export function SectionsHub({ sections, overview, progressFor }: SectionsHubProps) {

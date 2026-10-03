@@ -5,6 +5,7 @@ import {
   PRODUCT_IDENTITY as product,
 } from '@/application/academic-identity';
 import { publicUrlFromEnvironment } from '@/application/public-url';
+import { AccountRoot } from '@/composition/accounts/account-root';
 import { AppShell } from '@/presentation/layouts/app-shell';
 import '@/styles/globals.scss';
 
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="es">
       <body>
-        <AppShell>{children}</AppShell>
+        <AppShell account={<AccountRoot />}>{children}</AppShell>
       </body>
     </html>
   );

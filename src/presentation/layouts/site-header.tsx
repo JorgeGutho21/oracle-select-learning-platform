@@ -3,13 +3,13 @@
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { PRODUCT_IDENTITY as product } from '@/application/academic-identity';
 import { isNavigationItemActive } from '@/features/search/application/search-index';
 import { SearchPalette } from '@/features/search/presentation/search-palette';
 import { platformRoutes } from '@/presentation/navigation/routes';
 
-export function SiteHeader() {
+export function SiteHeader({ account }: { readonly account?: ReactNode }) {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDetailsElement>(null);
 
@@ -56,6 +56,7 @@ export function SiteHeader() {
         </nav>
         <div className="site-header__actions">
           <SearchPalette />
+          {account}
           <details
             ref={menuRef}
             className="mobile-menu"
