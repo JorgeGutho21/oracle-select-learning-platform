@@ -2,8 +2,8 @@ import type { SectionId } from '@/features/sections/domain/sections';
 
 /**
  * Temas del banco por sección. La clave se guarda en `question_bank.topic`; el nombre es el
- * que ve el profesor. Los temas de las secciones 2 y 3 siguen su plan publicado
- * (features/sections) y quedan listos para recibir preguntas.
+ * que ve el profesor. Coinciden con el tema (`topic`) de las lecciones de cada sección
+ * (features/curriculum): una pregunta remite a las lecciones de su tema.
  */
 export interface AssessmentTopic {
   readonly key: string;
@@ -25,19 +25,22 @@ export const ASSESSMENT_TOPICS: Readonly<Record<SectionId, readonly AssessmentTo
     { key: 'consulta-completa', label: 'Consulta completa y errores frecuentes' },
   ],
   'consultas-relacionales': [
-    { key: 'relaciones', label: 'Relaciones: PK y FK' },
-    { key: 'join', label: 'JOIN' },
-    { key: 'agregacion', label: 'Funciones de agregación' },
-    { key: 'grupos', label: 'GROUP BY y HAVING' },
+    { key: 'relaciones', label: 'Relaciones: PK, FK y alias' },
+    { key: 'join', label: 'INNER JOIN y joins múltiples' },
+    { key: 'otros-join', label: 'OUTER, SELF y CROSS JOIN' },
+    { key: 'agregacion', label: 'Funciones de grupo' },
+    { key: 'grupos', label: 'GROUP BY, HAVING y WHERE frente a HAVING' },
     { key: 'subconsultas', label: 'Subconsultas' },
-    { key: 'conjuntos', label: 'Operadores de conjuntos' },
+    { key: 'conjuntos', label: 'Operadores de conjuntos e integración' },
   ],
   plsql: [
-    { key: 'bloques', label: 'Bloques PL/SQL' },
-    { key: 'control', label: 'Control de flujo' },
-    { key: 'cursores', label: 'Cursores' },
+    { key: 'bloques', label: 'Fundamentos y estructura de bloques' },
+    { key: 'variables', label: 'Variables, tipos y SELECT INTO' },
+    { key: 'control', label: 'IF, CASE y control de flujo' },
+    { key: 'cursores', label: 'Bucles y cursores' },
     { key: 'excepciones', label: 'Excepciones' },
-    { key: 'subprogramas', label: 'Procedimientos y funciones' },
+    { key: 'subprogramas', label: 'Procedimientos, funciones y parámetros' },
+    { key: 'paquetes', label: 'Paquetes' },
     { key: 'triggers', label: 'Triggers' },
   ],
 };
