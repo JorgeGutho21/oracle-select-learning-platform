@@ -1,7 +1,8 @@
 // Oracle Database Free local para desarrollo y pruebas (docs/ORACLE_SETUP.md).
 //
 //   node scripts/oracle-local.mjs up      crea o inicia el contenedor y espera a la base
-//   node scripts/oracle-local.mjs setup   crea las cuentas y EMPLEADOS; escribe .env.local
+//   node scripts/oracle-local.mjs setup   crea las cuentas, EMPLEADOS y el esquema de
+//                                         verificación del currículo; escribe .env.local
 //   node scripts/oracle-local.mjs status  estado del contenedor
 //   node scripts/oracle-local.mjs down    detiene el contenedor (conserva los datos)
 //
@@ -13,7 +14,16 @@
 // (.env.oracle.local y .env.local) y nunca se imprimen ni van en la línea de comandos.
 
 import { spawnSync } from 'node:child_process';
-import { createLabSchema, OWNER, password, READER, readEnv, writeEnv } from './oracle-common.mjs';
+import {
+  createCurriculumSandbox,
+  createLabSchema,
+  CURRICULUM_USER,
+  OWNER,
+  password,
+  READER,
+  readEnv,
+  writeEnv,
+} from './oracle-common.mjs';
 
 const IMAGE = 'container-registry.oracle.com/database/free:latest-lite';
 const CONTAINER = 'sql-select-lab-oracle';
@@ -133,6 +143,7 @@ async function setup() {
   }
   try {
     const readerPassword = await createLabSchema(connection, { adminSchema: 'SYSTEM' });
+    const curriculumPassword = await createCurriculumSandbox(connection);
     // La cuenta de una versión anterior del dataset se conserva con otro nombre para volver atrás.
     const env = readEnv(APP_ENV);
     const previous = env.get('ORACLE_USER');
@@ -152,11 +163,13 @@ async function setup() {
         ['ORACLE_PASSWORD', readerPassword],
         ['ORACLE_CONNECT_STRING', CONNECT_STRING],
         ['ORACLE_SCHEMA', OWNER],
+        ['ORACLE_CURRICULUM_USER', CURRICULUM_USER],
+        ['ORACLE_CURRICULUM_PASSWORD', curriculumPassword],
       ]),
       '# Variables locales (no versionar). Ver .env.example.',
     );
     console.log(
-      `Listo: ${OWNER}.EMPLEADOS con 20 filas y ${READER} con CREATE SESSION y READ. Variables en ${APP_ENV}.`,
+      `Listo: ${OWNER}.EMPLEADOS con 20 filas, ${READER} con CREATE SESSION y READ, y ${CURRICULUM_USER} para verificar el currículo. Variables en ${APP_ENV}.`,
     );
   } finally {
     await connection.close();

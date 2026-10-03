@@ -89,3 +89,33 @@ export async function createLabSchema(connection, { adminSchema }) {
   await execute(`GRANT READ ON ${OWNER}.EMPLEADOS TO ${READER}`);
   return readerPassword;
 }
+
+// Esquema de verificación del currículo (secciones 2 y 3): solo para desarrollo y pruebas.
+// Puede crear tablas, procedimientos y triggers en su propio esquema; las pruebas cargan y
+// reinician ahí el dataset empresa-relacional-v1. La aplicación desplegada no lo usa.
+export const CURRICULUM_USER = 'DBLAB_CURRICULO';
+
+/** Crea desde cero la cuenta de verificación del currículo. Devuelve su contraseña. */
+export async function createCurriculumSandbox(connection) {
+  const exists =
+    (
+      await connection.execute('SELECT COUNT(*) FROM dba_users WHERE username = :u', [
+        CURRICULUM_USER,
+      ])
+    ).rows[0][0] > 0;
+  if (exists) await connection.execute(`DROP USER ${CURRICULUM_USER} CASCADE`);
+  const tablespace = (
+    await connection.execute(
+      "SELECT property_value FROM database_properties WHERE property_name = 'DEFAULT_PERMANENT_TABLESPACE'",
+    )
+  ).rows[0][0];
+  if (!/^[A-Z][A-Z0-9_$#]*$/.test(tablespace)) throw new Error('Tablespace por defecto no válido.');
+  const secret = password();
+  await connection.execute(
+    `CREATE USER ${CURRICULUM_USER} IDENTIFIED BY "${secret}" DEFAULT TABLESPACE ${tablespace} QUOTA 20M ON ${tablespace}`,
+  );
+  await connection.execute(
+    `GRANT CREATE SESSION, CREATE TABLE, CREATE PROCEDURE, CREATE TRIGGER, CREATE SEQUENCE, CREATE VIEW TO ${CURRICULUM_USER}`,
+  );
+  return secret;
+}
