@@ -1,3 +1,4 @@
+import { CURRICULUM_OUTLINE } from '@/features/curriculum/application/outline';
 import { describe, expect, it } from 'vitest';
 import { MISSION_IDS } from '@/features/challenge/domain/types';
 import { SCENE_TOTAL } from '@/features/presentation/domain/scenes';
@@ -87,15 +88,28 @@ describe('Registro canónico y avance', () => {
     expect(modeCatalog('fundamentos-sql', 'study')?.total).toBe(LESSON_COUNT);
     expect(modeCatalog('fundamentos-sql', 'challenge')?.total).toBe(MISSION_IDS.length);
     expect(modeCatalog('fundamentos-sql', 'class')?.total).toBe(SCENE_TOTAL);
-    expect(PROGRESS_CATALOG.every(({ section }) => section === 'fundamentos-sql')).toBe(true);
-    expect(sectionIsTracked('consultas-relacionales')).toBe(false);
-    expect(sectionIsTracked('plsql')).toBe(false);
+    // Las secciones de la fuente curricular (Fase 4) salen de su índice publicado.
+    for (const outline of CURRICULUM_OUTLINE) {
+      expect(sectionIsTracked(outline.section)).toBe(true);
+      expect(modeCatalog(outline.section, 'study')?.total).toBe(outline.lessons.length);
+      expect(modeCatalog(outline.section, 'practice')?.total).toBe(outline.practice.length);
+      expect(modeCatalog(outline.section, 'challenge')?.total).toBe(outline.missions.length);
+      expect(modeCatalog(outline.section, 'class')?.total).toBe(outline.scenes);
+    }
+    const published = new Set(['fundamentos-sql', ...CURRICULUM_OUTLINE.map((o) => o.section)]);
+    expect(PROGRESS_CATALOG.every(({ section }) => published.has(section))).toBe(true);
+    for (const section of ['consultas-relacionales', 'plsql'] as const) {
+      expect(sectionIsTracked(section)).toBe(published.has(section));
+    }
   });
 
   it('acepta solo elementos del registro', () => {
     expect(isTrackedKey({ section: 'fundamentos-sql', mode: 'study', item: 'L05' })).toBe(true);
     expect(isTrackedKey({ section: 'fundamentos-sql', mode: 'study', item: 'L99' })).toBe(false);
     expect(isTrackedKey({ section: 'plsql', mode: 'study', item: 'L05' })).toBe(false);
+    expect(isTrackedKey({ section: 'consultas-relacionales', mode: 'study', item: 'L05' })).toBe(
+      false,
+    );
     expect(
       progressRecordSchema.safeParse({ ...study('L05', 'completed'), section: 'otra' }).success,
     ).toBe(false);
@@ -121,13 +135,19 @@ describe('Registro canónico y avance', () => {
     expect(s1.modes.find(({ mode }) => mode === 'class')).toMatchObject({ percent: 50 });
     expect(progress.overall.done).toBe(2);
     expect(progress.resume?.title).toBe(LESSON_INDEX[3]!.shortTitle);
-    expect(progress.sections.find(({ section }) => section === 'plsql')?.lessons).toBeNull();
+    const untracked = progress.sections.filter(
+      ({ section }) =>
+        section !== 'fundamentos-sql' && !CURRICULUM_OUTLINE.some((o) => o.section === section),
+    );
+    for (const section of untracked) expect(section.lessons).toBeNull();
     expect(progress.recent[0]?.text).toBe('Exposición: escena 15');
   });
 
   it('sin avance propone la primera lección', () => {
     const progress = learnerProgress([]);
-    expect(progress.overall).toEqual({ done: 0, total: LESSON_COUNT, percent: 0 });
+    const total =
+      LESSON_COUNT + CURRICULUM_OUTLINE.reduce((sum, outline) => sum + outline.lessons.length, 0);
+    expect(progress.overall).toEqual({ done: 0, total, percent: 0 });
     expect(progress.resume?.label).toBe(`Empezar por «${LESSON_INDEX[0]!.shortTitle}»`);
     expect(progress.recent).toEqual([]);
   });

@@ -1,27 +1,73 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
-  clampScene,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
+import {
   DECK_CHANNEL,
   isDeckMessage,
   SCENE_BLOCKS,
-  SCENE_TOTAL,
-  sceneBlock,
   SCENES,
-  scenesOfBlock,
   type DeckMessage,
   type SceneMemory,
+  type SceneNotes,
 } from '../application/presentation-api';
-import { renderScene } from './presentation-scenes';
-import { SceneStepContext } from './scene-kit';
+import { SceneStepContext } from './scene-step';
 import { Dialog } from '@/presentation/components/ui/dialog';
 import { useHydrated } from '@/presentation/hooks/use-hydrated';
+
+/** Escena de una clase: lo que la exposición necesita saber de ella. */
+export interface DeckScene {
+  readonly number: number;
+  readonly title: string;
+  readonly shortTitle: string;
+  readonly block: string;
+  readonly steps: number;
+  readonly notes: SceneNotes;
+}
+
+/**
+ * Clase que proyecta la exposición: la de la Sección 1 o la de una sección de la fuente
+ * curricular, cuyas escenas llegan ya renderizadas desde el servidor.
+ */
+export interface DeckDefinition {
+  readonly scenes: readonly DeckScene[];
+  readonly blocks: readonly { readonly id: string; readonly title: string }[];
+  /** Ruta de la exposición (`?scene=N` se añade al cambiar de escena). */
+  readonly path: string;
+  /** Vista del presentador en otra ventana, si la hay. */
+  readonly presenterPath: string | null;
+  readonly channel: string;
+  /** Contenido de la escena N (1 = primera). */
+  readonly render: (scene: number) => ReactNode;
+}
+
+/**
+ * Clase de la Sección 1 (`/presentation`). Recibe sus escenas desde fuera para que la
+ * exposición no cargue el contenido de ninguna clase en concreto.
+ */
+export function sectionOneDeck(render: (scene: number) => ReactNode): DeckDefinition {
+  return {
+    scenes: SCENES,
+    blocks: SCENE_BLOCKS,
+    path: '/presentation',
+    presenterPath: '/presentation/presentador',
+    channel: DECK_CHANNEL,
+    render,
+  };
+}
 
 interface PresentationDeckProps {
   /** Escena pedida en la URL; `null` si se entra sin indicarla. */
   readonly requestedScene: number | null;
   readonly memory: SceneMemory;
+  readonly deck: DeckDefinition;
 }
 
 const noSubscription = () => () => {};
@@ -42,17 +88,23 @@ function isActivatable(target: EventTarget | null): boolean {
   return target instanceof Element && Boolean(target.closest('button, a, summary'));
 }
 
-function outlineOf(scene: number) {
-  return SCENES[scene - 1]!;
-}
-
 /** Ancho mínimo del lienzo 16:9 para que las tablas no bajen de 12 px (1,72 % × 0,8). */
 const MIN_STAGE_WIDTH = 870;
 /** Alto aproximado de la barra de controles y ancho del panel de notas. */
 const CONTROLS_HEIGHT = 56;
 const NOTES_WIDTH = 336;
 
-export function PresentationDeck({ requestedScene, memory }: PresentationDeckProps) {
+export function PresentationDeck({ requestedScene, memory, deck }: PresentationDeckProps) {
+  const total = deck.scenes.length;
+  const clampScene = useCallback(
+    (value: number) => (Number.isInteger(value) ? Math.min(Math.max(value, 1), total) : 1),
+    [total],
+  );
+  const outlineOf = useCallback((value: number) => deck.scenes[value - 1]!, [deck]);
+  const scenesOfBlock = useMemo(
+    () => (id: string) => deck.scenes.filter((entry) => entry.block === id),
+    [deck],
+  );
   const [scene, setScene] = useState(() => clampScene(requestedScene ?? 1));
   const [step, setStep] = useState(Number.POSITIVE_INFINITY);
   const [stepMode, setStepMode] = useState(false);
@@ -78,7 +130,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
 
   useEffect(() => {
     if (requestedScene !== null) memory.save(clampScene(requestedScene));
-  }, [memory, requestedScene]);
+  }, [clampScene, memory, requestedScene]);
 
   const goTo = useCallback(
     (target: number, targetStep: 'first' | 'last' = 'first') => {
@@ -87,17 +139,17 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
       setStep(targetStep === 'first' ? 1 : Number.POSITIVE_INFINITY);
       if (next === scene) return;
       // Sin entradas nuevas en el historial: «Atrás» sale de la exposición.
-      window.history.replaceState(null, '', `/presentation?scene=${next}`);
+      window.history.replaceState(null, '', `${deck.path}?scene=${next}`);
       memory.save(next);
       setScene(next);
     },
-    [memory, scene],
+    [clampScene, deck.path, memory, scene],
   );
 
   const forward = useCallback(() => {
     if (stepMode && visibleStep < steps) setStep(visibleStep + 1);
-    else if (scene < SCENE_TOTAL) goTo(scene + 1, 'first');
-  }, [goTo, scene, stepMode, steps, visibleStep]);
+    else if (scene < total) goTo(scene + 1, 'first');
+  }, [goTo, scene, stepMode, steps, total, visibleStep]);
 
   const backward = useCallback(() => {
     if (stepMode && visibleStep > 1 && steps > 1) setStep(visibleStep - 1);
@@ -169,13 +221,13 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
   // Vista del presentador en otra ventana: recibe el estado y puede mover la exposición.
   useEffect(() => {
     if (typeof BroadcastChannel === 'undefined') return;
-    const channel = new BroadcastChannel(DECK_CHANNEL);
+    const channel = new BroadcastChannel(deck.channel);
     channelRef.current = channel;
     return () => {
       channel.close();
       channelRef.current = null;
     };
-  }, []);
+  }, [deck.channel]);
 
   useEffect(() => {
     const channel = channelRef.current;
@@ -198,7 +250,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
     };
     channel.addEventListener('message', handle);
     return () => channel.removeEventListener('message', handle);
-  }, [goTo, scene, stepMode, steps, visibleStep]);
+  }, [clampScene, goTo, scene, stepMode, steps, visibleStep]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -209,7 +261,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
       if (key === 'ArrowRight' || key === 'PageDown') forward();
       else if (key === 'ArrowLeft' || key === 'PageUp') backward();
       else if (key === 'Home') goTo(1);
-      else if (key === 'End') goTo(SCENE_TOTAL);
+      else if (key === 'End') goTo(total);
       else if (key === ' ' && !isActivatable(event.target)) {
         if (event.shiftKey) backward();
         else forward();
@@ -220,7 +272,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [backward, forward, goTo, isFullscreen, toggleFullscreen]);
+  }, [backward, forward, goTo, isFullscreen, toggleFullscreen, total]);
 
   // Al abrir el navegador, el foco va a la escena actual.
   useEffect(() => {
@@ -228,7 +280,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
     document.querySelector<HTMLButtonElement>('.deck-navigator [aria-current="true"]')?.focus();
   }, [navigatorOpen]);
 
-  const block = sceneBlock(outline);
+  const block = deck.blocks.find((entry) => entry.id === outline.block) ?? deck.blocks[0]!;
   const notes = outline.notes;
   const showNotes = notesOpen && !isFullscreen;
 
@@ -245,7 +297,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
       <div className="deck__viewport">
         <div className="deck__stage" key={scene}>
           <SceneStepContext.Provider value={{ step: visibleStep }}>
-            {renderScene(scene)}
+            {deck.render(scene)}
           </SceneStepContext.Provider>
         </div>
         {resumeScene !== null && (
@@ -302,20 +354,22 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
               </div>
             )}
           </dl>
-          <a
-            className="deck-notes__presenter"
-            href={`/presentation/presentador?scene=${scene}`}
-            target="_blank"
-            rel="noopener"
-          >
-            Abrir la vista del presentador <span aria-hidden="true">↗</span>
-          </a>
+          {deck.presenterPath && (
+            <a
+              className="deck-notes__presenter"
+              href={`${deck.presenterPath}?scene=${scene}`}
+              target="_blank"
+              rel="noopener"
+            >
+              Abrir la vista del presentador <span aria-hidden="true">↗</span>
+            </a>
+          )}
         </aside>
       )}
 
       <div className="deck-controls" role="group" aria-label="Controles de la exposición">
         <ol className="deck-progress" aria-hidden="true">
-          {SCENE_BLOCKS.map((entry) => {
+          {deck.blocks.map((entry) => {
             const members = scenesOfBlock(entry.id);
             const done = members.filter((member) => member.number <= scene).length;
             return (
@@ -330,9 +384,9 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
           role="progressbar"
           aria-label="Avance de la exposición"
           aria-valuemin={1}
-          aria-valuemax={SCENE_TOTAL}
+          aria-valuemax={total}
           aria-valuenow={scene}
-          aria-valuetext={`Escena ${scene} de ${SCENE_TOTAL}`}
+          aria-valuetext={`Escena ${scene} de ${total}`}
         />
         <button
           type="button"
@@ -348,7 +402,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
         <p className="deck-status" aria-hidden="true">
           <span className="deck-status__block">{block.title}</span>
           <span className="deck-status__counter">
-            <strong>{String(scene).padStart(2, '0')}</strong> / {SCENE_TOTAL}
+            <strong>{String(scene).padStart(2, '0')}</strong> / {total}
           </span>
           <span className="deck-status__title">{outline.shortTitle}</span>
           {stepMode && steps > 1 && (
@@ -415,7 +469,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
           type="button"
           className="deck-button deck-button--primary"
           onClick={forward}
-          disabled={!hydrated || (scene === SCENE_TOTAL && !(stepMode && visibleStep < steps))}
+          disabled={!hydrated || (scene === total && !(stepMode && visibleStep < steps))}
           aria-label={stepMode && visibleStep < steps ? 'Paso siguiente' : 'Escena siguiente'}
           aria-keyshortcuts="ArrowRight PageDown Space"
         >
@@ -423,7 +477,7 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
           <span aria-hidden="true">→</span>
         </button>
         <p className="visually-hidden" role="status">
-          Escena {scene} de {SCENE_TOTAL}: {outline.title}
+          Escena {scene} de {total}: {outline.title}
           {stepMode && steps > 1 ? `, paso ${Math.min(visibleStep, steps)} de ${steps}` : ''}
         </p>
         {fullscreenNotice && (
@@ -438,11 +492,11 @@ export function PresentationDeck({ requestedScene, memory }: PresentationDeckPro
         onClose={() => setNavigatorOpen(false)}
         returnFocusTo={navigatorTrigger}
         title="Escenas"
-        description={`${SCENE_TOTAL} escenas en ${SCENE_BLOCKS.length} bloques.`}
+        description={`${total} escenas en ${deck.blocks.length} bloques.`}
         className="deck-navigator"
       >
         <nav aria-label="Escenas de la exposición">
-          {SCENE_BLOCKS.map((entry) => (
+          {deck.blocks.map((entry) => (
             <section key={entry.id} className="deck-navigator__block">
               <h3 className="deck-navigator__block-title">{entry.title}</h3>
               <ol>

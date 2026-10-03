@@ -87,6 +87,15 @@
 .sql-token--group {
   color: var(--color-sem-group-dark);
 }
+// PL/SQL: la estructura (DECLARE, BEGIN, END, PROCEDURE…) es neutra y más gruesa; el
+// control de flujo (IF, LOOP, CASE, RAISE…) tiene un único color propio.
+.sql-token--block {
+  color: var(--color-sem-block-dark);
+  font-weight: 800;
+}
+.sql-token--control {
+  color: var(--color-sem-control-dark);
+}
 // Las funciones no son cláusulas: claras y seminegritas, distintas de las palabras clave.
 .sql-token--function {
   color: var(--color-sem-function-dark);

@@ -8,6 +8,7 @@ import {
   SECTION_LIST,
   sectionNeighbors,
 } from '@/features/sections/application/sections-api';
+import { CURRICULUM_OUTLINE, outlineOf } from '@/features/curriculum/application/outline';
 import { CURRICULUM_LEVELS } from '@/features/modules/domain/curriculum';
 import { LESSON_COUNT, LESSON_INDEX } from '@/features/study/application/lesson-index';
 
@@ -15,7 +16,13 @@ const app = path.resolve('src/app');
 
 function pageExists(href: string): boolean {
   const [pathname = ''] = href.split(/[#?]/);
-  return existsSync(path.join(app, ...pathname.split('/').filter(Boolean), 'page.tsx'));
+  const parts = pathname.split('/').filter(Boolean);
+  if (existsSync(path.join(app, ...parts, 'page.tsx'))) return true;
+  // Rutas de sección: /sections/{id}/… usa el segmento dinámico [section].
+  return (
+    parts[0] === 'sections' &&
+    existsSync(path.join(app, 'sections', '[section]', ...parts.slice(2), 'page.tsx'))
+  );
 }
 
 describe('arquitectura de secciones de DB LAB', () => {
@@ -59,7 +66,8 @@ describe('arquitectura de secciones de DB LAB', () => {
   });
 
   it('las secciones próximas no tienen modos enlazados ni cifras inventadas', () => {
-    for (const id of ['consultas-relacionales', 'plsql']) {
+    const upcoming = ['consultas-relacionales', 'plsql'].filter((id) => !outlineOf(id));
+    for (const id of upcoming) {
       const section = getSection(id)!;
       expect(section.status, id).toBe('coming-soon');
       expect(availableModes(section), id).toEqual([]);
@@ -74,33 +82,35 @@ describe('arquitectura de secciones de DB LAB', () => {
     }
   });
 
-  it('la Sección 2 prevé los temas de consultas relacionales y la 3, los de PL/SQL', () => {
-    const topics = (id: string) =>
-      getSection(id)!.topicGroups.flatMap((group) => group.topics.map((topic) => topic.label));
-    expect(topics('consultas-relacionales')).toEqual(
-      expect.arrayContaining([
-        'PK y FK',
-        'INNER JOIN',
-        'LEFT OUTER JOIN',
-        'RIGHT OUTER JOIN',
-        'FULL OUTER JOIN',
-        'CROSS JOIN',
-        'SELF JOIN',
-        'COUNT',
-        'SUM',
-        'AVG',
-        'MIN',
-        'MAX',
-        'GROUP BY',
-        'HAVING',
-        'WHERE frente a HAVING',
-        'UNION',
-        'UNION ALL',
-        'INTERSECT',
-        'MINUS',
-      ]),
+  it('las secciones publicadas en la fuente curricular muestran su temario real', () => {
+    for (const outline of CURRICULUM_OUTLINE) {
+      const section = getSection(outline.section)!;
+      expect(section.status).toBe('available');
+      const lessons = section.topicGroups
+        .filter((group) => group.status === 'available')
+        .flatMap((group) => group.topics);
+      expect(lessons.map((topic) => topic.label)).toEqual(
+        outline.lessons.map((lesson) => lesson.shortTitle),
+      );
+      for (const topic of lessons) {
+        expect(topic.href).toMatch(new RegExp(`^/sections/${outline.section}/study/`));
+      }
+      expect(section.facts.find((fact) => fact.label === 'lecciones')?.value).toBe(
+        String(outline.lessons.length),
+      );
+      for (const mode of availableModes(section)) {
+        expect(pageExists(mode.href!), mode.href!).toBe(true);
+      }
+      expect(availableModes(section)).toHaveLength(6);
+    }
+  });
+
+  it('la Sección 3, mientras no esté publicada, prevé los temas de PL/SQL', () => {
+    if (outlineOf('plsql')) return;
+    const topics = getSection('plsql')!.topicGroups.flatMap((group) =>
+      group.topics.map((topic) => topic.label),
     );
-    expect(topics('plsql')).toEqual(
+    expect(topics).toEqual(
       expect.arrayContaining([
         'DECLARE, BEGIN, EXCEPTION y END',
         'Tipos, %TYPE y %ROWTYPE',

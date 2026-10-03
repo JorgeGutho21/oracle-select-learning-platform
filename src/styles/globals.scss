@@ -25,5 +25,6 @@
 @use 'sections';
 @use 'accounts';
 @use 'assessments';
+@use 'curriculum';
 
 @include tokens.emit;

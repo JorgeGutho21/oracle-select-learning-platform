@@ -1,4 +1,9 @@
 import { MISSION_OVERVIEW } from '@/features/challenge/application/challenge-api';
+import {
+  curriculumLessonHref,
+  outlineOf,
+  type SectionOutline,
+} from '@/features/curriculum/application/outline';
 import { SCENE_TOTAL } from '@/features/presentation/application/presentation-api';
 import {
   LESSON_COUNT,
@@ -80,8 +85,32 @@ function studyTopicGroups(): readonly SectionTopicGroupDto[] {
   }));
 }
 
+/** Temario real de una sección de la fuente curricular: sus bloques y lecciones. */
+function curriculumTopicGroups(outline: SectionOutline): readonly SectionTopicGroupDto[] {
+  return outline.blocks.map((block) => ({
+    title: `${block.number} · ${block.title}`,
+    status: 'available' as const,
+    topics: outline.lessons
+      .filter((lesson) => lesson.block === block.id)
+      .map((lesson) => ({
+        label: lesson.shortTitle,
+        href: curriculumLessonHref(outline.section, lesson.slug),
+      })),
+  }));
+}
+
+function curriculumFacts(outline: SectionOutline): readonly SectionFactDto[] {
+  return [
+    { value: String(outline.lessons.length), label: 'lecciones' },
+    { value: String(outline.blocks.length), label: 'bloques' },
+    { value: String(outline.scenes), label: 'escenas de clase' },
+    { value: String(outline.missions.length), label: 'misiones' },
+  ];
+}
+
 function toDto(section: SectionDefinition): SectionDto {
   const available = section.status === 'available';
+  const outline = outlineOf(section.id);
   const planned = section.plannedTopics.map((group) => ({
     title: group.title,
     status: group.status,
@@ -101,18 +130,25 @@ function toDto(section: SectionDefinition): SectionDto {
     href: sectionHref(section.id),
     prerequisites: section.prerequisites,
     highlights: section.highlights,
-    topicGroups: section.id === 'fundamentos-sql' ? [...studyTopicGroups(), ...planned] : planned,
+    topicGroups:
+      section.id === 'fundamentos-sql'
+        ? [...studyTopicGroups(), ...planned]
+        : outline && available
+          ? [...curriculumTopicGroups(outline), ...planned]
+          : planned,
     modes: section.modes,
     roadmapHref: section.roadmapHref,
     facts:
-      available && section.id === 'fundamentos-sql'
-        ? [
-            { value: String(LESSON_COUNT), label: 'lecciones' },
-            { value: String(STUDY_BLOCKS.length), label: 'bloques' },
-            { value: String(SCENE_TOTAL), label: 'escenas de clase' },
-            { value: String(MISSION_OVERVIEW.length), label: 'misiones' },
-          ]
-        : [],
+      available && outline && section.id !== 'fundamentos-sql'
+        ? curriculumFacts(outline)
+        : available && section.id === 'fundamentos-sql'
+          ? [
+              { value: String(LESSON_COUNT), label: 'lecciones' },
+              { value: String(STUDY_BLOCKS.length), label: 'bloques' },
+              { value: String(SCENE_TOTAL), label: 'escenas de clase' },
+              { value: String(MISSION_OVERVIEW.length), label: 'misiones' },
+            ]
+          : [],
   };
 }
 

@@ -1,4 +1,9 @@
 import { MISSION_IDS } from '@/features/challenge/domain/types';
+import {
+  CURRICULUM_OUTLINE,
+  curriculumLessonHref,
+  type SectionOutline,
+} from '@/features/curriculum/application/outline';
 import { SCENE_TOTAL } from '@/features/presentation/domain/scenes';
 import { SECTIONS, type SectionId, type SectionModeId } from '@/features/sections/domain/sections';
 import { LESSON_INDEX } from '@/features/study/application/lesson-index';
@@ -73,7 +78,66 @@ export const PROGRESS_CATALOG: readonly ModeCatalog[] = [
     items: [{ key: CLASS_ITEM, label: 'Exposición', href: '/presentation', version: null }],
     total: SCENE_TOTAL,
   },
+  ...CURRICULUM_OUTLINE.flatMap(curriculumCatalogs),
 ];
+
+/**
+ * Secciones descritas en la fuente curricular (features/curriculum): lecciones, prácticas,
+ * misiones y escenas salen de su contenido publicado, igual que en la Sección 1.
+ */
+function curriculumCatalogs(outline: SectionOutline): ModeCatalog[] {
+  const { section, lessons, practice, missions, scenes } = outline;
+  const base = `/sections/${section}`;
+  return [
+    {
+      section,
+      mode: 'study',
+      kind: 'items',
+      unit: 'lecciones',
+      items: lessons.map((lesson) => ({
+        key: lesson.id,
+        label: lesson.shortTitle,
+        href: curriculumLessonHref(section, lesson.slug),
+        version: lesson.version,
+      })),
+      total: lessons.length,
+    },
+    {
+      section,
+      mode: 'practice',
+      kind: 'items',
+      unit: 'prácticas',
+      items: practice.map((id, index) => ({
+        key: id,
+        label: `Práctica ${index + 1}`,
+        href: `${base}/practice`,
+        version: null,
+      })),
+      total: practice.length,
+    },
+    {
+      section,
+      mode: 'challenge',
+      kind: 'items',
+      unit: 'misiones',
+      items: missions.map((mission, index) => ({
+        key: mission.id,
+        label: `Misión ${index + 1}`,
+        href: `${base}/challenge`,
+        version: null,
+      })),
+      total: missions.length,
+    },
+    {
+      section,
+      mode: 'class',
+      kind: 'position',
+      unit: 'escenas',
+      items: [{ key: CLASS_ITEM, label: 'Clase', href: `${base}/class`, version: null }],
+      total: scenes,
+    },
+  ];
+}
 
 /** Modo que mide el avance de una sección: el temario del Modo Estudio. */
 export const PRIMARY_MODE: SectionModeId = 'study';

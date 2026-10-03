@@ -47,6 +47,8 @@ export interface TraceStep {
   readonly vars?: Readonly<Record<string, string>>;
   /** Línea que DBMS_OUTPUT escribe en este paso (debe coincidir con la salida de Oracle). */
   readonly output?: string;
+  /** Fila del resultado del cursor que se procesa en este paso (1 = primera). */
+  readonly row?: number;
 }
 
 export interface PlsqlExample {

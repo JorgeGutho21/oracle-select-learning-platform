@@ -114,6 +114,9 @@ function activityText(record: ProgressRecord): string | null {
       ? `Completaste la lección «${item.label}»`
       : `Abriste la lección «${item.label}»`;
   }
+  if (record.mode === 'practice') {
+    return record.status === 'completed' ? `Resolviste la ${item.label.toLowerCase()}` : null;
+  }
   if (record.mode === 'challenge') {
     return record.status === 'completed'
       ? `Cerraste la ${item.label.toLowerCase()}`

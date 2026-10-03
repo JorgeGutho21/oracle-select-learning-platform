@@ -98,6 +98,59 @@ function plannedModes(practice: string): readonly SectionMode[] {
   ];
 }
 
+/**
+ * Modos de una sección descrita en la fuente curricular (features/curriculum): todos viven
+ * bajo `/sections/{id}/…` y la evaluación usa el motor de la Fase 3.
+ */
+function curriculumModes(id: SectionId, practice: string): readonly SectionMode[] {
+  const base = `/sections/${id}`;
+  return [
+    {
+      id: 'class',
+      label: 'Iniciar clase',
+      description: 'Exposición por escenas para proyectar, con notas del profesor y paso a paso.',
+      href: `${base}/class`,
+      action: 'Abrir la clase',
+    },
+    {
+      id: 'study',
+      label: 'Estudiar',
+      description: 'Lecciones a tu ritmo: tablas originales, código, resultado y qué cambió.',
+      href: `${base}/study`,
+      action: 'Abrir el temario',
+    },
+    {
+      id: 'practice',
+      label: 'Practicar',
+      description: practice,
+      href: `${base}/practice`,
+      action: 'Abrir las prácticas',
+    },
+    {
+      id: 'challenge',
+      label: 'Challenge',
+      description: 'Diez misiones de dificultad creciente, con pistas y retroalimentación.',
+      href: `${base}/challenge`,
+      action: 'Empezar las misiones',
+    },
+    {
+      id: 'resources',
+      label: 'Recursos',
+      description:
+        'Referencia condensada: qué es, para qué sirve, sintaxis, ejemplo y error frecuente.',
+      href: `${base}/resources`,
+      action: 'Abrir los recursos',
+    },
+    {
+      id: 'evaluation',
+      label: 'Evaluación',
+      description: 'Evaluaciones calificadas de 0.0 a 5.0 que publica el profesor.',
+      href: `/evaluations?seccion=${id}`,
+      action: 'Ver mis evaluaciones',
+    },
+  ];
+}
+
 export const SECTIONS: readonly SectionDefinition[] = [
   {
     id: 'fundamentos-sql',
@@ -181,8 +234,8 @@ export const SECTIONS: readonly SectionDefinition[] = [
     objective:
       'Responder preguntas que necesitan varias tablas o resúmenes por grupo, y elegir entre JOIN, subconsulta u operador de conjuntos.',
     practice:
-      'Consultas sobre tablas relacionadas por PK y FK, con el mismo patrón visual: tablas originales, consulta, resultado y qué cambió.',
-    status: 'coming-soon',
+      'Prácticas guiadas sobre cuatro tablas relacionadas: completar JOIN, predecir filas, construir agregaciones y corregir consultas, con resultados verificados en Oracle.',
+    status: 'available',
     prerequisites: [
       'Sección 1: SELECT, WHERE y ORDER BY.',
       'Sección 1: NULL y su efecto en las comparaciones.',
@@ -190,44 +243,15 @@ export const SECTIONS: readonly SectionDefinition[] = [
     highlights: ['JOIN', 'Agregaciones', 'GROUP BY', 'Subconsultas', 'Operadores de conjuntos'],
     plannedTopics: [
       {
-        title: 'Relaciones entre tablas',
+        title: 'Ampliación futura',
         status: 'planned',
-        topics: ['PK y FK', 'Alias de tablas', 'ON'],
-      },
-      {
-        title: 'JOIN',
-        status: 'planned',
-        topics: [
-          'INNER JOIN',
-          'LEFT OUTER JOIN',
-          'RIGHT OUTER JOIN',
-          'FULL OUTER JOIN',
-          'CROSS JOIN',
-          'SELF JOIN',
-        ],
-      },
-      {
-        title: 'Funciones de agregación',
-        status: 'planned',
-        topics: ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'],
-      },
-      {
-        title: 'Grupos',
-        status: 'planned',
-        topics: ['GROUP BY', 'HAVING', 'WHERE frente a HAVING'],
-      },
-      {
-        title: 'Subconsultas',
-        status: 'planned',
-        topics: ['De una fila', 'De varias filas', 'Correlacionadas'],
-      },
-      {
-        title: 'Operadores de conjuntos',
-        status: 'planned',
-        topics: ['UNION', 'UNION ALL', 'INTERSECT', 'MINUS'],
+        topics: ['ROLLUP y CUBE', 'Consultas jerárquicas', 'Funciones analíticas', 'Vistas'],
       },
     ],
-    modes: plannedModes('Laboratorio con varias tablas relacionadas y ejecución en Oracle.'),
+    modes: curriculumModes(
+      'consultas-relacionales',
+      'Actividades guiadas: completar JOIN, elegir la condición ON, predecir filas, GROUP BY, HAVING, subconsultas y conjuntos.',
+    ),
     roadmapHref: '/modules#nivel-4',
   },
   {

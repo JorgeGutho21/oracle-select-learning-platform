@@ -20,6 +20,8 @@ import {
   type LocalProgressSource,
 } from '@/features/progress/application/progress-sync';
 import type { ProgressRecord } from '@/features/progress/domain/progress';
+import { CurriculumProgressStore } from '@/features/curriculum/application/curriculum-progress';
+import { BrowserCurriculumProgressStorage } from '@/features/curriculum/infrastructure/browser-curriculum-progress';
 import {
   BrowserOwnerStore,
   browserStorage,
@@ -69,10 +71,12 @@ class BrowserLocalProgressSource implements LocalProgressSource {
       ...studyRecords(await this.studyState()),
       ...challengeRecords(challenge.status === 'found' ? challenge.data : null),
       ...classRecord(readScene(), SCENE_TOTAL, readSceneTime()),
+      ...curriculumProgress().getSnapshot(),
     ];
   }
 
   async absorb(records: readonly ProgressRecord[]): Promise<void> {
+    curriculumProgress().absorb(records);
     const current = await this.studyState();
     const merged = studyStateWithRecords(current, records);
     if (JSON.stringify(merged) !== JSON.stringify(current)) await this.study.save(merged);
@@ -89,6 +93,7 @@ class BrowserLocalProgressSource implements LocalProgressSource {
   }
 
   async clear(): Promise<void> {
+    curriculumProgress().clear();
     await this.study.clear();
     await this.challenge.clear();
     try {
@@ -101,6 +106,18 @@ class BrowserLocalProgressSource implements LocalProgressSource {
 }
 
 let engine: ProgressSync | null = null;
+let curriculum: CurriculumProgressStore | null = null;
+
+/**
+ * Progreso de las secciones de la fuente curricular (Sección 2 en adelante): un solo almacén
+ * por pestaña, que avisa a la sincronización de cada cambio.
+ */
+export function curriculumProgress(): CurriculumProgressStore {
+  curriculum ??= new CurriculumProgressStore(new BrowserCurriculumProgressStorage(), () =>
+    progressSync().notifyLocalChange(),
+  );
+  return curriculum;
+}
 
 /** Una sola sincronización por pestaña, compartida por todas las páginas. */
 export function progressSync(): ProgressSync {

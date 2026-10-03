@@ -105,7 +105,6 @@ export const ANALYSIS_EXAMPLES: readonly CurriculumExample[] = [
     lines(
       'SELECT id_departamento, estado, COUNT(*) AS personas',
       'FROM empleados',
-      'WHERE id_departamento IS NOT NULL',
       'GROUP BY id_departamento, estado',
       'ORDER BY id_departamento, estado;',
     ),
@@ -633,7 +632,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
       example: 'S2-E-AGREGADOS',
       reading:
         'Toma las filas de personas activas y las resume en una sola fila: cuántas son, la suma de sus salarios, el promedio redondeado, el mínimo y el máximo.',
-      visual: { kind: 'group', table: 'EMPLEADOS', by: [] },
+      visual: { kind: 'transform' },
     },
     more: [
       {
@@ -872,6 +871,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     changed: [
       'Cada departamento puede aparecer dos veces: una por estado.',
       'Ventas y Recursos Humanos aparecen una sola vez: no tienen personas inactivas.',
+      'Esteban forma su propio grupo: ID_DEPARTAMENTO NULL y ACTIVO.',
     ],
     mistakes: [
       {

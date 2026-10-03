@@ -127,6 +127,12 @@
   .sql-token--group {
     color: var(--color-sem-group);
   }
+  .sql-token--block {
+    color: var(--color-sem-block);
+  }
+  .sql-token--control {
+    color: var(--color-sem-control);
+  }
   .sql-token--function {
     color: var(--color-ink);
   }

@@ -54,6 +54,11 @@ $colors: (
   sem-order-dark: #f9a8d4,
   sem-join-dark: #6ee7b7,
   sem-group-dark: #fdba74,
+  // PL/SQL: estructura del bloque (neutra y fuerte) y control de flujo (un solo color).
+  sem-block: #0f172a,
+  sem-block-dark: #f8fafc,
+  sem-control: #be123c,
+  sem-control-dark: #fda4af,
   // Funciones (COUNT, ROUND, NVL…): claro y seminegrita, sin competir con las cláusulas.
   sem-function-dark: #e2e8f0,
 );

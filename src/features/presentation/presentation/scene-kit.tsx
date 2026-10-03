@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, Fragment, useContext, useState, type ReactNode } from 'react';
+import { Fragment, useState, type ReactNode } from 'react';
+import { useSceneStep } from './scene-step';
 import {
   CONCEPT_CATEGORY_LABEL,
   SQL_CONCEPTS,
@@ -20,42 +21,7 @@ import { sceneBlock, sceneNumber, SCENES } from '../application/presentation-api
 
 /* ---------- Paso a paso ---------- */
 
-export interface SceneStep {
-  /** Paso visible; `Infinity` muestra la escena entera. */
-  readonly step: number;
-}
-
-export const SceneStepContext = createContext<SceneStep>({ step: Number.POSITIVE_INFINITY });
-
-export function useSceneStep(): number {
-  return useContext(SceneStepContext).step;
-}
-
-/**
- * Contenido que aparece en el paso `at` del modo «Paso a paso». Mientras está oculto
- * conserva su espacio (sin saltos de diseño) y queda fuera del foco y del lector.
- */
-export function Reveal({
-  at,
-  children,
-  className = '',
-}: {
-  readonly at: number;
-  readonly children: ReactNode;
-  readonly className?: string;
-}) {
-  const hidden = useSceneStep() < at;
-  return (
-    <div
-      className={`reveal ${className}`.trim()}
-      data-hidden={hidden || undefined}
-      aria-hidden={hidden || undefined}
-      inert={hidden || undefined}
-    >
-      {children}
-    </div>
-  );
-}
+export { Reveal, SceneStepContext, useSceneStep, type SceneStep } from './scene-step';
 
 /* ---------- Plantilla ---------- */
 

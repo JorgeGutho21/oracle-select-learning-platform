@@ -1,0 +1,356 @@
+[
+  {
+    "section": "consultas-relacionales",
+    "blocks": [
+      {
+        "id": "relaciones",
+        "number": 1,
+        "title": "Relaciones y claves"
+      },
+      {
+        "id": "modelo-join",
+        "number": 2,
+        "title": "Modelo mental del JOIN"
+      },
+      {
+        "id": "inner-join",
+        "number": 3,
+        "title": "INNER JOIN"
+      },
+      {
+        "id": "otros-join",
+        "number": 4,
+        "title": "OUTER, SELF y CROSS JOIN"
+      },
+      {
+        "id": "funciones-grupo",
+        "number": 5,
+        "title": "Funciones de grupo"
+      },
+      {
+        "id": "group-by",
+        "number": 6,
+        "title": "GROUP BY"
+      },
+      {
+        "id": "having",
+        "number": 7,
+        "title": "HAVING"
+      },
+      {
+        "id": "join-agregacion",
+        "number": 8,
+        "title": "JOIN + agregaciones"
+      },
+      {
+        "id": "subconsultas",
+        "number": 9,
+        "title": "Subconsultas"
+      },
+      {
+        "id": "conjuntos",
+        "number": 10,
+        "title": "Operadores de conjuntos"
+      },
+      {
+        "id": "integracion",
+        "number": 11,
+        "title": "Integración final"
+      }
+    ],
+    "lessons": [
+      {
+        "id": "S2-L01",
+        "block": "relaciones",
+        "slug": "claves-primarias-y-foraneas",
+        "title": "Por qué varias tablas: claves primarias y foráneas",
+        "shortTitle": "PK y FK",
+        "summary": "Una tabla guarda una sola cosa; las claves conectan cada empleado con su departamento.",
+        "version": 1
+      },
+      {
+        "id": "S2-L02",
+        "block": "relaciones",
+        "slug": "alias-de-tabla",
+        "title": "Alias de tabla y columnas calificadas",
+        "shortTitle": "Alias de tabla",
+        "summary": "Un alias corto (e, d) dice de qué tabla sale cada columna cuando hay más de una.",
+        "version": 1
+      },
+      {
+        "id": "S2-L03",
+        "block": "modelo-join",
+        "slug": "modelo-mental-del-join",
+        "title": "Tabla A + tabla B + condición = resultado",
+        "shortTitle": "Modelo del JOIN",
+        "summary": "Un JOIN arma filas nuevas uniendo cada fila de una tabla con las filas de otra que cumplen la condición.",
+        "version": 1
+      },
+      {
+        "id": "S2-L04",
+        "block": "inner-join",
+        "slug": "inner-join",
+        "title": "INNER JOIN … ON",
+        "shortTitle": "INNER JOIN",
+        "summary": "INNER JOIN devuelve solo las filas que tienen pareja en las dos tablas.",
+        "version": 1
+      },
+      {
+        "id": "S2-L05",
+        "block": "inner-join",
+        "slug": "columnas-de-varias-tablas",
+        "title": "Columnas de varias tablas y nombres repetidos",
+        "shortTitle": "Columnas de 2 tablas",
+        "summary": "Después del JOIN se pueden elegir, comparar y calificar columnas de las dos tablas.",
+        "version": 1
+      },
+      {
+        "id": "S2-L06",
+        "block": "inner-join",
+        "slug": "join-con-where",
+        "title": "JOIN con WHERE y ORDER BY",
+        "shortTitle": "JOIN + WHERE",
+        "summary": "ON une las tablas; WHERE filtra las filas ya unidas; ORDER BY las ordena.",
+        "version": 1
+      },
+      {
+        "id": "S2-L07",
+        "block": "inner-join",
+        "slug": "joins-multiples",
+        "title": "JOIN de tres o más tablas",
+        "shortTitle": "Joins múltiples",
+        "summary": "Cada JOIN añade una tabla con su propia condición; una tabla intermedia une relaciones muchos a muchos.",
+        "version": 1
+      },
+      {
+        "id": "S2-L08",
+        "block": "otros-join",
+        "slug": "left-outer-join",
+        "title": "LEFT OUTER JOIN: conservar las filas sin pareja",
+        "shortTitle": "LEFT JOIN",
+        "summary": "LEFT JOIN conserva todas las filas de la tabla izquierda; si no tienen pareja, las columnas de la derecha quedan en NULL.",
+        "version": 1
+      },
+      {
+        "id": "S2-L09",
+        "block": "otros-join",
+        "slug": "right-y-full-outer-join",
+        "title": "RIGHT y FULL OUTER JOIN",
+        "shortTitle": "RIGHT y FULL",
+        "summary": "RIGHT JOIN conserva la tabla derecha; FULL JOIN conserva las filas sin pareja de las dos tablas.",
+        "version": 1
+      },
+      {
+        "id": "S2-L10",
+        "block": "otros-join",
+        "slug": "self-join",
+        "title": "SELF JOIN: una tabla consigo misma",
+        "shortTitle": "SELF JOIN",
+        "summary": "Una tabla se une consigo misma con dos alias cuando una columna apunta a otra fila de la misma tabla.",
+        "version": 1
+      },
+      {
+        "id": "S2-L11",
+        "block": "otros-join",
+        "slug": "cross-y-natural-join",
+        "title": "CROSS JOIN, NATURAL JOIN y USING",
+        "shortTitle": "CROSS y NATURAL",
+        "summary": "CROSS JOIN combina todo con todo; NATURAL JOIN y USING unen por nombre de columna, con riesgos.",
+        "version": 1
+      },
+      {
+        "id": "S2-L12",
+        "block": "funciones-grupo",
+        "slug": "funciones-de-grupo",
+        "title": "Funciones de grupo: COUNT, SUM, AVG, MIN y MAX",
+        "shortTitle": "Funciones de grupo",
+        "summary": "Una función de grupo recibe muchas filas y devuelve un solo valor que las resume.",
+        "version": 1
+      },
+      {
+        "id": "S2-L13",
+        "block": "funciones-grupo",
+        "slug": "count-y-null",
+        "title": "COUNT(*), COUNT(columna) y los NULL",
+        "shortTitle": "COUNT y NULL",
+        "summary": "COUNT(*) cuenta filas; COUNT(columna) y las demás funciones de grupo ignoran los NULL.",
+        "version": 1
+      },
+      {
+        "id": "S2-L14",
+        "block": "group-by",
+        "slug": "group-by",
+        "title": "GROUP BY: un resumen por grupo",
+        "shortTitle": "GROUP BY",
+        "summary": "GROUP BY reúne las filas con el mismo valor y la función de grupo se calcula en cada grupo.",
+        "version": 1
+      },
+      {
+        "id": "S2-L15",
+        "block": "group-by",
+        "slug": "group-by-varias-columnas",
+        "title": "Agrupar por varias columnas y errores típicos",
+        "shortTitle": "GROUP BY varias",
+        "summary": "Con varias columnas, cada combinación distinta es un grupo; lo que se muestra debe estar agrupado o resumido.",
+        "version": 1
+      },
+      {
+        "id": "S2-L16",
+        "block": "having",
+        "slug": "having",
+        "title": "HAVING: filtrar grupos",
+        "shortTitle": "HAVING",
+        "summary": "HAVING conserva los grupos que cumplen una condición sobre su resumen.",
+        "version": 1
+      },
+      {
+        "id": "S2-L17",
+        "block": "having",
+        "slug": "where-frente-a-having",
+        "title": "WHERE frente a HAVING: el orden de evaluación",
+        "shortTitle": "WHERE vs HAVING",
+        "summary": "WHERE filtra filas antes de agrupar; HAVING filtra grupos después de agrupar.",
+        "version": 1
+      },
+      {
+        "id": "S2-L18",
+        "block": "join-agregacion",
+        "slug": "join-y-agregaciones",
+        "title": "Contar y promediar por departamento con JOIN",
+        "shortTitle": "JOIN + GROUP BY",
+        "summary": "Primero se unen las tablas y después se agrupa: así el resumen lleva nombres en lugar de claves.",
+        "version": 1
+      },
+      {
+        "id": "S2-L19",
+        "block": "join-agregacion",
+        "slug": "join-group-by-having",
+        "title": "JOIN + GROUP BY + HAVING",
+        "shortTitle": "JOIN + HAVING",
+        "summary": "Con varias tablas, HAVING filtra los grupos ya resumidos: proyectos con muchas horas, áreas con promedio alto.",
+        "version": 1
+      },
+      {
+        "id": "S2-L20",
+        "block": "subconsultas",
+        "slug": "subconsultas-de-una-fila",
+        "title": "Subconsultas de una fila",
+        "shortTitle": "Subconsulta simple",
+        "summary": "Una subconsulta es un SELECT dentro de otro; si devuelve un solo valor, se compara con =, >, <…",
+        "version": 1
+      },
+      {
+        "id": "S2-L21",
+        "block": "subconsultas",
+        "slug": "subconsultas-de-varias-filas",
+        "title": "Subconsultas de varias filas: IN y NOT IN",
+        "shortTitle": "IN con subconsulta",
+        "summary": "Si la subconsulta devuelve una lista, se usa IN; NOT IN falla en silencio si la lista contiene NULL.",
+        "version": 1
+      },
+      {
+        "id": "S2-L22",
+        "block": "subconsultas",
+        "slug": "subconsultas-correlacionadas",
+        "title": "Subconsultas correlacionadas y EXISTS",
+        "shortTitle": "Correlacionadas",
+        "summary": "Una subconsulta correlacionada usa una columna de la consulta externa y se evalúa para cada fila.",
+        "version": 1
+      },
+      {
+        "id": "S2-L23",
+        "block": "conjuntos",
+        "slug": "union-y-union-all",
+        "title": "UNION y UNION ALL",
+        "shortTitle": "UNION",
+        "summary": "UNION apila los resultados de dos consultas sin duplicados; UNION ALL los apila tal cual.",
+        "version": 1
+      },
+      {
+        "id": "S2-L24",
+        "block": "conjuntos",
+        "slug": "intersect-y-minus",
+        "title": "INTERSECT y MINUS",
+        "shortTitle": "INTERSECT y MINUS",
+        "summary": "INTERSECT deja lo que está en los dos resultados; MINUS deja lo del primero que no está en el segundo.",
+        "version": 1
+      },
+      {
+        "id": "S2-L25",
+        "block": "integracion",
+        "slug": "consulta-integradora",
+        "title": "Consulta integradora paso a paso",
+        "shortTitle": "Integración",
+        "summary": "Una pregunta de negocio se responde construyendo la consulta por capas: JOIN, WHERE, GROUP BY, HAVING con subconsulta y ORDER BY.",
+        "version": 1
+      }
+    ],
+    "practice": [
+      "S2-P01",
+      "S2-P02",
+      "S2-P03",
+      "S2-P04",
+      "S2-P05",
+      "S2-P06",
+      "S2-P22",
+      "S2-P07",
+      "S2-P08",
+      "S2-P09",
+      "S2-P10",
+      "S2-P11",
+      "S2-P12",
+      "S2-P13",
+      "S2-P14",
+      "S2-P15",
+      "S2-P16",
+      "S2-P17",
+      "S2-P18",
+      "S2-P19",
+      "S2-P20",
+      "S2-P21"
+    ],
+    "missions": [
+      {
+        "id": "S2-M01",
+        "title": "El mapa de la empresa"
+      },
+      {
+        "id": "S2-M02",
+        "title": "La condición correcta"
+      },
+      {
+        "id": "S2-M03",
+        "title": "Nómina de Finanzas"
+      },
+      {
+        "id": "S2-M04",
+        "title": "Equipos de TI"
+      },
+      {
+        "id": "S2-M05",
+        "title": "Áreas sin proyectos"
+      },
+      {
+        "id": "S2-M06",
+        "title": "Primer resumen"
+      },
+      {
+        "id": "S2-M07",
+        "title": "El salario más alto de cada área"
+      },
+      {
+        "id": "S2-M08",
+        "title": "Áreas sobre la meta"
+      },
+      {
+        "id": "S2-M09",
+        "title": "Personas y áreas sin asignar"
+      },
+      {
+        "id": "S2-M10",
+        "title": "Query Master relacional"
+      }
+    ],
+    "scenes": 34
+  }
+]

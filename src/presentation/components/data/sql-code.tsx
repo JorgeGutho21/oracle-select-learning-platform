@@ -65,6 +65,56 @@ const KEYWORDS = [
   'ALL',
   'INTERSECT',
   'MINUS',
+  'EXCEPT',
+  'EXISTS',
+  'ANY',
+  // PL/SQL: estructura, control de flujo, tipos y excepciones predefinidas.
+  'DECLARE',
+  'BEGIN',
+  'END',
+  'EXCEPTION',
+  'REPLACE',
+  'PROCEDURE',
+  'FUNCTION',
+  'PACKAGE',
+  'BODY',
+  'TRIGGER',
+  'CURSOR',
+  'RETURN',
+  'IF',
+  'THEN',
+  'ELSIF',
+  'ELSE',
+  'CASE',
+  'WHEN',
+  'LOOP',
+  'WHILE',
+  'FOR',
+  'EXIT',
+  'CONTINUE',
+  'RAISE',
+  'OPEN',
+  'FETCH',
+  'CLOSE',
+  'CONSTANT',
+  'NUMBER',
+  'VARCHAR2',
+  'BOOLEAN',
+  'PLS_INTEGER',
+  'TRUE',
+  'FALSE',
+  'OUT',
+  'BEFORE',
+  'AFTER',
+  'EACH',
+  'ROW',
+  'OF',
+  'OTHERS',
+  'NO_DATA_FOUND',
+  'TOO_MANY_ROWS',
+  'ZERO_DIVIDE',
+  'DUP_VAL_ON_INDEX',
+  'VALUE_ERROR',
 ];
 
 // Funciones de Oracle reconocidas solo cuando las sigue un paréntesis: `empleados (` en un
@@ -102,13 +152,17 @@ const FUNCTIONS = [
   'ADD_MONTHS',
   'MONTHS_BETWEEN',
   'EXTRACT',
+  'PUT_LINE',
+  'RAISE_APPLICATION_ERROR',
+  'SQLERRM',
+  'SQLCODE',
 ];
 const FUNCTION_NAMES = new Set(FUNCTIONS);
 
 // Los operadores de comparación y aritméticos se marcan aparte (color ámbar); `-` solo con
 // espacios alrededor, para no confundirlo con un comentario o un número negativo.
 const TOKENS = new RegExp(
-  `--[^\\n]*|"(?:[^"]|"")*"|'(?:[^']|'')*'|\\b(?:${FUNCTIONS.join('|')})(?=\\s*\\()|\\b(?:${KEYWORDS.join('|')})\\b|\\b\\d+(?:\\.\\d+)?\\b|<>|!=|>=|<=|\\|\\||[=<>+/*]|(?<= )-(?= )`,
+  `--[^\\n]*|"(?:[^"]|"")*"|'(?:[^']|'')*'|:=|:(?:NEW|OLD)\\b|%(?:ROWTYPE|TYPE|ROWCOUNT|NOTFOUND|FOUND|ISOPEN)\\b|\\b(?:${FUNCTIONS.join('|')})(?=\\s*\\()|\\b(?:${KEYWORDS.join('|')})\\b|\\b\\d+(?:\\.\\d+)?\\b|<>|!=|>=|<=|\\|\\||[=<>+/*]|(?<= )-(?= )`,
   'gi',
 );
 
@@ -125,20 +179,27 @@ export function highlightSql(code: string): ReactNode[] {
     const star = value === '*' && between.trim() === '' && /^(?:SELECT|DISTINCT)$/i.test(previous);
     const tone = value.startsWith('--')
       ? 'comment'
-      : value.startsWith("'")
-        ? 'string'
-        : value.startsWith('"')
+      : value === ':='
+        ? 'operator'
+        : value.startsWith(':')
           ? 'identifier'
-          : /^\d/.test(value)
-            ? 'number'
-            : FUNCTION_NAMES.has(value.toUpperCase())
-              ? 'function'
-              : /^\w/.test(value)
-                ? 'keyword'
-                : star
-                  ? 'star'
-                  : 'operator';
-    const role = tone === 'keyword' ? sqlRole(value, previous) : null;
+          : value.startsWith('%')
+            ? 'function'
+            : value.startsWith("'")
+              ? 'string'
+              : value.startsWith('"')
+                ? 'identifier'
+                : /^\d/.test(value)
+                  ? 'number'
+                  : FUNCTION_NAMES.has(value.toUpperCase())
+                    ? 'function'
+                    : /^\w/.test(value)
+                      ? 'keyword'
+                      : star
+                        ? 'star'
+                        : 'operator';
+    const following = /^\s*(\w+)/.exec(code.slice(start + value.length))?.[1] ?? '';
+    const role = tone === 'keyword' ? sqlRole(value, previous, following) : null;
     output.push(
       <span
         className={`sql-token sql-token--${tone}${role ? ` sql-token--${role}` : ''}`}
