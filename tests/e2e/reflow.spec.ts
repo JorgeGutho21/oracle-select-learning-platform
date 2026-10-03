@@ -141,7 +141,7 @@ test('con zoom 200 % la paleta de búsqueda cabe y permite abrir un resultado', 
   await page.setViewportSize({ width: 180, height: 400 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Buscar' }).click();
-  const palette = page.getByRole('dialog', { name: 'Buscar en SQL SELECT LAB' });
+  const palette = page.getByRole('dialog', { name: 'Buscar en DB LAB' });
   await palette.getByRole('combobox').fill('distinct');
   const box = await palette.boundingBox();
   expect(box?.x).toBeGreaterThanOrEqual(0);

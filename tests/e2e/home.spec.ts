@@ -3,59 +3,71 @@ import { expect, test } from '@playwright/test';
 import { expectNoHorizontalScroll } from './support/layout';
 
 test.describe('Home', () => {
-  test('presenta la unidad, la identidad académica y los cuatro recorridos', async ({ page }) => {
+  test('presenta DB LAB, la identidad académica, la ruta de secciones y los accesos', async ({
+    page,
+  }) => {
     await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1, name: 'DB LAB' })).toBeVisible();
     await expect(
-      page.getByRole('heading', { level: 1, name: 'SELECT en Oracle SQL' }),
+      page.getByText('Plataforma interactiva de Bases de Datos con Oracle').first(),
     ).toBeVisible();
-    await expect(page.getByText('Oracle Database · SQL Fundamentals')).toBeVisible();
-
     const identity = page.getByRole('region', { name: 'Identidad académica' });
     for (const text of [
+      'DB LAB',
       'Universidad Popular del Cesar',
       'Ingeniería de Sistemas',
-      'Base de Datos',
-      'SELECT en Oracle SQL',
-      'Jorge Gutierrez Thomas',
-      'Amilkar Sierra',
+      'Bases de Datos',
+      'Jorge Gutiérrez Thomas',
+      'Amílcar Sierra Romano',
     ]) {
       await expect(identity.getByText(text, { exact: true })).toBeVisible();
     }
     await expect(
       identity.getByRole('img', { name: 'Universidad Popular del Cesar' }),
     ).toBeVisible();
-
-    const actions = page.getByRole('navigation', { name: 'Recorridos principales' });
-    for (const [name, href] of [
-      ['Iniciar clase', '/presentation'],
-      ['Estudiar', '/learn'],
-      ['Practicar SQL', '/lab'],
-      ['Iniciar Challenge', '/challenge'],
-    ] as const) {
-      await expect(actions.getByRole('link', { name })).toHaveAttribute('href', href);
-    }
-
-    // La consulta del hero ya usa WHERE y ORDER BY, con su resultado real del motor.
+    const actions = page.getByRole('navigation', { name: 'Accesos principales' });
+    await expect(actions.getByRole('link', { name: /Explorar plataforma/ })).toHaveAttribute(
+      'href',
+      '/sections',
+    );
+    // Sin progreso guardado, «Continuar aprendiendo» lleva al temario.
+    await expect(actions.getByRole('link', { name: /Continuar aprendiendo/ })).toHaveAttribute(
+      'href',
+      '/learn',
+    );
+    // La consulta del hero usa WHERE y ORDER BY, con su resultado real del motor.
     const terminal = page.getByRole('figure', { name: 'Ejemplo de consulta y su resultado' });
     await expect(terminal).toContainText("ciudad = 'Bogotá'");
-    await expect(terminal).toContainText('ORDER BY salario_anual DESC');
     await expect(terminal.getByRole('region', { name: 'Vista educativa · 7 filas' })).toBeVisible();
 
-    const path = page.locator('.home-path > li');
-    await expect(path).toHaveCount(8);
-    await expect(path.first().getByRole('link')).toHaveAttribute('href', '/learn/introduccion');
-    const future = page.locator('#proximos-modulos li');
-    await expect(future).toHaveCount(6);
-    await expect(future.filter({ hasText: 'Próximamente' })).toHaveCount(6);
+    // Ruta: tres secciones con estado y enlaces que existen.
+    const route = page.locator('.section-grid').first().locator(':scope > li');
+    await expect(route).toHaveCount(3);
+    await expect(route.nth(0)).toContainText('Fundamentos SQL');
+    await expect(route.nth(0)).toContainText('Disponible');
+    await expect(route.nth(1)).toContainText('Consultas relacionales y análisis');
+    await expect(route.nth(2)).toContainText('PL/SQL y automatización');
+    for (const index of [1, 2]) await expect(route.nth(index)).toContainText('Próximamente');
+    await expect(
+      route.nth(0).getByRole('link', { name: /Entrar a Fundamentos SQL/ }),
+    ).toHaveAttribute('href', '/sections/fundamentos-sql');
+
+    // Patrón pedagógico calculado por el motor: 20 filas y 12 columnas → 5 filas y 2 columnas.
+    const pattern = page.getByRole('list', { name: 'De la tabla original al resultado' });
+    await expect(pattern).toContainText('EMPLEADOS');
+    await expect(pattern).toContainText('20 filas');
+    await expect(pattern).toContainText('5 filas');
+    await expect(pattern).toContainText('2 columnas');
+
+    // Oracle real sin datos sensibles: se explica el recorrido, no la conexión.
+    const oracle = page.getByRole('list', { name: 'Recorrido de una consulta' });
+    await expect(oracle.locator(':scope > li')).toHaveCount(5);
+    await expect(page.locator('main')).not.toContainText(/wallet|contraseña|password/i);
+
     const intro = page.locator('.video-player').filter({ hasText: 'Video introductorio' });
     await expect(intro).not.toContainText('Video en preparación');
     await expect(intro.locator('video, [role="alert"]')).toHaveCount(1);
-    // Sin rótulos de duración de los videos.
     await expect(page.locator('main')).not.toContainText('Duración');
-    await expect(page.getByRole('link', { name: /Ver la ruta de aprendizaje/ })).toHaveAttribute(
-      'href',
-      '/modules',
-    );
   });
 
   test('la demostración escribe la consulta y muestra 8 de las 20 filas', async ({ page }) => {

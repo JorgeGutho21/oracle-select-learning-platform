@@ -15,6 +15,9 @@ const VIEWPORTS = [
 
 const ROUTES = [
   '/',
+  '/sections',
+  '/sections/fundamentos-sql',
+  '/sections/consultas-relacionales',
   '/learn',
   '/learn/expresiones',
   '/learn/between',
@@ -92,7 +95,7 @@ test('los controles táctiles de la barra miden al menos 44 px', async ({ page }
   for (const control of [
     page.getByRole('button', { name: 'Buscar' }),
     page.locator('.mobile-menu summary'),
-    page.getByRole('link', { name: 'SQL SELECT LAB — Inicio' }),
+    page.getByRole('link', { name: 'DB LAB — Inicio' }),
   ]) {
     const box = await control.boundingBox();
     expect(box?.height).toBeGreaterThanOrEqual(44);

@@ -2,6 +2,10 @@ import { expect, test } from '@playwright/test';
 
 const routes = [
   '/',
+  '/sections',
+  '/sections/fundamentos-sql',
+  '/sections/consultas-relacionales',
+  '/sections/plsql',
   '/learn',
   '/presentation',
   '/lab',
@@ -13,7 +17,7 @@ const routes = [
 ] as const;
 
 const navigation = [
-  ['/learn', 'Aprender'],
+  ['/sections', 'Secciones'],
   ['/lab', 'Laboratorio'],
   ['/challenge', 'Challenge'],
   ['/live', 'En vivo'],
@@ -44,7 +48,7 @@ test('la barra principal muestra las entradas acordadas y la búsqueda', async (
   const nav = page.getByRole('navigation', { name: 'Navegación principal' });
   await expect(nav.getByRole('link')).toHaveText([
     'Inicio',
-    'Aprender',
+    'Secciones',
     'Laboratorio',
     'Challenge',
     'En vivo',
@@ -52,8 +56,8 @@ test('la barra principal muestra las entradas acordadas y la búsqueda', async (
   ]);
   await expect(page.getByRole('banner').getByRole('button', { name: 'Buscar' })).toBeVisible();
   // La barra es una sola fila: marca, enlaces y búsqueda comparten línea.
-  const brand = await page.getByRole('link', { name: 'SQL SELECT LAB — Inicio' }).boundingBox();
-  const learn = await nav.getByRole('link', { name: 'Aprender' }).boundingBox();
+  const brand = await page.getByRole('link', { name: 'DB LAB — Inicio' }).boundingBox();
+  const learn = await nav.getByRole('link', { name: 'Secciones' }).boundingBox();
   expect(
     Math.abs(
       (brand?.y ?? 0) + (brand?.height ?? 0) / 2 - ((learn?.y ?? 0) + (learn?.height ?? 0) / 2),
@@ -61,17 +65,17 @@ test('la barra principal muestra las entradas acordadas y la búsqueda', async (
   ).toBeLessThan(8);
 });
 
-test('«Aprender» queda activo también en Exposición y en la ruta de aprendizaje', async ({
+test('«Secciones» queda activo en las secciones, Estudio, Exposición y la ruta', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  for (const route of ['/presentation', '/modules']) {
+  for (const route of ['/sections/plsql', '/learn/where', '/presentation', '/modules']) {
     await page.goto(route);
     await expect(
       page
         .getByRole('navigation', { name: 'Navegación principal' })
         .locator('[aria-current="page"]'),
-    ).toHaveText('Aprender');
+    ).toHaveText('Secciones');
   }
 });
 
@@ -110,7 +114,7 @@ for (const width of [390, 1440]) {
       }
     }
 
-    await page.getByRole('link', { name: 'SQL SELECT LAB — Inicio' }).click();
+    await page.getByRole('link', { name: 'DB LAB — Inicio' }).click();
     await expect(page).toHaveURL('/');
   });
 }
@@ -131,21 +135,21 @@ test('el menú móvil se cierra con Escape y devuelve el foco', async ({ page })
   await expect(summary).toBeFocused();
 });
 
-test('los iconos, el título y la vista previa social identifican la unidad', async ({
+test('los iconos, el título y la vista previa social identifican DB LAB', async ({
   page,
   request,
 }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('SELECT en Oracle SQL | SQL SELECT LAB');
+  await expect(page).toHaveTitle('DB LAB · Plataforma interactiva de Bases de Datos con Oracle');
   await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveCount(1);
   await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveCount(1);
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
     'content',
-    'SELECT en Oracle SQL | SQL SELECT LAB',
+    'DB LAB · Plataforma interactiva de Bases de Datos con Oracle',
   );
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
     'content',
-    /Jorge Gutierrez Thomas.*Amilkar Sierra/,
+    /Jorge Gutiérrez Thomas.*Amílcar Sierra Romano/,
   );
   // Un ICO puede servirse como image/x-icon (next start) o image/vnd.microsoft.icon (Vercel).
   for (const [path, type] of [

@@ -2,13 +2,16 @@ import { expect, test } from '@playwright/test';
 import { attachShot, expectNoHorizontalScroll, watchConsole } from './support/layout';
 
 /**
- * Regresión visual de Home, Estudio, Laboratorio, Recursos y Ruta: ninguna tabla, código ni
+ * Regresión visual de Home, Secciones, Estudio, Laboratorio, Recursos y Ruta: ninguna tabla, código ni
  * región educativa necesita barra horizontal, en escritorio, tableta y móvil (incluido
  * 320 px). Las capturas completas se adjuntan al informe para la revisión humana.
  */
 
 const PAGES = [
   ['home', '/'],
+  ['sections', '/sections'],
+  ['section-1', '/sections/fundamentos-sql'],
+  ['section-3', '/sections/plsql'],
   ['learn', '/learn'],
   ['learn-select', '/learn/select'],
   ['learn-where', '/learn/where'],

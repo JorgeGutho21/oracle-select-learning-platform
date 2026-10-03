@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 function palette(page: Page) {
-  return page.getByRole('dialog', { name: 'Buscar en SQL SELECT LAB' });
+  return page.getByRole('dialog', { name: 'Buscar en DB LAB' });
 }
 
 function field(page: Page) {

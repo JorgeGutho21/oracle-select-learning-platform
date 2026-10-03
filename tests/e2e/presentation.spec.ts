@@ -196,7 +196,7 @@ test.describe('Modo Exposición', () => {
     await openDeck(page, '/presentation?scene=6');
     await expect(page.getByRole('button', { name: 'Buscar' })).toBeEnabled();
     await page.keyboard.press('Control+k');
-    const search = page.getByRole('dialog', { name: 'Buscar en SQL SELECT LAB' });
+    const search = page.getByRole('dialog', { name: 'Buscar en DB LAB' });
     await expect(search).toBeVisible();
     await page.keyboard.press('ArrowRight');
     await page.keyboard.press('PageDown');
