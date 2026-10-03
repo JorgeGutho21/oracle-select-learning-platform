@@ -5,6 +5,28 @@
 // ---------------------------------------------------------------------------
 // Estructura común
 // ---------------------------------------------------------------------------
+// Las rejillas no se ensanchan por el contenido de una tabla: la tabla se desplaza dentro de
+// su propio contenedor y la página nunca tiene barra horizontal.
+.teacher-page__content > *,
+.assessment-page__content > *,
+.teacher-block > *,
+.question-detail > *,
+.review-list > *,
+.review-columns > *,
+.assessment-intro > *,
+.assessment-intro__card > *,
+.exam-question__body > *,
+.exam-main > *,
+.exam-shell > * {
+  min-width: 0;
+}
+// Los textos ocultos (posición absoluta) se quedan dentro de su contenedor con desplazamiento.
+.exam-grid,
+.monitor-table,
+.results-table {
+  position: relative;
+}
+
 // Migas en la cabecera nocturna: el mismo cian del rótulo, subrayadas.
 .ds-page-header--night .ds-page-header__eyebrow a {
   color: inherit;
@@ -371,6 +393,7 @@
 }
 .review-feedback {
   display: grid;
+  min-width: 0;
   gap: var(--space-3);
   margin: 0;
   padding: var(--space-4);
@@ -382,6 +405,8 @@
   }
   dd {
     margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
 
     ul {
       margin: 0;

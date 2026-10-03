@@ -68,7 +68,7 @@ export function AttemptSummary({ attempt }: { readonly attempt: AttemptRow }) {
       </div>
       <div>
         <dt>Nota</dt>
-        <dd className="results-table__grade">
+        <dd>
           {finished ? `${formatGrade(attempt.grade)} / 5.0` : '—'} · {attempt.correctCount ?? 0}/
           {attempt.questionTotal} correctas · {attempt.scorePercent ?? 0} % ponderado
         </dd>
