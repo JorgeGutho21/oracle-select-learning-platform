@@ -85,14 +85,10 @@ test.describe('Secciones', () => {
       [/Practicar SQL/, '/lab'],
       [/Challenge/, '/challenge'],
       [/Recursos/, '/resources'],
+      [/Evaluación/, '/evaluations?seccion=fundamentos-sql'],
     ] as const) {
       await expect(modes.getByRole('link', { name })).toHaveAttribute('href', href);
     }
-    // La evaluación aún no existe: se anuncia, no se enlaza.
-    await expect(modes.getByRole('link', { name: /Evaluación/ })).toHaveCount(0);
-    await expect(modes.locator('li').filter({ hasText: 'Evaluación' })).toContainText(
-      'Próximamente',
-    );
     // El temario enlaza las 22 lecciones del Modo Estudio.
     await expect(page.locator('.topic-group--available a')).toHaveCount(22);
     await modes.getByRole('link', { name: /Practicar SQL/ }).click();

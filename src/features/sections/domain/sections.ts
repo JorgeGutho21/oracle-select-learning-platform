@@ -58,7 +58,7 @@ export interface SectionDefinition {
 const PENDING_EVALUATION: SectionMode = {
   id: 'evaluation',
   label: 'Evaluación',
-  description: 'Llegará con el banco de preguntas y las evaluaciones del profesor.',
+  description: 'Llegará con el contenido de la sección y su banco de preguntas.',
   href: null,
   action: null,
 };
@@ -162,7 +162,13 @@ export const SECTIONS: readonly SectionDefinition[] = [
         href: '/resources',
         action: 'Abrir los recursos',
       },
-      PENDING_EVALUATION,
+      {
+        id: 'evaluation',
+        label: 'Evaluación',
+        description: 'Evaluaciones calificadas de 0.0 a 5.0 que publica el profesor.',
+        href: '/evaluations?seccion=fundamentos-sql',
+        action: 'Ver mis evaluaciones',
+      },
     ],
     roadmapHref: '/modules#nivel-1',
   },

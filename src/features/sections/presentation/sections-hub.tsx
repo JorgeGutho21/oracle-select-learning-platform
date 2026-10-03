@@ -21,7 +21,7 @@ const MODE_GUIDE: readonly { id: SectionModeId; label: string; text: string }[] 
   {
     id: 'evaluation',
     label: 'Evaluación',
-    text: 'Llegará con el banco de preguntas del profesor.',
+    text: 'Evaluaciones calificadas de 0.0 a 5.0 que publica el profesor.',
   },
 ];
 

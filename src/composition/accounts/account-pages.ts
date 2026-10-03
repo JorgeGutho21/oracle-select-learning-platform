@@ -1,5 +1,6 @@
 import 'server-only';
 import { displayName } from '@/features/accounts/application/account-api';
+import { listStudentAssessments } from '@/features/assessments/infrastructure/supabase-assessment-repository';
 import { learnerProgress } from '@/features/progress/application/summary';
 import type { ProgressRecord } from '@/features/progress/domain/progress';
 import { readOwnProgress } from '@/features/progress/infrastructure/supabase-progress-repository';
@@ -20,12 +21,18 @@ import { requireAccount, requireTeacher } from './auth-server';
 
 export async function loadDashboard() {
   const account = await requireAccount('/dashboard');
-  const cloud = await readOwnProgress(account.client, account.user.id);
+  const isStudent = account.profile.role === 'student';
+  const [cloud, assessments] = await Promise.all([
+    readOwnProgress(account.client, account.user.id),
+    isStudent ? listStudentAssessments(account.client) : Promise.resolve(null),
+  ]);
   return {
     userId: account.user.id,
     firstName: account.profile.firstName,
     records: cloud.ok ? cloud.records : ([] as readonly ProgressRecord[]),
     cloudAvailable: cloud.ok,
+    isStudent,
+    assessments,
     now: Date.now(),
   };
 }

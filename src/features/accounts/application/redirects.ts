@@ -7,7 +7,13 @@ export const ACCOUNT_HOME = '/dashboard';
 export const LOGIN_PATH = '/login';
 
 /** Rutas que exigen una sesión. El panel docente además exige el rol de profesor. */
-export const PRIVATE_PATHS = ['/dashboard', '/profile', '/teacher', '/reset-password'] as const;
+export const PRIVATE_PATHS = [
+  '/dashboard',
+  '/profile',
+  '/teacher',
+  '/evaluations',
+  '/reset-password',
+] as const;
 export const TEACHER_PATH = '/teacher';
 
 const ACCESS_PATHS = ['/login', '/register', '/forgot-password', '/auth'];

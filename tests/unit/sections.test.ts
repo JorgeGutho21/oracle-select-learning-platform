@@ -14,7 +14,7 @@ import { LESSON_COUNT, LESSON_INDEX } from '@/features/study/application/lesson-
 const app = path.resolve('src/app');
 
 function pageExists(href: string): boolean {
-  const [pathname = ''] = href.split('#');
+  const [pathname = ''] = href.split(/[#?]/);
   return existsSync(path.join(app, ...pathname.split('/').filter(Boolean), 'page.tsx'));
 }
 
@@ -38,7 +38,7 @@ describe('arquitectura de secciones de DB LAB', () => {
       practice: '/lab',
       challenge: '/challenge',
       resources: '/resources',
-      evaluation: null,
+      evaluation: '/evaluations?seccion=fundamentos-sql',
     });
     for (const mode of availableModes(fundamentals)) {
       expect(pageExists(mode.href!), mode.href!).toBe(true);
