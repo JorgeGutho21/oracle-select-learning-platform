@@ -66,6 +66,8 @@ export interface TableView {
   readonly schema?: TableSchemaView;
   /** Filas totales de la tabla cuando se muestran solo algunas. */
   readonly totalRows: number;
+  /** Consulta de comprobación que produjo la tabla (antes y después de un bloque PL/SQL). */
+  readonly query?: string;
 }
 
 export interface VerificationView {
@@ -186,7 +188,7 @@ export type ActivityView = {
 } & (
   | { readonly kind: 'choice' | 'multi'; readonly options: readonly ActivityOptionView[] }
   | { readonly kind: 'order'; readonly pieces: readonly string[] }
-  | { readonly kind: 'count'; readonly answer: number; readonly unit: 'rows' | 'value' }
+  | { readonly kind: 'count'; readonly answer: number; readonly unit: 'rows' | 'value' | 'lines' }
   | { readonly kind: 'result'; readonly options: readonly ActivityResultOptionView[] }
 );
 
@@ -342,12 +344,8 @@ export function exampleView(id: string): ExampleView {
     result: null,
     error: plsql?.error ?? null,
     output: plsql?.output ?? [],
-    before: (plsql?.before ?? []).map((table, index) =>
-      resultTable(tableTitle(example.before?.[index]), table),
-    ),
-    after: (plsql?.after ?? []).map((table, index) =>
-      resultTable(tableTitle(example.after?.[index]), table),
-    ),
+    before: (plsql?.before ?? []).map((table, index) => probeTable(example.before?.[index], table)),
+    after: (plsql?.after ?? []).map((table, index) => probeTable(example.after?.[index], table)),
     trace: example.trace ?? [],
   };
 }
@@ -356,6 +354,11 @@ export function exampleView(id: string): ExampleView {
 function tableTitle(sql: string | undefined): string {
   const match = /\bFROM\s+(\w+)/i.exec(sql ?? '');
   return match ? match[1]!.toUpperCase() : 'Resultado';
+}
+
+function probeTable(sql: string | undefined, table: VerifiedTable): TableView {
+  const view = resultTable(tableTitle(sql), table);
+  return sql ? { ...view, query: sql } : view;
 }
 
 export function verification(): VerificationView {
@@ -559,6 +562,16 @@ export function activityView(section: SectionId, activity: Activity): ActivityVi
     case 'order':
       return { ...base, kind: 'order', pieces: activity.pieces };
     case 'count': {
+      if (example?.kind === 'plsql') {
+        // Bloque PL/SQL: cuántas líneas escribió DBMS_OUTPUT en Oracle.
+        return {
+          ...base,
+          context: { ...base.context, showResult: false },
+          kind: 'count',
+          answer: example.output.length,
+          unit: 'lines',
+        };
+      }
       const table = example?.result;
       if (!table) throw new Error(`${activity.id}: sin resultado verificado`);
       const unit = activity.measure ?? 'rows';

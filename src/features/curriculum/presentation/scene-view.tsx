@@ -4,6 +4,7 @@ import { ActivityPlayer } from './activity-player';
 import {
   CodeView,
   CurriculumTable,
+  SetupFold,
   ExampleOutcome,
   NumberedCode,
   OracleError,
@@ -70,14 +71,14 @@ function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
   if (example.kind === 'plsql') {
     const cursor = visual.kind === 'cursor' ? visual.query.result : null;
     return (
-      <div className="cu-stage">
-        <Reveal at={1}>
+      <div
+        className={`cu-stage cu-stage--plsql${example.trace.length > 0 ? ' cu-stage--trace' : ''}`}
+      >
+        <Reveal at={1} className="cu-stage__code">
           <p className="cu-stage__question">{entry.question}</p>
-          {example.setup.map((code, index) => (
-            <CodeView key={index} code={code} label="Antes se crea" />
-          ))}
+          <SetupFold setup={example.setup} />
         </Reveal>
-        <Reveal at={2}>
+        <Reveal at={2} className="cu-stage__visual">
           {example.trace.length > 0 ? (
             <ExecutionStepper
               code={example.code}
@@ -89,7 +90,7 @@ function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
             <NumberedCode code={example.code} label="Código" />
           )}
         </Reveal>
-        <Reveal at={3}>
+        <Reveal at={3} className="cu-stage__result">
           {example.trace.length === 0 && example.output.length > 0 && (
             <OutputConsole lines={example.output} />
           )}

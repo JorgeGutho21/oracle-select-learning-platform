@@ -129,8 +129,9 @@ export function GroupVisual({
               {single
                 ? 'Todas las filas'
                 : visual.by.map((column, index) => (
-                    <span key={column}>
-                      {column} = <strong>{keyText(group.key[index] ?? null)}</strong>
+                    <span key={column} className="group-box__part">
+                      <span className="group-box__column">{column} = </span>
+                      <strong>{keyText(group.key[index] ?? null)}</strong>
                     </span>
                   ))}
             </p>

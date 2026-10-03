@@ -315,6 +315,49 @@
   font-size: 0.875rem;
 }
 
+.cu-probe-table {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.cu-probe {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+.cu-probe__label {
+  font-weight: 600;
+}
+.cu-probe__code {
+  overflow-wrap: anywhere;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+}
+
+.cu-setup {
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+.cu-setup > summary {
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.cu-setup__label {
+  margin-right: 0.4em;
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.cu-setup__code {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0 var(--space-2) var(--space-2);
+}
+
 // Código numerado (PL/SQL).
 .cu-numbered .sql-code__pre {
   counter-reset: none;
@@ -531,6 +574,7 @@
   display: grid;
   margin: 0;
   font-size: 0.875rem;
+  overflow-wrap: anywhere;
 }
 .group-box__members {
   display: flex;
@@ -614,12 +658,13 @@
 .trigger-visual {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-2) var(--space-6);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .trigger-visual__step {
+  position: relative;
   display: grid;
   gap: 2px;
   padding: var(--space-2) var(--space-3);
@@ -627,14 +672,33 @@
   border-radius: var(--radius-control);
   background: var(--color-surface);
 }
-.trigger-visual__step + .trigger-visual__step::before {
-  content: '→';
+// Flecha entre pasos, fuera de la tarjeta: nunca tapa el texto ni se lee en voz alta.
+.trigger-visual__step:not(:last-child)::after {
+  content: '→' / '';
   position: absolute;
-  margin-left: -1.6em;
+  top: 50%;
+  right: calc(-1 * var(--space-6));
+  width: var(--space-6);
   color: var(--color-muted);
+  font-weight: 700;
+  text-align: center;
+  transform: translateY(-50%);
 }
-.trigger-visual__step {
-  position: relative;
+@media (max-width: 575px) {
+  .trigger-visual {
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+  .trigger-visual__step:not(:last-child)::after {
+    content: '↓' / '';
+    top: auto;
+    right: auto;
+    bottom: calc(-1 * var(--space-5));
+    left: 0;
+    width: 100%;
+    line-height: var(--space-5);
+    transform: none;
+  }
 }
 .trigger-visual__label {
   color: var(--color-muted);
@@ -1059,6 +1123,9 @@
 }
 .cu-scene .scene__main {
   min-height: 0;
+  // Red de seguridad: si el profesor despliega código largo, la escena se desplaza en vez de
+  // recortar el contenido.
+  overflow-y: auto;
 }
 .cu-stage {
   font-size: 0.86em;
@@ -1075,6 +1142,69 @@
 }
 .cu-stage--transform {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+// PL/SQL: pregunta, preparación y código a la izquierda; salida, error y tablas a la derecha.
+.cu-stage--plsql {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-areas:
+    'code result'
+    'visual result';
+  align-items: start;
+}
+// Con recorrido paso a paso, el recorrido usa todo el ancho (código y estado lado a lado).
+.cu-stage--trace {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'code'
+    'visual'
+    'result';
+}
+.cu-stage--trace .cu-stage__question {
+  font-size: 1em;
+}
+.cu-stage--plsql .sql-code__pre {
+  font-size: 0.8em;
+}
+// Pregunta de clase con código: el código a la izquierda y las respuestas a la derecha.
+.cu-scene--check .cu-activity:has(> .cu-activity__context) {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  column-gap: 1.2em;
+  align-content: start;
+}
+.cu-scene--check .cu-activity:has(> .cu-activity__context) > * {
+  grid-column: 2;
+}
+.cu-scene--check .cu-activity:has(> .cu-activity__context) > .mini-check__eyebrow,
+.cu-scene--check .cu-activity:has(> .cu-activity__context) > .mini-check__prompt {
+  grid-column: 1 / -1;
+}
+.cu-scene--check .cu-activity:has(> .cu-activity__context) > .cu-activity__context {
+  grid-row: 3 / span 6;
+  grid-column: 1;
+}
+// En la clase, la tabla de variables se compacta para que los controles del recorrido sigan
+// a la vista en un proyector de 1024 × 768.
+.cu-scene .stepper__grid {
+  gap: 0.8em;
+}
+.cu-scene .stepper__vars {
+  font-size: 0.8em;
+}
+.cu-scene .stepper__vars th,
+.cu-scene .stepper__vars td {
+  padding: 0.1em 0.5em;
+}
+.cu-scene .stepper__note {
+  font-size: 0.9em;
+}
+// Sin recorrido, el código es lo más largo de la escena: recibe más ancho.
+.cu-stage--plsql:not(.cu-stage--trace) {
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+}
+.cu-stage--plsql .cu-stage__result {
+  display: grid;
+  gap: 0.5em;
 }
 .cu-stage__code {
   grid-area: code;
@@ -1112,18 +1242,71 @@
 .cu-scene .join-visual__table,
 .cu-scene .group-box__members li,
 .cu-scene .group-box__key {
+  display: block;
   font-size: 0.9em;
+}
+// En la clase, la clave del grupo muestra solo los valores («10 · ACTIVO»): los nombres de
+// las columnas ya están en el título del GROUP BY y siguen disponibles para lectores de pantalla.
+.cu-scene .group-box__column {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.cu-scene .group-box__part + .group-box__part::before {
+  content: ' · ' / '';
+}
+.cu-scene .dv--compact th,
+.cu-scene .dv--compact td {
+  padding: 0.2em 0.55em;
 }
 .cu-scene .group-visual__groups {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 9em), 1fr));
   gap: 0.5em;
 }
+// En la clase, las fichas del JOIN se compactan: el destino de cada fila («→ Ventas») ya se
+// lee en el resultado, así que se oculta para que las 20 personas quepan en el lienzo.
+.cu-scene .join-chip {
+  padding: 0.1em 0.5em;
+  border-width: 1.5px;
+  font-size: 0.78em;
+}
+.cu-scene .join-chip__partners {
+  display: none;
+}
+.cu-scene .join-chip--legend {
+  font-size: 0.72em;
+}
+.cu-scene .group-box__members li {
+  font-size: 0.8em;
+}
+.cu-scene .pipeline-visual__stage {
+  padding: 0.4em 0.7em;
+}
 .cu-scene .group-box {
   padding: 0.5em;
 }
 .cu-scene .stepper {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   padding: 0.6em;
   font-size: 0.85em;
+}
+// En la clase, los controles del recorrido suben a la cabecera: siempre visibles.
+.cu-scene .stepper__controls {
+  grid-row: 1;
+  grid-column: 2;
+  justify-content: flex-end;
+}
+.cu-scene .stepper__controls .ds-button {
+  min-height: 2.2em;
+  padding: 0.25em 0.8em;
+  font-size: 0.85em;
+}
+.cu-scene .stepper__grid {
+  grid-column: 1 / -1;
 }
 .cu-scene .cu-console__body,
 .cu-scene .cu-oracle-error__message {

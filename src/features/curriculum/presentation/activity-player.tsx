@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { Route } from 'next';
 import { useId, useMemo, useRef, useState } from 'react';
 import type { ActivityView } from '../application/curriculum-api';
-import { CodeView, CurriculumTable, ExampleOutcome, OracleError } from './example-parts';
+import { CodeView, CurriculumTable, ExampleOutcome, OracleError, SetupFold } from './example-parts';
 import { SourceTables } from './visuals';
 import { SequenceBuilder } from '@/presentation/components/interaction/sequence-builder';
 
@@ -141,9 +141,9 @@ export function ActivityPlayer({
         return {
           kind: 'wrong',
           detail:
-            activity.unit === 'rows'
-              ? `${numberFormat.format(value)} no es el número de filas. ${value > activity.answer ? 'Son menos.' : 'Son más.'}`
-              : `${numberFormat.format(value)} no es el valor que devuelve la consulta.`,
+            activity.unit === 'value'
+              ? `${numberFormat.format(value)} no es el valor que devuelve la consulta.`
+              : `${numberFormat.format(value)} no es el número de ${activity.unit === 'rows' ? 'filas' : 'líneas'}. ${value > activity.answer ? 'Son menos.' : 'Son más.'}`,
         };
       }
       case 'order': {
@@ -227,6 +227,7 @@ export function ActivityPlayer({
               <SourceTables tables={context.example.sources} />
             </details>
           )}
+          {context.example.kind === 'plsql' && <SetupFold setup={context.example.setup} />}
           <CodeView
             code={context.example.code}
             label={context.example.kind === 'plsql' ? 'Código PL/SQL' : 'Consulta'}
@@ -320,7 +321,13 @@ export function ActivityPlayer({
 
       {activity.kind === 'count' && (
         <label className="mini-check__number">
-          <span>{activity.unit === 'rows' ? 'Número de filas' : 'Valor que devuelve'}</span>
+          <span>
+            {activity.unit === 'rows'
+              ? 'Número de filas'
+              : activity.unit === 'lines'
+                ? 'Número de líneas'
+                : 'Valor que devuelve'}
+          </span>
           <input
             type="text"
             inputMode="numeric"

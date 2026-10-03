@@ -26,6 +26,46 @@ export function tableSummary(table: TableView): string {
   return `${rows} · ${plural(table.columns.length, 'columna', 'columnas')}`;
 }
 
+const CREATED =
+  /\bCREATE\s+(?:OR\s+REPLACE\s+)?(TRIGGER|PROCEDURE|FUNCTION|PACKAGE\s+BODY|PACKAGE)\s+(\w+)/i;
+
+/** «TRIGGER trg_auditar_salario»: qué objeto crea un script de preparación. */
+export function createdObject(code: string): string {
+  const match = CREATED.exec(code);
+  return match ? `${match[1]!.toUpperCase().replace(/\s+/, ' ')} ${match[2]}` : 'Preparación';
+}
+
+/**
+ * Objetos que se crean antes de ejecutar el ejemplo, plegados: en la clase el código de
+ * preparación puede ser largo y el profesor lo despliega solo si lo necesita.
+ */
+export function SetupFold({ setup }: { readonly setup: readonly string[] }) {
+  if (setup.length === 0) return null;
+  return (
+    <details className="cu-setup">
+      <summary>
+        <span className="cu-setup__label">Antes se crea</span>{' '}
+        {setup.map(createdObject).join(' · ')}
+      </summary>
+      <div className="cu-setup__code">
+        {setup.map((code, index) => (
+          <CodeView key={index} code={code} label={createdObject(code)} />
+        ))}
+      </div>
+    </details>
+  );
+}
+
+/** Consulta con la que se leyó el estado de una tabla antes o después de un bloque. */
+export function ProbeQuery({ query }: { readonly query: string }) {
+  return (
+    <p className="cu-probe">
+      <span className="cu-probe__label">Consulta de comprobación</span>{' '}
+      <code className="cu-probe__code">{query}</code>
+    </p>
+  );
+}
+
 export function CurriculumTable({
   table,
   label,

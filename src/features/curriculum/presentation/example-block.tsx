@@ -6,6 +6,7 @@ import {
   NumberedCode,
   OutputConsole,
   OracleError,
+  ProbeQuery,
   tableSummary,
 } from './example-parts';
 import { ExecutionStepper } from './execution-stepper';
@@ -132,13 +133,15 @@ function PlsqlExample({
       ))}
       {!stage &&
         example.before.map((table, index) => (
-          <CurriculumTable
-            key={`before-${index}`}
-            table={table}
-            label={`Antes: ${table.title}`}
-            caption={`${table.title} antes de ejecutar`}
-            size="compact"
-          />
+          <div key={`before-${index}`} className="cu-probe-table">
+            {table.query && <ProbeQuery query={table.query} />}
+            <CurriculumTable
+              table={table}
+              label={`Antes: ${table.title}`}
+              caption={`${table.title} antes de ejecutar`}
+              size="compact"
+            />
+          </div>
         ))}
       {example.trace.length > 0 ? (
         <ExecutionStepper
@@ -168,13 +171,15 @@ function PlsqlExample({
       )}
       {example.error && <OracleError error={example.error} />}
       {example.after.map((table, index) => (
-        <CurriculumTable
-          key={`after-${index}`}
-          table={table}
-          label={`Después: ${table.title}`}
-          caption={`${table.title} después de ejecutar`}
-          size="compact"
-        />
+        <div key={`after-${index}`} className="cu-probe-table">
+          {!stage && table.query && <ProbeQuery query={table.query} />}
+          <CurriculumTable
+            table={table}
+            label={`Después: ${table.title}`}
+            caption={`${table.title} después de ejecutar`}
+            size="compact"
+          />
+        </div>
       ))}
     </>
   );
