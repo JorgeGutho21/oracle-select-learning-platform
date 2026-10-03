@@ -283,7 +283,8 @@ export interface CurriculumScene {
   readonly notes: SceneNotes;
 }
 
-export interface SectionCurriculum {
+/** Lo común a una sección completa y a una ampliación: bloques, lecciones y ejemplos. */
+export interface CurriculumUnit {
   readonly section: SectionId;
   readonly dataset: DatasetRef;
   readonly blocks: readonly CurriculumBlock[];
@@ -292,6 +293,20 @@ export interface SectionCurriculum {
   readonly examples: readonly CurriculumExample[];
   /** Actividades de Practicar (cada una remite a su lección). */
   readonly practice: readonly Activity[];
+}
+
+/** Sección descrita por completo en la fuente curricular, con sus seis modos. */
+export interface SectionCurriculum extends CurriculumUnit {
   readonly missions: readonly Mission[];
   readonly scenes: readonly CurriculumScene[];
+}
+
+/**
+ * Ampliación de una sección que conserva sus propios modos (la Sección 1): aporta lecciones
+ * con ejemplos verificados en Oracle que se integran en su modo Estudiar.
+ */
+export interface CurriculumExtension extends CurriculumUnit {
+  readonly kind: 'extension';
+  /** Lecciones que la sección ya tiene antes de la ampliación (para numerar las nuevas). */
+  readonly lessonOffset: number;
 }

@@ -7,6 +7,7 @@ import {
   levelAnchor,
   STAGE_LABEL,
   topicAnchor,
+  topicLesson,
   topicStatusLabel,
   upcomingLevels,
 } from '@/features/modules/application/modules-api';
@@ -35,7 +36,8 @@ describe('ruta de aprendizaje (roadmap)', () => {
     expect(new Set(slugs).size).toBe(slugs.length);
     for (const topic of FUTURE_TOPICS) {
       expect(topic.status, topic.id).toBe('future');
-      expect(topicStatusLabel(topic)).toBe('Próximamente');
+      // Desde la Fase 4, un tema que ya enseña una lección de las secciones enlaza a ella.
+      expect(topicStatusLabel(topic)).toBe(topicLesson(topic) ? 'Disponible' : 'Próximamente');
       expect(topic.title, topic.id).toMatch(/\S/);
       expect(topic.shortDefinition.length, topic.id).toBeGreaterThan(15);
       expect(topic.purpose.length, topic.id).toBeGreaterThan(15);
@@ -161,5 +163,20 @@ describe('ruta de aprendizaje (roadmap)', () => {
       expect(futureTopicHref(topic), topic).toBe(`/modules#tema-${topic}`);
     }
     expect(futureTopicHref('no-existe')).toBeNull();
+  });
+});
+
+describe('temas de la ruta que ya enseñan las secciones (Fase 4)', () => {
+  it('cada tema enlazado apunta a una lección publicada', () => {
+    const taught = FUTURE_TOPICS.filter((topic) => topicLesson(topic));
+    expect(taught.length).toBeGreaterThanOrEqual(30);
+    for (const topic of taught) {
+      expect(topicLesson(topic)!.href, topic.id).toMatch(
+        /^\/sections\/[a-z-]+\/study\/[a-z0-9-]+$/,
+      );
+    }
+    // Lo que todavía no enseña ninguna lección sigue «Próximamente».
+    expect(topicLesson({ id: 'to-char' })).toBeNull();
+    expect(topicLesson({ id: 'create-table' })).toBeNull();
   });
 });

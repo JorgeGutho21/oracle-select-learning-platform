@@ -2,6 +2,7 @@ import { MISSION_IDS } from '@/features/challenge/domain/types';
 import {
   CURRICULUM_OUTLINE,
   curriculumLessonHref,
+  extensionOf,
   type SectionOutline,
 } from '@/features/curriculum/application/outline';
 import { SCENE_TOTAL } from '@/features/presentation/domain/scenes';
@@ -49,13 +50,22 @@ export const PROGRESS_CATALOG: readonly ModeCatalog[] = [
     mode: 'study',
     kind: 'items',
     unit: 'lecciones',
-    items: LESSON_INDEX.map((lesson) => ({
-      key: lesson.id,
-      label: lesson.shortTitle,
-      href: `/learn/${lesson.slug}`,
-      version: lesson.version,
-    })),
-    total: LESSON_INDEX.length,
+    items: [
+      ...LESSON_INDEX.map((lesson) => ({
+        key: lesson.id,
+        label: lesson.shortTitle,
+        href: `/learn/${lesson.slug}`,
+        version: lesson.version,
+      })),
+      // Ampliación «Funciones de una fila» (fuente curricular, verificada en Oracle).
+      ...(extensionOf('fundamentos-sql')?.lessons ?? []).map((lesson) => ({
+        key: lesson.id,
+        label: lesson.shortTitle,
+        href: curriculumLessonHref('fundamentos-sql', lesson.slug),
+        version: lesson.version,
+      })),
+    ],
+    total: LESSON_INDEX.length + (extensionOf('fundamentos-sql')?.lessons.length ?? 0),
   },
   {
     section: 'fundamentos-sql',

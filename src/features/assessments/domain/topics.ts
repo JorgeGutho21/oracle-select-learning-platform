@@ -23,6 +23,7 @@ export const ASSESSMENT_TOPICS: Readonly<Record<SectionId, readonly AssessmentTo
     { key: 'null', label: 'NULL' },
     { key: 'order-by', label: 'ORDER BY' },
     { key: 'consulta-completa', label: 'Consulta completa y errores frecuentes' },
+    { key: 'funciones', label: 'Funciones de una fila' },
   ],
   'consultas-relacionales': [
     { key: 'relaciones', label: 'Relaciones: PK, FK y alias' },

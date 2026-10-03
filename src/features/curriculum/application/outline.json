@@ -1,751 +1,794 @@
-[
-  {
-    "section": "consultas-relacionales",
-    "blocks": [
-      {
-        "id": "relaciones",
-        "number": 1,
-        "title": "Relaciones y claves"
-      },
-      {
-        "id": "modelo-join",
-        "number": 2,
-        "title": "Modelo mental del JOIN"
-      },
-      {
-        "id": "inner-join",
-        "number": 3,
-        "title": "INNER JOIN"
-      },
-      {
-        "id": "otros-join",
-        "number": 4,
-        "title": "OUTER, SELF y CROSS JOIN"
-      },
-      {
-        "id": "funciones-grupo",
-        "number": 5,
-        "title": "Funciones de grupo"
-      },
-      {
-        "id": "group-by",
-        "number": 6,
-        "title": "GROUP BY"
-      },
-      {
-        "id": "having",
-        "number": 7,
-        "title": "HAVING"
-      },
-      {
-        "id": "join-agregacion",
-        "number": 8,
-        "title": "JOIN + agregaciones"
-      },
-      {
-        "id": "subconsultas",
-        "number": 9,
-        "title": "Subconsultas"
-      },
-      {
-        "id": "conjuntos",
-        "number": 10,
-        "title": "Operadores de conjuntos"
-      },
-      {
-        "id": "integracion",
-        "number": 11,
-        "title": "Integración final"
-      }
-    ],
-    "lessons": [
-      {
-        "id": "S2-L01",
-        "block": "relaciones",
-        "slug": "claves-primarias-y-foraneas",
-        "title": "Por qué varias tablas: claves primarias y foráneas",
-        "shortTitle": "PK y FK",
-        "summary": "Una tabla guarda una sola cosa; las claves conectan cada empleado con su departamento.",
-        "version": 1
-      },
-      {
-        "id": "S2-L02",
-        "block": "relaciones",
-        "slug": "alias-de-tabla",
-        "title": "Alias de tabla y columnas calificadas",
-        "shortTitle": "Alias de tabla",
-        "summary": "Un alias corto (e, d) dice de qué tabla sale cada columna cuando hay más de una.",
-        "version": 1
-      },
-      {
-        "id": "S2-L03",
-        "block": "modelo-join",
-        "slug": "modelo-mental-del-join",
-        "title": "Tabla A + tabla B + condición = resultado",
-        "shortTitle": "Modelo del JOIN",
-        "summary": "Un JOIN arma filas nuevas uniendo cada fila de una tabla con las filas de otra que cumplen la condición.",
-        "version": 1
-      },
-      {
-        "id": "S2-L04",
-        "block": "inner-join",
-        "slug": "inner-join",
-        "title": "INNER JOIN … ON",
-        "shortTitle": "INNER JOIN",
-        "summary": "INNER JOIN devuelve solo las filas que tienen pareja en las dos tablas.",
-        "version": 1
-      },
-      {
-        "id": "S2-L05",
-        "block": "inner-join",
-        "slug": "columnas-de-varias-tablas",
-        "title": "Columnas de varias tablas y nombres repetidos",
-        "shortTitle": "Columnas de 2 tablas",
-        "summary": "Después del JOIN se pueden elegir, comparar y calificar columnas de las dos tablas.",
-        "version": 1
-      },
-      {
-        "id": "S2-L06",
-        "block": "inner-join",
-        "slug": "join-con-where",
-        "title": "JOIN con WHERE y ORDER BY",
-        "shortTitle": "JOIN + WHERE",
-        "summary": "ON une las tablas; WHERE filtra las filas ya unidas; ORDER BY las ordena.",
-        "version": 1
-      },
-      {
-        "id": "S2-L07",
-        "block": "inner-join",
-        "slug": "joins-multiples",
-        "title": "JOIN de tres o más tablas",
-        "shortTitle": "Joins múltiples",
-        "summary": "Cada JOIN añade una tabla con su propia condición; una tabla intermedia une relaciones muchos a muchos.",
-        "version": 1
-      },
-      {
-        "id": "S2-L08",
-        "block": "otros-join",
-        "slug": "left-outer-join",
-        "title": "LEFT OUTER JOIN: conservar las filas sin pareja",
-        "shortTitle": "LEFT JOIN",
-        "summary": "LEFT JOIN conserva todas las filas de la tabla izquierda; si no tienen pareja, las columnas de la derecha quedan en NULL.",
-        "version": 1
-      },
-      {
-        "id": "S2-L09",
-        "block": "otros-join",
-        "slug": "right-y-full-outer-join",
-        "title": "RIGHT y FULL OUTER JOIN",
-        "shortTitle": "RIGHT y FULL",
-        "summary": "RIGHT JOIN conserva la tabla derecha; FULL JOIN conserva las filas sin pareja de las dos tablas.",
-        "version": 1
-      },
-      {
-        "id": "S2-L10",
-        "block": "otros-join",
-        "slug": "self-join",
-        "title": "SELF JOIN: una tabla consigo misma",
-        "shortTitle": "SELF JOIN",
-        "summary": "Una tabla se une consigo misma con dos alias cuando una columna apunta a otra fila de la misma tabla.",
-        "version": 1
-      },
-      {
-        "id": "S2-L11",
-        "block": "otros-join",
-        "slug": "cross-y-natural-join",
-        "title": "CROSS JOIN, NATURAL JOIN y USING",
-        "shortTitle": "CROSS y NATURAL",
-        "summary": "CROSS JOIN combina todo con todo; NATURAL JOIN y USING unen por nombre de columna, con riesgos.",
-        "version": 1
-      },
-      {
-        "id": "S2-L12",
-        "block": "funciones-grupo",
-        "slug": "funciones-de-grupo",
-        "title": "Funciones de grupo: COUNT, SUM, AVG, MIN y MAX",
-        "shortTitle": "Funciones de grupo",
-        "summary": "Una función de grupo recibe muchas filas y devuelve un solo valor que las resume.",
-        "version": 1
-      },
-      {
-        "id": "S2-L13",
-        "block": "funciones-grupo",
-        "slug": "count-y-null",
-        "title": "COUNT(*), COUNT(columna) y los NULL",
-        "shortTitle": "COUNT y NULL",
-        "summary": "COUNT(*) cuenta filas; COUNT(columna) y las demás funciones de grupo ignoran los NULL.",
-        "version": 1
-      },
-      {
-        "id": "S2-L14",
-        "block": "group-by",
-        "slug": "group-by",
-        "title": "GROUP BY: un resumen por grupo",
-        "shortTitle": "GROUP BY",
-        "summary": "GROUP BY reúne las filas con el mismo valor y la función de grupo se calcula en cada grupo.",
-        "version": 1
-      },
-      {
-        "id": "S2-L15",
-        "block": "group-by",
-        "slug": "group-by-varias-columnas",
-        "title": "Agrupar por varias columnas y errores típicos",
-        "shortTitle": "GROUP BY varias",
-        "summary": "Con varias columnas, cada combinación distinta es un grupo; lo que se muestra debe estar agrupado o resumido.",
-        "version": 1
-      },
-      {
-        "id": "S2-L16",
-        "block": "having",
-        "slug": "having",
-        "title": "HAVING: filtrar grupos",
-        "shortTitle": "HAVING",
-        "summary": "HAVING conserva los grupos que cumplen una condición sobre su resumen.",
-        "version": 1
-      },
-      {
-        "id": "S2-L17",
-        "block": "having",
-        "slug": "where-frente-a-having",
-        "title": "WHERE frente a HAVING: el orden de evaluación",
-        "shortTitle": "WHERE vs HAVING",
-        "summary": "WHERE filtra filas antes de agrupar; HAVING filtra grupos después de agrupar.",
-        "version": 1
-      },
-      {
-        "id": "S2-L18",
-        "block": "join-agregacion",
-        "slug": "join-y-agregaciones",
-        "title": "Contar y promediar por departamento con JOIN",
-        "shortTitle": "JOIN + GROUP BY",
-        "summary": "Primero se unen las tablas y después se agrupa: así el resumen lleva nombres en lugar de claves.",
-        "version": 1
-      },
-      {
-        "id": "S2-L19",
-        "block": "join-agregacion",
-        "slug": "join-group-by-having",
-        "title": "JOIN + GROUP BY + HAVING",
-        "shortTitle": "JOIN + HAVING",
-        "summary": "Con varias tablas, HAVING filtra los grupos ya resumidos: proyectos con muchas horas, áreas con promedio alto.",
-        "version": 1
-      },
-      {
-        "id": "S2-L20",
-        "block": "subconsultas",
-        "slug": "subconsultas-de-una-fila",
-        "title": "Subconsultas de una fila",
-        "shortTitle": "Subconsulta simple",
-        "summary": "Una subconsulta es un SELECT dentro de otro; si devuelve un solo valor, se compara con =, >, <…",
-        "version": 1
-      },
-      {
-        "id": "S2-L21",
-        "block": "subconsultas",
-        "slug": "subconsultas-de-varias-filas",
-        "title": "Subconsultas de varias filas: IN y NOT IN",
-        "shortTitle": "IN con subconsulta",
-        "summary": "Si la subconsulta devuelve una lista, se usa IN; NOT IN falla en silencio si la lista contiene NULL.",
-        "version": 1
-      },
-      {
-        "id": "S2-L22",
-        "block": "subconsultas",
-        "slug": "subconsultas-correlacionadas",
-        "title": "Subconsultas correlacionadas y EXISTS",
-        "shortTitle": "Correlacionadas",
-        "summary": "Una subconsulta correlacionada usa una columna de la consulta externa y se evalúa para cada fila.",
-        "version": 1
-      },
-      {
-        "id": "S2-L23",
-        "block": "conjuntos",
-        "slug": "union-y-union-all",
-        "title": "UNION y UNION ALL",
-        "shortTitle": "UNION",
-        "summary": "UNION apila los resultados de dos consultas sin duplicados; UNION ALL los apila tal cual.",
-        "version": 1
-      },
-      {
-        "id": "S2-L24",
-        "block": "conjuntos",
-        "slug": "intersect-y-minus",
-        "title": "INTERSECT y MINUS",
-        "shortTitle": "INTERSECT y MINUS",
-        "summary": "INTERSECT deja lo que está en los dos resultados; MINUS deja lo del primero que no está en el segundo.",
-        "version": 1
-      },
-      {
-        "id": "S2-L25",
-        "block": "integracion",
-        "slug": "consulta-integradora",
-        "title": "Consulta integradora paso a paso",
-        "shortTitle": "Integración",
-        "summary": "Una pregunta de negocio se responde construyendo la consulta por capas: JOIN, WHERE, GROUP BY, HAVING con subconsulta y ORDER BY.",
-        "version": 1
-      }
-    ],
-    "practice": [
-      "S2-P01",
-      "S2-P02",
-      "S2-P03",
-      "S2-P04",
-      "S2-P05",
-      "S2-P06",
-      "S2-P22",
-      "S2-P07",
-      "S2-P08",
-      "S2-P09",
-      "S2-P10",
-      "S2-P11",
-      "S2-P12",
-      "S2-P13",
-      "S2-P14",
-      "S2-P15",
-      "S2-P16",
-      "S2-P17",
-      "S2-P18",
-      "S2-P19",
-      "S2-P20",
-      "S2-P21"
-    ],
-    "missions": [
-      {
-        "id": "S2-M01",
-        "title": "El mapa de la empresa"
-      },
-      {
-        "id": "S2-M02",
-        "title": "La condición correcta"
-      },
-      {
-        "id": "S2-M03",
-        "title": "Nómina de Finanzas"
-      },
-      {
-        "id": "S2-M04",
-        "title": "Equipos de TI"
-      },
-      {
-        "id": "S2-M05",
-        "title": "Áreas sin proyectos"
-      },
-      {
-        "id": "S2-M06",
-        "title": "Primer resumen"
-      },
-      {
-        "id": "S2-M07",
-        "title": "El salario más alto de cada área"
-      },
-      {
-        "id": "S2-M08",
-        "title": "Áreas sobre la meta"
-      },
-      {
-        "id": "S2-M09",
-        "title": "Personas y áreas sin asignar"
-      },
-      {
-        "id": "S2-M10",
-        "title": "Query Master relacional"
-      }
-    ],
-    "scenes": 34
-  },
-  {
-    "section": "plsql",
-    "blocks": [
-      {
-        "id": "que-es-plsql",
-        "number": 1,
-        "title": "Qué es PL/SQL"
-      },
-      {
-        "id": "bloques",
-        "number": 2,
-        "title": "Bloques PL/SQL"
-      },
-      {
-        "id": "variables",
-        "number": 3,
-        "title": "Variables y tipos"
-      },
-      {
-        "id": "sql-en-plsql",
-        "number": 4,
-        "title": "SQL dentro de PL/SQL"
-      },
-      {
-        "id": "condicionales",
-        "number": 5,
-        "title": "Condicionales"
-      },
-      {
-        "id": "bucles",
-        "number": 6,
-        "title": "Bucles"
-      },
-      {
-        "id": "cursores",
-        "number": 7,
-        "title": "Cursores"
-      },
-      {
-        "id": "excepciones",
-        "number": 8,
-        "title": "Excepciones"
-      },
-      {
-        "id": "procedimientos",
-        "number": 9,
-        "title": "Procedimientos"
-      },
-      {
-        "id": "funciones",
-        "number": 10,
-        "title": "Funciones"
-      },
-      {
-        "id": "paquetes",
-        "number": 11,
-        "title": "Paquetes"
-      },
-      {
-        "id": "triggers",
-        "number": 12,
-        "title": "Triggers"
-      },
-      {
-        "id": "integracion",
-        "number": 13,
-        "title": "Integración"
-      }
-    ],
-    "lessons": [
-      {
-        "id": "S3-L01",
-        "block": "que-es-plsql",
-        "slug": "sql-y-plsql",
-        "title": "SQL y PL/SQL: de pedir datos a programar con ellos",
-        "shortTitle": "SQL y PL/SQL",
-        "summary": "SQL dice qué datos quieres; PL/SQL añade variables, decisiones y repeticiones alrededor de SQL, dentro de Oracle.",
-        "version": 1
-      },
-      {
-        "id": "S3-L02",
-        "block": "bloques",
-        "slug": "estructura-de-un-bloque",
-        "title": "Estructura de un bloque: DECLARE, BEGIN, EXCEPTION y END",
-        "shortTitle": "Estructura",
-        "summary": "Un bloque tiene una parte declarativa opcional, una ejecutable obligatoria y una de manejo de errores opcional.",
-        "version": 1
-      },
-      {
-        "id": "S3-L03",
-        "block": "bloques",
-        "slug": "bloque-anonimo-y-dbms-output",
-        "title": "Bloque anónimo, objeto almacenado y DBMS_OUTPUT",
-        "shortTitle": "Anónimo y DBMS_OUTPUT",
-        "summary": "Un bloque anónimo se ejecuta una vez y no se guarda; un procedimiento se guarda en la base y se llama por su nombre. DBMS_OUTPUT escribe mensajes de diagnóstico.",
-        "version": 1
-      },
-      {
-        "id": "S3-L04",
-        "block": "variables",
-        "slug": "variables-y-constantes",
-        "title": "Variables, constantes y tipos de datos",
-        "shortTitle": "Variables y tipos",
-        "summary": "Una variable tiene nombre, tipo y valor; se le asigna con := y una constante no puede cambiar.",
-        "version": 1
-      },
-      {
-        "id": "S3-L05",
-        "block": "variables",
-        "slug": "type-y-rowtype",
-        "title": "%TYPE y %ROWTYPE",
-        "shortTitle": "%TYPE y %ROWTYPE",
-        "summary": "%TYPE copia el tipo de una columna; %ROWTYPE crea una variable con todas las columnas de una fila.",
-        "version": 1
-      },
-      {
-        "id": "S3-L06",
-        "block": "variables",
-        "slug": "alcance-de-variables",
-        "title": "Bloques anidados y alcance de las variables",
-        "shortTitle": "Alcance",
-        "summary": "Una variable existe en el bloque que la declara y en sus bloques internos; un bloque interno puede ocultarla con otra del mismo nombre.",
-        "version": 1
-      },
-      {
-        "id": "S3-L07",
-        "block": "sql-en-plsql",
-        "slug": "select-into",
-        "title": "SELECT INTO: de la tabla a la variable",
-        "shortTitle": "SELECT INTO",
-        "summary": "SELECT … INTO guarda en variables los valores de exactamente una fila; con cero o varias filas, Oracle lanza una excepción.",
-        "version": 1
-      },
-      {
-        "id": "S3-L08",
-        "block": "sql-en-plsql",
-        "slug": "dml-en-plsql",
-        "title": "INSERT, UPDATE y DELETE en un bloque; SQL%ROWCOUNT",
-        "shortTitle": "DML y SQL%ROWCOUNT",
-        "summary": "Un bloque ejecuta sentencias que modifican datos; SQL%ROWCOUNT dice cuántas filas afectó la última. COMMIT confirma y ROLLBACK deshace.",
-        "version": 1
-      },
-      {
-        "id": "S3-L09",
-        "block": "condicionales",
-        "slug": "if-elsif-else",
-        "title": "IF, ELSIF y ELSE",
-        "shortTitle": "IF",
-        "summary": "IF ejecuta la primera rama cuya condición es verdadera; ELSE recoge todo lo demás, incluidas las condiciones desconocidas por NULL.",
-        "version": 1
-      },
-      {
-        "id": "S3-L10",
-        "block": "condicionales",
-        "slug": "case",
-        "title": "CASE: expresión y sentencia",
-        "shortTitle": "CASE",
-        "summary": "CASE elige entre varias opciones: como expresión devuelve un valor; como sentencia ejecuta una rama, y sin ELSE puede fallar.",
-        "version": 1
-      },
-      {
-        "id": "S3-L11",
-        "block": "bucles",
-        "slug": "loop-y-exit-when",
-        "title": "LOOP y EXIT WHEN",
-        "shortTitle": "LOOP",
-        "summary": "LOOP repite sus sentencias hasta que EXIT WHEN encuentra la condición de salida; sin ella el bucle no termina.",
-        "version": 1
-      },
-      {
-        "id": "S3-L12",
-        "block": "bucles",
-        "slug": "while-y-for",
-        "title": "WHILE LOOP y FOR LOOP",
-        "shortTitle": "WHILE y FOR",
-        "summary": "WHILE comprueba la condición antes de cada vuelta; FOR recorre un rango de números con un contador que declara él mismo.",
-        "version": 1
-      },
-      {
-        "id": "S3-L13",
-        "block": "cursores",
-        "slug": "cursor-implicito",
-        "title": "Cursor implícito y atributos SQL%",
-        "shortTitle": "Cursor implícito",
-        "summary": "Oracle abre un cursor implícito para cada sentencia SQL de un bloque; SQL%FOUND, SQL%NOTFOUND y SQL%ROWCOUNT dicen qué pasó.",
-        "version": 1
-      },
-      {
-        "id": "S3-L14",
-        "block": "cursores",
-        "slug": "cursor-explicito",
-        "title": "Cursor explícito: OPEN, FETCH y CLOSE",
-        "shortTitle": "Cursor explícito",
-        "summary": "Un cursor explícito nombra una consulta de varias filas y la recorre fila a fila: OPEN la ejecuta, FETCH lee una fila y CLOSE la libera.",
-        "version": 1
-      },
-      {
-        "id": "S3-L15",
-        "block": "cursores",
-        "slug": "cursor-for-y-parametros",
-        "title": "Cursor FOR loop y cursores con parámetros",
-        "shortTitle": "Cursor FOR",
-        "summary": "El cursor FOR abre, lee y cierra solo; un cursor con parámetros reutiliza la misma consulta con distintos valores.",
-        "version": 1
-      },
-      {
-        "id": "S3-L16",
-        "block": "excepciones",
-        "slug": "excepciones-predefinidas",
-        "title": "Excepciones predefinidas: NO_DATA_FOUND, TOO_MANY_ROWS y OTHERS",
-        "shortTitle": "Excepciones",
-        "summary": "Cuando algo falla, Oracle lanza una excepción y el control salta a EXCEPTION, donde un manejador WHEN la atrapa.",
-        "version": 1
-      },
-      {
-        "id": "S3-L17",
-        "block": "excepciones",
-        "slug": "excepciones-de-usuario",
-        "title": "Excepciones propias, RAISE y RAISE_APPLICATION_ERROR",
-        "shortTitle": "RAISE",
-        "summary": "Una regla de negocio puede lanzar su propia excepción con RAISE, o un error con código y mensaje con RAISE_APPLICATION_ERROR.",
-        "version": 1
-      },
-      {
-        "id": "S3-L18",
-        "block": "procedimientos",
-        "slug": "procedimientos",
-        "title": "CREATE PROCEDURE y su llamada",
-        "shortTitle": "Procedimientos",
-        "summary": "Un procedimiento es un bloque con nombre y parámetros guardado en la base; se llama como una sentencia.",
-        "version": 1
-      },
-      {
-        "id": "S3-L19",
-        "block": "procedimientos",
-        "slug": "parametros-in-out",
-        "title": "Parámetros IN, OUT e IN OUT",
-        "shortTitle": "IN, OUT, IN OUT",
-        "summary": "IN entra al procedimiento y no se modifica; OUT sale con un resultado; IN OUT entra con un valor y sale cambiado.",
-        "version": 1
-      },
-      {
-        "id": "S3-L20",
-        "block": "funciones",
-        "slug": "funciones",
-        "title": "CREATE FUNCTION y RETURN",
-        "shortTitle": "Funciones",
-        "summary": "Una función calcula y devuelve un valor con RETURN; se usa dentro de expresiones de PL/SQL y también de SQL.",
-        "version": 1
-      },
-      {
-        "id": "S3-L21",
-        "block": "funciones",
-        "slug": "procedimiento-o-funcion",
-        "title": "¿Procedimiento o función?",
-        "shortTitle": "Procedimiento o función",
-        "summary": "Una función devuelve un valor y se usa en expresiones; un procedimiento realiza una acción y se llama como sentencia.",
-        "version": 1
-      },
-      {
-        "id": "S3-L22",
-        "block": "paquetes",
-        "slug": "paquetes",
-        "title": "Paquetes: especificación y cuerpo",
-        "shortTitle": "Paquetes",
-        "summary": "Un paquete agrupa funciones, procedimientos y constantes relacionados: la especificación dice qué es público y el cuerpo lo implementa.",
-        "version": 1
-      },
-      {
-        "id": "S3-L23",
-        "block": "triggers",
-        "slug": "que-es-un-trigger",
-        "title": "Qué es un trigger: evento, momento y acción",
-        "shortTitle": "Qué es un trigger",
-        "summary": "Un trigger es un bloque guardado que Oracle ejecuta solo cuando ocurre un evento sobre una tabla (INSERT, UPDATE o DELETE).",
-        "version": 1
-      },
-      {
-        "id": "S3-L24",
-        "block": "triggers",
-        "slug": "before-after-for-each-row",
-        "title": "BEFORE y AFTER, por sentencia o FOR EACH ROW",
-        "shortTitle": "BEFORE/AFTER y filas",
-        "summary": "BEFORE actúa antes del cambio (puede corregir los valores nuevos); AFTER, después. FOR EACH ROW se ejecuta una vez por cada fila afectada.",
-        "version": 1
-      },
-      {
-        "id": "S3-L25",
-        "block": "triggers",
-        "slug": "old-y-new",
-        "title": ":OLD y :NEW: auditoría de salarios",
-        "shortTitle": ":OLD y :NEW",
-        "summary": "En un trigger de fila, :OLD es la fila antes del cambio y :NEW la fila después; con ellos se registra qué cambió.",
-        "version": 1
-      },
-      {
-        "id": "S3-L26",
-        "block": "triggers",
-        "slug": "trigger-de-validacion",
-        "title": "Validar con un trigger BEFORE",
-        "shortTitle": "Trigger de validación",
-        "summary": "Un trigger BEFORE puede rechazar un cambio con RAISE_APPLICATION_ERROR; la sentencia completa se deshace.",
-        "version": 1
-      },
-      {
-        "id": "S3-L27",
-        "block": "triggers",
-        "slug": "limites-de-los-triggers",
-        "title": "Cuándo no usar un trigger",
-        "shortTitle": "Límites",
-        "summary": "Los triggers son invisibles para quien ejecuta la sentencia: úsalos para auditoría e integridad, no para la lógica general del negocio.",
-        "version": 1
-      },
-      {
-        "id": "S3-L28",
-        "block": "integracion",
-        "slug": "caso-integrador",
-        "title": "Caso integrador: aumento anual con auditoría",
-        "shortTitle": "Integración",
-        "summary": "Un procedimiento con cursor, variables, validación y parámetro OUT aplica aumentos; un trigger audita cada cambio.",
-        "version": 1
-      }
-    ],
-    "practice": [
-      "S3-P01",
-      "S3-P02",
-      "S3-P03",
-      "S3-P04",
-      "S3-P05",
-      "S3-P06",
-      "S3-P07",
-      "S3-P08",
-      "S3-P09",
-      "S3-P10",
-      "S3-P11",
-      "S3-P12",
-      "S3-P13",
-      "S3-P14",
-      "S3-P15",
-      "S3-P16",
-      "S3-P17",
-      "S3-P18",
-      "S3-P19",
-      "S3-P20",
-      "S3-P21",
-      "S3-P22",
-      "S3-P23",
-      "S3-P24",
-      "S3-P25",
-      "S3-P26"
-    ],
-    "missions": [
-      {
-        "id": "S3-M01",
-        "title": "Primer bloque"
-      },
-      {
-        "id": "S3-M02",
-        "title": "Variables con ancla"
-      },
-      {
-        "id": "S3-M03",
-        "title": "Leer una fila"
-      },
-      {
-        "id": "S3-M04",
-        "title": "Decisiones"
-      },
-      {
-        "id": "S3-M05",
-        "title": "Repetir"
-      },
-      {
-        "id": "S3-M06",
-        "title": "Recorrer filas"
-      },
-      {
-        "id": "S3-M07",
-        "title": "Errores bajo control"
-      },
-      {
-        "id": "S3-M08",
-        "title": "Programas guardados"
-      },
-      {
-        "id": "S3-M09",
-        "title": "Auditoría automática"
-      },
-      {
-        "id": "S3-M10",
-        "title": "PL/SQL Master"
-      }
-    ],
-    "scenes": 37
-  }
-]
+{
+  "sections": [
+    {
+      "section": "consultas-relacionales",
+      "blocks": [
+        {
+          "id": "relaciones",
+          "number": 1,
+          "title": "Relaciones y claves"
+        },
+        {
+          "id": "modelo-join",
+          "number": 2,
+          "title": "Modelo mental del JOIN"
+        },
+        {
+          "id": "inner-join",
+          "number": 3,
+          "title": "INNER JOIN"
+        },
+        {
+          "id": "otros-join",
+          "number": 4,
+          "title": "OUTER, SELF y CROSS JOIN"
+        },
+        {
+          "id": "funciones-grupo",
+          "number": 5,
+          "title": "Funciones de grupo"
+        },
+        {
+          "id": "group-by",
+          "number": 6,
+          "title": "GROUP BY"
+        },
+        {
+          "id": "having",
+          "number": 7,
+          "title": "HAVING"
+        },
+        {
+          "id": "join-agregacion",
+          "number": 8,
+          "title": "JOIN + agregaciones"
+        },
+        {
+          "id": "subconsultas",
+          "number": 9,
+          "title": "Subconsultas"
+        },
+        {
+          "id": "conjuntos",
+          "number": 10,
+          "title": "Operadores de conjuntos"
+        },
+        {
+          "id": "integracion",
+          "number": 11,
+          "title": "Integración final"
+        }
+      ],
+      "lessons": [
+        {
+          "id": "S2-L01",
+          "block": "relaciones",
+          "slug": "claves-primarias-y-foraneas",
+          "title": "Por qué varias tablas: claves primarias y foráneas",
+          "shortTitle": "PK y FK",
+          "summary": "Una tabla guarda una sola cosa; las claves conectan cada empleado con su departamento.",
+          "version": 1
+        },
+        {
+          "id": "S2-L02",
+          "block": "relaciones",
+          "slug": "alias-de-tabla",
+          "title": "Alias de tabla y columnas calificadas",
+          "shortTitle": "Alias de tabla",
+          "summary": "Un alias corto (e, d) dice de qué tabla sale cada columna cuando hay más de una.",
+          "version": 1
+        },
+        {
+          "id": "S2-L03",
+          "block": "modelo-join",
+          "slug": "modelo-mental-del-join",
+          "title": "Tabla A + tabla B + condición = resultado",
+          "shortTitle": "Modelo del JOIN",
+          "summary": "Un JOIN arma filas nuevas uniendo cada fila de una tabla con las filas de otra que cumplen la condición.",
+          "version": 1
+        },
+        {
+          "id": "S2-L04",
+          "block": "inner-join",
+          "slug": "inner-join",
+          "title": "INNER JOIN … ON",
+          "shortTitle": "INNER JOIN",
+          "summary": "INNER JOIN devuelve solo las filas que tienen pareja en las dos tablas.",
+          "version": 1
+        },
+        {
+          "id": "S2-L05",
+          "block": "inner-join",
+          "slug": "columnas-de-varias-tablas",
+          "title": "Columnas de varias tablas y nombres repetidos",
+          "shortTitle": "Columnas de 2 tablas",
+          "summary": "Después del JOIN se pueden elegir, comparar y calificar columnas de las dos tablas.",
+          "version": 1
+        },
+        {
+          "id": "S2-L06",
+          "block": "inner-join",
+          "slug": "join-con-where",
+          "title": "JOIN con WHERE y ORDER BY",
+          "shortTitle": "JOIN + WHERE",
+          "summary": "ON une las tablas; WHERE filtra las filas ya unidas; ORDER BY las ordena.",
+          "version": 1
+        },
+        {
+          "id": "S2-L07",
+          "block": "inner-join",
+          "slug": "joins-multiples",
+          "title": "JOIN de tres o más tablas",
+          "shortTitle": "Joins múltiples",
+          "summary": "Cada JOIN añade una tabla con su propia condición; una tabla intermedia une relaciones muchos a muchos.",
+          "version": 1
+        },
+        {
+          "id": "S2-L08",
+          "block": "otros-join",
+          "slug": "left-outer-join",
+          "title": "LEFT OUTER JOIN: conservar las filas sin pareja",
+          "shortTitle": "LEFT JOIN",
+          "summary": "LEFT JOIN conserva todas las filas de la tabla izquierda; si no tienen pareja, las columnas de la derecha quedan en NULL.",
+          "version": 1
+        },
+        {
+          "id": "S2-L09",
+          "block": "otros-join",
+          "slug": "right-y-full-outer-join",
+          "title": "RIGHT y FULL OUTER JOIN",
+          "shortTitle": "RIGHT y FULL",
+          "summary": "RIGHT JOIN conserva la tabla derecha; FULL JOIN conserva las filas sin pareja de las dos tablas.",
+          "version": 1
+        },
+        {
+          "id": "S2-L10",
+          "block": "otros-join",
+          "slug": "self-join",
+          "title": "SELF JOIN: una tabla consigo misma",
+          "shortTitle": "SELF JOIN",
+          "summary": "Una tabla se une consigo misma con dos alias cuando una columna apunta a otra fila de la misma tabla.",
+          "version": 1
+        },
+        {
+          "id": "S2-L11",
+          "block": "otros-join",
+          "slug": "cross-y-natural-join",
+          "title": "CROSS JOIN, NATURAL JOIN y USING",
+          "shortTitle": "CROSS y NATURAL",
+          "summary": "CROSS JOIN combina todo con todo; NATURAL JOIN y USING unen por nombre de columna, con riesgos.",
+          "version": 1
+        },
+        {
+          "id": "S2-L12",
+          "block": "funciones-grupo",
+          "slug": "funciones-de-grupo",
+          "title": "Funciones de grupo: COUNT, SUM, AVG, MIN y MAX",
+          "shortTitle": "Funciones de grupo",
+          "summary": "Una función de grupo recibe muchas filas y devuelve un solo valor que las resume.",
+          "version": 1
+        },
+        {
+          "id": "S2-L13",
+          "block": "funciones-grupo",
+          "slug": "count-y-null",
+          "title": "COUNT(*), COUNT(columna) y los NULL",
+          "shortTitle": "COUNT y NULL",
+          "summary": "COUNT(*) cuenta filas; COUNT(columna) y las demás funciones de grupo ignoran los NULL.",
+          "version": 1
+        },
+        {
+          "id": "S2-L14",
+          "block": "group-by",
+          "slug": "group-by",
+          "title": "GROUP BY: un resumen por grupo",
+          "shortTitle": "GROUP BY",
+          "summary": "GROUP BY reúne las filas con el mismo valor y la función de grupo se calcula en cada grupo.",
+          "version": 1
+        },
+        {
+          "id": "S2-L15",
+          "block": "group-by",
+          "slug": "group-by-varias-columnas",
+          "title": "Agrupar por varias columnas y errores típicos",
+          "shortTitle": "GROUP BY varias",
+          "summary": "Con varias columnas, cada combinación distinta es un grupo; lo que se muestra debe estar agrupado o resumido.",
+          "version": 1
+        },
+        {
+          "id": "S2-L16",
+          "block": "having",
+          "slug": "having",
+          "title": "HAVING: filtrar grupos",
+          "shortTitle": "HAVING",
+          "summary": "HAVING conserva los grupos que cumplen una condición sobre su resumen.",
+          "version": 1
+        },
+        {
+          "id": "S2-L17",
+          "block": "having",
+          "slug": "where-frente-a-having",
+          "title": "WHERE frente a HAVING: el orden de evaluación",
+          "shortTitle": "WHERE vs HAVING",
+          "summary": "WHERE filtra filas antes de agrupar; HAVING filtra grupos después de agrupar.",
+          "version": 1
+        },
+        {
+          "id": "S2-L18",
+          "block": "join-agregacion",
+          "slug": "join-y-agregaciones",
+          "title": "Contar y promediar por departamento con JOIN",
+          "shortTitle": "JOIN + GROUP BY",
+          "summary": "Primero se unen las tablas y después se agrupa: así el resumen lleva nombres en lugar de claves.",
+          "version": 1
+        },
+        {
+          "id": "S2-L19",
+          "block": "join-agregacion",
+          "slug": "join-group-by-having",
+          "title": "JOIN + GROUP BY + HAVING",
+          "shortTitle": "JOIN + HAVING",
+          "summary": "Con varias tablas, HAVING filtra los grupos ya resumidos: proyectos con muchas horas, áreas con promedio alto.",
+          "version": 1
+        },
+        {
+          "id": "S2-L20",
+          "block": "subconsultas",
+          "slug": "subconsultas-de-una-fila",
+          "title": "Subconsultas de una fila",
+          "shortTitle": "Subconsulta simple",
+          "summary": "Una subconsulta es un SELECT dentro de otro; si devuelve un solo valor, se compara con =, >, <…",
+          "version": 1
+        },
+        {
+          "id": "S2-L21",
+          "block": "subconsultas",
+          "slug": "subconsultas-de-varias-filas",
+          "title": "Subconsultas de varias filas: IN y NOT IN",
+          "shortTitle": "IN con subconsulta",
+          "summary": "Si la subconsulta devuelve una lista, se usa IN; NOT IN falla en silencio si la lista contiene NULL.",
+          "version": 1
+        },
+        {
+          "id": "S2-L22",
+          "block": "subconsultas",
+          "slug": "subconsultas-correlacionadas",
+          "title": "Subconsultas correlacionadas y EXISTS",
+          "shortTitle": "Correlacionadas",
+          "summary": "Una subconsulta correlacionada usa una columna de la consulta externa y se evalúa para cada fila.",
+          "version": 1
+        },
+        {
+          "id": "S2-L23",
+          "block": "conjuntos",
+          "slug": "union-y-union-all",
+          "title": "UNION y UNION ALL",
+          "shortTitle": "UNION",
+          "summary": "UNION apila los resultados de dos consultas sin duplicados; UNION ALL los apila tal cual.",
+          "version": 1
+        },
+        {
+          "id": "S2-L24",
+          "block": "conjuntos",
+          "slug": "intersect-y-minus",
+          "title": "INTERSECT y MINUS",
+          "shortTitle": "INTERSECT y MINUS",
+          "summary": "INTERSECT deja lo que está en los dos resultados; MINUS deja lo del primero que no está en el segundo.",
+          "version": 1
+        },
+        {
+          "id": "S2-L25",
+          "block": "integracion",
+          "slug": "consulta-integradora",
+          "title": "Consulta integradora paso a paso",
+          "shortTitle": "Integración",
+          "summary": "Una pregunta de negocio se responde construyendo la consulta por capas: JOIN, WHERE, GROUP BY, HAVING con subconsulta y ORDER BY.",
+          "version": 1
+        }
+      ],
+      "practice": [
+        "S2-P01",
+        "S2-P02",
+        "S2-P03",
+        "S2-P04",
+        "S2-P05",
+        "S2-P06",
+        "S2-P22",
+        "S2-P07",
+        "S2-P08",
+        "S2-P09",
+        "S2-P10",
+        "S2-P11",
+        "S2-P12",
+        "S2-P13",
+        "S2-P14",
+        "S2-P15",
+        "S2-P16",
+        "S2-P17",
+        "S2-P18",
+        "S2-P19",
+        "S2-P20",
+        "S2-P21"
+      ],
+      "missions": [
+        {
+          "id": "S2-M01",
+          "title": "El mapa de la empresa"
+        },
+        {
+          "id": "S2-M02",
+          "title": "La condición correcta"
+        },
+        {
+          "id": "S2-M03",
+          "title": "Nómina de Finanzas"
+        },
+        {
+          "id": "S2-M04",
+          "title": "Equipos de TI"
+        },
+        {
+          "id": "S2-M05",
+          "title": "Áreas sin proyectos"
+        },
+        {
+          "id": "S2-M06",
+          "title": "Primer resumen"
+        },
+        {
+          "id": "S2-M07",
+          "title": "El salario más alto de cada área"
+        },
+        {
+          "id": "S2-M08",
+          "title": "Áreas sobre la meta"
+        },
+        {
+          "id": "S2-M09",
+          "title": "Personas y áreas sin asignar"
+        },
+        {
+          "id": "S2-M10",
+          "title": "Query Master relacional"
+        }
+      ],
+      "scenes": 34
+    },
+    {
+      "section": "plsql",
+      "blocks": [
+        {
+          "id": "que-es-plsql",
+          "number": 1,
+          "title": "Qué es PL/SQL"
+        },
+        {
+          "id": "bloques",
+          "number": 2,
+          "title": "Bloques PL/SQL"
+        },
+        {
+          "id": "variables",
+          "number": 3,
+          "title": "Variables y tipos"
+        },
+        {
+          "id": "sql-en-plsql",
+          "number": 4,
+          "title": "SQL dentro de PL/SQL"
+        },
+        {
+          "id": "condicionales",
+          "number": 5,
+          "title": "Condicionales"
+        },
+        {
+          "id": "bucles",
+          "number": 6,
+          "title": "Bucles"
+        },
+        {
+          "id": "cursores",
+          "number": 7,
+          "title": "Cursores"
+        },
+        {
+          "id": "excepciones",
+          "number": 8,
+          "title": "Excepciones"
+        },
+        {
+          "id": "procedimientos",
+          "number": 9,
+          "title": "Procedimientos"
+        },
+        {
+          "id": "funciones",
+          "number": 10,
+          "title": "Funciones"
+        },
+        {
+          "id": "paquetes",
+          "number": 11,
+          "title": "Paquetes"
+        },
+        {
+          "id": "triggers",
+          "number": 12,
+          "title": "Triggers"
+        },
+        {
+          "id": "integracion",
+          "number": 13,
+          "title": "Integración"
+        }
+      ],
+      "lessons": [
+        {
+          "id": "S3-L01",
+          "block": "que-es-plsql",
+          "slug": "sql-y-plsql",
+          "title": "SQL y PL/SQL: de pedir datos a programar con ellos",
+          "shortTitle": "SQL y PL/SQL",
+          "summary": "SQL dice qué datos quieres; PL/SQL añade variables, decisiones y repeticiones alrededor de SQL, dentro de Oracle.",
+          "version": 1
+        },
+        {
+          "id": "S3-L02",
+          "block": "bloques",
+          "slug": "estructura-de-un-bloque",
+          "title": "Estructura de un bloque: DECLARE, BEGIN, EXCEPTION y END",
+          "shortTitle": "Estructura",
+          "summary": "Un bloque tiene una parte declarativa opcional, una ejecutable obligatoria y una de manejo de errores opcional.",
+          "version": 1
+        },
+        {
+          "id": "S3-L03",
+          "block": "bloques",
+          "slug": "bloque-anonimo-y-dbms-output",
+          "title": "Bloque anónimo, objeto almacenado y DBMS_OUTPUT",
+          "shortTitle": "Anónimo y DBMS_OUTPUT",
+          "summary": "Un bloque anónimo se ejecuta una vez y no se guarda; un procedimiento se guarda en la base y se llama por su nombre. DBMS_OUTPUT escribe mensajes de diagnóstico.",
+          "version": 1
+        },
+        {
+          "id": "S3-L04",
+          "block": "variables",
+          "slug": "variables-y-constantes",
+          "title": "Variables, constantes y tipos de datos",
+          "shortTitle": "Variables y tipos",
+          "summary": "Una variable tiene nombre, tipo y valor; se le asigna con := y una constante no puede cambiar.",
+          "version": 1
+        },
+        {
+          "id": "S3-L05",
+          "block": "variables",
+          "slug": "type-y-rowtype",
+          "title": "%TYPE y %ROWTYPE",
+          "shortTitle": "%TYPE y %ROWTYPE",
+          "summary": "%TYPE copia el tipo de una columna; %ROWTYPE crea una variable con todas las columnas de una fila.",
+          "version": 1
+        },
+        {
+          "id": "S3-L06",
+          "block": "variables",
+          "slug": "alcance-de-variables",
+          "title": "Bloques anidados y alcance de las variables",
+          "shortTitle": "Alcance",
+          "summary": "Una variable existe en el bloque que la declara y en sus bloques internos; un bloque interno puede ocultarla con otra del mismo nombre.",
+          "version": 1
+        },
+        {
+          "id": "S3-L07",
+          "block": "sql-en-plsql",
+          "slug": "select-into",
+          "title": "SELECT INTO: de la tabla a la variable",
+          "shortTitle": "SELECT INTO",
+          "summary": "SELECT … INTO guarda en variables los valores de exactamente una fila; con cero o varias filas, Oracle lanza una excepción.",
+          "version": 1
+        },
+        {
+          "id": "S3-L08",
+          "block": "sql-en-plsql",
+          "slug": "dml-en-plsql",
+          "title": "INSERT, UPDATE y DELETE en un bloque; SQL%ROWCOUNT",
+          "shortTitle": "DML y SQL%ROWCOUNT",
+          "summary": "Un bloque ejecuta sentencias que modifican datos; SQL%ROWCOUNT dice cuántas filas afectó la última. COMMIT confirma y ROLLBACK deshace.",
+          "version": 1
+        },
+        {
+          "id": "S3-L09",
+          "block": "condicionales",
+          "slug": "if-elsif-else",
+          "title": "IF, ELSIF y ELSE",
+          "shortTitle": "IF",
+          "summary": "IF ejecuta la primera rama cuya condición es verdadera; ELSE recoge todo lo demás, incluidas las condiciones desconocidas por NULL.",
+          "version": 1
+        },
+        {
+          "id": "S3-L10",
+          "block": "condicionales",
+          "slug": "case",
+          "title": "CASE: expresión y sentencia",
+          "shortTitle": "CASE",
+          "summary": "CASE elige entre varias opciones: como expresión devuelve un valor; como sentencia ejecuta una rama, y sin ELSE puede fallar.",
+          "version": 1
+        },
+        {
+          "id": "S3-L11",
+          "block": "bucles",
+          "slug": "loop-y-exit-when",
+          "title": "LOOP y EXIT WHEN",
+          "shortTitle": "LOOP",
+          "summary": "LOOP repite sus sentencias hasta que EXIT WHEN encuentra la condición de salida; sin ella el bucle no termina.",
+          "version": 1
+        },
+        {
+          "id": "S3-L12",
+          "block": "bucles",
+          "slug": "while-y-for",
+          "title": "WHILE LOOP y FOR LOOP",
+          "shortTitle": "WHILE y FOR",
+          "summary": "WHILE comprueba la condición antes de cada vuelta; FOR recorre un rango de números con un contador que declara él mismo.",
+          "version": 1
+        },
+        {
+          "id": "S3-L13",
+          "block": "cursores",
+          "slug": "cursor-implicito",
+          "title": "Cursor implícito y atributos SQL%",
+          "shortTitle": "Cursor implícito",
+          "summary": "Oracle abre un cursor implícito para cada sentencia SQL de un bloque; SQL%FOUND, SQL%NOTFOUND y SQL%ROWCOUNT dicen qué pasó.",
+          "version": 1
+        },
+        {
+          "id": "S3-L14",
+          "block": "cursores",
+          "slug": "cursor-explicito",
+          "title": "Cursor explícito: OPEN, FETCH y CLOSE",
+          "shortTitle": "Cursor explícito",
+          "summary": "Un cursor explícito nombra una consulta de varias filas y la recorre fila a fila: OPEN la ejecuta, FETCH lee una fila y CLOSE la libera.",
+          "version": 1
+        },
+        {
+          "id": "S3-L15",
+          "block": "cursores",
+          "slug": "cursor-for-y-parametros",
+          "title": "Cursor FOR loop y cursores con parámetros",
+          "shortTitle": "Cursor FOR",
+          "summary": "El cursor FOR abre, lee y cierra solo; un cursor con parámetros reutiliza la misma consulta con distintos valores.",
+          "version": 1
+        },
+        {
+          "id": "S3-L16",
+          "block": "excepciones",
+          "slug": "excepciones-predefinidas",
+          "title": "Excepciones predefinidas: NO_DATA_FOUND, TOO_MANY_ROWS y OTHERS",
+          "shortTitle": "Excepciones",
+          "summary": "Cuando algo falla, Oracle lanza una excepción y el control salta a EXCEPTION, donde un manejador WHEN la atrapa.",
+          "version": 1
+        },
+        {
+          "id": "S3-L17",
+          "block": "excepciones",
+          "slug": "excepciones-de-usuario",
+          "title": "Excepciones propias, RAISE y RAISE_APPLICATION_ERROR",
+          "shortTitle": "RAISE",
+          "summary": "Una regla de negocio puede lanzar su propia excepción con RAISE, o un error con código y mensaje con RAISE_APPLICATION_ERROR.",
+          "version": 1
+        },
+        {
+          "id": "S3-L18",
+          "block": "procedimientos",
+          "slug": "procedimientos",
+          "title": "CREATE PROCEDURE y su llamada",
+          "shortTitle": "Procedimientos",
+          "summary": "Un procedimiento es un bloque con nombre y parámetros guardado en la base; se llama como una sentencia.",
+          "version": 1
+        },
+        {
+          "id": "S3-L19",
+          "block": "procedimientos",
+          "slug": "parametros-in-out",
+          "title": "Parámetros IN, OUT e IN OUT",
+          "shortTitle": "IN, OUT, IN OUT",
+          "summary": "IN entra al procedimiento y no se modifica; OUT sale con un resultado; IN OUT entra con un valor y sale cambiado.",
+          "version": 1
+        },
+        {
+          "id": "S3-L20",
+          "block": "funciones",
+          "slug": "funciones",
+          "title": "CREATE FUNCTION y RETURN",
+          "shortTitle": "Funciones",
+          "summary": "Una función calcula y devuelve un valor con RETURN; se usa dentro de expresiones de PL/SQL y también de SQL.",
+          "version": 1
+        },
+        {
+          "id": "S3-L21",
+          "block": "funciones",
+          "slug": "procedimiento-o-funcion",
+          "title": "¿Procedimiento o función?",
+          "shortTitle": "Procedimiento o función",
+          "summary": "Una función devuelve un valor y se usa en expresiones; un procedimiento realiza una acción y se llama como sentencia.",
+          "version": 1
+        },
+        {
+          "id": "S3-L22",
+          "block": "paquetes",
+          "slug": "paquetes",
+          "title": "Paquetes: especificación y cuerpo",
+          "shortTitle": "Paquetes",
+          "summary": "Un paquete agrupa funciones, procedimientos y constantes relacionados: la especificación dice qué es público y el cuerpo lo implementa.",
+          "version": 1
+        },
+        {
+          "id": "S3-L23",
+          "block": "triggers",
+          "slug": "que-es-un-trigger",
+          "title": "Qué es un trigger: evento, momento y acción",
+          "shortTitle": "Qué es un trigger",
+          "summary": "Un trigger es un bloque guardado que Oracle ejecuta solo cuando ocurre un evento sobre una tabla (INSERT, UPDATE o DELETE).",
+          "version": 1
+        },
+        {
+          "id": "S3-L24",
+          "block": "triggers",
+          "slug": "before-after-for-each-row",
+          "title": "BEFORE y AFTER, por sentencia o FOR EACH ROW",
+          "shortTitle": "BEFORE/AFTER y filas",
+          "summary": "BEFORE actúa antes del cambio (puede corregir los valores nuevos); AFTER, después. FOR EACH ROW se ejecuta una vez por cada fila afectada.",
+          "version": 1
+        },
+        {
+          "id": "S3-L25",
+          "block": "triggers",
+          "slug": "old-y-new",
+          "title": ":OLD y :NEW: auditoría de salarios",
+          "shortTitle": ":OLD y :NEW",
+          "summary": "En un trigger de fila, :OLD es la fila antes del cambio y :NEW la fila después; con ellos se registra qué cambió.",
+          "version": 1
+        },
+        {
+          "id": "S3-L26",
+          "block": "triggers",
+          "slug": "trigger-de-validacion",
+          "title": "Validar con un trigger BEFORE",
+          "shortTitle": "Trigger de validación",
+          "summary": "Un trigger BEFORE puede rechazar un cambio con RAISE_APPLICATION_ERROR; la sentencia completa se deshace.",
+          "version": 1
+        },
+        {
+          "id": "S3-L27",
+          "block": "triggers",
+          "slug": "limites-de-los-triggers",
+          "title": "Cuándo no usar un trigger",
+          "shortTitle": "Límites",
+          "summary": "Los triggers son invisibles para quien ejecuta la sentencia: úsalos para auditoría e integridad, no para la lógica general del negocio.",
+          "version": 1
+        },
+        {
+          "id": "S3-L28",
+          "block": "integracion",
+          "slug": "caso-integrador",
+          "title": "Caso integrador: aumento anual con auditoría",
+          "shortTitle": "Integración",
+          "summary": "Un procedimiento con cursor, variables, validación y parámetro OUT aplica aumentos; un trigger audita cada cambio.",
+          "version": 1
+        }
+      ],
+      "practice": [
+        "S3-P01",
+        "S3-P02",
+        "S3-P03",
+        "S3-P04",
+        "S3-P05",
+        "S3-P06",
+        "S3-P07",
+        "S3-P08",
+        "S3-P09",
+        "S3-P10",
+        "S3-P11",
+        "S3-P12",
+        "S3-P13",
+        "S3-P14",
+        "S3-P15",
+        "S3-P16",
+        "S3-P17",
+        "S3-P18",
+        "S3-P19",
+        "S3-P20",
+        "S3-P21",
+        "S3-P22",
+        "S3-P23",
+        "S3-P24",
+        "S3-P25",
+        "S3-P26"
+      ],
+      "missions": [
+        {
+          "id": "S3-M01",
+          "title": "Primer bloque"
+        },
+        {
+          "id": "S3-M02",
+          "title": "Variables con ancla"
+        },
+        {
+          "id": "S3-M03",
+          "title": "Leer una fila"
+        },
+        {
+          "id": "S3-M04",
+          "title": "Decisiones"
+        },
+        {
+          "id": "S3-M05",
+          "title": "Repetir"
+        },
+        {
+          "id": "S3-M06",
+          "title": "Recorrer filas"
+        },
+        {
+          "id": "S3-M07",
+          "title": "Errores bajo control"
+        },
+        {
+          "id": "S3-M08",
+          "title": "Programas guardados"
+        },
+        {
+          "id": "S3-M09",
+          "title": "Auditoría automática"
+        },
+        {
+          "id": "S3-M10",
+          "title": "PL/SQL Master"
+        }
+      ],
+      "scenes": 37
+    }
+  ],
+  "extensions": [
+    {
+      "section": "fundamentos-sql",
+      "blocks": [
+        {
+          "id": "funciones",
+          "number": 9,
+          "title": "Funciones de una fila"
+        }
+      ],
+      "lessons": [
+        {
+          "id": "S1-L22",
+          "block": "funciones",
+          "slug": "funciones-de-texto",
+          "title": "Funciones de texto: UPPER, LOWER, INITCAP, LENGTH y SUBSTR",
+          "shortTitle": "Funciones de texto",
+          "summary": "Una función de una fila recibe un valor de cada fila y devuelve otro: cambia mayúsculas, mide o recorta textos.",
+          "version": 1
+        },
+        {
+          "id": "S1-L23",
+          "block": "funciones",
+          "slug": "funciones-numericas",
+          "title": "Funciones numéricas: ROUND, TRUNC y MOD",
+          "shortTitle": "Funciones numéricas",
+          "summary": "ROUND redondea, TRUNC corta y MOD devuelve el resto de una división.",
+          "version": 1
+        },
+        {
+          "id": "S1-L24",
+          "block": "funciones",
+          "slug": "fechas-y-nvl",
+          "title": "Fechas, SYSDATE y NVL",
+          "shortTitle": "Fechas y NVL",
+          "summary": "Sumar días a una fecha, calcular antigüedad con SYSDATE y reemplazar NULL con NVL para que un cálculo no se pierda.",
+          "version": 1
+        }
+      ]
+    }
+  ]
+}

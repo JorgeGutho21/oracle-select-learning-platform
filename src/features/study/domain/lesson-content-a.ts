@@ -343,6 +343,10 @@ export const LESSON_CONTENT_A: readonly LessonContent[] = [
         text: 'Si uno de los valores es NULL, el cálculo también da NULL: salario + bono no tiene valor para quien no tiene bono.',
       },
       {
+        title: 'Dividir entre cero',
+        text: 'Dividir entre cero no da NULL ni 0: Oracle detiene la consulta completa con ORA-01476 (el divisor es igual a cero).',
+      },
+      {
         title: 'Números sin formato',
         text: 'En SQL los números se escriben sin puntos de miles ni símbolo de moneda: 3000000. La plataforma los muestra con separadores solo para leerlos mejor.',
       },

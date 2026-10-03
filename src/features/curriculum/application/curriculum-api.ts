@@ -9,6 +9,7 @@ import type { SectionId } from '@/features/sections/domain/sections';
 import {
   conceptById,
   curriculumOf,
+  unitOf,
   exampleById,
   lessonExamples,
   sectionActivities,
@@ -24,6 +25,7 @@ import type {
   LessonExample,
   Mistake,
   SceneNotes,
+  CurriculumUnit,
   SectionCurriculum,
   SourceView,
   TraceStep,
@@ -534,7 +536,7 @@ function optionView(option: ActivityOption): ActivityOptionView {
 }
 
 export function activityView(section: SectionId, activity: Activity): ActivityView {
-  const curriculum = curriculumOf(section);
+  const curriculum = unitOf(section);
   const lesson = curriculum?.lessons.find((entry) => entry.id === activity.lesson);
   const example = activity.context?.example ? exampleView(activity.context.example) : null;
   const base = {
@@ -621,7 +623,7 @@ export interface ConceptView {
   readonly lesson: { readonly title: string; readonly href: string } | null;
 }
 
-function conceptView(curriculum: SectionCurriculum, concept: CurriculumConcept): ConceptView {
+function conceptView(curriculum: CurriculumUnit, concept: CurriculumConcept): ConceptView {
   const lesson = curriculum.lessons.find((entry) => entry.concepts.includes(concept.id));
   return {
     id: concept.id,
@@ -659,10 +661,14 @@ export interface BlockView {
   readonly lessons: readonly LessonSummaryView[];
 }
 
-function lessonSummary(curriculum: SectionCurriculum, lesson: CurriculumLesson): LessonSummaryView {
+function lessonOffset(curriculum: CurriculumUnit): number {
+  return 'lessonOffset' in curriculum ? Number(curriculum.lessonOffset) : 0;
+}
+
+function lessonSummary(curriculum: CurriculumUnit, lesson: CurriculumLesson): LessonSummaryView {
   return {
     id: lesson.id,
-    number: curriculum.lessons.indexOf(lesson) + 1,
+    number: lessonOffset(curriculum) + curriculum.lessons.indexOf(lesson) + 1,
     slug: lesson.slug,
     title: lesson.title,
     shortTitle: lesson.shortTitle,
@@ -701,6 +707,18 @@ export function curriculumIndex(section: SectionId): CurriculumIndexView | null 
   };
 }
 
+/** Bloques con sus lecciones de una ampliación (o de una sección completa). */
+export function unitBlocks(section: SectionId): readonly BlockView[] {
+  const unit = unitOf(section);
+  if (!unit) return [];
+  return unit.blocks.map((block) => ({
+    ...block,
+    lessons: unit.lessons
+      .filter((lesson) => lesson.block === block.id)
+      .map((lesson) => lessonSummary(unit, lesson)),
+  }));
+}
+
 /** Lecciones de la sección (identificador, ruta y versión), para el progreso y las rutas. */
 export function lessonSummaries(section: SectionId): readonly LessonSummaryView[] {
   const curriculum = curriculumOf(section);
@@ -730,7 +748,7 @@ export interface LessonPageView {
 }
 
 export function lessonPage(section: SectionId, slug: string): LessonPageView | null {
-  const curriculum = curriculumOf(section);
+  const curriculum = unitOf(section);
   const lesson = curriculum?.lessons.find((entry) => entry.slug === slug);
   if (!curriculum || !lesson) return null;
   const index = curriculum.lessons.indexOf(lesson);
@@ -741,7 +759,7 @@ export function lessonPage(section: SectionId, slug: string): LessonPageView | n
     section,
     lesson: lessonSummary(curriculum, lesson),
     block: { number: block.number, title: block.title },
-    total: curriculum.lessons.length,
+    total: lessonOffset(curriculum) + curriculum.lessons.length,
     concepts: lesson.concepts.map((id) => conceptView(curriculum, conceptById(curriculum, id)!)),
     purpose: lesson.purpose,
     syntax: lesson.syntax,
@@ -754,7 +772,7 @@ export function lessonPage(section: SectionId, slug: string): LessonPageView | n
     previous: previous ? lessonSummary(curriculum, previous) : null,
     next: next ? lessonSummary(curriculum, next) : null,
     practiceCount: curriculum.practice.filter((activity) => activity.lesson === lesson.id).length,
-    missions: curriculum.missions
+    missions: ('missions' in curriculum ? (curriculum as SectionCurriculum).missions : [])
       .filter((mission) => mission.steps.some((step) => step.lesson === lesson.id))
       .map(({ id, title }) => ({ id, title })),
     topic: lesson.topic,
@@ -762,7 +780,7 @@ export function lessonPage(section: SectionId, slug: string): LessonPageView | n
 }
 
 export function lessonSlugs(section: SectionId): readonly string[] {
-  return curriculumOf(section)?.lessons.map(({ slug }) => slug) ?? [];
+  return unitOf(section)?.lessons.map(({ slug }) => slug) ?? [];
 }
 
 /* ---------- Recursos ---------- */

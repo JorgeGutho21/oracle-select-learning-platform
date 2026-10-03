@@ -37,20 +37,20 @@ const fundamentos: Question[] = [
       'La tabla EMPLEADOS tiene 20 filas y 12 columnas. ¿Cuántos valores de SALARIO guarda y por qué?',
     options: [
       {
-        body: '12: uno por cada columna de la tabla.',
+        body: '12: uno por cada una de las columnas de la tabla.',
         feedback: 'Confunde filas con columnas: SALARIO es una sola columna.',
       },
       {
-        body: '20: cada fila es un empleado y cada empleado tiene su salario.',
+        body: '20: uno por cada fila, es decir, por empleado.',
         correct: true,
         feedback: 'Cada fila describe a un empleado; la columna SALARIO tiene un valor por fila.',
       },
       {
-        body: '1: SALARIO es una sola columna.',
+        body: '1: SALARIO es una sola columna con un valor.',
         feedback: 'Una columna tiene un valor en cada fila, no un único valor.',
       },
       {
-        body: '240: filas por columnas.',
+        body: '240: el resultado de multiplicar filas por columnas.',
         feedback: 'Ese es el total de celdas de la tabla, no los valores de una columna.',
       },
     ],
@@ -261,7 +261,8 @@ const selectFrom: Question[] = [
     type: 'single_choice',
     response: 'single',
     difficulty: 1,
-    prompt: '¿Qué tamaño tiene el resultado de esta consulta sobre EMPLEADOS?',
+    prompt:
+      'EMPLEADOS tiene 20 filas y 12 columnas. ¿Qué tamaño tiene el resultado de esta consulta?',
     code: 'SELECT *\nFROM EMPLEADOS;',
     options: [
       {
@@ -403,7 +404,7 @@ const expresiones: Question[] = [
       { body: 'Devuelve el mismo salario.', feedback: 'Eso sería dividir entre 1.' },
     ],
     explanation:
-      'Una división entre cero en una expresión hace fallar la consulta completa en Oracle; no se devuelve ningún resultado parcial.',
+      'Una división entre cero hace fallar la consulta completa en Oracle con ORA-01476 (el divisor es igual a cero); no se devuelve ningún resultado parcial.',
     concept: 'Expresiones aritméticas',
     review: lesson('L06', 'Expresiones aritméticas', 'expresiones'),
     reference: REF.operators,
@@ -694,7 +695,7 @@ const distinct: Question[] = [
         feedback: 'DISTINCT no descarta NULL: los muestra una vez.',
       },
       {
-        body: '2: NULL y 0.',
+        body: '2: una fila con NULL y otra con 0.',
         correct: true,
         feedback: 'Para DISTINCT, los NULL se consideran repetidos entre sí.',
       },
@@ -703,8 +704,8 @@ const distinct: Question[] = [
         feedback: 'Eso vale para las comparaciones con =, no para DISTINCT.',
       },
       {
-        body: '3: los tres NULL cuentan como uno y el 0 como otro, más el total.',
-        feedback: 'No hay ninguna fila de total.',
+        body: '0: DISTINCT no admite NULL y la consulta falla.',
+        feedback: 'La consulta es válida: DISTINCT muestra el NULL una vez.',
       },
     ],
     explanation:
@@ -792,17 +793,20 @@ const where: Question[] = [
     code: 'SELECT NOMBRE\nFROM EMPLEADOS\nWHERE CIUDAD = Bogotá;',
     options: [
       {
-        body: 'Debe usarse == para comparar.',
+        body: 'Debe usarse == para comparar valores de texto.',
         feedback: 'En SQL la igualdad se escribe con un solo =.',
       },
       {
-        body: 'Falta escribir el texto entre comillas simples: Oracle busca una columna llamada Bogotá.',
+        body: 'Faltan comillas simples: Bogotá se lee como una columna.',
         correct: true,
         feedback: "Los valores de texto van entre comillas simples: 'Bogotá'.",
       },
-      { body: 'WHERE debe ir antes de FROM.', feedback: 'El orden es SELECT, FROM, WHERE.' },
       {
-        body: 'Los valores de texto deben escribirse en mayúsculas.',
+        body: 'WHERE debe escribirse antes de FROM en la consulta.',
+        feedback: 'El orden es SELECT, FROM, WHERE.',
+      },
+      {
+        body: 'Los textos deben escribirse en mayúsculas: BOGOTÁ.',
         feedback: 'El valor debe coincidir con el dato guardado, entre comillas.',
       },
     ],
@@ -827,11 +831,11 @@ const where: Question[] = [
     code: "SELECT NOMBRE\nFROM EMPLEADOS\nWHERE CIUDAD = 'bogotá';",
     options: [
       {
-        body: 'Las 7 personas de Bogotá.',
+        body: 'Las 7 personas de Bogotá: Oracle ignora mayúsculas.',
         feedback: 'Oracle compara los textos exactamente, letra por letra.',
       },
       {
-        body: 'Ninguna fila: el dato guardado es «Bogotá» con mayúscula inicial.',
+        body: 'Ninguna fila: el dato guardado es «Bogotá».',
         correct: true,
         feedback: "'bogotá' y 'Bogotá' son textos distintos para Oracle.",
       },
@@ -893,7 +897,8 @@ const where: Question[] = [
     type: 'compare_results',
     response: 'single',
     difficulty: 3,
-    prompt: 'Compara las dos consultas. ¿Qué es cierto?',
+    prompt:
+      'Compara las dos consultas. Andrés y Paula ganan exactamente 4.200.000. ¿Qué es cierto?',
     exhibit: {
       queries: [
         { label: 'A', sql: 'SELECT NOMBRE FROM EMPLEADOS\nWHERE SALARIO > 4200000;' },
@@ -902,16 +907,22 @@ const where: Question[] = [
     },
     options: [
       {
-        body: 'Devuelven las mismas filas.',
+        body: 'Devuelven exactamente las mismas filas.',
         feedback: 'Hay empleados que ganan exactamente 4.200.000.',
       },
       {
-        body: 'B devuelve 2 filas más: Andrés y Paula, que ganan exactamente 4.200.000.',
+        body: 'B devuelve 2 filas más: las de Andrés y Paula.',
         correct: true,
         feedback: '>= incluye el límite; > no.',
       },
-      { body: 'B devuelve 1 fila más.', feedback: 'Andrés y Paula ganan 4.200.000: son dos.' },
-      { body: 'A devuelve más filas que B.', feedback: '>= nunca devuelve menos que >.' },
+      {
+        body: 'B devuelve 1 fila más: la del límite.',
+        feedback: 'Andrés y Paula ganan 4.200.000: son dos.',
+      },
+      {
+        body: 'A devuelve más filas: > incluye el límite.',
+        feedback: '>= nunca devuelve menos que >.',
+      },
     ],
     explanation:
       'La única diferencia entre > y >= son las filas iguales al límite. Andrés y Paula ganan exactamente 4.200.000.',
@@ -951,7 +962,7 @@ const logicos: Question[] = [
         feedback: 'Eso pasaría con paréntesis alrededor del OR.',
       },
       {
-        body: '13: todos los de Bogotá y Medellín.',
+        body: '12: todos los de Bogotá y Medellín.',
         feedback: 'La condición de salario sí afecta a los de Medellín.',
       },
       {
@@ -1158,15 +1169,18 @@ const betweenInLike: Question[] = [
         feedback: 'Oracle no reordena los límites.',
       },
       {
-        body: 'Ninguna fila: ningún salario es ≥ 6.000.000 y ≤ 3.000.000 a la vez.',
+        body: 'Ninguna fila: nadie es ≥ 6.000.000 y ≤ 3.000.000.',
         correct: true,
         feedback: 'BETWEEN a AND b exige primero el menor.',
       },
       {
-        body: 'Un error de sintaxis.',
+        body: 'Un error de sintaxis por el orden de los límites.',
         feedback: 'La consulta es válida; solo que la condición nunca se cumple.',
       },
-      { body: 'Los salarios fuera del rango.', feedback: 'Eso sería NOT BETWEEN.' },
+      {
+        body: 'Los salarios fuera del rango de 3 a 6 millones.',
+        feedback: 'Eso sería NOT BETWEEN.',
+      },
     ],
     explanation:
       'BETWEEN a AND b se traduce en ≥ a AND ≤ b. Si a es mayor que b, ninguna fila puede cumplir las dos condiciones.',
@@ -1413,15 +1427,18 @@ const nulls: Question[] = [
     prompt: '6 empleados no tienen bono. ¿Qué devuelve la consulta?',
     code: 'SELECT NOMBRE FROM EMPLEADOS\nWHERE BONO = NULL;',
     options: [
-      { body: 'Los 6 empleados sin bono.', feedback: 'Para eso se usa IS NULL.' },
-      { body: 'Un error de sintaxis.', feedback: 'Es válida, pero nunca se cumple.' },
+      { body: 'Los 6 empleados sin bono registrado.', feedback: 'Para eso se usa IS NULL.' },
       {
-        body: 'Ninguna fila: comparar con NULL usando = nunca es verdadero.',
+        body: 'Un error de sintaxis: NULL no se compara.',
+        feedback: 'Es válida, pero nunca se cumple.',
+      },
+      {
+        body: 'Ninguna fila: = NULL nunca es verdadero.',
         correct: true,
         feedback: 'La forma correcta es BONO IS NULL.',
       },
       {
-        body: 'Los 14 empleados con bono.',
+        body: 'Los 14 empleados que sí tienen bono.',
         feedback: 'La condición no es verdadera para ninguna fila.',
       },
     ],
@@ -1450,9 +1467,12 @@ const nulls: Question[] = [
       ],
     },
     options: [
-      { body: 'Las dos devuelven las mismas 7 filas.', feedback: 'NULL y 0 son cosas distintas.' },
       {
-        body: 'A devuelve 6 filas y B 1 (Mario): «sin bono registrado» no es «bono de 0».',
+        body: 'Las dos devuelven las mismas 7 filas: NULL equivale a 0.',
+        feedback: 'NULL y 0 son cosas distintas.',
+      },
+      {
+        body: 'A devuelve 6 filas y B solo 1 (Mario, con bono 0).',
         correct: true,
         feedback: 'Mario tiene un bono registrado de 0.',
       },
@@ -1461,7 +1481,7 @@ const nulls: Question[] = [
         feedback: 'IS NULL sí funciona; lo que no funciona es = NULL.',
       },
       {
-        body: 'B incluye también a los 6 sin bono.',
+        body: 'B devuelve 7 filas: incluye también a los 6 sin bono.',
         feedback: 'Para un NULL, BONO = 0 es desconocido.',
       },
     ],
@@ -1663,7 +1683,8 @@ const orderBy: Question[] = [
             ['Mario', 0],
             ['Andrés', 300000],
           ],
-          feedback: 'Eso pasa con DESC (o con NULLS FIRST), no con ASC.',
+          feedback:
+            'Ese orden pide ORDER BY BONO NULLS FIRST; por defecto, con ASC, los NULL van al final.',
         },
         {
           body: 'Jorge no aparece.',
@@ -1782,13 +1803,16 @@ const orderBy: Question[] = [
         feedback: 'El número se refiere a la lista SELECT, no a la tabla.',
       },
       {
-        body: 'Por SALARIO, la segunda columna de la lista SELECT, de menor a mayor.',
+        body: 'Por SALARIO, la 2.ª columna del SELECT, ascendente.',
         correct: true,
         feedback: 'ORDER BY 2 = ORDER BY SALARIO.',
       },
-      { body: 'No ordena: devuelve solo 2 filas.', feedback: 'El número no limita filas.' },
       {
-        body: 'Pone primero al empleado con ID 2.',
+        body: 'No ordena: el 2 limita el resultado a 2 filas.',
+        feedback: 'El número no limita filas.',
+      },
+      {
+        body: 'Pone primero al empleado con ID 2 y luego al resto.',
         feedback: 'No compara con valores de ninguna columna.',
       },
     ],
@@ -1959,12 +1983,15 @@ const completa: Question[] = [
         feedback: 'Ordenar no elimina repetidos; los deja juntos.',
       },
       {
-        body: 'A tiene 4 filas (una por ciudad) y B 11 (una por empleado que cumple).',
+        body: 'A tiene 4 filas (una por ciudad) y B tiene 11.',
         correct: true,
         feedback: 'DISTINCT elimina las repeticiones.',
       },
-      { body: 'A tiene 11 filas y B 4.', feedback: 'Es al revés: DISTINCT reduce filas.' },
-      { body: 'B falla porque falta DISTINCT.', feedback: 'DISTINCT es opcional.' },
+      {
+        body: 'A tiene 11 filas y B tiene 4 (una por ciudad).',
+        feedback: 'Es al revés: DISTINCT reduce filas.',
+      },
+      { body: 'B falla porque ORDER BY exige usar DISTINCT.', feedback: 'DISTINCT es opcional.' },
     ],
     explanation:
       'Las dos consultas filtran las mismas filas; DISTINCT deja una por ciudad y sin DISTINCT aparece una por empleado.',
@@ -2076,18 +2103,21 @@ const completa: Question[] = [
         correct: true,
         feedback: 'Cada lado de AND es una condición completa.',
       },
-      { body: 'Escribir los números entre comillas.', feedback: 'Los números van sin comillas.' },
       {
-        body: 'Poner la condición entre paréntesis.',
+        body: "Escribir los números entre comillas: '4000000' y '6000000'.",
+        feedback: 'Los números van sin comillas.',
+      },
+      {
+        body: 'Poner paréntesis: WHERE (SALARIO > 4000000 AND < 6000000).',
         feedback: 'Los paréntesis no completan la condición.',
       },
       {
-        body: 'Cambiar AND por OR.',
+        body: 'Cambiar AND por OR: SALARIO > 4000000 OR < 6000000.',
         feedback: 'El problema es la condición incompleta, no el operador.',
       },
     ],
     explanation:
-      'AND une dos condiciones completas. «< 6000000» sola no dice qué se compara. También sirve BETWEEN, aunque incluye los extremos.',
+      'AND une dos condiciones completas. «< 6000000» sola no dice qué se compara. BETWEEN 4000000 AND 6000000 no es equivalente: incluye los extremos (María gana exactamente 6.000.000).',
     concept: 'Condiciones con AND',
     review: lesson('L21', 'Errores frecuentes', 'errores-frecuentes'),
     reference: REF.conditions,

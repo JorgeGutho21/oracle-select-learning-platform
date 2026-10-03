@@ -1,5 +1,6 @@
 import type { Route } from 'next';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import {
   LESSON_COUNT,
   LESSONS,
@@ -64,7 +65,8 @@ function UnitVideo({ video }: { readonly video: VideoResource }) {
   );
 }
 
-export function StudyIndexPage() {
+/** `extension`: lecciones que amplían la unidad (fuente curricular), tras sus bloques. */
+export function StudyIndexPage({ extension }: { readonly extension?: ReactNode } = {}) {
   return (
     <div className="study-shell">
       <header className="study-hero">
@@ -101,15 +103,16 @@ export function StudyIndexPage() {
           <UnitVideo video={getVideo('intro')} />
         </section>
         <StudyLessonList />
+        {extension}
         <aside className="study-next-level" aria-labelledby="study-next-title">
           <p className="study-eyebrow">Después de esta unidad</p>
-          <h2 id="study-next-title">Funciones, agrupación, JOIN y más</h2>
+          <h2 id="study-next-title">Varias tablas, resúmenes y PL/SQL</h2>
           <p>
-            La ruta continúa con funciones, resúmenes con GROUP BY, varias tablas con JOIN y la
-            modificación de datos. Cada tema ya tiene su ficha en Próximamente.
+            La Sección 2 continúa con JOIN, funciones de grupo, GROUP BY, subconsultas y operadores
+            de conjuntos; la Sección 3, con PL/SQL y triggers.
           </p>
-          <Link className="inline-action" href="/modules">
-            Ver la ruta completa <span aria-hidden="true">→</span>
+          <Link className="inline-action" href="/sections">
+            Ver las secciones <span aria-hidden="true">→</span>
           </Link>
         </aside>
       </div>

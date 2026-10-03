@@ -6,6 +6,7 @@ import {
   levelAnchor,
   STAGE_LABEL,
   topicAnchor,
+  topicLesson,
   upcomingLevels,
   type CurriculumTopic,
 } from '../application/modules-api';
@@ -24,14 +25,21 @@ import { Chip } from '@/presentation/components/ui';
  * errores frecuentes). Los temas futuros no tienen lecciones ni cuentan en el progreso.
  */
 
+function availableCount(topics: readonly CurriculumTopic[]): number {
+  return topics.filter((topic) => topicLesson(topic) !== null).length;
+}
+
 function TopicCard({ topic }: { readonly topic: CurriculumTopic }) {
   const titleId = `${topicAnchor(topic)}-title`;
+  const taught = topicLesson(topic);
   return (
     <li id={topicAnchor(topic)} className="topic-card">
       <article aria-labelledby={titleId}>
         <header className="topic-card__header">
           <code className="topic-card__keyword">{topic.keyword}</code>
-          <Chip tone="warning">Próximamente</Chip>
+          <Chip tone={taught ? 'success' : 'warning'}>
+            {taught ? 'Disponible' : 'Próximamente'}
+          </Chip>
         </header>
         <h4 id={titleId} className="topic-card__title">
           {topic.title}
@@ -40,6 +48,13 @@ function TopicCard({ topic }: { readonly topic: CurriculumTopic }) {
         <p className="topic-card__purpose">
           <strong>Para qué sirve:</strong> {topic.purpose}
         </p>
+        {taught && (
+          <p className="topic-card__lesson">
+            <Link href={taught.href as Route}>
+              Estudiar en {taught.label} <span aria-hidden="true">→</span>
+            </Link>
+          </p>
+        )}
         <details className="topic-card__more">
           <summary>Sintaxis y ejemplo</summary>
           <SqlCode sql={topic.syntax} label="Sintaxis mínima" />
@@ -182,7 +197,10 @@ export function ModulesPage({ currentProgress }: { readonly currentProgress: Rea
                   )}
                   <p className="level__meta">
                     Requiere: {level.prerequisites.map((number) => `Nivel ${number}`).join(', ')} ·{' '}
-                    {level.topics.length} temas · Próximamente
+                    {level.topics.length} temas ·{' '}
+                    {availableCount(level.topics) > 0
+                      ? `${availableCount(level.topics)} ya disponibles en las secciones`
+                      : 'Próximamente'}
                   </p>
                 </div>
               </header>

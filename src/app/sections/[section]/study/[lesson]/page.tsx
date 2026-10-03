@@ -6,14 +6,14 @@ import {
   lessonSlugs,
   verification,
 } from '@/features/curriculum/application/curriculum-api';
-import { CURRICULUM_OUTLINE } from '@/features/curriculum/application/outline';
+import { CURRICULUM_OUTLINE, EXTENSION_OUTLINE } from '@/features/curriculum/application/outline';
 import { LessonArticle, ModeTabs } from '@/features/curriculum/presentation/curriculum-pages';
 import { getSection } from '@/features/sections/application/sections-api';
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return CURRICULUM_OUTLINE.flatMap(({ section }) =>
+  return [...CURRICULUM_OUTLINE, ...EXTENSION_OUTLINE].flatMap(({ section }) =>
     lessonSlugs(section).map((lesson) => ({ section, lesson })),
   );
 }

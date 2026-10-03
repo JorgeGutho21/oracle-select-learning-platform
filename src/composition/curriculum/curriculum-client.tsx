@@ -100,16 +100,20 @@ export function LessonStatus({
   section,
   lessonId,
   version,
+  pendingLabel,
 }: {
   readonly section: string;
   readonly lessonId: string;
   readonly version: number;
+  /** Texto cuando aún no hay registro (por ejemplo, «Pendiente» en el temario). */
+  readonly pendingLabel?: string;
 }) {
   const records = useCurriculumRecords();
   const record = records.find(
     (entry) => entry.section === section && entry.mode === 'study' && entry.item === lessonId,
   );
-  if (!record) return null;
+  if (!record)
+    return pendingLabel ? <span className="cu-lesson-status">{pendingLabel}</span> : null;
   const done = record.status === 'completed' && record.contentVersion === version;
   return (
     <span className={`cu-lesson-status cu-lesson-status--${done ? 'done' : 'open'}`}>

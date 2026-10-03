@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { CURRICULA } from '@/features/curriculum/domain/registry';
+import { CURRICULA, EXTENSIONS } from '@/features/curriculum/domain/registry';
+import type { CurriculumUnit } from '@/features/curriculum/domain/types';
 
 /**
  * El índice ligero (`application/outline.json`) coincide con el contenido. Con
@@ -9,11 +10,11 @@ import { CURRICULA } from '@/features/curriculum/domain/registry';
 
 const FILE = 'src/features/curriculum/application/outline.json';
 
-function expected() {
-  return CURRICULA.map((curriculum) => ({
-    section: curriculum.section,
-    blocks: curriculum.blocks.map(({ id, number, title }) => ({ id, number, title })),
-    lessons: curriculum.lessons.map(({ id, block, slug, title, shortTitle, summary, version }) => ({
+function lessonsOf(unit: CurriculumUnit) {
+  return {
+    section: unit.section,
+    blocks: unit.blocks.map(({ id, number, title }) => ({ id, number, title })),
+    lessons: unit.lessons.map(({ id, block, slug, title, shortTitle, summary, version }) => ({
       id,
       block,
       slug,
@@ -22,10 +23,19 @@ function expected() {
       summary,
       version,
     })),
-    practice: curriculum.practice.map(({ id }) => id),
-    missions: curriculum.missions.map(({ id, title }) => ({ id, title })),
-    scenes: curriculum.scenes.length,
-  }));
+  };
+}
+
+function expected() {
+  return {
+    sections: CURRICULA.map((curriculum) => ({
+      ...lessonsOf(curriculum),
+      practice: curriculum.practice.map(({ id }) => id),
+      missions: curriculum.missions.map(({ id, title }) => ({ id, title })),
+      scenes: curriculum.scenes.length,
+    })),
+    extensions: EXTENSIONS.map(lessonsOf),
+  };
 }
 
 describe('Índice ligero del currículo', () => {

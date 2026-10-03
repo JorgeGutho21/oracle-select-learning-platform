@@ -257,7 +257,7 @@ const DEFINITIONS: Readonly<Record<ConceptId, ConceptInput>> = {
     syntax: 'SELECT columna1, columna2',
     example: 'SELECT nombre, salario\nFROM empleados;',
     humanReading: 'Muéstrame el nombre y el salario de cada empleado.',
-    keyTakeaway: 'SELECT decide las columnas; no quita filas.',
+    keyTakeaway: 'SELECT decide las columnas; no quita filas (DISTINCT sí quita las repetidas).',
     mistake: {
       wrong: 'SELECT nombre salario\nFROM empleados;',
       right: 'SELECT nombre, salario\nFROM empleados;',
@@ -273,7 +273,8 @@ const DEFINITIONS: Readonly<Record<ConceptId, ConceptInput>> = {
     definition: 'FROM indica de qué tabla provienen los datos que quieres consultar.',
     gloss: 'indica de qué tabla vienen los datos',
     whatItDoes: 'Nombra la tabla de origen; las columnas de SELECT deben existir en ella.',
-    whyItMatters: 'Sin FROM, Oracle no sabe de dónde leer: en Oracle 19c es obligatorio.',
+    whyItMatters:
+      'Sin FROM, Oracle no sabe de qué tabla leer. En Oracle 19c es obligatorio; Oracle 23ai acepta SELECT sin FROM solo para calcular valores sueltos (SELECT 2 * 3), nunca para leer columnas de una tabla.',
     syntax: 'FROM tabla',
     example: 'SELECT cargo\nFROM empleados;',
     humanReading: 'Muéstrame el cargo de cada fila de EMPLEADOS.',
@@ -357,7 +358,8 @@ const DEFINITIONS: Readonly<Record<ConceptId, ConceptInput>> = {
     example: 'SELECT nombre,\n       salario * 12\nFROM empleados;',
     humanReading: 'Muéstrame el nombre y el salario de un año de cada empleado.',
     keyTakeaway: 'Calcular no cambia la tabla: SALARIO sigue igual.',
-    oracleNote: 'Si un operando es NULL, el cálculo da NULL: salario + NULL es NULL.',
+    oracleNote:
+      'En un cálculo aritmético, si un operando es NULL el resultado es NULL: salario + NULL es NULL. La concatenación || es distinta: trata NULL como texto vacío.',
     lesson: 'expresiones',
     keywords: ['expresion', 'calculo', 'aritmetica', 'operador', 'multiplicar'],
   },
@@ -372,7 +374,8 @@ const DEFINITIONS: Readonly<Record<ConceptId, ConceptInput>> = {
     whyItMatters: 'La misma fórmula sin paréntesis puede dar otro número.',
     syntax: '(a + b) * c',
     example: 'SELECT nombre,\n       (salario + bono) * 12\nFROM empleados;',
-    humanReading: 'Suma salario y bono de cada empleado y multiplica el total por 12.',
+    humanReading:
+      'Suma salario y bono de cada empleado y multiplica el total por 12. Para los 6 sin bono el resultado es NULL, porque salario + NULL es NULL.',
     keyTakeaway: 'Ante la duda, escribe los paréntesis.',
     lesson: 'precedencia',
     keywords: ['precedencia', 'parentesis', 'orden de operaciones'],
@@ -389,7 +392,8 @@ const DEFINITIONS: Readonly<Record<ConceptId, ConceptInput>> = {
       'Sin ellos, * se calcula antes que + y AND antes que OR, y el resultado puede cambiar.',
     syntax: '(expresión) · (condición)',
     example: 'SELECT nombre,\n       (salario + bono) * 12 AS total_anual\nFROM empleados;',
-    humanReading: 'Muéstrame el nombre y lo que gana al año cada empleado sumando salario y bono.',
+    humanReading:
+      'Muéstrame el nombre y lo que gana al año cada empleado sumando salario y bono (NULL para los 6 sin bono).',
     keyTakeaway: 'Ante la duda, usa paréntesis: dejan explícito qué se evalúa primero.',
     mistake: {
       wrong: 'SELECT nombre, (salario + bono * 12\nFROM empleados;',
@@ -664,7 +668,8 @@ const DEFINITIONS: Readonly<Record<ConceptId, ConceptInput>> = {
     category: 'wildcard-like',
     definition: '_ representa exactamente un carácter dentro de un patrón LIKE.',
     gloss: 'exactamente un carácter',
-    whatItDoes: "'_a%' exige cualquier letra y después una a en la segunda posición.",
+    whatItDoes:
+      "'_a%' exige un carácter cualquiera (letra, número o espacio) y después una a en la segunda posición.",
     whyItMatters: 'Sirve cuando importa la posición exacta de una letra.',
     syntax: "LIKE '_a%'",
     example: "SELECT nombre\nFROM empleados\nWHERE nombre LIKE '_a%';",

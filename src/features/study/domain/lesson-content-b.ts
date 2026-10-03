@@ -596,6 +596,10 @@ export const LESSON_CONTENT_B: readonly LessonContent[] = [
         title: 'Sin ORDER BY',
         text: 'Sin ORDER BY, Oracle no promete ningún orden, aunque el resultado parezca ordenado.',
       },
+      {
+        title: 'Ordenar por posición',
+        text: 'ORDER BY 2 ordena por la segunda columna de la lista SELECT, no de la tabla. Es válido, pero un nombre o un alias es más claro y no cambia si reordenas el SELECT.',
+      },
     ],
     error: {
       title: 'Escribir ORDER BY antes de WHERE',

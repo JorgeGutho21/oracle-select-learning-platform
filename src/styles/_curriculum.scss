@@ -125,6 +125,10 @@
   font-size: 0.8125rem;
   font-weight: 700;
 }
+// Dentro de una tarjeta del temario de la Sección 1, el estado ocupa su propia fila.
+.study-card__state .cu-lesson-status {
+  position: static;
+}
 .cu-lesson-status--done {
   color: var(--color-success);
 }

@@ -41,22 +41,40 @@ describe('Índice público de búsqueda', () => {
     expect(lesson?.status, query).toBe('Disponible');
   });
 
+  // Desde la Fase 4, los temas que ya enseña una lección llevan a esa lección.
   it.each([
-    ['upper', '/modules#tema-upper'],
-    ['round', '/modules#tema-round'],
-    ['group by', '/modules#tema-group-by'],
-    ['join', '/modules#tema-inner-join'],
-    ['insert', '/modules#tema-insert'],
-    ['update', '/modules#tema-update'],
-    ['delete', '/modules#tema-delete'],
-    ['having', '/modules#tema-having'],
-    ['commit', '/modules#tema-commit-rollback'],
+    ['upper', '/sections/fundamentos-sql/study/funciones-de-texto'],
+    ['round', '/sections/fundamentos-sql/study/funciones-numericas'],
+    ['group by', '/sections/consultas-relacionales/study/group-by'],
+    ['join', '/sections/consultas-relacionales/study/inner-join'],
+    ['insert', '/sections/plsql/study/dml-en-plsql'],
+    ['having', '/sections/consultas-relacionales/study/having'],
+    ['commit', '/sections/plsql/study/dml-en-plsql'],
+  ])('lleva %s a la lección que ya lo enseña', (query, href) => {
+    const result = searchPublicCatalog(query).find((entry) => entry.href === href);
+    expect(result?.status, query).toBe('Disponible');
+  });
+
+  it.each([
+    ['to_char', '/modules#tema-to-char'],
+    ['create table', '/modules#tema-create-table'],
     ['funciones', '/modules#nivel-2'],
   ])('marca %s como Próximamente con destino real en la ruta', (query, href) => {
     const results = searchPublicCatalog(query);
     const future = results.find((result) => result.href === href);
     expect(future?.status, query).toBe('Próximamente');
     expect(future?.group, query).toBe('Próximamente');
+  });
+
+  it('las lecciones de las secciones 2 y 3 se encuentran por su título', () => {
+    expect(
+      searchPublicCatalog('trigger').some(({ href }) => href?.startsWith('/sections/plsql/study/')),
+    ).toBe(true);
+    expect(
+      searchPublicCatalog('left outer join').some(
+        ({ href }) => href === '/sections/consultas-relacionales/study/left-outer-join',
+      ),
+    ).toBe(true);
   });
 
   it('ningún resultado futuro apunta a una lección ni a una ruta inexistente', () => {

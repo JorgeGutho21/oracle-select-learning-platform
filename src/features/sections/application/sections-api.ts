@@ -1,6 +1,7 @@
 import { MISSION_OVERVIEW } from '@/features/challenge/application/challenge-api';
 import {
   curriculumLessonHref,
+  extensionOf,
   outlineOf,
   type SectionOutline,
 } from '@/features/curriculum/application/outline';
@@ -75,15 +76,33 @@ export function sectionHref(id: SectionId): string {
 
 /** Temario real de la Sección 1: los bloques y lecciones del Modo Estudio. */
 function studyTopicGroups(): readonly SectionTopicGroupDto[] {
-  return STUDY_BLOCKS.map((block) => ({
-    title: `${block.letter} · ${block.title}`,
-    status: 'available' as const,
-    topics: LESSON_INDEX.filter((lesson) => lesson.block === block.id).map((lesson) => ({
-      label: lesson.shortTitle,
-      href: `/learn/${lesson.slug}`,
+  const extension = extensionOf('fundamentos-sql');
+  return [
+    ...STUDY_BLOCKS.map((block) => ({
+      title: `${block.letter} · ${block.title}`,
+      status: 'available' as const,
+      topics: LESSON_INDEX.filter((lesson) => lesson.block === block.id).map((lesson) => ({
+        label: lesson.shortTitle,
+        href: `/learn/${lesson.slug}`,
+      })),
     })),
-  }));
+    // Ampliación «Funciones de una fila» (fuente curricular, Fase 4): bloque I.
+    ...(extension?.blocks ?? []).map((block) => ({
+      title: `I · ${block.title}`,
+      status: 'available' as const,
+      topics: extension!.lessons
+        .filter((lesson) => lesson.block === block.id)
+        .map((lesson) => ({
+          label: lesson.shortTitle,
+          href: curriculumLessonHref('fundamentos-sql', lesson.slug),
+        })),
+    })),
+  ];
 }
+
+/** Lecciones de la Sección 1: las del Modo Estudio más las de su ampliación. */
+const S1_LESSON_COUNT = LESSON_COUNT + (extensionOf('fundamentos-sql')?.lessons.length ?? 0);
+const S1_BLOCK_COUNT = STUDY_BLOCKS.length + (extensionOf('fundamentos-sql')?.blocks.length ?? 0);
 
 /** Temario real de una sección de la fuente curricular: sus bloques y lecciones. */
 function curriculumTopicGroups(outline: SectionOutline): readonly SectionTopicGroupDto[] {
@@ -143,8 +162,8 @@ function toDto(section: SectionDefinition): SectionDto {
         ? curriculumFacts(outline)
         : available && section.id === 'fundamentos-sql'
           ? [
-              { value: String(LESSON_COUNT), label: 'lecciones' },
-              { value: String(STUDY_BLOCKS.length), label: 'bloques' },
+              { value: String(S1_LESSON_COUNT), label: 'lecciones' },
+              { value: String(S1_BLOCK_COUNT), label: 'bloques' },
               { value: String(SCENE_TOTAL), label: 'escenas de clase' },
               { value: String(MISSION_OVERVIEW.length), label: 'misiones' },
             ]

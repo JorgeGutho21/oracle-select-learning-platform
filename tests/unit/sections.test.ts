@@ -8,7 +8,11 @@ import {
   SECTION_LIST,
   sectionNeighbors,
 } from '@/features/sections/application/sections-api';
-import { CURRICULUM_OUTLINE, outlineOf } from '@/features/curriculum/application/outline';
+import {
+  CURRICULUM_OUTLINE,
+  extensionOf,
+  outlineOf,
+} from '@/features/curriculum/application/outline';
 import { CURRICULUM_LEVELS } from '@/features/modules/domain/curriculum';
 import { LESSON_COUNT, LESSON_INDEX } from '@/features/study/application/lesson-index';
 
@@ -56,12 +60,16 @@ describe('arquitectura de secciones de DB LAB', () => {
   it('el temario de la Sección 1 sale del Modo Estudio real', () => {
     const fundamentals = getSection('fundamentos-sql')!;
     const available = fundamentals.topicGroups.filter((group) => group.status === 'available');
-    expect(available).toHaveLength(8);
+    // Ocho bloques del Modo Estudio más la ampliación «Funciones de una fila» (Fase 4).
+    expect(available).toHaveLength(9);
     const links = available.flatMap((group) => group.topics.map((topic) => topic.href));
-    expect(links).toHaveLength(LESSON_COUNT);
-    expect(links).toEqual(LESSON_INDEX.map(({ slug }) => `/learn/${slug}`));
+    const extension = extensionOf('fundamentos-sql')!;
+    expect(links).toEqual([
+      ...LESSON_INDEX.map(({ slug }) => `/learn/${slug}`),
+      ...extension.lessons.map(({ slug }) => `/sections/fundamentos-sql/study/${slug}`),
+    ]);
     expect(fundamentals.facts.find((fact) => fact.label === 'lecciones')?.value).toBe(
-      String(LESSON_COUNT),
+      String(LESSON_COUNT + extension.lessons.length),
     );
   });
 

@@ -10,6 +10,7 @@ import {
 import {
   ALL_EXAMPLES,
   CURRICULA,
+  EXTENSIONS,
   exampleById,
   lessonById,
   lessonExamples,
@@ -19,6 +20,7 @@ import type {
   Activity,
   CurriculumExample,
   ExampleVisual,
+  CurriculumUnit,
   QueryExample,
   SectionCurriculum,
 } from '@/features/curriculum/domain/types';
@@ -49,7 +51,7 @@ function referencedTables(sql: string): string[] {
   );
 }
 
-function examplesUsedBy(curriculum: SectionCurriculum): Set<string> {
+function examplesUsedBy(curriculum: CurriculumUnit): Set<string> {
   const used = new Set<string>();
   const visit = (visual?: ExampleVisual) => {
     if (!visual) return;
@@ -75,188 +77,194 @@ function resultOf(id: string): VerifiedResult | undefined {
   return VERIFIED.results[id];
 }
 
-describe.each(CURRICULA.map((curriculum) => [curriculum.section, curriculum] as const))(
-  'Currículo %s',
-  (_section, curriculum) => {
-    const lessonIds = new Set(curriculum.lessons.map(({ id }) => id));
-    const exampleIds = new Set(curriculum.examples.map(({ id }) => id));
+// Secciones completas y ampliaciones (la Sección 1 suma «Funciones de una fila»): las
+// escenas y las misiones solo se exigen a las secciones completas.
+describe.each(
+  [...CURRICULA, ...EXTENSIONS].map(
+    (curriculum) =>
+      [`${curriculum.section}${'kind' in curriculum ? ' (ampliación)' : ''}`, curriculum] as const,
+  ),
+)('Currículo %s', (_section, unit: CurriculumUnit) => {
+  const curriculum = unit as SectionCurriculum;
+  const full = 'missions' in unit;
+  const lessonIds = new Set(curriculum.lessons.map(({ id }) => id));
+  const exampleIds = new Set(curriculum.examples.map(({ id }) => id));
 
-    it('identificadores y rutas únicos', () => {
-      expect(duplicates(curriculum.lessons.map(({ id }) => id))).toEqual([]);
-      expect(duplicates(curriculum.lessons.map(({ slug }) => slug))).toEqual([]);
-      expect(duplicates(curriculum.blocks.map(({ id }) => id))).toEqual([]);
-      expect(duplicates(curriculum.concepts.map(({ id }) => id))).toEqual([]);
+  it('identificadores y rutas únicos', () => {
+    expect(duplicates(curriculum.lessons.map(({ id }) => id))).toEqual([]);
+    expect(duplicates(curriculum.lessons.map(({ slug }) => slug))).toEqual([]);
+    expect(duplicates(curriculum.blocks.map(({ id }) => id))).toEqual([]);
+    expect(duplicates(curriculum.concepts.map(({ id }) => id))).toEqual([]);
+    if (full) {
       expect(duplicates(curriculum.scenes.map(({ id }) => id))).toEqual([]);
       expect(duplicates(curriculum.missions.map(({ id }) => id))).toEqual([]);
-      expect(duplicates(sectionActivities(curriculum).map(({ id }) => id))).toEqual([]);
-      for (const lesson of curriculum.lessons) {
-        expect(lesson.slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
-      }
-    });
+    }
+    expect(duplicates(sectionActivities(curriculum).map(({ id }) => id))).toEqual([]);
+    for (const lesson of curriculum.lessons) {
+      expect(lesson.slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+    }
+  });
 
-    it('cada bloque tiene lecciones y cada lección un bloque, conceptos y tema válidos', () => {
-      const blocks = new Set(curriculum.blocks.map(({ id }) => id));
-      const concepts = new Set(curriculum.concepts.map(({ id }) => id));
-      const topics = new Set(ASSESSMENT_TOPICS[curriculum.section].map(({ key }) => key));
-      for (const block of curriculum.blocks) {
-        expect(
-          curriculum.lessons.some((lesson) => lesson.block === block.id),
-          block.id,
-        ).toBe(true);
+  it('cada bloque tiene lecciones y cada lección un bloque, conceptos y tema válidos', () => {
+    const blocks = new Set(curriculum.blocks.map(({ id }) => id));
+    const concepts = new Set(curriculum.concepts.map(({ id }) => id));
+    const topics = new Set(ASSESSMENT_TOPICS[curriculum.section].map(({ key }) => key));
+    for (const block of curriculum.blocks) {
+      expect(
+        curriculum.lessons.some((lesson) => lesson.block === block.id),
+        block.id,
+      ).toBe(true);
+    }
+    for (const lesson of curriculum.lessons) {
+      expect(blocks.has(lesson.block), `${lesson.id}: bloque`).toBe(true);
+      expect(lesson.concepts.length, `${lesson.id}: conceptos`).toBeGreaterThan(0);
+      for (const concept of lesson.concepts) {
+        expect(concepts.has(concept), `${lesson.id}: concepto ${concept}`).toBe(true);
       }
-      for (const lesson of curriculum.lessons) {
-        expect(blocks.has(lesson.block), `${lesson.id}: bloque`).toBe(true);
-        expect(lesson.concepts.length, `${lesson.id}: conceptos`).toBeGreaterThan(0);
-        for (const concept of lesson.concepts) {
-          expect(concepts.has(concept), `${lesson.id}: concepto ${concept}`).toBe(true);
-        }
-        expect(topics.has(lesson.topic), `${lesson.id}: tema ${lesson.topic}`).toBe(true);
-        expect(lesson.explanation.length, lesson.id).toBeGreaterThan(0);
-        expect(lesson.changed.length, lesson.id).toBeGreaterThan(0);
-        expect(lesson.mistakes.length, `${lesson.id}: errores frecuentes`).toBeGreaterThan(0);
-        expect(lesson.keyIdea.trim(), lesson.id).not.toBe('');
-      }
-    });
+      expect(topics.has(lesson.topic), `${lesson.id}: tema ${lesson.topic}`).toBe(true);
+      expect(lesson.explanation.length, lesson.id).toBeGreaterThan(0);
+      expect(lesson.changed.length, lesson.id).toBeGreaterThan(0);
+      expect(lesson.mistakes.length, `${lesson.id}: errores frecuentes`).toBeGreaterThan(0);
+      expect(lesson.keyIdea.trim(), lesson.id).not.toBe('');
+    }
+  });
 
-    it('los ejemplos de lecciones, visualizaciones y conceptos existen', () => {
-      for (const lesson of curriculum.lessons) {
-        for (const entry of lessonExamples(lesson)) {
-          expect(exampleIds.has(entry.example), `${lesson.id}: ${entry.example}`).toBe(true);
-          const visual = entry.visual;
-          if (visual?.kind === 'compare')
-            expect(exampleIds.has(visual.other), visual.other).toBe(true);
-          if (visual?.kind === 'pipeline') {
-            for (const stage of visual.stages) expect(exampleIds.has(stage.example)).toBe(true);
-          }
-          if (visual?.kind === 'join') {
-            const example = exampleById(entry.example) as QueryExample;
-            expect(example.kind, entry.example).toBe('query');
-            expect(empresaTable(visual.left)?.columns.some((c) => c.name === visual.leftKey)).toBe(
-              true,
-            );
-            expect(
-              empresaTable(visual.right)?.columns.some((c) => c.name === visual.rightKey),
-            ).toBe(true);
-            const shown = example.sources.map(({ table }) => table);
-            expect(shown, `${entry.example}: tablas del JOIN visibles`).toContain(visual.left);
-            expect(shown).toContain(visual.right);
-          }
-          if (visual?.kind === 'cursor') {
-            // El cursor recorre exactamente las filas de una consulta verificada.
-            expect(exampleById(visual.query)?.kind, `${entry.example}: ${visual.query}`).toBe(
-              'query',
-            );
-            expect(exampleById(entry.example)?.kind).toBe('plsql');
-          }
-          if (visual?.kind === 'group') {
-            const example = exampleById(entry.example) as QueryExample;
-            const source = example.sources.find(({ table }) => table === visual.table);
-            expect(source, `${entry.example}: tabla agrupada visible`).toBeDefined();
-            for (const column of visual.by) expect(source!.columns).toContain(column);
-          }
+  it('los ejemplos de lecciones, visualizaciones y conceptos existen', () => {
+    for (const lesson of curriculum.lessons) {
+      for (const entry of lessonExamples(lesson)) {
+        expect(exampleIds.has(entry.example), `${lesson.id}: ${entry.example}`).toBe(true);
+        const visual = entry.visual;
+        if (visual?.kind === 'compare')
+          expect(exampleIds.has(visual.other), visual.other).toBe(true);
+        if (visual?.kind === 'pipeline') {
+          for (const stage of visual.stages) expect(exampleIds.has(stage.example)).toBe(true);
+        }
+        if (visual?.kind === 'join') {
+          const example = exampleById(entry.example) as QueryExample;
+          expect(example.kind, entry.example).toBe('query');
+          expect(empresaTable(visual.left)?.columns.some((c) => c.name === visual.leftKey)).toBe(
+            true,
+          );
+          expect(empresaTable(visual.right)?.columns.some((c) => c.name === visual.rightKey)).toBe(
+            true,
+          );
+          const shown = example.sources.map(({ table }) => table);
+          expect(shown, `${entry.example}: tablas del JOIN visibles`).toContain(visual.left);
+          expect(shown).toContain(visual.right);
+        }
+        if (visual?.kind === 'cursor') {
+          // El cursor recorre exactamente las filas de una consulta verificada.
+          expect(exampleById(visual.query)?.kind, `${entry.example}: ${visual.query}`).toBe(
+            'query',
+          );
+          expect(exampleById(entry.example)?.kind).toBe('plsql');
+        }
+        if (visual?.kind === 'group') {
+          const example = exampleById(entry.example) as QueryExample;
+          const source = example.sources.find(({ table }) => table === visual.table);
+          expect(source, `${entry.example}: tabla agrupada visible`).toBeDefined();
+          for (const column of visual.by) expect(source!.columns).toContain(column);
         }
       }
-      for (const concept of curriculum.concepts) {
-        expect(exampleIds.has(concept.example), `${concept.id}: ${concept.example}`).toBe(true);
-        expect(concept.definition.split(/\s+/).length, concept.id).toBeLessThanOrEqual(30);
-        expect(concept.reference.url).toMatch(/^https:\/\/docs\.oracle\.com\//);
+    }
+    for (const concept of curriculum.concepts) {
+      expect(exampleIds.has(concept.example), `${concept.id}: ${concept.example}`).toBe(true);
+      expect(concept.definition.split(/\s+/).length, concept.id).toBeLessThanOrEqual(30);
+      expect(concept.reference.url).toMatch(/^https:\/\/docs\.oracle\.com\//);
+    }
+  });
+
+  it('cada ejemplo se usa y no hay ejemplos huérfanos', () => {
+    const used = examplesUsedBy(curriculum);
+    const orphans = curriculum.examples.map(({ id }) => id).filter((id) => !used.has(id));
+    expect(orphans, orphans.join(', ')).toEqual([]);
+  });
+
+  it.runIf(full)('las escenas remiten a lecciones, bloques y ejemplos existentes', () => {
+    const blocks = new Set(curriculum.blocks.map(({ id }) => id));
+    expect(curriculum.scenes.length).toBeGreaterThanOrEqual(20);
+    for (const scene of curriculum.scenes) {
+      expect(blocks.has(scene.block), `${scene.id}: bloque`).toBe(true);
+      if (scene.kind === 'lesson') {
+        const lesson = lessonById(scene.lesson ?? '');
+        expect(lesson, `${scene.id}: lección`).toBeDefined();
+        if (scene.example) {
+          const own = lessonExamples(lesson!).map(({ example }) => example);
+          expect(own, `${scene.id}: ejemplo de su lección`).toContain(scene.example);
+        }
       }
-    });
+      if (scene.lesson) expect(lessonIds.has(scene.lesson), scene.id).toBe(true);
+      if (scene.kind === 'check') expect(scene.activity, scene.id).toBeDefined();
+      expect(scene.notes.explain.trim(), scene.id).not.toBe('');
+    }
+    expect(curriculum.scenes[0]?.kind).toBe('cover');
+    expect(curriculum.scenes.at(-1)?.kind).toBe('closing');
+  });
 
-    it('cada ejemplo se usa y no hay ejemplos huérfanos', () => {
-      const used = examplesUsedBy(curriculum);
-      const orphans = curriculum.examples.map(({ id }) => id).filter((id) => !used.has(id));
-      expect(orphans, orphans.join(', ')).toEqual([]);
-    });
+  it.runIf(full)('diez misiones con pasos válidos', () => {
+    expect(curriculum.missions).toHaveLength(10);
+    for (const mission of curriculum.missions) {
+      expect(mission.steps.length, mission.id).toBeGreaterThanOrEqual(1);
+      expect(mission.steps.length, mission.id).toBeLessThanOrEqual(3);
+    }
+  });
 
-    it('las escenas remiten a lecciones, bloques y ejemplos existentes', () => {
-      const blocks = new Set(curriculum.blocks.map(({ id }) => id));
-      expect(curriculum.scenes.length).toBeGreaterThanOrEqual(20);
-      for (const scene of curriculum.scenes) {
-        expect(blocks.has(scene.block), `${scene.id}: bloque`).toBe(true);
-        if (scene.kind === 'lesson') {
-          const lesson = lessonById(scene.lesson ?? '');
-          expect(lesson, `${scene.id}: lección`).toBeDefined();
-          if (scene.example) {
-            const own = lessonExamples(lesson!).map(({ example }) => example);
-            expect(own, `${scene.id}: ejemplo de su lección`).toContain(scene.example);
-          }
-        }
-        if (scene.lesson) expect(lessonIds.has(scene.lesson), scene.id).toBe(true);
-        if (scene.kind === 'check') expect(scene.activity, scene.id).toBeDefined();
-        expect(scene.notes.explain.trim(), scene.id).not.toBe('');
+  it.each(sectionActivities(curriculum).map((activity) => [activity.id, activity] as const))(
+    'actividad %s bien formada',
+    (_id, activity: Activity) => {
+      expect(lessonIds.has(activity.lesson), `${activity.id}: lección ${activity.lesson}`).toBe(
+        true,
+      );
+      expect(activity.prompt.trim()).not.toBe('');
+      expect(activity.hints[0].trim()).not.toBe('');
+      expect(activity.hints[1].trim()).not.toBe('');
+      expect(activity.explanation.trim()).not.toBe('');
+      if (activity.context?.example) {
+        expect(exampleIds.has(activity.context.example), activity.context.example).toBe(true);
       }
-      expect(curriculum.scenes[0]?.kind).toBe('cover');
-      expect(curriculum.scenes.at(-1)?.kind).toBe('closing');
-    });
-
-    it('diez misiones con pasos válidos', () => {
-      expect(curriculum.missions).toHaveLength(10);
-      for (const mission of curriculum.missions) {
-        expect(mission.steps.length, mission.id).toBeGreaterThanOrEqual(1);
-        expect(mission.steps.length, mission.id).toBeLessThanOrEqual(3);
+      if (activity.kind === 'choice' || activity.kind === 'multi') {
+        const correct = activity.options.filter((option) => option.correct).length;
+        expect(activity.options.length).toBeGreaterThanOrEqual(3);
+        if (activity.kind === 'choice') expect(correct, 'una sola correcta').toBe(1);
+        else expect(correct, 'al menos dos correctas').toBeGreaterThanOrEqual(2);
+        expect(activity.options.length - correct, 'al menos una incorrecta').toBeGreaterThan(0);
+        expect(duplicates(activity.options.map(({ text }) => text))).toEqual([]);
+        for (const option of activity.options) expect(option.feedback.trim()).not.toBe('');
       }
-    });
-
-    it.each(sectionActivities(curriculum).map((activity) => [activity.id, activity] as const))(
-      'actividad %s bien formada',
-      (_id, activity: Activity) => {
-        expect(lessonIds.has(activity.lesson), `${activity.id}: lección ${activity.lesson}`).toBe(
-          true,
-        );
-        expect(activity.prompt.trim()).not.toBe('');
-        expect(activity.hints[0].trim()).not.toBe('');
-        expect(activity.hints[1].trim()).not.toBe('');
-        expect(activity.explanation.trim()).not.toBe('');
-        if (activity.context?.example) {
-          expect(exampleIds.has(activity.context.example), activity.context.example).toBe(true);
+      if (activity.kind === 'order') {
+        expect(activity.pieces.length).toBeGreaterThanOrEqual(3);
+        expect(duplicates([...activity.pieces])).toEqual([]);
+      }
+      if (
+        activity.kind === 'count' &&
+        exampleById(activity.context?.example ?? '')?.kind === 'plsql'
+      ) {
+        const result = resultOf(activity.context!.example!);
+        expect(result?.kind, `${activity.id}: salida verificada`).toBe('plsql');
+      } else if (activity.kind === 'count' || activity.kind === 'result') {
+        const id = activity.context?.example ?? '';
+        const result = resultOf(id);
+        expect(result?.kind, `${activity.id}: resultado verificado de ${id}`).toBe('query');
+        if (activity.kind === 'count' && activity.measure === 'value') {
+          const value = result?.kind === 'query' ? result.table.rows[0]?.[0] : undefined;
+          expect(typeof value, `${activity.id}: primera celda numérica`).toBe('number');
         }
-        if (activity.kind === 'choice' || activity.kind === 'multi') {
-          const correct = activity.options.filter((option) => option.correct).length;
-          expect(activity.options.length).toBeGreaterThanOrEqual(3);
-          if (activity.kind === 'choice') expect(correct, 'una sola correcta').toBe(1);
-          else expect(correct, 'al menos dos correctas').toBeGreaterThanOrEqual(2);
-          expect(activity.options.length - correct, 'al menos una incorrecta').toBeGreaterThan(0);
-          expect(duplicates(activity.options.map(({ text }) => text))).toEqual([]);
-          for (const option of activity.options) expect(option.feedback.trim()).not.toBe('');
+      }
+      if (activity.kind === 'result') {
+        const correct = JSON.stringify(resultOf(activity.context?.example ?? ''));
+        const seen = new Set([correct.replace(/"hash":"\w+",/, '')]);
+        expect(activity.distractors.length).toBeGreaterThan(0);
+        for (const distractor of activity.distractors) {
+          const result = resultOf(distractor.example);
+          expect(result?.kind, distractor.example).toBe('query');
+          const key = JSON.stringify(result).replace(/"hash":"\w+",/, '');
+          expect(seen.has(key), `${distractor.example} debe dar un resultado distinto`).toBe(false);
+          seen.add(key);
         }
-        if (activity.kind === 'order') {
-          expect(activity.pieces.length).toBeGreaterThanOrEqual(3);
-          expect(duplicates([...activity.pieces])).toEqual([]);
-        }
-        if (
-          activity.kind === 'count' &&
-          exampleById(activity.context?.example ?? '')?.kind === 'plsql'
-        ) {
-          const result = resultOf(activity.context!.example!);
-          expect(result?.kind, `${activity.id}: salida verificada`).toBe('plsql');
-        } else if (activity.kind === 'count' || activity.kind === 'result') {
-          const id = activity.context?.example ?? '';
-          const result = resultOf(id);
-          expect(result?.kind, `${activity.id}: resultado verificado de ${id}`).toBe('query');
-          if (activity.kind === 'count' && activity.measure === 'value') {
-            const value = result?.kind === 'query' ? result.table.rows[0]?.[0] : undefined;
-            expect(typeof value, `${activity.id}: primera celda numérica`).toBe('number');
-          }
-        }
-        if (activity.kind === 'result') {
-          const correct = JSON.stringify(resultOf(activity.context?.example ?? ''));
-          const seen = new Set([correct.replace(/"hash":"\w+",/, '')]);
-          expect(activity.distractors.length).toBeGreaterThan(0);
-          for (const distractor of activity.distractors) {
-            const result = resultOf(distractor.example);
-            expect(result?.kind, distractor.example).toBe('query');
-            const key = JSON.stringify(result).replace(/"hash":"\w+",/, '');
-            expect(seen.has(key), `${distractor.example} debe dar un resultado distinto`).toBe(
-              false,
-            );
-            seen.add(key);
-          }
-        }
-      },
-    );
-  },
-);
+      }
+    },
+  );
+});
 
 describe('Ejemplos del currículo', () => {
   it('identificadores únicos en todas las secciones', () => {

@@ -4,6 +4,49 @@ import {
   type PublicCatalogEntry,
   type SearchGroup,
 } from '../domain/public-catalog';
+import {
+  CURRICULUM_OUTLINE,
+  EXTENSION_OUTLINE,
+  curriculumLessonHref,
+} from '@/features/curriculum/application/outline';
+import { topicLesson } from '@/features/modules/application/modules-api';
+
+/**
+ * Catálogo de búsqueda completo: el público más las lecciones de la fuente curricular
+ * (secciones 2 y 3 y la ampliación de la Sección 1), que salen de su índice ligero. Los temas
+ * de la ruta que ya enseña una lección dejan de ser «Próximamente» y apuntan a ella.
+ */
+const curriculumLessons: readonly PublicCatalogEntry[] = [
+  ...CURRICULUM_OUTLINE,
+  ...EXTENSION_OUTLINE,
+].flatMap((outline) =>
+  outline.lessons.map((lesson): PublicCatalogEntry => ({
+    id: `lesson-${outline.section}-${lesson.slug}`,
+    title: lesson.title,
+    description: lesson.summary,
+    group: 'Lecciones',
+    href: curriculumLessonHref(outline.section, lesson.slug),
+    aliases: [lesson.shortTitle],
+    available: true,
+  })),
+);
+
+const catalog: readonly PublicCatalogEntry[] = [
+  ...publicCatalog.map((entry): PublicCatalogEntry => {
+    if (!entry.id.startsWith('future-')) return entry;
+    const taught = topicLesson({ id: entry.id.slice('future-'.length) });
+    return taught
+      ? {
+          ...entry,
+          description: `${taught.label} · ${entry.description.replace(/^Nivel \d+ · /, '')}`,
+          group: 'Conceptos',
+          href: taught.href,
+          available: true,
+        }
+      : entry;
+  }),
+  ...curriculumLessons,
+];
 
 export interface SearchResultDto {
   readonly id: string;
@@ -83,7 +126,7 @@ function toDto(entry: PublicCatalogEntry): SearchResultDto {
 }
 
 export function searchPublicCatalog(query: string): readonly SearchResultDto[] {
-  return publicCatalog
+  return catalog
     .map((entry, index) => ({ entry, index, rank: rank(entry, query) }))
     .filter(
       (candidate): candidate is typeof candidate & { rank: number } => candidate.rank !== null,

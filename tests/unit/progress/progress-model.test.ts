@@ -1,4 +1,4 @@
-import { CURRICULUM_OUTLINE } from '@/features/curriculum/application/outline';
+import { CURRICULUM_OUTLINE, extensionOf } from '@/features/curriculum/application/outline';
 import { describe, expect, it } from 'vitest';
 import { MISSION_IDS } from '@/features/challenge/domain/types';
 import { SCENE_TOTAL } from '@/features/presentation/domain/scenes';
@@ -19,6 +19,9 @@ import {
   type ProgressRecord,
 } from '@/features/progress/domain/progress';
 import { LESSON_COUNT, LESSON_INDEX } from '@/features/study/application/lesson-index';
+
+/** Sección 1: sus 22 lecciones más la ampliación «Funciones de una fila» (Fase 4). */
+const S1_LESSONS = LESSON_COUNT + (extensionOf('fundamentos-sql')?.lessons.length ?? 0);
 
 function study(item: string, status: ProgressRecord['status'], at = 0, version: number | null = 1) {
   return {
@@ -85,7 +88,8 @@ describe('Fusión monótona del progreso', () => {
 
 describe('Registro canónico y avance', () => {
   it('los totales salen del contenido publicado, sin números escritos a mano', () => {
-    expect(modeCatalog('fundamentos-sql', 'study')?.total).toBe(LESSON_COUNT);
+    expect(modeCatalog('fundamentos-sql', 'study')?.total).toBe(S1_LESSONS);
+    expect(S1_LESSONS).toBe(25);
     expect(modeCatalog('fundamentos-sql', 'challenge')?.total).toBe(MISSION_IDS.length);
     expect(modeCatalog('fundamentos-sql', 'class')?.total).toBe(SCENE_TOTAL);
     // Las secciones de la fuente curricular (Fase 4) salen de su índice publicado.
@@ -128,8 +132,8 @@ describe('Registro canónico y avance', () => {
     const s1 = progress.sections.find(({ section }) => section === 'fundamentos-sql')!;
     expect(s1.lessons).toEqual({
       done: 2,
-      total: LESSON_COUNT,
-      percent: Math.round((2 / LESSON_COUNT) * 100),
+      total: S1_LESSONS,
+      percent: Math.round((2 / S1_LESSONS) * 100),
     });
     expect(s1.modes.find(({ mode }) => mode === 'challenge')).toMatchObject({ done: 1, total: 10 });
     expect(s1.modes.find(({ mode }) => mode === 'class')).toMatchObject({ percent: 50 });
@@ -146,7 +150,7 @@ describe('Registro canónico y avance', () => {
   it('sin avance propone la primera lección', () => {
     const progress = learnerProgress([]);
     const total =
-      LESSON_COUNT + CURRICULUM_OUTLINE.reduce((sum, outline) => sum + outline.lessons.length, 0);
+      S1_LESSONS + CURRICULUM_OUTLINE.reduce((sum, outline) => sum + outline.lessons.length, 0);
     expect(progress.overall).toEqual({ done: 0, total, percent: 0 });
     expect(progress.resume?.label).toBe(`Empezar por «${LESSON_INDEX[0]!.shortTitle}»`);
     expect(progress.recent).toEqual([]);

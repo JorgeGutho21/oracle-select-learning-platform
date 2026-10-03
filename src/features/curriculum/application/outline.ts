@@ -34,7 +34,26 @@ export interface SectionOutline {
   readonly scenes: number;
 }
 
-export const CURRICULUM_OUTLINE: readonly SectionOutline[] = outline as readonly SectionOutline[];
+/** Ampliación de una sección con modos propios: solo bloques y lecciones. */
+export interface ExtensionOutline {
+  readonly section: SectionId;
+  readonly blocks: readonly OutlineBlock[];
+  readonly lessons: readonly OutlineLesson[];
+}
+
+const data = outline as {
+  readonly sections: readonly SectionOutline[];
+  readonly extensions: readonly ExtensionOutline[];
+};
+
+export const CURRICULUM_OUTLINE: readonly SectionOutline[] = data.sections;
+
+/** Lecciones de la fuente curricular que amplían una sección con modos propios. */
+export const EXTENSION_OUTLINE: readonly ExtensionOutline[] = data.extensions;
+
+export function extensionOf(section: string): ExtensionOutline | undefined {
+  return EXTENSION_OUTLINE.find((entry) => entry.section === section);
+}
 
 export function outlineOf(section: string): SectionOutline | undefined {
   return CURRICULUM_OUTLINE.find((entry) => entry.section === section);

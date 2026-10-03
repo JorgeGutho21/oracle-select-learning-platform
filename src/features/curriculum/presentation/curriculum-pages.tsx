@@ -535,3 +535,58 @@ export function ResourceBlocks({ blocks }: { readonly blocks: readonly ResourceB
     </div>
   );
 }
+
+/* ---------- Ampliación de una sección con modos propios ---------- */
+
+/**
+ * Bloque de lecciones de la fuente curricular dentro del temario de una sección que conserva
+ * su propio Modo Estudio (la Sección 1): mismo aspecto que sus bloques, con letra propia.
+ */
+export function ExtensionLessons({
+  blocks,
+  letter,
+  status,
+}: {
+  readonly blocks: readonly BlockView[];
+  readonly letter: string;
+  readonly status?: (lessonId: string, version: number) => ReactNode;
+}) {
+  return (
+    <div className="study-blocks cu-extension">
+      {blocks.map((block) => (
+        <section key={block.id} className="study-block" aria-labelledby={`bloque-${block.id}`}>
+          <header className="study-block__header">
+            <span className="study-block__letter" aria-hidden="true">
+              {letter}
+            </span>
+            <div>
+              <h2 id={`bloque-${block.id}`}>
+                <span className="visually-hidden">Bloque {letter}: </span>
+                {block.title}
+              </h2>
+              <p>{block.summary} Resultados obtenidos al ejecutar cada consulta en Oracle.</p>
+            </div>
+          </header>
+          <ol className="study-path" aria-label={`Lecciones del bloque ${block.title}`}>
+            {block.lessons.map((lesson) => (
+              <li key={lesson.id}>
+                <Link className="study-card" href={lesson.href as Route}>
+                  <span className="study-card__number">
+                    {String(lesson.number).padStart(2, '0')}
+                  </span>
+                  <span className="study-card__body">
+                    <strong>{lesson.shortTitle}</strong>
+                    <span>{lesson.summary}</span>
+                  </span>
+                  <span className="study-card__state">
+                    {status?.(lesson.id, lesson.version) ?? 'Pendiente'}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+  );
+}
