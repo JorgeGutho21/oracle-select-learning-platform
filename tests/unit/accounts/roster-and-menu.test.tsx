@@ -62,7 +62,8 @@ describe('Resumen del grupo (panel docente)', () => {
     expect(roster.online).toBe(1);
     expect(roster.students[1]).toMatchObject({ online: true, area: 'fundamentos-sql/study' });
     expect(roster.students[0]).toMatchObject({ online: false, area: null });
-    expect(roster.sections.find(({ section }) => section === 'plsql')?.tracked).toBe(false);
+    // Las tres secciones tienen contenido con seguimiento desde la Fase 4.
+    expect(roster.sections.every(({ tracked }) => tracked)).toBe(true);
   });
 
   it('busca sin distinguir tildes ni mayúsculas', () => {

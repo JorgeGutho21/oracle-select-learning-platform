@@ -55,6 +55,7 @@ function examplesUsedBy(curriculum: SectionCurriculum): Set<string> {
     if (!visual) return;
     if (visual.kind === 'compare') used.add(visual.other);
     if (visual.kind === 'pipeline') visual.stages.forEach((stage) => used.add(stage.example));
+    if (visual.kind === 'cursor') used.add(visual.query);
   };
   for (const lesson of curriculum.lessons) {
     for (const entry of lessonExamples(lesson)) {
@@ -140,6 +141,13 @@ describe.each(CURRICULA.map((curriculum) => [curriculum.section, curriculum] as 
             expect(shown, `${entry.example}: tablas del JOIN visibles`).toContain(visual.left);
             expect(shown).toContain(visual.right);
           }
+          if (visual?.kind === 'cursor') {
+            // El cursor recorre exactamente las filas de una consulta verificada.
+            expect(exampleById(visual.query)?.kind, `${entry.example}: ${visual.query}`).toBe(
+              'query',
+            );
+            expect(exampleById(entry.example)?.kind).toBe('plsql');
+          }
           if (visual?.kind === 'group') {
             const example = exampleById(entry.example) as QueryExample;
             const source = example.sources.find(({ table }) => table === visual.table);
@@ -216,7 +224,13 @@ describe.each(CURRICULA.map((curriculum) => [curriculum.section, curriculum] as 
           expect(activity.pieces.length).toBeGreaterThanOrEqual(3);
           expect(duplicates([...activity.pieces])).toEqual([]);
         }
-        if (activity.kind === 'count' || activity.kind === 'result') {
+        if (
+          activity.kind === 'count' &&
+          exampleById(activity.context?.example ?? '')?.kind === 'plsql'
+        ) {
+          const result = resultOf(activity.context!.example!);
+          expect(result?.kind, `${activity.id}: salida verificada`).toBe('plsql');
+        } else if (activity.kind === 'count' || activity.kind === 'result') {
           const id = activity.context?.example ?? '';
           const result = resultOf(id);
           expect(result?.kind, `${activity.id}: resultado verificado de ${id}`).toBe('query');

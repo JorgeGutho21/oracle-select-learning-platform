@@ -8,13 +8,14 @@ import type {
   SectionCurriculum,
 } from './types';
 import { S2_CURRICULUM } from './sections/s2';
+import { S3_CURRICULUM } from './sections/s3';
 
 /**
  * Registro de la fuente curricular. Cada sección aparece una vez; los modos buscan aquí sus
  * lecciones, ejemplos y actividades por identificador.
  */
 
-export const CURRICULA: readonly SectionCurriculum[] = [S2_CURRICULUM];
+export const CURRICULA: readonly SectionCurriculum[] = [S2_CURRICULUM, S3_CURRICULUM];
 
 export const ALL_EXAMPLES: readonly CurriculumExample[] = CURRICULA.flatMap(
   (curriculum) => curriculum.examples,

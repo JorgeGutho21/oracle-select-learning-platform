@@ -352,5 +352,400 @@
       }
     ],
     "scenes": 34
+  },
+  {
+    "section": "plsql",
+    "blocks": [
+      {
+        "id": "que-es-plsql",
+        "number": 1,
+        "title": "Qué es PL/SQL"
+      },
+      {
+        "id": "bloques",
+        "number": 2,
+        "title": "Bloques PL/SQL"
+      },
+      {
+        "id": "variables",
+        "number": 3,
+        "title": "Variables y tipos"
+      },
+      {
+        "id": "sql-en-plsql",
+        "number": 4,
+        "title": "SQL dentro de PL/SQL"
+      },
+      {
+        "id": "condicionales",
+        "number": 5,
+        "title": "Condicionales"
+      },
+      {
+        "id": "bucles",
+        "number": 6,
+        "title": "Bucles"
+      },
+      {
+        "id": "cursores",
+        "number": 7,
+        "title": "Cursores"
+      },
+      {
+        "id": "excepciones",
+        "number": 8,
+        "title": "Excepciones"
+      },
+      {
+        "id": "procedimientos",
+        "number": 9,
+        "title": "Procedimientos"
+      },
+      {
+        "id": "funciones",
+        "number": 10,
+        "title": "Funciones"
+      },
+      {
+        "id": "paquetes",
+        "number": 11,
+        "title": "Paquetes"
+      },
+      {
+        "id": "triggers",
+        "number": 12,
+        "title": "Triggers"
+      },
+      {
+        "id": "integracion",
+        "number": 13,
+        "title": "Integración"
+      }
+    ],
+    "lessons": [
+      {
+        "id": "S3-L01",
+        "block": "que-es-plsql",
+        "slug": "sql-y-plsql",
+        "title": "SQL y PL/SQL: de pedir datos a programar con ellos",
+        "shortTitle": "SQL y PL/SQL",
+        "summary": "SQL dice qué datos quieres; PL/SQL añade variables, decisiones y repeticiones alrededor de SQL, dentro de Oracle.",
+        "version": 1
+      },
+      {
+        "id": "S3-L02",
+        "block": "bloques",
+        "slug": "estructura-de-un-bloque",
+        "title": "Estructura de un bloque: DECLARE, BEGIN, EXCEPTION y END",
+        "shortTitle": "Estructura",
+        "summary": "Un bloque tiene una parte declarativa opcional, una ejecutable obligatoria y una de manejo de errores opcional.",
+        "version": 1
+      },
+      {
+        "id": "S3-L03",
+        "block": "bloques",
+        "slug": "bloque-anonimo-y-dbms-output",
+        "title": "Bloque anónimo, objeto almacenado y DBMS_OUTPUT",
+        "shortTitle": "Anónimo y DBMS_OUTPUT",
+        "summary": "Un bloque anónimo se ejecuta una vez y no se guarda; un procedimiento se guarda en la base y se llama por su nombre. DBMS_OUTPUT escribe mensajes de diagnóstico.",
+        "version": 1
+      },
+      {
+        "id": "S3-L04",
+        "block": "variables",
+        "slug": "variables-y-constantes",
+        "title": "Variables, constantes y tipos de datos",
+        "shortTitle": "Variables y tipos",
+        "summary": "Una variable tiene nombre, tipo y valor; se le asigna con := y una constante no puede cambiar.",
+        "version": 1
+      },
+      {
+        "id": "S3-L05",
+        "block": "variables",
+        "slug": "type-y-rowtype",
+        "title": "%TYPE y %ROWTYPE",
+        "shortTitle": "%TYPE y %ROWTYPE",
+        "summary": "%TYPE copia el tipo de una columna; %ROWTYPE crea una variable con todas las columnas de una fila.",
+        "version": 1
+      },
+      {
+        "id": "S3-L06",
+        "block": "variables",
+        "slug": "alcance-de-variables",
+        "title": "Bloques anidados y alcance de las variables",
+        "shortTitle": "Alcance",
+        "summary": "Una variable existe en el bloque que la declara y en sus bloques internos; un bloque interno puede ocultarla con otra del mismo nombre.",
+        "version": 1
+      },
+      {
+        "id": "S3-L07",
+        "block": "sql-en-plsql",
+        "slug": "select-into",
+        "title": "SELECT INTO: de la tabla a la variable",
+        "shortTitle": "SELECT INTO",
+        "summary": "SELECT … INTO guarda en variables los valores de exactamente una fila; con cero o varias filas, Oracle lanza una excepción.",
+        "version": 1
+      },
+      {
+        "id": "S3-L08",
+        "block": "sql-en-plsql",
+        "slug": "dml-en-plsql",
+        "title": "INSERT, UPDATE y DELETE en un bloque; SQL%ROWCOUNT",
+        "shortTitle": "DML y SQL%ROWCOUNT",
+        "summary": "Un bloque ejecuta sentencias que modifican datos; SQL%ROWCOUNT dice cuántas filas afectó la última. COMMIT confirma y ROLLBACK deshace.",
+        "version": 1
+      },
+      {
+        "id": "S3-L09",
+        "block": "condicionales",
+        "slug": "if-elsif-else",
+        "title": "IF, ELSIF y ELSE",
+        "shortTitle": "IF",
+        "summary": "IF ejecuta la primera rama cuya condición es verdadera; ELSE recoge todo lo demás, incluidas las condiciones desconocidas por NULL.",
+        "version": 1
+      },
+      {
+        "id": "S3-L10",
+        "block": "condicionales",
+        "slug": "case",
+        "title": "CASE: expresión y sentencia",
+        "shortTitle": "CASE",
+        "summary": "CASE elige entre varias opciones: como expresión devuelve un valor; como sentencia ejecuta una rama, y sin ELSE puede fallar.",
+        "version": 1
+      },
+      {
+        "id": "S3-L11",
+        "block": "bucles",
+        "slug": "loop-y-exit-when",
+        "title": "LOOP y EXIT WHEN",
+        "shortTitle": "LOOP",
+        "summary": "LOOP repite sus sentencias hasta que EXIT WHEN encuentra la condición de salida; sin ella el bucle no termina.",
+        "version": 1
+      },
+      {
+        "id": "S3-L12",
+        "block": "bucles",
+        "slug": "while-y-for",
+        "title": "WHILE LOOP y FOR LOOP",
+        "shortTitle": "WHILE y FOR",
+        "summary": "WHILE comprueba la condición antes de cada vuelta; FOR recorre un rango de números con un contador que declara él mismo.",
+        "version": 1
+      },
+      {
+        "id": "S3-L13",
+        "block": "cursores",
+        "slug": "cursor-implicito",
+        "title": "Cursor implícito y atributos SQL%",
+        "shortTitle": "Cursor implícito",
+        "summary": "Oracle abre un cursor implícito para cada sentencia SQL de un bloque; SQL%FOUND, SQL%NOTFOUND y SQL%ROWCOUNT dicen qué pasó.",
+        "version": 1
+      },
+      {
+        "id": "S3-L14",
+        "block": "cursores",
+        "slug": "cursor-explicito",
+        "title": "Cursor explícito: OPEN, FETCH y CLOSE",
+        "shortTitle": "Cursor explícito",
+        "summary": "Un cursor explícito nombra una consulta de varias filas y la recorre fila a fila: OPEN la ejecuta, FETCH lee una fila y CLOSE la libera.",
+        "version": 1
+      },
+      {
+        "id": "S3-L15",
+        "block": "cursores",
+        "slug": "cursor-for-y-parametros",
+        "title": "Cursor FOR loop y cursores con parámetros",
+        "shortTitle": "Cursor FOR",
+        "summary": "El cursor FOR abre, lee y cierra solo; un cursor con parámetros reutiliza la misma consulta con distintos valores.",
+        "version": 1
+      },
+      {
+        "id": "S3-L16",
+        "block": "excepciones",
+        "slug": "excepciones-predefinidas",
+        "title": "Excepciones predefinidas: NO_DATA_FOUND, TOO_MANY_ROWS y OTHERS",
+        "shortTitle": "Excepciones",
+        "summary": "Cuando algo falla, Oracle lanza una excepción y el control salta a EXCEPTION, donde un manejador WHEN la atrapa.",
+        "version": 1
+      },
+      {
+        "id": "S3-L17",
+        "block": "excepciones",
+        "slug": "excepciones-de-usuario",
+        "title": "Excepciones propias, RAISE y RAISE_APPLICATION_ERROR",
+        "shortTitle": "RAISE",
+        "summary": "Una regla de negocio puede lanzar su propia excepción con RAISE, o un error con código y mensaje con RAISE_APPLICATION_ERROR.",
+        "version": 1
+      },
+      {
+        "id": "S3-L18",
+        "block": "procedimientos",
+        "slug": "procedimientos",
+        "title": "CREATE PROCEDURE y su llamada",
+        "shortTitle": "Procedimientos",
+        "summary": "Un procedimiento es un bloque con nombre y parámetros guardado en la base; se llama como una sentencia.",
+        "version": 1
+      },
+      {
+        "id": "S3-L19",
+        "block": "procedimientos",
+        "slug": "parametros-in-out",
+        "title": "Parámetros IN, OUT e IN OUT",
+        "shortTitle": "IN, OUT, IN OUT",
+        "summary": "IN entra al procedimiento y no se modifica; OUT sale con un resultado; IN OUT entra con un valor y sale cambiado.",
+        "version": 1
+      },
+      {
+        "id": "S3-L20",
+        "block": "funciones",
+        "slug": "funciones",
+        "title": "CREATE FUNCTION y RETURN",
+        "shortTitle": "Funciones",
+        "summary": "Una función calcula y devuelve un valor con RETURN; se usa dentro de expresiones de PL/SQL y también de SQL.",
+        "version": 1
+      },
+      {
+        "id": "S3-L21",
+        "block": "funciones",
+        "slug": "procedimiento-o-funcion",
+        "title": "¿Procedimiento o función?",
+        "shortTitle": "Procedimiento o función",
+        "summary": "Una función devuelve un valor y se usa en expresiones; un procedimiento realiza una acción y se llama como sentencia.",
+        "version": 1
+      },
+      {
+        "id": "S3-L22",
+        "block": "paquetes",
+        "slug": "paquetes",
+        "title": "Paquetes: especificación y cuerpo",
+        "shortTitle": "Paquetes",
+        "summary": "Un paquete agrupa funciones, procedimientos y constantes relacionados: la especificación dice qué es público y el cuerpo lo implementa.",
+        "version": 1
+      },
+      {
+        "id": "S3-L23",
+        "block": "triggers",
+        "slug": "que-es-un-trigger",
+        "title": "Qué es un trigger: evento, momento y acción",
+        "shortTitle": "Qué es un trigger",
+        "summary": "Un trigger es un bloque guardado que Oracle ejecuta solo cuando ocurre un evento sobre una tabla (INSERT, UPDATE o DELETE).",
+        "version": 1
+      },
+      {
+        "id": "S3-L24",
+        "block": "triggers",
+        "slug": "before-after-for-each-row",
+        "title": "BEFORE y AFTER, por sentencia o FOR EACH ROW",
+        "shortTitle": "BEFORE/AFTER y filas",
+        "summary": "BEFORE actúa antes del cambio (puede corregir los valores nuevos); AFTER, después. FOR EACH ROW se ejecuta una vez por cada fila afectada.",
+        "version": 1
+      },
+      {
+        "id": "S3-L25",
+        "block": "triggers",
+        "slug": "old-y-new",
+        "title": ":OLD y :NEW: auditoría de salarios",
+        "shortTitle": ":OLD y :NEW",
+        "summary": "En un trigger de fila, :OLD es la fila antes del cambio y :NEW la fila después; con ellos se registra qué cambió.",
+        "version": 1
+      },
+      {
+        "id": "S3-L26",
+        "block": "triggers",
+        "slug": "trigger-de-validacion",
+        "title": "Validar con un trigger BEFORE",
+        "shortTitle": "Trigger de validación",
+        "summary": "Un trigger BEFORE puede rechazar un cambio con RAISE_APPLICATION_ERROR; la sentencia completa se deshace.",
+        "version": 1
+      },
+      {
+        "id": "S3-L27",
+        "block": "triggers",
+        "slug": "limites-de-los-triggers",
+        "title": "Cuándo no usar un trigger",
+        "shortTitle": "Límites",
+        "summary": "Los triggers son invisibles para quien ejecuta la sentencia: úsalos para auditoría e integridad, no para la lógica general del negocio.",
+        "version": 1
+      },
+      {
+        "id": "S3-L28",
+        "block": "integracion",
+        "slug": "caso-integrador",
+        "title": "Caso integrador: aumento anual con auditoría",
+        "shortTitle": "Integración",
+        "summary": "Un procedimiento con cursor, variables, validación y parámetro OUT aplica aumentos; un trigger audita cada cambio.",
+        "version": 1
+      }
+    ],
+    "practice": [
+      "S3-P01",
+      "S3-P02",
+      "S3-P03",
+      "S3-P04",
+      "S3-P05",
+      "S3-P06",
+      "S3-P07",
+      "S3-P08",
+      "S3-P09",
+      "S3-P10",
+      "S3-P11",
+      "S3-P12",
+      "S3-P13",
+      "S3-P14",
+      "S3-P15",
+      "S3-P16",
+      "S3-P17",
+      "S3-P18",
+      "S3-P19",
+      "S3-P20",
+      "S3-P21",
+      "S3-P22",
+      "S3-P23",
+      "S3-P24",
+      "S3-P25",
+      "S3-P26"
+    ],
+    "missions": [
+      {
+        "id": "S3-M01",
+        "title": "Primer bloque"
+      },
+      {
+        "id": "S3-M02",
+        "title": "Variables con ancla"
+      },
+      {
+        "id": "S3-M03",
+        "title": "Leer una fila"
+      },
+      {
+        "id": "S3-M04",
+        "title": "Decisiones"
+      },
+      {
+        "id": "S3-M05",
+        "title": "Repetir"
+      },
+      {
+        "id": "S3-M06",
+        "title": "Recorrer filas"
+      },
+      {
+        "id": "S3-M07",
+        "title": "Errores bajo control"
+      },
+      {
+        "id": "S3-M08",
+        "title": "Programas guardados"
+      },
+      {
+        "id": "S3-M09",
+        "title": "Auditoría automática"
+      },
+      {
+        "id": "S3-M10",
+        "title": "PL/SQL Master"
+      }
+    ],
+    "scenes": 37
   }
 ]

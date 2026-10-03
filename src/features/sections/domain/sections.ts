@@ -55,49 +55,6 @@ export interface SectionDefinition {
   readonly roadmapHref: string | null;
 }
 
-const PENDING_EVALUATION: SectionMode = {
-  id: 'evaluation',
-  label: 'Evaluación',
-  description: 'Llegará con el contenido de la sección y su banco de preguntas.',
-  href: null,
-  action: null,
-};
-
-function plannedModes(practice: string): readonly SectionMode[] {
-  return [
-    {
-      id: 'class',
-      label: 'Iniciar clase',
-      description: 'Exposición por escenas para el aula.',
-      href: null,
-      action: null,
-    },
-    {
-      id: 'study',
-      label: 'Estudiar',
-      description: 'Lecciones con tabla original, consulta, resultado y qué cambió.',
-      href: null,
-      action: null,
-    },
-    { id: 'practice', label: 'Practicar', description: practice, href: null, action: null },
-    {
-      id: 'challenge',
-      label: 'Challenge',
-      description: 'Misiones propias de la sección.',
-      href: null,
-      action: null,
-    },
-    {
-      id: 'resources',
-      label: 'Recursos',
-      description: 'Chuleta, referencia y fuentes oficiales.',
-      href: null,
-      action: null,
-    },
-    PENDING_EVALUATION,
-  ];
-}
-
 /**
  * Modos de una sección descrita en la fuente curricular (features/curriculum): todos viven
  * bajo `/sections/{id}/…` y la evaluación usa el motor de la Fase 3.
@@ -263,54 +220,37 @@ export const SECTIONS: readonly SectionDefinition[] = [
     objective:
       'Escribir bloques, subprogramas y disparadores que automaticen reglas sobre los datos, y leer su salida y sus errores.',
     practice:
-      'Bloques PL/SQL ejecutados en un entorno Oracle aislado, con la salida de DBMS_OUTPUT y casos de prueba.',
-    status: 'coming-soon',
+      'Prácticas guiadas sobre el mismo dataset relacional: ordenar bloques, predecir la salida de DBMS_OUTPUT, elegir manejadores de errores y razonar sobre triggers, con resultados obtenidos al ejecutar el código en Oracle.',
+    status: 'available',
     prerequisites: [
-      'Sección 1 y Sección 2.',
-      'INSERT, UPDATE y DELETE (ampliación de la Sección 1).',
+      'Sección 1: SELECT, WHERE, NULL y ORDER BY.',
+      'Sección 2: JOIN y funciones de grupo.',
+      'INSERT, UPDATE y DELETE se presentan dentro de los bloques (lección «DML en PL/SQL»).',
     ],
     highlights: [
       'Bloques PL/SQL',
       'Cursores',
-      'Procedimientos',
-      'Funciones',
+      'Excepciones',
+      'Procedimientos y funciones',
       'Paquetes',
       'Triggers',
     ],
     plannedTopics: [
       {
-        title: 'Bloques PL/SQL',
+        title: 'Ampliación futura',
         status: 'planned',
         topics: [
-          'DECLARE, BEGIN, EXCEPTION y END',
-          'Variables y constantes',
-          'Tipos, %TYPE y %ROWTYPE',
-          'SELECT INTO',
-          'DBMS_OUTPUT',
+          'Registros y colecciones',
+          'SQL dinámico (EXECUTE IMMEDIATE)',
+          'BULK COLLECT y FORALL',
+          'Triggers INSTEAD OF y compuestos',
         ],
       },
-      {
-        title: 'Control de flujo',
-        status: 'planned',
-        topics: ['IF, ELSIF y ELSE', 'CASE', 'LOOP, WHILE y FOR'],
-      },
-      {
-        title: 'Cursores y excepciones',
-        status: 'planned',
-        topics: ['Cursores implícitos', 'Cursores explícitos', 'Excepciones'],
-      },
-      {
-        title: 'Subprogramas',
-        status: 'planned',
-        topics: ['Procedimientos', 'Parámetros IN, OUT e IN OUT', 'Funciones y RETURN', 'Paquetes'],
-      },
-      {
-        title: 'Triggers',
-        status: 'planned',
-        topics: ['BEFORE y AFTER', 'INSERT, UPDATE y DELETE', 'FOR EACH ROW', ':OLD y :NEW'],
-      },
     ],
-    modes: plannedModes('Editor PL/SQL con salida de DBMS_OUTPUT en un entorno aislado.'),
+    modes: curriculumModes(
+      'plsql',
+      'Actividades guiadas: ordenar bloques, predecir la salida, elegir el manejador de errores, recorrer cursores y razonar sobre triggers.',
+    ),
     roadmapHref: null,
   },
 ];
