@@ -35,6 +35,8 @@ El driver admite conexiones a Oracle y agrupación de conexiones; su configuraci
 | Dominio | Definiciones de misión, reglas de puntuación, alcance SQL, transiciones e invariantes. | Tipos y reglas propias; sin dependencia de React, Supabase o red. |
 | Infraestructura | Oracle, PostgreSQL, autenticación, Realtime, reloj y almacenamiento local. | Implementa contratos de aplicación y dominio. |
 
+Proyección didáctica (27 de septiembre de 2026): el catálogo de qué parte de EMPLEADOS enseña cada concepto vive en el dominio (`domain/concepts/concept-projections.ts`); la aplicación (`application/didactic-projection.ts`) ejecuta cada consulta con el motor educativo sobre esas filas y la Exposición solo la presenta. No es otro dataset: son selecciones del dataset único.
+
 Módulos funcionales: contenido, exposición, estudio, búsqueda, laboratorio, Challenge, salas y resultados. Cada uno tiene responsabilidades delimitadas; se comparten datos y contratos, no un único componente gigante. No se propone una red de microservicios: solo se separa Oracle por su conexión persistente y aislamiento.
 
 ## Flujos de datos y contratos
@@ -70,6 +72,30 @@ La base impide escritura directa del cliente en salas, rondas, puntuaciones e in
 El servicio Oracle no tiene acceso a resultados, identidades ni credenciales de Supabase. La cuenta de ejecución Oracle solo lee la tabla educativa permitida; no es su propietaria y no tiene privilegios generales ni permisos para paquetes de red. El propietario del dataset se utiliza únicamente en tareas administrativas fuera del editor.
 
 Validar origen de peticiones, sesión y expiración; limitar intentos de ingreso por identidad y dirección de red sin bloquear a toda una universidad tras pocos accesos compartidos. Alias tratados como texto, no HTML. Respuestas y errores se muestran escapados.
+
+## Servicio Oracle implementado (Fase 8)
+
+El puerto `OracleQueryExecutor` (`src/application/oracle-executor.ts`) tiene dos adaptadores en `src/infrastructure/oracle`: `OracledbQueryExecutor`, con node-oracledb en modo Thin, grupo de conexiones, cola acotada, plazo total y salud real (dataset y privilegios); y `UnconfiguredOracleExecutor`, que declara «no conectado» sin simular. La raíz `src/composition/oracle/oracle-server.ts` (`server-only`) elige uno según el entorno y lo comparten el laboratorio, la práctica del Challenge y la sala en vivo, así que M10 se califica con el mismo Oracle en los tres. El driver se excluye del empaquetado (`serverExternalPackages`) y se carga la primera vez que se usa.
+
+Diferencia con la tabla de componentes: el servicio Oracle corre dentro del servidor de la web en lugar de un servicio Node separado. La cuenta lectora, los límites y el aislamiento de LAB_SPEC se aplican igual; separarlo sigue siendo posible sin cambiar el puerto si el alojamiento de la web no tiene red hasta Oracle.
+
+## Sala en vivo implementada (Fase 7, REALTIME_SPEC 1.1)
+
+Módulo `src/features/classroom`, con las mismas capas que el resto:
+
+| Capa | Contenido |
+|---|---|
+| Dominio | Código de sala, saneado de alias, estados y transiciones, ranking, progreso por misión y estadísticas (sin React, red ni almacenamiento). |
+| Aplicación | `ClassroomService` (crear, inscribir, iniciar, finalizar, cancelar, salir, responder, pista, vistas), puertos `ClassroomRepository`, `RoomNotifier`, `PresenterGate` y `ClassroomSecrets`, esquemas Zod y la superficie `classroom-api` para presentación. |
+| Infraestructura | `SupabaseClassroomRepository` (solo RPC a las funciones de la migración), `MemoryClassroomRepository` (desarrollo y pruebas, activado expresamente), aviso por Supabase Broadcast, suscripción del navegador, tokens y huellas de Node. |
+| Presentación | Consola del profesor, ingreso móvil, espera, resultado personal, `/live` y `/results`. Recibe acciones por props; no importa Supabase. |
+| Composición | `src/composition/classroom`: raíz de servidor (`server-only`) que elige el almacenamiento por entorno, Server Functions con cookies `httpOnly`, y raíces de cliente que unen el Challenge en vivo con esas funciones. |
+
+React nunca accede a Supabase para leer o escribir datos: todo pasa por Server Functions que validan con Zod y llaman al servicio. El navegador solo abre, si está configurado, un canal Broadcast de solo lectura que transporta la revisión. La clave `service_role` se lee únicamente en la raíz de servidor.
+
+La sala reutiliza el motor del Challenge (`ChallengeEngine`) y el mismo evaluador del servidor que la práctica: una única definición de corrección y de puntos (A05). El navegador conserva su avance local por sala; los puntos, intentos, tiempos y el ranking los calcula el servidor desde los intentos registrados (A02).
+
+Diferencias con la identidad descrita arriba, aceptadas para v1.1: el profesor usa una clave de servidor en lugar de una cuenta de Supabase Auth, y los estudiantes un token por sala en cookie en lugar de una identidad anónima de Auth. La autorización se comprueba en cada operación con la huella del token. La cuenta docente y los canales privados quedan para la versión con rondas.
 
 ## Operación y fallos
 

@@ -2,21 +2,94 @@
 
 Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 
-**Autor:** Jorge Gutiérrez Thomas
+**Autor:** Jorge Gutierrez Thomas
+
+**Profesor:** Amilkar Sierra
+
+**Asignatura:** Base de Datos
+
+**Programa:** Ingeniería de Sistemas
 
 **Institución:** Universidad Popular del Cesar
 
-**Área:** Bases de Datos
+**En línea:** <https://sql-select-lab.vercel.app> (Vercel, con Oracle Autonomous Database v2 y Supabase reales; v2 activa desde el 26 de septiembre de 2026). Detalle en [DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Estado del proyecto
 
-Documentación y estructura inicial. La aplicación todavía no está implementada. Este repositorio reúne las especificaciones y será la única base de trabajo del proyecto.
+Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único dataset, `empleados-select-v2`: tabla EMPLEADOS de 12 columnas y 20 filas, cargada en Oracle desde `oracle/empleados-select-v2.sql`.
+
+- **Fuente conceptual única** (`src/domain/concepts/sql-concepts.ts`): 35 conceptos (incluidos la consulta, la coma, los paréntesis e IS NOT NULL), cada uno con una definición, su categoría correcta (cláusula, operador lógico, condición, comodín…), una glosa breve para «En esta consulta» y, cuando corresponde, el error frecuente. La Exposición, el Estudio, los Recursos, el Challenge y el buscador la presentan sin reescribirla.
+- **Color semántico de SQL:** proyección (SELECT) cian, fuente (FROM) azul, filtro (WHERE y condiciones) violeta, operadores ámbar y orden (ORDER BY) magenta, siempre con texto o forma, en todo el producto.
+- **Modo Estudio** (`/learn`): 22 lecciones en 8 bloques, desde qué es una base de datos hasta una consulta completa con WHERE y ORDER BY.
+  - **Plantilla:** la misma en todas, con la definición canónica, la ubicación en el recorrido, un índice fijo, «Predice», la consulta, qué hace, la tabla original, el resultado, el error frecuente y una mini comprobación con pistas graduales.
+  - **Pliegues:** lo secundario se abre al pedirlo.
+- **Modo Exposición** (`/presentation`): 29 escenas 16:9 en cinco bloques.
+  - **Contenido:** cada escena tiene su definición o propósito, una visualización del concepto y una idea clave.
+  - **Controles:** navegador de escenas agrupado, «Paso a paso», notas del expositor (N), vista del presentador (`/presentation/presentador`) y pantalla completa con controles que se atenúan.
+- **Laboratorio** (`/lab`): editor y resultado primero.
+  - **Análisis:** el motor educativo ofrece vista previa rotulada, traducción, anatomía y diagnóstico en cinco grupos (SINTAXIS, SEMÁNTICA, ALCANCE EDUCATIVO, ORACLE, ADVERTENCIA). Cada diagnóstico dice qué ocurrió, dónde y por qué; la corrección se abre al pedirla.
+  - **Esquema:** agrupado; los 20 registros se abren solo si se piden.
+  - **Ejecución:** «Ejecutar en Oracle» usa Oracle real. Tiene 24 ejemplos (LAB01–LAB24).
+- **Vista de datos adaptable:** tabla cuando cabe y fichas por registro cuando no. Ninguna tabla, consulta ni resultado educativo necesita barra horizontal, ni siquiera a 320 px.
+- **SQL Oracle Challenge** (`/challenge`, `select-challenge-v4`, GAME_SPEC 4): diez misiones que razonan sobre una muestra de trabajo (como mucho 8 registros y 3–4 columnas, siempre en tabla) con puntuación, intentos, pistas y feedback por tipo de error. M10 se califica en Oracle real.
+  - **Densidad propia:** cada misión muestra el pedido, el concepto clave y solo los «Datos necesarios» (4–7 columnas y pocas filas); la tabla completa es un desplegable secundario y nunca hay barra horizontal.
+  - **Feedback:** tipo de error, qué está bien, qué ajustar y una orientación progresiva; el acierto explica por qué.
+- **Sala en vivo:** `/presenter`, `/join/{código}`, `/live` y `/results`, con Supabase en producción.
+- **Ruta de aprendizaje** (`/modules`): los niveles 2 a 7 (funciones, agrupación, JOIN, subconsultas, modificación de datos y DDL) con 46 fichas «Próximamente». No forman parte del contenido actual.
+- **Recursos** (`/resources`): chuleta de 18 fichas por categorías («En una frase», «Para qué sirve», «Patrón», ejemplo formateado, «Qué devuelve» y «Error frecuente», con «Copiar», «Abrir en Lab» y «Repasar lección»), referencia rápida, ejemplos y los dos videos.
+- **Buscador** Ctrl+K/Cmd+K: encuentra los temas actuales y los futuros, estos marcados «Próximamente».
+
+Oracle: local (Oracle Database Free 23ai en contenedor) y Oracle Autonomous Database 19c en la nube, con esquemas `SQL_LAB_V2_OWNER` (dueño) y `SQL_LAB_V2_READER` (solo lectura) ([ORACLE_SETUP.md](docs/ORACLE_SETUP.md)). Sin Oracle configurado, el laboratorio lo indica y no simula nada. Estado detallado en [PROJECT_STATUS.md](docs/PROJECT_STATUS.md).
+
+## Desarrollo local
+
+Usar Node 24 LTS (validado con 24.20.0) y npm 11.19.0.
+
+```sh
+npm ci
+npm run dev
+```
+
+Abrir `http://localhost:3000`. El showcase de los trece componentes y sus estados está en `http://localhost:3000/dev/design-system`.
+
+```sh
+npm run test:e2e:install
+npm run lint
+npm run typecheck
+npm run tests
+npm run build
+npm run format:check
+```
+
+`tests` ejecuta Vitest y Playwright. Las suites `visual-*.spec.ts` comprueban que nada desborda ni se recorta, del escritorio a 320 px, y adjuntan capturas al informe para la revisión visual. Playwright compila e inicia la aplicación en el puerto 3200 y valida Chromium, Microsoft Edge y WebKit. Con `.env.local` configurado (`npm run oracle:up` y `npm run oracle:setup`), `tests/integration/oracle-real.test.ts` compara Oracle real con el motor educativo. La instalación del canal Edge requiere sus permisos habituales de sistema si el navegador no está instalado. Se guardan capturas, trazas de fallos e informe HTML en directorios ignorados por Git. `typecheck` genera sus tipos de rutas sin exigir un build previo.
+
+Para servir el build: `npm start`. Las decisiones, límites y resultados de verificación están en [IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md).
 
 ## Alcance académico
 
-Introducción breve a SQL, SELECT, FROM, SELECT *, columnas específicas, expresiones y cálculos, alias con AS, DISTINCT y construcción de consultas centradas en SELECT.
+**Nivel 1 (actual):**
 
-WHERE, BETWEEN, IN, LIKE, NULL, JOIN, ORDER BY y otros conceptos se reservan para módulos futuros.
+- Qué es una base de datos, tabla, fila, columna y SQL.
+- SELECT y FROM, SELECT *, columnas específicas y comas.
+- Expresiones (+, -, *, /), precedencia y paréntesis.
+- Alias con AS, textos y concatenación con ||.
+- DISTINCT.
+- WHERE y comparaciones (=, <>, !=, >, >=, <, <=, textos y fechas).
+- AND, OR y NOT, con la precedencia lógica y los paréntesis.
+- BETWEEN, IN y LIKE (%, _), con sus formas NOT.
+- NULL, IS NULL e IS NOT NULL.
+- ORDER BY (ASC, DESC, varias columnas).
+- La consulta completa paso a paso y los errores frecuentes.
+
+**Próximos niveles (Próximamente):**
+
+- Funciones (UPPER, ROUND, SYSDATE, TO_CHAR, NVL…).
+- Agregación (COUNT… GROUP BY, HAVING).
+- JOIN y subconsultas.
+- INSERT, UPDATE, DELETE, COMMIT y ROLLBACK.
+- DDL (CREATE, ALTER, DROP y restricciones).
+
+Detalle en [CONTENT_MAP.md](docs/CONTENT_MAP.md).
 
 ## Experiencia prevista
 
@@ -26,19 +99,25 @@ El alcance y los criterios de aceptación completos se encuentran en la document
 
 ## Documentación
 
-| Documento | Contenido |
-|---|---|
-| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md) | Propósito, fuentes, alcance y aceptación por módulo. |
-| [CONTENT_MAP.md](docs/CONTENT_MAP.md) | Lecciones, escenas, ejemplos y vídeos. |
-| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | Identidad visual, componentes y accesibilidad. |
-| [UX_FLOWS.md](docs/UX_FLOWS.md) | Recorridos, navegación y estados. |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Capas, servicios y límites de confianza. |
-| [LAB_SPEC.md](docs/LAB_SPEC.md) | Subconjunto SQL y laboratorio Oracle. |
-| [GAME_SPEC.md](docs/GAME_SPEC.md) | Diez misiones, evaluación y puntuación. |
-| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md) | Salas, sincronización y reconexión. |
-| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) | Dataset y modelo lógico de persistencia. |
-| [TEST_PLAN.md](docs/TEST_PLAN.md) | Plan de pruebas de la futura aplicación. |
-| [ROADMAP.md](docs/ROADMAP.md) | Hitos, dependencias y condiciones de entrega. |
+| Documento                                                 | Contenido                                                   |
+| --------------------------------------------------------- | ----------------------------------------------------------- |
+| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md)                   | Propósito, fuentes, alcance y aceptación por módulo.        |
+| [CONTENT_MAP.md](docs/CONTENT_MAP.md)                     | Lecciones, escenas, dataset, roadmap y vídeos.              |
+| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)                 | Identidad visual, componentes y accesibilidad.              |
+| [UX_FLOWS.md](docs/UX_FLOWS.md)                           | Recorridos, navegación y estados.                           |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)                   | Capas, servicios y límites de confianza.                    |
+| [LAB_SPEC.md](docs/LAB_SPEC.md)                           | Subconjunto SQL y laboratorio Oracle.                       |
+| [GAME_SPEC.md](docs/GAME_SPEC.md)                         | Diez misiones, evaluación y puntuación.                     |
+| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md)                 | Salas, sincronización y reconexión.                         |
+| [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)               | Configurar Supabase para la sala en vivo.                   |
+| [FINAL_AUDIT.md](docs/FINAL_AUDIT.md)                     | Auditoría preproducción y prerrequisitos de despliegue.     |
+| [PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md)           | Servicios, variables y alojamiento de producción.           |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md)                       | Estado del despliegue en Vercel, procedimiento y reversión. |
+| [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)                   | Conectar el laboratorio y M10 a Oracle.                     |
+| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)             | Dataset v2, esquemas Oracle y persistencia.                 |
+| [CONTENT_REDESIGN_PLAN.md](docs/CONTENT_REDESIGN_PLAN.md) | Plan y decisiones de la unidad ampliada.                    |
+| [TEST_PLAN.md](docs/TEST_PLAN.md)                         | Plan de pruebas de la futura aplicación.                    |
+| [ROADMAP.md](docs/ROADMAP.md)                             | Hitos, dependencias y condiciones de entrega.               |
 
 ## Estructura
 
@@ -47,14 +126,14 @@ oracle-select-learning-platform/
 ├── docs/
 ├── src/
 │   ├── app/
+│   ├── composition/     # raíz de composición: une adaptadores y casos de uso
 │   ├── features/
-│   ├── components/
+│   ├── presentation/
 │   ├── domain/
 │   ├── application/
 │   ├── infrastructure/
-│   ├── content/
 │   ├── styles/
-│   └── lib/
+│   └── content/         # reservado para contenido posterior
 ├── tests/
 ├── public/
 ├── .gitignore
@@ -62,7 +141,7 @@ oracle-select-learning-platform/
 └── README.md
 ```
 
-Las carpetas sin implementación contienen `.gitkeep` para que Git conserve la estructura. No hay dependencias instaladas ni comandos de ejecución de la aplicación por ahora.
+`src/app` compone rutas y layouts; los módulos agrupan sus pantallas en `features/<módulo>/presentation`. Los componentes compartidos viven en `src/presentation`. Aplicación, dominio e infraestructura conservan sus límites documentados; el Challenge es el primer módulo que los usa. `src/composition` es el único lugar que une infraestructura con aplicación y solo `src/app` lo importa. ESLint comprueba la dirección de dependencias. Las carpetas iniciales todavía vacías se conservan sin añadir lógica ficticia.
 
 ## Forma de trabajo
 

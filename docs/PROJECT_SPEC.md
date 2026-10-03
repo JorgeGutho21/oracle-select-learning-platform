@@ -6,7 +6,7 @@ Versión documental 1.0 · 23 de septiembre de 2026 · Especificación para impl
 
 Plataforma universitaria en español para que estudiantes sin experiencia puedan interpretar, construir y ejecutar consultas de proyección en Oracle SQL. Integra explicación, práctica y evaluación en una misma web. El expositor la utiliza como guía y los estudiantes participan desde sus teléfonos.
 
-Identidad: Jorge Gutiérrez Thomas, Universidad Popular del Cesar, asignatura Bases de Datos. El nombre oficial de la asignatura debe contrastarse antes de publicar. Las fuentes discrepan entre «Amílcar» y «Amílkar Sierra»; no fijar el nombre del docente hasta verificarlo. El logotipo institucional será un recurso oficial, conservando proporciones y colores, no una recreación ni una extracción del sitio del compañero.
+Identidad confirmada por el responsable del proyecto el 23 de septiembre de 2026: autor Jorge Gutierrez Thomas; profesor Amilkar Sierra; asignatura Base de Datos; programa Ingeniería de Sistemas; Universidad Popular del Cesar. Esta forma exacta, sin tildes en los nombres propios, prevalece sobre las variantes de las fuentes («Amílcar», «Amílkar», «Gutiérrez»). En el código, `src/application/academic-identity.ts` es su única fuente. El logotipo institucional será un recurso oficial, conservando proporciones y colores, no una recreación ni una extracción del sitio del compañero.
 
 Esta entrega contiene únicamente los once documentos solicitados. No contiene aplicación, migraciones, vídeos producidos ni infraestructura desplegada. Los ejemplos SQL son material didáctico, no implementación.
 
@@ -39,12 +39,12 @@ Los identificadores P01–P18 son requisitos. Las pruebas T01–T18 de TEST_PLAN
 | ID | Módulo | Criterio de aceptación verificable |
 |---|---|---|
 | P01 | Home | Muestra autor, institución, objetivo y accesos a Exposición, Estudio, Laboratorio, Challenge y Sala en vivo. Todos abren la ruta correcta desde móvil y escritorio. |
-| P02 | Modo Exposición | Recorre las escenas E01–E14 de CONTENT_MAP con botones y flechas, muestra posición, ofrece pantalla completa y conserva la escena al salir y regresar. Flechas no interfieren con editor o vídeo. |
+| P02 | Modo Exposición | Recorre las 29 escenas de CONTENT_MAP con botones y flechas, muestra posición, ofrece pantalla completa y conserva la escena al salir y regresar. Flechas no interfieren con editor o vídeo. |
 | P03 | Modo Estudio | Contiene L00–L08, navegación libre y reanudación local. Abrir una página no la marca como aprendida; se registra como completada al resolver su comprobación. |
 | P04 | Buscador global | Ctrl+K, Cmd+K y botón visible abren el mismo diálogo. «alias», «asterisco», «video», «quiz» y «chuleta» llevan al contenido correspondiente; Escape devuelve el foco. |
 | P05 | Vídeo introductorio | Reproduce 90–120 segundos con subtítulos, controles, transcripción y opción de omitir. No se inicia con audio automáticamente. |
 | P06 | Explicaciones visuales | Cada lección SQL enlaza consulta, traducción, tabla fuente y resultado; un avance manual muestra qué columna o expresión interviene. |
-| P07 | Tablas interactivas | Usan el mismo dataset versionado, muestran seis filas y permiten resaltar columnas con ratón, toque y teclado. No modifican los datos. |
+| P07 | Tablas interactivas | Usan el mismo dataset versionado (20 filas de `empleados-select-v2`), muestran sus filas o una muestra rotulada «N de 20» y permiten resaltar columnas con ratón, toque y teclado. No modifican los datos. |
 | P08 | Laboratorio SQL real | Ejecuta en Oracle las consultas permitidas, devuelve metadatos y valores reales y distingue fallo de sintaxis, contenido fuera de alcance y caída del servicio. Cumple LAB_SPEC. |
 | P09 | SQL Challenge | Tiene exactamente diez misiones M01–M10 y permite terminarlas sin depender de contenidos futuros. Incluye progreso, intentos, pista y explicación. |
 | P10 | Manipulación de bloques | M01, M02, M06 y M09 se resuelven por arrastre o por seleccionar pieza y destino; ambas alternativas producen la misma respuesta evaluada. |

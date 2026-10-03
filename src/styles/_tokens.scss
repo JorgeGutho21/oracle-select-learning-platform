@@ -1,0 +1,150 @@
+@use 'sass:map';
+
+// Fuente única de tokens. Los mapas se exportan como custom properties.
+$colors: (
+  page: #f5f8ff,
+  surface: #ffffff,
+  soft: #eaf1ff,
+  night: #0b1733,
+  editor: #091221,
+  ink: #132445,
+  muted: #4c5d78,
+  inverse: #f7faff,
+  primary: #1746b8,
+  primary-hover: #10368f,
+  'cyan': #20cce5,
+  success: #176b45,
+  warning: #855500,
+  danger: #b42332,
+  border-subtle: #d4deef,
+  border-control: #63738d,
+  focus: #1746b8,
+  code-string: #a8e6b8,
+  // Los números son datos: tono neutro para no confundirse con los operadores (ámbar).
+  code-number: #e6ebf5,
+  code-comment: #a2b1cb,
+  // Alias semánticos del sistema de diseño final (misma paleta, nombres de marca).
+  brand-navy: #0b1733,
+  brand-blue: #1746b8,
+  surface-alt: #f0f4fb,
+  success-soft: #e6f3ec,
+  warning-soft: #fbf1df,
+  danger-soft: #fbe9eb,
+  null-bg: #eef2f8,
+  null-border: #8e9bb3,
+  // Color semántico de SQL, el mismo en Exposición, Estudio, Recursos, laboratorio y
+  // Challenge: proyección (SELECT) cian, fuente (FROM) azul, filtro (WHERE y condiciones)
+  // violeta, operadores ámbar y orden (ORDER BY) magenta. Siempre acompaña a texto o forma.
+  sem-select: #0e7490,
+  sem-from: #1d4ed8,
+  sem-filter: #6d28d9,
+  sem-operator: #92400e,
+  sem-order: #be185d,
+  // Variantes para fondos oscuros (editor y escenas nocturnas).
+  sem-select-dark: #22d3ee,
+  sem-from-dark: #93b8ff,
+  sem-filter-dark: #c4b5fd,
+  sem-operator-dark: #fcd34d,
+  sem-order-dark: #f9a8d4,
+);
+$spacing: (
+  1: 4px,
+  2: 8px,
+  3: 12px,
+  4: 16px,
+  5: 24px,
+  6: 32px,
+  7: 48px,
+  8: 64px,
+);
+$radii: (
+  control: 10px,
+  card: 20px,
+  section: 28px,
+  sm: 6px,
+  md: 10px,
+  lg: 14px,
+  xl: 20px,
+  pill: 999px,
+);
+$shadows: (
+  elevated: 0 8px 24px rgb(11 23 51 / 10%),
+  xs: 0 1px 2px rgb(11 23 51 / 6%),
+  sm: 0 2px 8px rgb(11 23 51 / 8%),
+  md: 0 12px 32px rgb(11 23 51 / 12%),
+);
+$transitions: (
+  feedback: 150ms,
+  transition: 250ms,
+  slow: 350ms,
+);
+$layers: (
+  base: 0,
+  sticky: 100,
+  overlay: 200,
+  dialog: 300,
+);
+$containers: (
+  max: 1320px,
+  readable: 72ch,
+);
+$breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+);
+$font-sans: (system-ui, -apple-system, 'Segoe UI', sans-serif);
+$font-mono: ('SFMono-Regular', Consolas, 'Liberation Mono', monospace);
+$typography: (
+  body: 18px,
+  control: 16px,
+  code: 17px,
+  heading-min: 32px,
+  heading-max: 56px,
+  projection-body: 28px,
+  projection-code: 26px,
+  projection-heading: 48px,
+  line-body: 1.65,
+  line-heading: 1.12,
+);
+// Escala tipográfica fluida. Nunca baja de lo legible: el mínimo de texto secundario es
+// 13 px y el de datos, 14 px (FINAL_UX_PEDAGOGICAL_AUDIT, G3).
+$type-scale: (
+  display: clamp(2.4rem, 4vw + 1rem, 4.5rem),
+  slide-title: clamp(2rem, 3vw + 0.5rem, 3.4rem),
+  section-title: clamp(1.5rem, 1.6vw + 0.8rem, 2.2rem),
+  body: clamp(1rem, 0.4vw + 0.9rem, 1.2rem),
+  code: clamp(0.95rem, 0.4vw + 0.85rem, 1.15rem),
+  small: max(0.8125rem, 13px),
+);
+
+@function color($name) {
+  @return map.get($colors, $name);
+}
+
+@mixin properties($prefix, $tokens) {
+  @each $name, $value in $tokens {
+    --#{$prefix}-#{$name}: #{$value};
+  }
+}
+
+@mixin emit {
+  :root {
+    @include properties('color', $colors);
+    @include properties('space', $spacing);
+    @include properties('radius', $radii);
+    @include properties('shadow', $shadows);
+    @include properties('duration', $transitions);
+    @include properties('z', $layers);
+    @include properties('container', $containers);
+    @include properties('text', $typography);
+    @include properties('type', $type-scale);
+    --focus-ring: 0 0 0 3px var(--color-surface), 0 0 0 6px var(--color-focus);
+    --font-sans: #{$font-sans};
+    --font-mono: #{$font-mono};
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  }
+}

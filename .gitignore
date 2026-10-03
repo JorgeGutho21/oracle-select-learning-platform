@@ -18,9 +18,24 @@ build/
 coverage/
 playwright-report/
 test-results/
+.playwright-cli/
+output/playwright/
 *.log
 
 # Archivos locales del sistema
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Secretos locales: wallet de Oracle, contraseñas y certificados (nunca versionar).
+.env.local
+.env.oracle.local
+.secrets/
+PASSWORD.txt
+*password*.txt
+*.p12
+*.pfx
+*.jks
+*.sso
+ewallet.pem
+Wallet_*.zip

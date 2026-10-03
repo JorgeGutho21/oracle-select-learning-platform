@@ -1,0 +1,835 @@
+// Modo Exposición. El escenario es un lienzo 16:9 que ocupa el alto disponible; toda la
+// tipografía de la escena depende de su ancho (unidades de contenedor), de modo que lo que
+// cabe en un portátil cabe igual en el proyector. En móvil, en vertical y con poca altura
+// (zoom alto), la escena fluye como una página y la letra no baja de 17 px.
+
+:root {
+  --site-header-height: 73px;
+}
+@media (max-width: 991px) {
+  :root {
+    --site-header-height: 65px;
+  }
+}
+
+.deck {
+  --color-focus: var(--color-cyan);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'stage'
+    'controls';
+  height: calc(100dvh - var(--site-header-height));
+  min-height: 460px;
+  color: var(--color-inverse);
+  background: #060e1f;
+}
+.deck[data-notes] {
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 21rem);
+  grid-template-areas:
+    'stage notes'
+    'controls controls';
+}
+.deck:fullscreen {
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'stage';
+  height: 100vh;
+  min-height: 0;
+}
+.deck[data-fullscreen][data-idle] {
+  cursor: none;
+}
+.deck__viewport {
+  position: relative;
+  display: grid;
+  grid-area: stage;
+  place-items: center;
+  min-height: 0;
+  padding: clamp(8px, 1.1vw, 18px);
+  container-type: size;
+}
+.deck:fullscreen .deck__viewport {
+  padding: 0;
+}
+.deck__stage {
+  width: min(100cqw, calc(100cqh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: clamp(8px, 1cqw, 18px);
+  box-shadow: 0 24px 64px rgb(0 0 0 / 45%);
+  container-type: inline-size;
+  animation: deck-scene-in var(--duration-transition) var(--ease-standard);
+}
+.deck:fullscreen .deck__stage {
+  border-radius: 0;
+  box-shadow: none;
+}
+@keyframes deck-scene-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck__stage {
+    animation: none;
+  }
+}
+
+/* ---------- Escena: plantilla común ---------- */
+
+.scene {
+  --scene-accent: var(--color-primary);
+  --scene-muted: var(--color-muted);
+  --scene-soft: var(--color-soft);
+  --scene-card: var(--color-surface);
+  --scene-line: var(--color-border-subtle);
+  display: grid;
+  // Columna explícita: sin ella la escena crece hasta el ancho mínimo de su contenido.
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 0.6em;
+  height: 100%;
+  padding: 1.2em 2.1em 0.95em;
+  overflow: auto;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  font-size: clamp(14px, 1.72cqi, 52px);
+  line-height: 1.35;
+}
+// Lienzos pequeños (1366×768 y menores): los mínimos en píxeles pesan más, así que la
+// plantilla recupera algo de aire vertical sin reducir la letra.
+@container (width < 1100px) {
+  .scene {
+    gap: 0.55em;
+    padding-block: 1.1em 0.85em;
+  }
+}
+// 1280×720 y menores: los mínimos de 12 px ya son proporcionalmente mayores.
+@container (width < 1000px) {
+  .scene {
+    gap: 0.45em;
+    padding-block: 0.95em 0.75em;
+  }
+}
+.scene--soft {
+  background:
+    radial-gradient(60% 90% at 100% 0%, rgb(32 204 229 / 16%), transparent 60%), var(--color-soft);
+  --scene-soft: var(--color-surface);
+}
+.scene--night,
+.scene--tech {
+  --scene-accent: var(--color-cyan);
+  --scene-muted: rgb(247 250 255 / 78%);
+  --scene-soft: rgb(247 250 255 / 7%);
+  --scene-card: rgb(247 250 255 / 6%);
+  --scene-line: rgb(247 250 255 / 16%);
+  color: var(--color-inverse);
+  background:
+    radial-gradient(70% 100% at 100% 0%, rgb(32 204 229 / 16%), transparent 60%), var(--color-night);
+}
+.scene--tech {
+  background:
+    linear-gradient(rgb(32 204 229 / 5%) 1px, transparent 1px) 0 0 / 100% 2.2em,
+    var(--color-editor);
+}
+.scene p,
+.scene ul,
+.scene ol,
+.scene dl,
+.scene figure {
+  margin: 0;
+}
+.scene code {
+  font-family: var(--font-mono);
+}
+.scene__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  min-width: 0;
+}
+.scene__heading {
+  min-width: 0;
+}
+.scene__number {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 2.2em;
+  height: 2.2em;
+  color: var(--color-night);
+  background: var(--color-cyan);
+  border-radius: 0.5em;
+  font: 800 0.9em var(--font-mono);
+}
+.scene__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2em 0.7em;
+  margin-bottom: 0.15em !important;
+  color: var(--scene-accent);
+  font-size: max(0.62em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.scene__category {
+  padding: 0.05em 0.6em;
+  color: var(--scene-muted);
+  border: 1px solid var(--scene-line);
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.08em;
+}
+.scene__title {
+  margin: 0;
+  font-size: 1.85em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+.scene__title:focus {
+  outline: none;
+}
+
+// Definición o propósito: visible y breve, bajo el título.
+.concept-intro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.2em 0.9em;
+  align-items: baseline;
+  padding: 0.5em 0.9em;
+  background: var(--scene-soft);
+  border-left: 0.22em solid var(--scene-accent);
+  border-radius: 0.45em;
+}
+.concept-intro__label {
+  color: var(--scene-accent);
+  font-size: max(0.6em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.concept-intro__body {
+  display: grid;
+  gap: 0.2em;
+  min-width: 0;
+}
+.concept-intro__text,
+.concept-intro__list {
+  // Una línea en el lienzo 16:9 para la mayoría de las definiciones: deja sitio a los datos.
+  max-width: 84ch;
+  font-size: 1em;
+  font-weight: 550;
+  line-height: 1.3;
+}
+.concept-intro__list {
+  display: grid;
+  gap: 0.1em;
+  padding: 0;
+  list-style: none;
+}
+.concept-intro__term {
+  color: var(--scene-accent);
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+.concept-intro__use {
+  max-width: 76ch;
+  font-size: max(0.88em, 13px);
+  line-height: 1.3;
+}
+.concept-intro__use span,
+.concept-intro__reading span {
+  margin-right: 0.4em;
+  color: var(--scene-accent);
+  font-size: max(0.82em, 12px);
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.concept-intro__reading {
+  color: var(--scene-muted);
+  font-size: max(0.84em, 13px);
+  font-style: italic;
+}
+.concept-intro__reading span {
+  margin-right: 0.4em;
+  color: var(--scene-accent);
+  font-size: max(0.82em, 12px);
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.scene__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  // «safe»: si el contenido no cabe, empieza arriba en lugar de invadir el título.
+  align-content: safe center;
+  gap: 0.8em;
+  min-height: 0;
+  min-width: 0;
+}
+.scene-takeaway {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2em 0.75em;
+  padding-top: 0.45em;
+  border-top: 1px solid var(--scene-line);
+  font-size: 0.92em;
+  font-weight: 650;
+}
+.scene-takeaway__label {
+  color: var(--scene-accent);
+  font-size: max(0.7em, 12px);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.scene a:not(.scene-button) {
+  color: inherit;
+}
+
+// Revelado paso a paso: el contenido oculto conserva su espacio.
+.reveal {
+  min-width: 0;
+  transition: opacity var(--duration-transition) var(--ease-standard);
+}
+.reveal[data-hidden] {
+  visibility: hidden;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none;
+  }
+}
+
+/* ---------- Controles ---------- */
+
+.deck-controls {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  grid-area: controls;
+  align-items: center;
+  gap: 8px;
+  padding: 10px clamp(10px, 1.5vw, 20px) 8px;
+  background: var(--color-night);
+  border-top: 1px solid rgb(247 250 255 / 10%);
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard);
+}
+.deck:fullscreen .deck-controls {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgb(11 23 51 / 92%);
+}
+.deck[data-fullscreen][data-idle] .deck-controls {
+  opacity: 0;
+  transform: translateY(40%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .deck-controls {
+    transition: none;
+  }
+}
+.deck-progress {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  gap: 3px;
+  height: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.deck-progress li {
+  flex-basis: 0;
+  background: rgb(247 250 255 / 14%);
+}
+.deck-progress span {
+  display: block;
+  height: 100%;
+  background: var(--color-cyan);
+  transition: width var(--duration-transition) var(--ease-standard);
+}
+.deck-status {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.35em 0.75em;
+  min-width: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+.deck-status__block {
+  color: var(--color-cyan);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.deck-status__counter {
+  color: rgb(247 250 255 / 78%);
+  font: 600 0.95rem var(--font-mono);
+}
+.deck-status__counter strong {
+  color: var(--color-cyan);
+  font-size: 1.2rem;
+}
+.deck-status__title {
+  font-weight: 700;
+}
+.deck-status__step {
+  padding: 0.05em 0.6em;
+  color: var(--color-cyan);
+  border: 1px solid rgb(32 204 229 / 50%);
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.deck-controls__tools {
+  display: flex;
+  gap: 6px;
+}
+.deck-button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  color: var(--color-inverse);
+  background: transparent;
+  border: 1px solid rgb(247 250 255 / 32%);
+  border-radius: var(--radius-control);
+  font-size: 1rem;
+  font-weight: 650;
+}
+.deck-button:hover:not(:disabled) {
+  background: rgb(247 250 255 / 10%);
+}
+.deck-button[aria-pressed='true'] {
+  color: var(--color-cyan);
+  background: rgb(32 204 229 / 14%);
+  border-color: var(--color-cyan);
+}
+.deck-button--primary {
+  color: var(--color-night);
+  background: var(--color-cyan);
+  border-color: var(--color-cyan);
+}
+.deck-button--primary:hover:not(:disabled) {
+  background: var(--color-inverse);
+}
+.deck-button:disabled {
+  opacity: 0.45;
+}
+.deck-notice {
+  position: absolute;
+  right: 16px;
+  bottom: calc(100% + 8px);
+  max-width: min(420px, calc(100% - 32px));
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border-radius: var(--radius-control);
+  font-size: 0.875rem;
+}
+// Rótulos que se ocultan visualmente pero siguen nombrando el botón.
+@mixin label-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 1440px) {
+  .deck-button--compact .deck-button__label {
+    @include label-hidden;
+  }
+}
+@media (max-width: 1180px) {
+  .deck-button--optional .deck-button__label {
+    @include label-hidden;
+  }
+}
+@media (max-width: 1100px) {
+  .deck-status__title {
+    display: none;
+  }
+}
+@media (max-width: 575px) {
+  .deck-button__label {
+    @include label-hidden;
+  }
+  .deck-status__block {
+    display: none;
+  }
+}
+
+// Reanudar.
+.deck-resume {
+  position: absolute;
+  top: clamp(12px, 3cqh, 32px);
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: 0 16px 40px rgb(0 0 0 / 35%);
+  transform: translateX(-50%);
+}
+.deck-resume p {
+  margin: 0;
+}
+.deck-resume div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.deck-resume button {
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-control);
+  font-weight: 650;
+}
+.deck-resume .deck-resume__primary {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+}
+
+// Notas del expositor: fuera del lienzo y nunca en pantalla completa.
+.deck-notes {
+  grid-area: notes;
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-height: 0;
+  padding: var(--space-4) var(--space-5);
+  overflow: auto;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border-left: 4px solid var(--color-cyan);
+}
+.deck-notes__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+.deck-notes__private {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+.deck-notes__list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+.deck-notes__list dt {
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.deck-notes__list dd {
+  margin: 0;
+  line-height: 1.45;
+}
+.deck-notes__presenter {
+  align-self: end;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+.deck:fullscreen .deck-notes {
+  display: none;
+}
+
+// Navegador de escenas: panel lateral derecho (hoja inferior en móvil).
+.ds-dialog.deck-navigator {
+  inset: 0 0 0 auto;
+  width: min(420px, calc(100vw - 24px));
+  max-width: none;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  border-radius: 20px 0 0 20px;
+}
+.deck-navigator nav {
+  display: grid;
+  gap: var(--space-4);
+}
+.deck-navigator__block-title {
+  margin: 0 0 var(--space-2);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.deck-navigator ol {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.deck-navigator__scene {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 10px;
+  color: var(--color-ink);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  text-align: left;
+  font-weight: 600;
+}
+.deck-navigator__scene:hover {
+  background: var(--color-soft);
+}
+.deck-navigator__scene[aria-current='true'] {
+  color: var(--color-inverse);
+  background: var(--color-primary);
+}
+.deck-navigator__number {
+  flex-shrink: 0;
+  min-width: 2.2em;
+  font: 700 0.85rem var(--font-mono);
+  opacity: 0.85;
+}
+.deck-navigator__help {
+  margin: var(--space-5) 0 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.8;
+}
+.deck-navigator__help kbd {
+  padding: 1px 6px;
+  color: var(--color-ink);
+  background: var(--color-page);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 5px;
+  font-size: 0.75rem;
+}
+
+/* ---------- Móvil, vertical y poca altura: la escena fluye ---------- */
+
+@mixin deck-flow($deck) {
+  #{$deck},
+  #{$deck}[data-notes] {
+    display: block;
+    height: auto;
+    min-height: 0;
+  }
+  #{$deck} .deck__viewport {
+    display: block;
+    padding: var(--space-3);
+    container-type: normal;
+  }
+  #{$deck} .deck__stage {
+    width: 100%;
+    aspect-ratio: auto;
+    container-type: normal;
+  }
+  #{$deck} .scene {
+    grid-template-rows: auto;
+    min-height: min(72dvh, 720px);
+    padding: var(--space-5) var(--space-4);
+    overflow: visible;
+    font-size: 17px;
+    // Con zoom alto, nombres y conceptos largos se parten en lugar de ensanchar la escena.
+    overflow-wrap: anywhere;
+  }
+  #{$deck} .scene__title {
+    font-size: 1.75em;
+  }
+  #{$deck} .concept-intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #{$deck} .deck-notes {
+    border-top: 4px solid var(--color-cyan);
+    border-left: 0;
+  }
+  #{$deck} .deck-controls {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--z-sticky);
+    flex-wrap: wrap;
+  }
+  #{$deck} .deck-status {
+    flex-basis: 100%;
+    order: -1;
+  }
+  #{$deck} .deck-controls > .deck-button {
+    flex: 1;
+  }
+  #{$deck} .deck-controls__tools {
+    flex: 2;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-width: 0;
+  }
+  #{$deck} .deck-resume {
+    position: static;
+    width: auto;
+    max-width: none;
+    margin-top: var(--space-3);
+    transform: none;
+  }
+  #{$deck} .ds-dialog.deck-navigator {
+    inset: auto 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 85dvh;
+    border-radius: 20px 20px 0 0;
+  }
+}
+@media (max-width: 767px), (orientation: portrait), (max-height: 560px) {
+  @include deck-flow('.deck');
+}
+// También cuando el lienzo 16:9 quedaría por debajo de ~870 px en la ventana (zoom 125 %,
+// portátiles pequeños): la exposición marca data-flow y la escena fluye como una página.
+@include deck-flow('.deck[data-flow]');
+
+/* ---------- Vista del presentador ---------- */
+
+.presenter-view {
+  display: grid;
+  gap: var(--space-5);
+  padding-block: var(--space-6) var(--space-7);
+}
+.presenter-view__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.presenter-view__header h1 {
+  margin: var(--space-1) 0;
+  font-size: var(--type-section-title);
+}
+.presenter-view__timer {
+  display: grid;
+  justify-items: end;
+  gap: var(--space-2);
+}
+.presenter-view__clock {
+  font: 800 2.5rem var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.presenter-view__timer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.presenter-view__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+.presenter-stage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+// Lienzo virtual de 1280×720 escalado al hueco (solo miniatura, nunca contenido principal).
+.presenter-stage__canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1280px;
+  height: 720px;
+  transform-origin: 0 0;
+  container-type: inline-size;
+}
+.presenter-view__side {
+  display: grid;
+  gap: var(--space-4);
+}
+.presenter-view__notes,
+.presenter-view__next {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+.presenter-view__notes h2,
+.presenter-view__next h2 {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.presenter-view__notes dl {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+.presenter-view__notes dt {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+.presenter-view__notes dd {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.45;
+}
+.presenter-view__next p {
+  margin: 0;
+  font-weight: 700;
+}
+.presenter-view__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+@media (max-width: 991px) {
+  .presenter-view__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

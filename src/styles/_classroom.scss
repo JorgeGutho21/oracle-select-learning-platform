@@ -1,0 +1,358 @@
+// Sala en vivo: consola del profesor (proyectada) y pantallas del estudiante (móvil).
+
+.classroom-page {
+  display: grid;
+  align-content: start;
+  gap: var(--space-5);
+  min-width: 0;
+}
+.classroom-page .feature-heading {
+  margin-bottom: 0;
+}
+.classroom-page--narrow {
+  max-width: 640px;
+}
+.classroom-card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: clamp(var(--space-4), 4vw, var(--space-6));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+.classroom-card > h2,
+.classroom-card > h3 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.5rem);
+}
+.classroom-form label {
+  font-weight: 650;
+}
+.classroom-form input {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: 52px;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-control);
+  border-radius: var(--radius-control);
+  font-size: 1.125rem;
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger);
+  }
+}
+.classroom-form .ds-button {
+  justify-self: start;
+  min-inline-size: min(160px, 100%);
+}
+.classroom-form .classroom-code-input {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+.classroom-hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+.classroom-empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+.classroom-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+// Estado y contadores.
+.classroom-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+.classroom-status strong {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+}
+.classroom-realtime {
+  font-size: 0.9375rem;
+}
+.classroom-counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.classroom-counters li {
+  padding: var(--space-4);
+  color: var(--color-muted);
+  background: var(--color-soft);
+  border-radius: var(--radius-card);
+}
+.classroom-counters strong {
+  display: block;
+  color: var(--color-ink);
+  font: 700 clamp(1.75rem, 4vw, 2.5rem) / 1.1 var(--font-mono);
+}
+.classroom-running {
+  display: grid;
+  gap: var(--space-4);
+}
+
+// Sala de espera del profesor: código y QR grandes para proyectar.
+.classroom-lobby,
+.classroom-board {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+.classroom-join {
+  justify-items: center;
+  text-align: center;
+  color: var(--color-inverse);
+  background:
+    radial-gradient(70% 120% at 100% 0%, rgb(32 204 229 / 18%), transparent 60%), var(--color-night);
+  border-color: var(--color-night);
+  --color-focus: var(--color-cyan);
+}
+.classroom-join h2 {
+  color: var(--color-inverse);
+}
+.classroom-code {
+  margin: 0;
+  color: var(--color-cyan);
+  font: 700 clamp(2.5rem, 8vw, 5rem) / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  overflow-wrap: anywhere;
+}
+.classroom-qr {
+  inline-size: min(100%, 320px);
+  aspect-ratio: 1;
+  padding: var(--space-3);
+  color: #000;
+  background: #fff;
+  border-radius: var(--radius-card);
+}
+.classroom-url {
+  max-inline-size: 100%;
+  margin: 0;
+  font: 0.9375rem var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.classroom-join .ds-alert {
+  text-align: start;
+}
+
+// Participantes y ranking.
+.classroom-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.classroom-people li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  max-inline-size: 100%;
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-soft);
+  border-radius: 999px;
+  overflow-wrap: anywhere;
+}
+.classroom-dot {
+  flex: none;
+  display: inline-block;
+  inline-size: 10px;
+  block-size: 10px;
+  margin-inline-end: var(--space-2);
+  background: var(--color-border-control);
+  border-radius: 50%;
+}
+.classroom-people .classroom-dot {
+  margin-inline-end: 0;
+}
+.classroom-dot.is-on {
+  background: var(--color-success);
+}
+.classroom-table {
+  position: relative;
+  max-inline-size: 100%;
+  overflow-x: auto;
+}
+.classroom-table table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+.classroom-table th,
+.classroom-table td {
+  padding: var(--space-2) var(--space-3);
+  border-block-end: 1px solid var(--color-border-subtle);
+  text-align: start;
+  vertical-align: middle;
+}
+.classroom-table thead th {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+.classroom-table tbody th {
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.classroom-table .is-number {
+  font-family: var(--font-mono);
+  text-align: end;
+  white-space: nowrap;
+}
+.classroom-missions {
+  display: grid;
+  gap: var(--space-3);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.classroom-missions li {
+  display: grid;
+  gap: var(--space-1);
+}
+.classroom-missions__name {
+  font-weight: 650;
+}
+.classroom-missions__count {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+.classroom-bar {
+  display: block;
+  block-size: 8px;
+  background: var(--color-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.classroom-bar > span {
+  display: block;
+  block-size: 100%;
+  background: var(--color-primary);
+  border-radius: inherit;
+  transition: inline-size var(--duration-transition) var(--ease-standard);
+}
+
+// Estadísticas y resultado personal.
+.classroom-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+.classroom-stats div {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-soft);
+  border-radius: var(--radius-control);
+}
+.classroom-stats dt {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+.classroom-stats dd {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.classroom-podium {
+  display: grid;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.classroom-podium li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-control);
+}
+.classroom-podium li.is-me {
+  background: var(--color-soft);
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+.classroom-podium__position {
+  font: 700 1.125rem var(--font-mono);
+  text-align: center;
+}
+.classroom-podium__name {
+  overflow-wrap: anywhere;
+}
+.classroom-podium__score {
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+.classroom-results {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.classroom-results > h2 {
+  margin: 0;
+}
+.classroom-waiting {
+  justify-items: start;
+}
+
+// Barra del estudiante durante el Challenge en vivo.
+.classroom-live-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 1rem;
+}
+.classroom-live-bar strong {
+  font-family: var(--font-mono);
+}
+.classroom-live-bar .ds-alert {
+  flex-basis: 100%;
+}
+
+@media (max-width: 991px) {
+  .classroom-lobby,
+  .classroom-board {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 575px) {
+  .classroom-form .ds-button {
+    justify-self: stretch;
+  }
+  .classroom-podium li {
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    gap: var(--space-2);
+  }
+}

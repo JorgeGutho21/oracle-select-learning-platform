@@ -1,0 +1,356 @@
+# Estado del proyecto — Auditoría
+
+Fecha: 23 de septiembre de 2026. Rama auditada: `claude-finish`, commit `fe6b8ea` («checkpoint: plataforma antes de continuar con Claude»), sincronizada con `origin/claude-finish`. `main` local apunta al mismo commit y está un commit por delante de `origin/main`. Árbol de trabajo limpio antes de esta auditoría.
+
+Esta auditoría no modifica código. Solo añade este archivo y [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).
+
+**Actualización (Fase 1, estabilización técnica):** rama de trabajo `claude-finish-20260923`. La prueba E2E inestable de WebKit quedó corregida en `playwright.config.ts`; causa, solución y evidencia en [Estabilización de la suite E2E](#estabilización-de-la-suite-e2e). Toda la batería base está en verde. No se añadieron funcionalidades.
+
+**Actualización (Fase 2, núcleo del SQL Challenge):** se implementaron el dataset único, la comparación de resultados, el dominio de las diez misiones con rúbricas privadas, la puntuación, el estado y el motor de la partida individual, y la persistencia local mediante infraestructura. No hay pantallas nuevas. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md). Verificaciones en [Verificaciones tras la Fase 2](#verificaciones-tras-la-fase-2).
+
+**Actualización (Fase 3, Challenge interactivo):** M01–M09 del Challenge v2 son jugables en `/challenge` con arrastre (dnd-kit), toque y teclado. M10 queda bloqueada sin Oracle. La corrección se ejecuta en el servidor mediante Server Functions en una nueva raíz de composición (`src/composition`). Se corrigió un desbordamiento móvil del `DataTable` base. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md) y [Verificaciones tras la Fase 3](#verificaciones-tras-la-fase-3).
+
+**Actualización (rediseño pedagógico de la representación de datos y del Challenge, 28 de septiembre de 2026): CHALLENGE_PEDAGOGICAL_REDESIGN, CHALLENGE_MOBILE_TABLES, NO_VERTICAL_RECORD_CARD_LISTS, PRESENTATION_BEFORE_AFTER, LAB_RESPONSIVE_RESULTS, MOBILE_320_PASS, ORACLE_INTEGRATION_PASS, E2E_FINAL_PASS y FINAL_UX_READY = true.** Rama `claude-final-ui-polish-20260926`.
+
+- **Qué cambió:** los resultados SQL son siempre tablas (tabla completa, partes con pestañas en tableta, grupos de como mucho cuatro columnas en el móvil; sin fichas); Challenge v4 con muestra de trabajo (≤ 8 × 3–4) y M01–M10 rediseñadas (GAME_SPEC 4, sin tocar la puntuación ni la sala); «Qué cambió» en las escenas de concepto. Detalle en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md#cuarta-pasada-modelo-pedagógico-de-representación-de-datos-28-de-septiembre-de-2026).
+- **Verificación:** lint, typecheck, format; 732/732 unitarias e integración (Oracle local 124 y sala en PostgreSQL); build; E2E Chromium 252/252; Edge 186/186 y WebKit 186/186 en las suites afectadas; vista previa 230/230; producción 160/160; mediciones visuales en 17 tamaños sin problemas.
+- **Producción:** `dpl_5N1YJrvvWABzHFJWJPHQBPRsigdd` en <https://sql-select-lab.vercel.app> (commit `daa4dfd`). Vuelta atrás: `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b`.
+
+**Actualización (refinamiento pedagógico y visual final, 26 de septiembre de 2026): PEDAGOGICAL_POLISH_COMPLETE, VISUAL_POLISH_COMPLETE, RESPONSIVE_DATA_COMPLETE, ACCESSIBILITY_COMPLETE y PRODUCTION_FINAL_READY = true.** Rama `claude-final-ui-polish-20260926`.
+
+- **Qué cambió:** fuente conceptual de 35 conceptos con glosas; vista de datos adaptable sin barra horizontal; exposición rediseñada (definición o propósito en 29/29, mapa, síntesis, ruta de continuidad y cierre); Challenge con densidad propia y feedback pedagógico (GAME_SPEC 3.1, sin tocar la puntuación); Recursos por fichas completas; color semántico de SQL; laboratorio con el SQL primero. Detalle en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md).
+- **Verificación:**
+  - lint, typecheck y format;
+  - 676/676 unitarias e integración (Oracle local 102 y sala en PostgreSQL);
+  - build;
+  - E2E en Chromium 223/223;
+  - Edge y WebKit en las suites afectadas en verde tras corregir tres fallos reales de WebKit;
+  - vista previa 138/138;
+  - producción 104/104;
+  - 246 mediciones visuales en la vista previa y 123 en producción, sin problemas.
+- **Producción:** `dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b` en <https://sql-select-lab.vercel.app> (commit `023581c`). Vuelta atrás: `dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w`.
+
+**Actualización (reingeniería educativa, 25 de septiembre de 2026): CONTENT_REDESIGN_COMPLETE = true · PRODUCTION_V2_READY = true (26 de septiembre de 2026).** Unidad completa de Oracle SQL fundamental sobre el dataset `empleados-select-v2` (12 columnas, 20 filas). Plan y decisiones en [CONTENT_REDESIGN_PLAN.md](CONTENT_REDESIGN_PLAN.md); mapa en [CONTENT_MAP.md](CONTENT_MAP.md).
+
+- **Contenido:** 22 lecciones en 8 bloques con plantilla de 12 partes y mini comprobaciones con pistas graduales; 29 escenas; laboratorio con LAB01–LAB24 y diagnóstico en cinco grupos; Challenge `select-challenge-v3` (M01–M10, M10 en Oracle); ruta con 46 temas «Próximamente» en los niveles 2 a 7; buscador de temas actuales y futuros.
+- **Oracle:** esquemas `SQL_LAB_V2_OWNER` y `SQL_LAB_V2_READER` creados de forma aditiva en Oracle local 23ai y en Oracle Cloud 19c; v1 intacta para volver atrás. Integración real 102/102 en ambos.
+- **Verificación:** lint, typecheck, format:check, `npm run test:unit` 632/632 (508 unitarias, 102 contra Oracle local v2 y la sala en PostgreSQL embebido), integración contra Oracle Cloud 102/102, build, E2E en Chromium 199/199; en Edge y WebKit, 153/164 en las rutas afectadas y las 11 restantes en verde al repetirlas: 4 perdieron sus artefactos por una corrida paralela, 5 fueron plazos de bucles largos (ahora escalados) y 2 revelaron un bug real de WebKit en la mini comprobación, corregido y QA visual de 42 capturas entre 1920×1080 y 180×400.
+- **Producción:** v2 activa en <https://sql-select-lab.vercel.app> desde el 26 de septiembre (`dpl_3NAgTPb2pFztqa6Mxx4oHNNK2c7w`, commit `37a2271`), con `SQL_LAB_V2_READER` y `SQL_LAB_V2_OWNER`. Prueba de humo de producción 14/14 y sala en vivo contra el Supabase real 5/5. Vuelta atrás a v1 con `dpl_61KPNiQv…` ([DEPLOYMENT.md](DEPLOYMENT.md#activación-de-v2-en-producción-26-de-septiembre-de-2026)).
+- **Bugs encontrados y corregidos:** decimales `.1` de Oracle en el adaptador; visitas del Estudio que no se guardaban; retorno del laboratorio limitado a las escenas y lecciones antiguas; desbordes con zoom 200 % en las páginas nuevas; tablas cortadas en las escenas 05, 11, 15 y 21 (ahora una prueba E2E exige que ninguna tabla de escena se desplace); lecciones con tablas de 20 filas repetidas (ahora muestras de 10 filas rotuladas, salvo EMPLEADOS y DISTINCT); en WebKit, el número escrito en la mini comprobación antes de hidratar se perdía.
+
+**Actualización (Fase 11, cierre con servicios reales): READY_FOR_DEPLOYMENT = true · PRODUCTION_READY = true.** Producción en <https://sql-select-lab.vercel.app>.
+
+- Oracle Cloud: Autonomous Database 19c Always Free, con mTLS y cartera en variables de servidor. El esquema y la cuenta lectora mínima se crearon con `scripts/oracle-cloud.mjs`.
+- Supabase real: migración aplicada, RLS verificado y Realtime conectado. El código acepta las claves publishable y secret.
+- Subtítulos revisados del video resumen.
+- Protección de secretos antes de integrar nada.
+- Vista previa 22/22 y producción 24/24. E2E completa 482/489: los 7 fallos fueron plazos de WebKit con la CPU saturada por procesos ajenos, sin fallo lógico reproducible. QA visual sobre producción: 0 hallazgos.
+
+Limitaciones (tabla completa en [FINAL_AUDIT.md](FINAL_AUDIT.md)):
+
+- falta crear una sala en producción con la clave real del profesor;
+- conviene una escucha final de los subtítulos;
+- no se ha medido la capacidad con 50–60 móviles.
+
+**Actualización (Fase 10, integración final): READY_FOR_DEPLOYMENT = true · PRODUCTION_READY = false.** Hecho en esta fase:
+
+- Videos publicados en `public/media` con el reproductor existente: el introductorio en Home y al inicio de `/learn`; el resumen al final de `/learn`, en la escena 14 y en Recursos.
+- Favicon, OpenGraph y página de error global.
+- URL del QR que se parte sin cortar palabras.
+- Variables clasificadas en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md) y preparación de Vercel (`.vercelignore`, proyecto `sql-select-lab`).
+
+La QA visual, interactiva y de accesibilidad dio 0 hallazgos en 10 tamaños más el zoom 200 %.
+
+Bloquean producción:
+
+- una instancia Oracle alcanzable desde Vercel;
+- un proyecto Supabase;
+- los subtítulos del video resumen (F10-01, pendiente de autorización).
+
+El primer despliegue en Vercel salió como producción por comportamiento del CLI; se retiró su alias ([DEPLOYMENT.md](DEPLOYMENT.md)). Detalle y lista PASS / PASS WITH LIMITATION / BLOCKED en [FINAL_AUDIT.md](FINAL_AUDIT.md).
+
+**Actualización (Fase 9, auditoría preproducción): READY_FOR_DEPLOYMENT = true.** Auditoría completa en [FINAL_AUDIT.md](FINAL_AUDIT.md): ningún CRITICAL; seis MAJOR corregidos con prueba de regresión:
+
+- cabeceras de seguridad y CSP;
+- contraste de las columnas atenuadas;
+- regiones desplazables sin foco;
+- escenas y `/modules` más anchas que la pantalla con zoom 200 %;
+- foco perdido en el Challenge.
+
+Doce MINOR documentados. QA visual en ocho tamaños más zoom alto: 0 desbordes, 0 contenedores descentrados, 0 errores de consola o CSP, axe WCAG 2.2 AA limpio y lienzo 16:9 exacto. Sin funciones nuevas. El despliegue requiere configurar Oracle, Supabase y las variables listadas en la auditoría.
+
+**Actualización (Fase 8, Oracle real y M10): PHASE_8 = COMPLETE.** Adaptador server-side `OracledbQueryExecutor` con el driver oficial `oracledb` 7.0.1 (modo Thin): variables de entorno, grupo de conexiones con cola acotada, plazo total de 5 s, límite de 100 filas y 100 KB, errores ORA controlados, validación previa con el parser único y salud real (dataset y privilegios de la cuenta lectora). `/lab` ejecuta en Oracle y M10 se califica ejecutando la consulta del estudiante y comparando su salida, sin comparar cadenas. Validado contra **Oracle Database 23ai Free 23.26.3** en un contenedor oficial con Podman dentro de WSL (Docker Desktop no arrancaba su motor), con la cuenta `SQL_LAB_READER` que solo tiene `CREATE SESSION` y `READ` sobre EMPLEADOS. Se mantuvo la M10 vigente de GAME_SPEC 2.0 por decisión del responsable. Pendiente: una instancia compartida para los estudiantes (despliegue). Verificaciones en [Verificaciones tras la Fase 8](#verificaciones-tras-la-fase-8).
+
+**Actualización (Fase 7, sala en vivo): PHASE_7 = PARTIAL — funcional de extremo a extremo, pendiente de validación en Supabase remoto.** Implementados `/presenter` (crear sala con la clave del profesor, código, QR con URL pública configurable, espera, inicio, ranking y progreso en vivo, cierre y estadísticas), `/join/{codigo}` para móvil (alias sin cuenta, espera, Challenge en vivo con puntos del servidor, reconexión y resultado personal), `/live` (entrada por código) y `/results` (sala por rol y práctica local). Módulo `src/features/classroom` por capas, Server Functions con Zod y cookies `httpOnly`, migración Supabase con RLS y funciones solo para `service_role`, aviso Realtime Broadcast que solo transporta la revisión y consulta periódica de respaldo. Ranking y estadísticas alineados con GAME_SPEC (puntos, resueltas y tiempo; 1, 2, 3, 3, 5; tasas sobre el grupo). Verificado con almacenamiento en memoria en navegador y con PostgreSQL embebido sobre la migración real. **No verificado:** el proyecto Supabase remoto, Realtime Broadcast real y la capacidad de 50–60 móviles; el repositorio no tiene credenciales ([SUPABASE_SETUP.md](SUPABASE_SETUP.md#validación-pendiente)). REALTIME_SPEC pasa a 1.1 (sala a ritmo propio; rondas, pausa y cuenta docente diferidas). Verificaciones en [Verificaciones tras la Fase 7](#verificaciones-tras-la-fase-7).
+
+**Actualización (Fase 6, recursos, catálogo y multimedia): PHASE_6 = COMPLETE.** Catálogo `/modules` desde una fuente tipada única (SELECT como unidad actual con su progreso y siete módulos futuros «Próximamente»), `/resources` completo (chuleta imprimible, referencia rápida, ejemplos SQL, accesos directos y fuentes) e infraestructura de video: configuración central y componente `VideoPlayer` 16:9 con marcador «Video en preparación», carga, error, subtítulos y transcripción. Sin URLs inventadas. Buscador y Home leen el mismo catálogo; la chuleta y los conceptos del buscador, el mismo esquema de lecciones. Redacción revisada: «video» en toda la interfaz. Verificaciones en [Verificaciones tras la Fase 6](#verificaciones-tras-la-fase-6).
+
+**Actualización (Fase 5.1, endurecimiento responsive y de accesibilidad): PHASE_5_1 = COMPLETE.** Corregido el desborde horizontal con zoom 200 % del laboratorio (hasta 187 px de más a 180 px CSS) y el mismo defecto en el Challenge (hasta 124 px). Causa: rejillas CSS sin columnas explícitas, cuya columna implícita `auto` crece hasta el ancho mínimo del contenido. Solución en estilos, sin ocultar contenido ni cambiar la lógica; el editor ajusta las líneas. En WebKit había además dos causas propias: el texto interno de los `<select>` (escena y ejemplos del laboratorio) contaba para el ancho de la página, y el menú móvil cerrado seguía maquetado junto a su botón; se corrigieron con contención de pintura en los `<select>` y ocultando el panel cerrado. El menú móvil ya no se cierra solo si se toca antes de hidratar. Identidad académica verificada en todas las rutas. Verificaciones en [Verificaciones tras la Fase 5.1](#verificaciones-tras-la-fase-51).
+
+**Actualización (Fase 5, experiencia educativa): PHASE_5 = COMPLETE.** Home, Modo Estudio, Modo Exposición de dieciséis escenas, buscador global, navegación de una fila, pie con identidad y revisión responsive y de accesibilidad. Se conserva y reutiliza el trabajo de Codex (auditado en [CODEX_HANDOFF_AUDIT.md](CODEX_HANDOFF_AUDIT.md)); motor SQL, laboratorio y Challenge no se modificaron. Las E2E pasan a ejecutarse contra el build de producción. Verificaciones en [Verificaciones tras la Fase 5](#verificaciones-tras-la-fase-5).
+
+**Actualización (Fase 4, motor SQL educativo y laboratorio):** un único léxico, parser y analizador del subconjunto SELECT en `src/domain/sql` (con AST, diagnósticos pedagógicos, evaluación educativa, traducción, anatomía y sentencia canónica), reutilizado por el laboratorio y por M05, M08, M09 y M10. `/lab` tiene seis paneles y editor CodeMirror 6. La ejecución Oracle es una operación separada tras el puerto `OracleQueryExecutor`, cuyo adaptador vigente declara «no conectado»; nunca se simula. Verificaciones en [Verificaciones tras la Fase 4](#verificaciones-tras-la-fase-4).
+
+## Resumen
+
+El proyecto está en la fase **R2 parcial: cimientos técnicos y sistema de diseño**. Existen la estructura por capas, ocho rutas navegables con estados vacíos, trece componentes de interfaz accesibles, tokens Sass, un showcase interno y una batería de pruebas de componentes, arquitectura y navegación.
+
+No existe ninguna funcionalidad de negocio: no hay contenido académico, lecciones, escenas, dataset en código, buscador funcional, laboratorio, analizador o evaluador SQL, misiones, puntuación, cronómetro, persistencia, Supabase, salas ni resultados. Las capas `domain`, `application` e `infrastructure` solo contienen un `README.md` y un `.gitkeep`. Esto coincide con lo que declaran `CONTINUITY.md`, `README.md` y `docs/IMPLEMENTATION_NOTES.md`.
+
+## Stack instalado
+
+| Elemento                 | Versión fijada                                                                                                   | Estado                                                                        |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Next.js (App Router)     | 16.3.6                                                                                                           | Instalado y en uso.                                                           |
+| React / React DOM        | 19.3.0                                                                                                           | Instalado y en uso.                                                           |
+| TypeScript estricto      | 6.0.3                                                                                                            | Instalado y en uso.                                                           |
+| Bootstrap + Sass         | 5.3.8 / 1.105                                                                                                    | Instalado; compilado localmente.                                              |
+| Vitest / Testing Library | 5.0.1                                                                                                            | Instalado y en uso.                                                           |
+| Playwright + axe         | 1.63.0                                                                                                           | Instalado; Chromium, Edge y WebKit.                                           |
+| CodeMirror 6             | state 6.7.6, view 6.43.13, commands 6.11.1, lang-sql 6.10.0, language 6.12.4, lint 6.9.7; @lezer/highlight 1.2.3 | Instalado en la Fase 4; `SqlEditor` compartido.                               |
+| dnd-kit                  | core 6.3.1, sortable 10.0.0, utilities 3.2.2                                                                     | Instalado en la Fase 3; usado por `SequenceBuilder`.                          |
+| Cliente Supabase         | @supabase/supabase-js 2.117.1                                                                                    | Fase 7: RPC en el servidor; Broadcast en el navegador con carga diferida.     |
+| Validación               | zod 4.6.5                                                                                                        | Fase 7: entradas de las Server Functions y respuestas de la base.             |
+| PostgreSQL de pruebas    | @electric-sql/pglite 0.5.8 (desarrollo)                                                                          | Fase 7: migración, RLS y contrato en `tests/integration`.                     |
+| node-oracledb            | oracledb 7.0.1 (modo Thin, sin Oracle Client)                                                                    | Fase 8: adaptador real del puerto `OracleQueryExecutor`, solo en el servidor. |
+| Generador de QR          | qrcode-generator 2.0.4 (MIT, sin dependencias)                                                                   | Instalado en la Fase 5; carga diferida solo en la escena 15 de Exposición.    |
+
+## Estado por módulo
+
+| Módulo                          | Estado              | Evidencia                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home (P01)                      | DONE                | Fase 5: hero azul noche con «ORACLE DATABASE · SQL FUNDAMENTALS», autor, asignatura e institución y cuatro acciones (Iniciar clase, Modo Estudio, Laboratorio SQL, SQL Challenge); identidad con logotipo; qué aprenderás (L00–L08); demostración interactiva de columnas con el motor educativo; Challenge; vídeo introductorio rotulado «en preparación»; progreso; siete módulos futuros «Próximamente». Bandas a sangre completa que alternan superficies.              |
+| Modo Exposición (P02)           | DONE                | Fase 5: dieciséis escenas (CONTENT_MAP 1.1) en un lienzo 16:9 que escala con el ancho; botones, flechas, Av Pág/Re Pág, Inicio/Fin, espacio y F; barra de progreso, contador, selector, pantalla completa por acción del usuario (aviso si se rechaza) y reanudación local. Escena 15: reto con respuesta del motor y QR real hacia la práctica individual (las salas no existen y no se simulan). Sin desbordes en 1920×1080 ni 1366×768; modo fluido en móvil y vertical. |
+| Modo Estudio (P03)              | DONE                | Fase 5: `/learn` con la ruta de nueve pasos y `/learn/{lección}`. Cada lección: explicación cotidiana, sintaxis, ejemplo, efecto visual paso a paso (tabla fuente, columnas resaltadas, filas repetidas, resultado), traducción, error frecuente y microactividad. Progreso local validado en aplicación; visitar no completa (U02); aviso si el almacenamiento no está disponible.                                                                                         |
+| Buscador global (P04)           | DONE                | Fase 5: paleta Ctrl+K/Cmd+K y lupa táctil; índice público único (conceptos, lecciones, práctica y recursos) derivado del esquema de lecciones; flechas, Enter con foco en el destino, Escape con retorno de foco; temas futuros «Próximamente» sin destino. Corregidos el ARIA del listbox y coincidencias espurias por palabras cortas.                                                                                                                                    |
+| Videos (P05, P18)               | PARTIAL             | Fase 6: infraestructura completa. Configuración central (`src/features/resources/domain/videos.ts`) y `VideoPlayer` reutilizable: 16:9, controles nativos, sin reproducción automática, subtítulos, transcripción, carga, error con enlace alternativo y «Video en preparación» sin URL. Ubicados en Home, inicio y final de `/learn`, escena 14 y `/resources`. Falta producir y publicar V01 y V02 (pendiente externo).                                                   |
+| Explicaciones y tablas (P06/7)  | DONE                | Fase 5: `HighlightTable` compartida (columnas, fila y repetidas con texto accesible) y pasos visuales por lección derivados del motor y del dataset único.                                                                                                                                                                                                                                                                                                                  |
+| Laboratorio SQL (P08)           | DONE (Oracle local) | Fase 8: «Ejecutar en Oracle» usa el adaptador real con la cuenta lectora; resultados, tipos, motor y errores ORA reales (LAB01–LAB15 verificados contra Oracle Database 23ai Free). La vista previa educativa sigue rotulada aparte. Sin configuración informa «no conectado». Falta la instancia compartida del despliegue.                                                                                                                                                |
+| SQL Challenge (P09–P13)         | DONE                | M01–M09 DONE y jugables. M10 DONE (Fase 8): estructura y requisitos con el motor compartido y calificación final ejecutando en Oracle real; acepta expresiones equivalentes. Detalle en [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).                                                                                                                                                                                                                                         |
+| Sistema de puntuación (P15)     | DONE (sala local)   | Reglas puras G11/G12 compartidas por práctica y sala. En la sala, el servidor registra intentos, pistas, tiempos y puntos (idempotencia por `requestId`, máximo dos intentos, fallos técnicos sin consumir intento). Verificado en memoria y PostgreSQL embebido; falta Supabase remoto.                                                                                                                                                                                    |
+| Supabase / persistencia         | PARTIAL             | Fase 7: migración `supabase/migrations/20260924120000_classroom.sql` (tablas, RLS sin políticas, funciones `classroom_*` solo para `service_role`, `search_path` vacío), adaptador `SupabaseClassroomRepository`, `.env.example` y [SUPABASE_SETUP.md](SUPABASE_SETUP.md). Probado en PGlite con los privilegios por defecto de Supabase. Sin proyecto remoto ni credenciales.                                                                                              |
+| Sala en vivo / QR (P14–P16)     | PARTIAL             | Fase 7: flujo completo profesor → QR → móviles → inicio → Challenge → ranking en vivo → cierre → estadísticas, con reconexión, llegada tardía, alias duplicado, cupo 60 y caducidad. E2E en Chromium, Edge y WebKit con `CLASSROOM_BACKEND=memory`. Pendiente: Supabase remoto, Realtime real y ensayo de 60 dispositivos (R10). Rondas guiadas y pausa diferidas (REALTIME_SPEC 1.1).                                                                                      |
+| Resultados / estadísticas (P17) | DONE (sala local)   | Fase 7: `/results` muestra la práctica local y, con `?sala=`, la vista de la sala según el rol (profesor: participantes, promedio, precisión, tiempo medio, misión más fácil y más difícil con empates, ranking final; estudiante: puntos, precisión, tiempo, intentos, pistas y posición). Fixtures T16/T17 de TEST_PLAN en unitarias.                                                                                                                                     |
+| Recursos / chuleta (P18)        | DONE                | Fase 6: `/resources` con accesos directos, chuleta de siete conceptos (significado, patrón, ejemplo y advertencias), tabla de referencia rápida con el tamaño del resultado calculado por el motor, ejemplos LAB01–LAB09, videos y fuentes (referencia oficial F7 y material del curso). Impresión que deja solo la chuleta y la referencia.                                                                                                                                |
+| Catálogo de módulos (P18)       | DONE                | Fase 6: `/modules` desde `src/features/modules/domain/catalog.ts`. SELECT (01) como unidad actual, con progreso local y accesos al Estudio y a la Exposición; WHERE, BETWEEN, IN, LIKE, JOIN, GROUP BY y Funciones (02–08) como «Próximamente», con propósito y prerrequisitos, sin enlaces ni progreso.                                                                                                                                                                    |
+| Sistema de diseño               | DONE (base)         | 13 componentes en `src/presentation/components/ui`, `SequenceBuilder` y, desde la Fase 5, `HighlightTable` en `src/presentation/components/data`. Tokens en `src/styles/_tokens.scss`; showcase `/dev/design-system`.                                                                                                                                                                                                                                                       |
+| Navegación y layouts            | DONE                | Fase 5: barra de una fila (Inicio, Aprender, Laboratorio, Challenge, En vivo, Recursos y Buscar) derivada del catálogo público; menú compacto bajo 992 px que se cierra con Escape; pie con la identidad académica completa.                                                                                                                                                                                                                                                |
+| Arquitectura por capas          | DONE (base)         | Regla ESLint local `scripts/architecture-boundaries.mjs` y pruebas en `tests/unit/architecture.test.ts`. Capa `composition` (Fase 3): única que une infraestructura con aplicación; solo `app` la importa.                                                                                                                                                                                                                                                                  |
+| Responsive                      | DONE (navegador)    | Fases 5 y 5.1: E2E a 1920×1080, 1440×900, 1366×768, 1024×768, 768×1024, 430×932, 390×844 y 360×800 sin desplazamiento horizontal y con el contenido centrado en su ancho útil. Reflujo con zoom 200 % (180×400 y 720×450) en Home, Estudio, Exposición, laboratorio (incluido el editor y la ejecución), Challenge (diez misiones, cierre y resumen), Recursos y buscador. Pendiente: dispositivos físicos y proyector real.                                                |
+
+## Verificaciones de la auditoría inicial (antes de la Fase 1)
+
+Entorno: Windows 11, Node 24.20.0, npm 11.19.0.
+
+| Comando                                            | Resultado                                                                             |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `npm run lint`                                     | Correcto, 0 advertencias.                                                             |
+| `npm run typecheck`                                | Correcto (`next typegen` + `tsc --noEmit`).                                           |
+| `npm run test:unit`                                | Correcto: 2 archivos, 22 pruebas.                                                     |
+| `npm run format:check`                             | Correcto.                                                                             |
+| `npm run build`                                    | Correcto: 11 páginas estáticas (`/`, 7 módulos, `/dev/design-system`, `/_not-found`). |
+| `npm run test:e2e` (`npm test` incluye unit + e2e) | **Falla: 74 aprobadas, 1 fallida.** Detalle abajo.                                    |
+
+`npm test` equivale a `npm run tests` (Vitest y después Playwright), por lo que su resultado global es fallido por la prueba E2E indicada.
+
+### Error encontrado: E2E intermitente en WebKit
+
+- Prueba: `tests/e2e/interactions.spec.ts:4` — «el diálogo contiene el foco, cierra con Escape y restaura su activador», proyecto `webkit`.
+- Síntoma: `Test timeout of 30000ms exceeded`. Al repetirla tres veces fallaron dos; en otra repetición la pasada correcta tardó **29,9 s**, a 0,1 s del límite.
+- Diagnóstico: no se observó un fallo de aserción ni de comportamiento; la prueba es lenta en WebKit sobre Windows con el servidor `next dev` (compilación bajo demanda) y un análisis axe completo dentro de la misma prueba. Pasa en Chromium y Edge.
+- Clasificación: prueba inestable (flaky) por tiempo, no defecto funcional demostrado. Bloquea que `npm test` salga en verde.
+- Estado: **corregido en la Fase 1**. Ver la sección siguiente.
+
+## Estabilización de la suite E2E
+
+### Causa real
+
+La grabación de trazas de Playwright (`trace: 'retain-on-failure'`) registra la traza de **todas** las pruebas y solo la descarta si pasan. En WebKit sobre Windows, la parte de screencast de esa traza consume mucha CPU y duplica la duración de cada acción; con dos workers de WebKit en paralelo sobre `next dev` el renderizador queda saturado. En la traza del fallo, cada pulsación de tecla tardaba ≈0,5 s y cada comprobación de estabilidad de un clic 1–1,7 s. La prueba del diálogo es la más larga del archivo (dos ciclos de apertura, axe con una página auxiliar y la hidratación previa del activador), por eso era la que superaba los 30 s.
+
+Mediciones de la prueba del diálogo en WebKit (servidor de producción, 2 workers, 4 repeticiones):
+
+| Configuración de traza                    | Duración por prueba |
+| ----------------------------------------- | ------------------- |
+| Por defecto (screencast + snapshots DOM)  | 14,1–15,8 s         |
+| Solo screencast                           | 14,0–14,7 s         |
+| Solo snapshots DOM                        | 8,0–9,2 s           |
+| Sin traza                                 | 5,8–7,2 s           |
+| Por defecto con `reducedMotion: 'reduce'` | 12,5–15,1 s         |
+
+Hipótesis descartadas con evidencia:
+
+- **Spinner y animaciones CSS del showcase:** detenerlos con movimiento reducido apenas cambia la duración, y la página mantiene 60 fps en WebKit fuera de la traza.
+- **Diálogo y selectores:** no hubo errores de aserción. Todos los selectores resuelven al primer intento y el foco se comporta igual que en Chromium y Edge.
+- **Análisis axe:** tarda ≈1,2–1,4 s en WebKit. Aporta tiempo, pero no explica el exceso.
+- **Hidratación:** el primer clic espera correctamente a que `useHydrated` habilite el botón. Es una espera legítima y más lenta en `next dev`, pero no es la causa principal.
+- **Bucle de render:** el diálogo solo reacciona a cambios de `open`; no se observaron renders continuos.
+
+### Solución
+
+Cambio mínimo en `playwright.config.ts`, solo para el proyecto `webkit`: `trace: { mode: 'retain-on-failure', screenshots: false }`. La traza de un fallo conserva los snapshots DOM, la red y los pasos, y `screenshot: 'only-on-failure'` mantiene la captura final. No se modificaron timeouts, la prueba ni los componentes. Chromium y Edge conservan la traza completa, porque su screencast es barato.
+
+### Evidencia tras la corrección
+
+- Prueba del diálogo en WebKit con la configuración real (`next dev`, 2 workers): 6/6 aprobadas, 12,2–16,4 s. Antes: 20–30 s, con timeouts intermitentes.
+- La misma prueba con un worker: 5/5 aprobadas, 5,4–7,2 s.
+- Suite E2E completa: 75/75 aprobadas en 2,7 min (antes: 74/75 en 6,4 min). La prueba más lenta de WebKit tardó 15,7 s, la mitad del límite de 30 s.
+
+## Verificaciones tras la Fase 1
+
+| Comando                | Resultado                 |
+| ---------------------- | ------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias. |
+| `npm run typecheck`    | Correcto.                 |
+| `npm run format:check` | Correcto.                 |
+| `npm run test:unit`    | Correcto: 22/22.          |
+| `npm run build`        | Correcto: 11 páginas.     |
+| `npm run test:e2e`     | Correcto: 75/75.          |
+
+Observación: `reuseExistingServer` reutiliza fuera de CI cualquier servidor que ya escuche en el puerto 3100. Durante esta fase había un `next dev` de este mismo repositorio activo en ese puerto, y las pruebas lo reutilizaron.
+
+## Verificaciones tras la Fase 2
+
+| Comando                | Resultado                                                           |
+| ---------------------- | ------------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                           |
+| `npm run typecheck`    | Correcto.                                                           |
+| `npm run format:check` | Correcto.                                                           |
+| `npm run test:unit`    | Correcto: 8 archivos, 143 pruebas (22 previas y 121 del Challenge). |
+| `npm run build`        | Correcto: 11 páginas.                                               |
+| `npm run test:e2e`     | Correcto: 75/75 (incluye `/challenge` en Chromium, Edge y WebKit).  |
+
+## Verificaciones tras la Fase 3
+
+| Comando                | Resultado                                                        |
+| ---------------------- | ---------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                        |
+| `npm run typecheck`    | Correcto.                                                        |
+| `npm run format:check` | Correcto.                                                        |
+| `npm run test:unit`    | Correcto: 11 archivos, 189 pruebas.                              |
+| `npm run build`        | Correcto: 11 páginas. Sin rúbricas en `.next/static`.            |
+| `npm run test:e2e`     | Correcto: 126/126 (51 del Challenge) en Chromium, Edge y WebKit. |
+
+## Verificaciones tras la Fase 4
+
+| Comando                | Resultado                                                                                         |
+| ---------------------- | ------------------------------------------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                                                         |
+| `npm run typecheck`    | Correcto.                                                                                         |
+| `npm run format:check` | Correcto.                                                                                         |
+| `npm run test:unit`    | Correcto: 12 archivos, 250 pruebas.                                                               |
+| `npm run build`        | Correcto: 11 páginas. Sin rúbricas en `.next/static`; `/challenge` no carga CodeMirror de inicio. |
+| `npm run test:e2e`     | Correcto: 144/144 en Chromium, Edge y WebKit (18 del laboratorio).                                |
+
+## Verificaciones tras la Fase 8
+
+| Comando                | Resultado                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `npm run typecheck`    | Correcto.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `npm run format:check` | Correcto.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `npm run test:unit`    | Correcto dos veces seguidas: 26 archivos, 415 pruebas. Nuevas: 17 del adaptador sin secretos (configuración, errores, plazo, precisión decimal, límites, salud y el script de carga) y 21 contra **Oracle real** en `tests/integration/oracle-real.test.ts`: salud, LAB01–LAB10 iguales al análisis educativo con tipos, valores de LAB03 y LAB06–LAB10, LAB12, lo rechazado no llega a Oracle, `ORA-01476` real, la cuenta lectora no puede escribir (`UPDATE` rechazado por Oracle), un plazo agotado no agota el grupo, LAB15 y M10 (referencia, tres expresiones equivalentes, dos salidas incorrectas y requisitos previos).                                                                                                                         |
+| `npm run build`        | Correcto; `oracledb` excluido del empaquetado.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `npm run test:e2e`     | Con Oracle real, última ejecución completa: 383/384 en Chromium, Edge y WebKit en 14,7 min contra el build de producción. El único fallo, el arrastre con ratón de M01 en WebKit (intermitencia conocida del arrastre bajo carga, sin relación con Oracle), pasó 10/10 al repetirlo. Ejecuciones anteriores de la fase: 365/381 (16 fallos de WebKit por esperas de hidratación con poca memoria libre; los 16 pasan al repetirlos) y 380/381 (análisis axe de la Home en Edge fuera de plazo: dividido en una prueba por tamaño, 6/6). Sin Oracle (variables vacías), los specs que dependen de Oracle: 54 pasan y 6 se omiten. Nuevas: `oracle-real.spec.ts` y ramas con y sin Oracle en `lab.spec.ts`, `reflow.spec.ts` y `challenge-m08-m10.spec.ts`. |
+
+Defectos encontrados al ejecutar contra Oracle real y corregidos: `connection.close(undefined)` no devolvía la conexión al grupo (node-oracledb exige un objeto o ningún argumento) y el grupo se agotaba tras diez consultas; `- -SALARIO` se enviaba como `--SALARIO`, que Oracle lee como comentario. El doble del driver en las pruebas unitarias imita ahora esa validación. Además, justo tras arrancar el servidor, la primera consulta (creación del grupo, primera sesión y base fría) podía superar el plazo de 5 s: el servidor precalienta ahora el grupo y la salud al iniciar (`src/instrumentation.ts`). Bajo la carga de la suite completa, dos preparaciones pesadas (configuración de ESLint y arranque de PostgreSQL embebido) agotaban el plazo por prueba; pasaron a `beforeAll` con margen propio.
+
+## Verificaciones tras la Fase 7
+
+| Comando                | Resultado                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `npm run typecheck`    | Correcto.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `npm run format:check` | Correcto.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| `npm run test:unit`    | Correcto: 23 archivos, 377 pruebas (63 nuevas). Dominio (código, alias, estados, ranking 1-2-3-3-5, fixture M06), adaptadores, frontera de secretos y la batería de contrato de la sala en memoria y en PostgreSQL embebido (`tests/integration`, 22 pruebas: migración, RLS, privilegios de `anon`/`authenticated`, restricciones y mantenimiento). Concurrencia: 50 inscripciones y respuestas simultáneas, 61 inscripciones con cupo 60, diez envíos con el mismo `requestId` y dos pestañas.        |
+| `npm run build`        | Correcto: 22 rutas; `/presenter`, `/presenter/[code]`, `/join/[code]` y `/results` dinámicas. Sin pistas ni rúbricas en `.next/static` (G15); la clave de servicio no aparece en el cliente (solo el nombre de la variable en un aviso de configuración).                                                                                                                                                                                                                                               |
+| `npm run test:e2e`     | Correcto: 375/375 en Chromium, Edge y WebKit en 11,6 min contra el build de producción, con `CLASSROOM_BACKEND=memory` y la clave de pruebas en `webServer.env`. Nuevas: `classroom.spec.ts` (cinco pruebas por navegador) y la regresión de la ayuda en `interactions.spec.ts`. Ejecuciones anteriores de esta fase: 365/369, 370/372 y 374/375 (un `net::ERR_NO_BUFFER_SPACE` de sockets de Windows al abrir la página; esa prueba pasó 5/5 al repetirla y la ejecución completa siguiente, 375/375). |
+
+Comprobaciones adicionales: revisión visual de la sala en 1920×1080, 1440×900, 768×1024, 430×932, 390×844, 360×800 y 180×400 (zoom 200 %) sin desplazamiento horizontal. Se corrigieron durante la revisión: el foco se perdía al cambiar la pantalla de la sala (ahora pasa al título nuevo); el botón del formulario desbordaba a 180 px; y en WebKit lo escrito antes de la hidratación no llegaba al estado de React y dejaba el botón deshabilitado (los tres formularios de la sala leen ahora el valor del DOM al enviar; nueva E2E que retrasa los scripts y escribe antes de hidratar). La primera ejecución completa dio 365/369 por ese defecto. La segunda (370/372) mostró dos defectos intermitentes anteriores a esta fase, también corregidos: el buscador dejaba de intentar enfocar el destino tras 60 fotogramas (~1 s) y la primera visita a una ruta puede tardar más (fallaba 1 de cada 10 en Edge; ahora con plazo de 5 s, 20/20), y la ayuda contextual no se abría si el foco llegaba antes de hidratar (ahora se abre al montar; nueva E2E con scripts retrasados).
+
+## Verificaciones tras la Fase 6
+
+| Comando                | Resultado                                                                                                                                                                                                                                 |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                                                                                                                                                                                                 |
+| `npm run typecheck`    | Correcto.                                                                                                                                                                                                                                 |
+| `npm run format:check` | Correcto.                                                                                                                                                                                                                                 |
+| `npm run test:unit`    | Correcto: 18 archivos, 314 pruebas (12 nuevas: catálogo, fuente única del buscador, configuración de videos y `VideoPlayer`).                                                                                                             |
+| `npm run build`        | Correcto: 21 páginas, con `/modules` estática. Sin rúbricas en `.next/static` (G15).                                                                                                                                                      |
+| `npm run test:e2e`     | Correcto: 357/357 en Chromium, Edge y WebKit en 16,0 min, contra el build de producción. Nuevas: `modules.spec.ts`, `resources.spec.ts` (incluida la impresión) y `media.spec.ts`; navegación del pie y del catálogo en `routes.spec.ts`. |
+
+Comprobaciones adicionales: la escena 14 con el video sigue sin desbordar a 1920×1080 y 1366×768; identidad y la forma «video» verificadas en el HTML de las páginas nuevas; ninguna URL de video inventada (ambas fuentes en `null`).
+
+## Verificaciones tras la Fase 5.1
+
+| Comando                | Resultado                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run lint`         | Correcto, 0 advertencias.                                                                                                                                                                                                                                                                                                                                 |
+| `npm run typecheck`    | Correcto.                                                                                                                                                                                                                                                                                                                                                 |
+| `npm run format:check` | Correcto.                                                                                                                                                                                                                                                                                                                                                 |
+| `npm run test:unit`    | Correcto: 16 archivos, 302 pruebas.                                                                                                                                                                                                                                                                                                                       |
+| `npm run build`        | Correcto: 20 páginas. Sin rúbricas en `.next/static` (G15).                                                                                                                                                                                                                                                                                               |
+| `npm run test:e2e`     | Correcto: 306/306 en Chromium, Edge y WebKit en 12,6 min, contra el build de producción. Nuevas: `reflow.spec.ts` (zoom 200 % a 180×400 y 720×450 en siete rutas; laboratorio usable con editor, análisis y ejecución; diez misiones del Challenge jugables; paleta de búsqueda; objetivos táctiles de 44 px a 360 px) y 360×800 en la matriz responsive. |
+
+Diagnóstico y comprobaciones adicionales:
+
+- Antes de la corrección, a 180 px CSS: el laboratorio desbordaba 187 px (367 px de ancho de documento) y el Challenge hasta 124 px (M10). A 360 px ya no desbordaban: el defecto solo aparecía con zoom alto.
+- Sondas en Chromium y WebKit que identifican el elemento que empuja el ancho, recorren texto sin cortes y ocultan subárboles para localizar desbordes sin elemento visible (el caso de los `<select>` en WebKit).
+- Capturas revisadas a 1920×1080, 1440×900, 1366×768, 1024×768, 768×1024, 430×932, 390×844 y 360×800 en Home, Estudio, una lección, Exposición, laboratorio, Challenge y Recursos: sin desplazamiento horizontal y con el contenido centrado. El laboratorio de escritorio no cambió.
+- Identidad académica comprobada en el HTML de diez rutas: solo «Jorge Gutierrez Thomas», «Amilkar Sierra», «Universidad Popular del Cesar», «Ingeniería de Sistemas» y «Base de Datos».
+- Logotipo intacto: la huella SHA-256 coincide con la registrada.
+- Durante la fase, una prueba de accesibilidad de la Exposición recorría seis escenas con axe en una sola prueba y agotó su presupuesto de 30 s en Edge bajo carga; se dividió en una prueba por escena sin ampliar tiempos.
+
+## Verificaciones tras la Fase 5
+
+| Comando                | Resultado                                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run lint`         | Correcto, 0 advertencias.                                                                                                                                                                                                                                    |
+| `npm run typecheck`    | Correcto.                                                                                                                                                                                                                                                    |
+| `npm run format:check` | Correcto.                                                                                                                                                                                                                                                    |
+| `npm run test:unit`    | Correcto: 16 archivos, 302 pruebas (30 nuevas de búsqueda, Estudio, progreso y escenas).                                                                                                                                                                     |
+| `npm run build`        | Correcto: 20 páginas; nueve lecciones estáticas; `/lab` y `/presentation` dinámicas por sus parámetros. Sin rúbricas en `.next/static` (G15).                                                                                                                |
+| `npm run test:e2e`     | Correcto: 270/270 en Chromium, Edge y WebKit en 8,3 min, contra el build de producción. 42 pruebas nuevas por navegador: Home, Estudio, Exposición (16 escenas sin desborde a 1920×1080 y 1366×768), buscador, navegación y responsive en los siete tamaños. |
+
+Comprobaciones adicionales:
+
+- Carga en producción: CodeMirror solo se descarga en `/lab` (y, dentro del Challenge, al abrir M10); el generador de QR, solo en la escena 15.
+- Revisión visual con capturas a 1920×1080, 1440×900, 1366×768, 1024×768, 768×1024, 430×932 y 390×844 de Home, Estudio, Exposición, laboratorio, Challenge, Recursos y buscador. Reflujo sin desplazamiento horizontal a 180 px (zoom 200 % de 360 px) en Home, Estudio, Exposición y Recursos.
+- axe (WCAG 2 A/AA) sin violaciones en Home (escritorio y móvil), una lección, seis escenas claras y oscuras y la paleta de búsqueda abierta.
+- Primera ejecución completa: 262/270. Se corrigieron el reflujo a 180 px del showcase, la hidratación de la Exposición en WebKit y el foco que el diálogo dejaba en un campo oculto; una prueba existente del showcase usaba `count()` sin esperar al revelado diferido de React (repetida 15/15 tras corregirla).
+
+## Riesgos
+
+| Riesgo                                       | Impacto                                                                                                                                                                                                                                                                       |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Oracle para los estudiantes                  | Resuelto en local (Fase 8): Oracle Database 23ai Free en contenedor. Para que los estudiantes lo usen desde la web publicada hace falta una instancia accesible desde el servidor (universidad o nube) con la cuenta lectora ([ORACLE_SETUP.md](ORACLE_SETUP.md)).            |
+| Oracle nativo en el puerto 1521              | En este equipo hay un Oracle 18c XE instalado cuyo listener ocupa 1521; el contenedor local usa 1522 (`ORACLE_LOCAL_PORT`). No se modificó esa instalación.                                                                                                                   |
+| Carga del equipo en las E2E                  | Con el contenedor Oracle (unos 3 GB) y poca memoria libre, WebKit falló por esperas de hidratación en una ejecución completa (16 pruebas, todas pasan al repetirse). Conviene cerrar aplicaciones o detener el contenedor (`npm run oracle:down`) si no se usa.               |
+| Corrección de misiones confiada al navegador | Resuelto para la práctica: rúbricas en el servidor (Server Functions) y comprobación de que no están en `.next/static`. La práctica local sigue siendo informativa y manipulable por diseño (ARCHITECTURE).                                                                   |
+| Dependencias nuevas sin fijar                | CodeMirror, dnd-kit y Supabase deben instalarse con versión exacta (`.npmrc` lo exige) y validarse con Next 16 / React 19.                                                                                                                                                    |
+| Bonificación por tiempo                      | Pedida en la Fase 2, pero contraria a GAME_SPEC («No hay bonificación por rapidez»). Implementada en la política de puntuación con valor 0; activarla exige actualizar GAME_SPEC, TEST_PLAN y la versión de la política.                                                      |
+| Server Function intermitente en desarrollo   | Con `next dev` y la suite completa, algunas Server Functions superaban las esperas en Edge. Desde la Fase 5 las E2E usan el build de producción (puerto 3200), sin ampliar tiempos, y esos fallos desaparecieron. Sigue siendo un riesgo solo al probar contra `next dev`.    |
+| Revelado diferido de Suspense                | En producción React revela en diferido el contenido transmitido por streaming; justo después de `load` puede seguir oculto. Las pruebas deben usar aserciones que esperan, no `count()` inmediato.                                                                            |
+| QR de la escena 15 y de la sala              | Fase 7: URL pública de `NEXT_PUBLIC_SITE_URL`, después la URL de vista previa (`NEXT_PUBLIC_VERCEL_URL`) y, en desarrollo, el origen de la página; sin dominio fijo. Si apunta a `localhost` o 127.0.0.1, la pantalla lo advierte.                                            |
+| Almacenamiento en memoria de la sala         | Solo con `CLASSROOM_BACKEND=memory` y en un único proceso (`next start` en la red del aula o pruebas): se pierde al reiniciar y no sirve en despliegues con varias instancias (serverless). En producción se usa Supabase.                                                    |
+| Sala sin validar en Supabase remoto          | Adaptador y migración probados en PostgreSQL embebido de una sola conexión; faltan la latencia real, Realtime Broadcast, contención con conexiones reales y el ensayo de 60 móviles (R10). No se afirma capacidad.                                                            |
+| Canal Realtime público                       | Solo transporta la revisión y cada pantalla pide su vista autorizada; un aviso falso provoca como mucho una consulta por segundo. Canales privados quedan como endurecimiento opcional.                                                                                       |
+| Límite de claves de profesor                 | 10 intentos fallidos cada 10 minutos por dirección y por proceso; tras un proxy depende de `x-forwarded-for`.                                                                                                                                                                 |
+| Reflujo a 200 %                              | Resuelto en la Fase 5.1 (laboratorio y Challenge). Regla: toda rejilla de una columna declara `grid-template-columns: minmax(0, 1fr)`; una rejilla sin columnas explícitas crece hasta el ancho mínimo de su contenido. Las pruebas de `tests/e2e/reflow.spec.ts` lo vigilan. |
+| Margen de tiempo en WebKit/Windows           | Corregido en la Fase 1. La prueba más lenta usa la mitad del límite; conviene vigilarlo al añadir pruebas más largas.                                                                                                                                                         |
+| Ramas divergentes respecto al remoto         | `main` local está un commit por delante de `origin/main`. La rama de trabajo autorizada es `claude-finish-20260923`.                                                                                                                                                          |
+| Pendientes externos                          | Vídeos, alojamiento y medición de capacidad. El uso público del emblema institucional debe validarlo el responsable académico (no bloquea el uso educativo). La identidad académica quedó confirmada.                                                                         |
+
+## Siguiente orden recomendado
+
+1. ~~Estabilizar la prueba E2E de WebKit~~ (hecho en la Fase 1).
+2. ~~Dominio compartido: dataset `empleados-select-v1` versionado~~ (hecho en la Fase 2). Falta el contenido L00–L08 (C01–C05).
+3. ~~Tablas interactivas y explicaciones visuales (P06, P07)~~ (hecho en la Fase 5).
+4. ~~Modo Estudio (P03) y Modo Exposición (P02) sobre el mismo contenido~~ (hecho en la Fase 5).
+5. ~~Buscador global Ctrl+K (P04) con índice público~~ (hecho en la Fase 5).
+6. ~~Analizador y validador del subconjunto SELECT v1~~ (hecho en la Fase 4, con casos S01–S14 y LAB01–LAB10).
+7. ~~SQL Challenge individual (R4)~~: M01–M09 (Fase 3) y M10 con Oracle real (Fase 8).
+8. ~~R1 Oracle real y adaptador node-oracledb del puerto `OracleQueryExecutor`~~ (Fase 8, Oracle local). Falta la instancia compartida para el despliegue.
+9. ~~Resultados en `/results` y catálogo `/modules`~~ (Fases 6 y 7). Vídeos cuando existan los activos (P18).
+10. ~~Supabase, salas, tiempo autoritativo, ranking y estadísticas (R6)~~ (Fase 7, local). Falta validar con un proyecto Supabase remoto y medir 60 dispositivos ([SUPABASE_SETUP.md](SUPABASE_SETUP.md#validación-pendiente)).
+
+El orden del ROADMAP sitúa R3 (contenido y laboratorio) antes de R4 (Challenge). Si se decide adelantar el Challenge, las misiones M01–M09 pueden avanzar con el dataset y el comparador de resultados en dominio; M10 seguirá dependiendo de Oracle.

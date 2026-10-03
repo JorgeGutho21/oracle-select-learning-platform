@@ -15,13 +15,13 @@ Herramientas propuestas para implementación: Vitest para reglas, Playwright par
 | Prueba | Requisito | Procedimiento | Resultado verificable |
 |---|---|---|---|
 | T01 | P01 Home | Abrir a 390 px y 1440 px; recorrer todos los accesos y regresar. | Identidad y objetivo visibles; cada enlace abre el destino correcto sin página rota. |
-| T02 | P02 Exposición | Recorrer E01–E14 con botones y flechas; entrar/salir de pantalla completa; abrir laboratorio y regresar. | Escena y contador correctos; foco en editor no cambia escenas; reanudación exacta. |
+| T02 | P02 Exposición | Recorrer las escenas 01–16 con botones, flechas y Av Pág/Re Pág; entrar/salir de pantalla completa; abrir laboratorio y regresar. | Escena y contador correctos; foco en editor no cambia escenas; reanudación exacta. |
 | T03 | P03 Estudio | Completar L00, abrir otras sin resolver y recargar; simular almacenamiento bloqueado. | Solo L00 aparece completada; advertencia de persistencia cuando corresponde; estudio sigue utilizable. |
 | T04 | P04 Búsqueda | Probar Ctrl+K, Cmd+K, lupa, teclado y Escape; buscar alias, AS, *, asterisco, video, quiz, WHERE y texto inexistente. | Destinos y etiquetas correctos; futuras unidades separadas; foco restaurado; ninguna solución privada indexada. |
 | T05 | P05 Introducción | Reproducir, pausar, omitir, activar subtítulos y abrir transcripción; bloquear proveedor de vídeo. | Duración 90–120 s; sin autoplay con audio; alternativa útil ante fallo. |
 | T06 | P06 Explicaciones | Revisar L01–L08 con sus tablas y avanzar cada transformación. | Consulta, traducción y resultado concordantes; animación no se presenta como ejecución física del motor. |
-| T07 | P07 Tablas | Seleccionar columnas por ratón, toque y teclado; navegar seis filas y usar zoom. | Fuente intacta, encabezados asociados y ningún dato de otra versión. |
-| T08 | P08 Laboratorio | Ejecutar LAB01–LAB10 contra Oracle, luego provocar fallo de red. | Resultados reales, errores diferenciados, consulta preservada y ninguna sustitución silenciosa por simulación. |
+| T07 | P07 Tablas | Seleccionar columnas por ratón, toque y teclado; navegar las 20 filas y usar zoom. | Fuente intacta, encabezados asociados y ningún dato de otra versión. |
+| T08 | P08 Laboratorio | Ejecutar LAB01–LAB24 contra Oracle, luego provocar fallo de red. | Resultados reales, errores diferenciados, consulta preservada y ninguna sustitución silenciosa por simulación. |
 | T09 | P09 Challenge | Completar M01–M10, repetir y crear una nueva práctica. | Diez misiones; progreso correcto; nueva partida no cambia resultados de sala. |
 | T10 | P10 Bloques | Resolver M01, M02, M06 y M09 mediante arrastre, teclado y toque sin arrastre. | Respuesta evaluada y puntaje iguales para las tres modalidades. |
 | T11 | P11 Predicción | Resolver M03, M04 y M07; probar valores y duplicados incorrectos. | No revela resultado antes del intento; evalúa encabezados, multiplicidad y combinaciones correctamente. |
@@ -35,9 +35,9 @@ Herramientas propuestas para implementación: Vitest para reglas, Playwright par
 
 ## Aceptación de las misiones
 
-G01–G10 se verifican una a una con las soluciones de GAME_SPEC. Cada misión debe incluir al menos un caso correcto, uno incorrecto con sentido pedagógico, una respuesta incompleta y la interacción alternativa accesible. Para G05 y G10 verificar expresiones equivalentes. Para G07 y G09 comprobar que igual ciudad con diferente departamento conserva dos filas.
+G01–G10 se verifican una a una con las soluciones de GAME_SPEC. Cada misión debe incluir al menos un caso correcto, uno incorrecto con sentido pedagógico, una respuesta incompleta y la interacción alternativa accesible. Para G05 y G10 verificar expresiones equivalentes. Para G07 comprobar que conservar cualquier ejemplar de cada ciudad es válido y que eliminar una ciudad por completo no lo es. Para G02, G06 y G09 comprobar que se corrige el resultado de la consulta armada y no una cadena exacta (por ejemplo, comas intercambiables en M09).
 
-La misión M08 no utiliza `SELECT nombre salario FROM empleados` como ejemplo de error sintáctico: LAB10 confirma que ese SQL puede expresar un alias implícito. Debe fallar el objetivo de dos columnas, no la sintaxis.
+La misión M08 (Challenge v3) parte de `SELECT nombre salario FROM empleados;`, pero no la presenta como error sintáctico: LAB19 confirma que ese SQL expresa un alias implícito. El estudiante localiza el hueco de la coma y el feedback explica que falla el objetivo de dos columnas, no la sintaxis.
 
 G11–G15 cubren puntuación, reenvío, empates, accesibilidad y revelación de soluciones. En ronda abierta inspeccionar respuestas y recursos enviados al navegador para verificar que no incluyen rúbrica privada ni soluciones futuras; las soluciones visibles en materiales de estudio son referencias de aprendizaje, no secretos de examen.
 
@@ -50,7 +50,7 @@ G11–G15 cubren puntuación, reenvío, empates, accesibilidad y revelación de 
 | S03 | Multiplicidad | CIUDAD tiene seis valores, aunque solo tres distintos. |
 | S04 | DISTINCT compuesto | Cinco pares ciudad/depto, no tres ni seis. |
 | S05 | Alias | AS no cambia nombre ni valores de la tabla de origen. |
-| S06 | Alias implícito | LAB10 devuelve una columna y puede fallar un pedido de dos columnas. |
+| S06 | Alias implícito | LAB19 devuelve una columna y puede fallar un pedido de dos columnas. |
 | S07 | Precedencia | Ana: 4200000 para suma sin paréntesis, 37200000 con paréntesis. |
 | S08 | Equivalencia | SALARIO * 12 y 12 * SALARIO coinciden en resultados con rúbrica compatible. |
 | S09 | Comparación de filas | Permutar filas conserva igualdad; quitar una repetición cambia el multiconjunto. |
@@ -106,6 +106,50 @@ Luis supera a Eva por resolver más misiones con igual puntuación. Eva y Sol co
 | OPS02 | Restaurar copia de aplicación y recalcular ranking. | Puntajes, denominadores y empates iguales a los previos. |
 | OPS03 | Publicar nueva versión durante una sala. | Sala conserva dataset, misión y rúbrica fijados al iniciar. |
 
+## Oracle real: pruebas automatizadas (Fase 8)
+
+Instancia de verificación: Oracle Database 23ai Free 23.26.3 en el contenedor oficial `container-registry.oracle.com/database/free:latest-lite`, y Oracle Autonomous Database 19c (Oracle Cloud), con `EMPLEADOS` v2 cargada desde `oracle/empleados-select-v2.sql` y la cuenta `SQL_LAB_V2_READER` (solo `CREATE SESSION` y `READ`). Instalación reproducible con `npm run oracle:up` y `npm run oracle:setup` ([ORACLE_SETUP.md](ORACLE_SETUP.md)). Las pruebas contra Oracle se omiten sin la cuenta lectora; nunca hay secretos en el repositorio.
+
+| ID | Cobertura | Dónde |
+|---|---|---|
+| LAB11 | LAB01–LAB24, 64 consultas por concepto y todas las consultas del Estudio y de la Exposición ejecutadas en Oracle: mismos encabezados, tipos, filas (multiconjunto) y orden (entre empates) que el motor educativo; 102 casos. | `tests/integration/oracle-real.test.ts` |
+| LAB12 | Espacios, caja, comentarios de línea y terminador no cambian el resultado. | Integración. |
+| LAB13 | DML, varias sentencias, otra tabla y WHERE se rechazan antes de Oracle; un `UPDATE` enviado directamente con la cuenta lectora lo rechaza Oracle; los datos siguen intactos. | Integración. |
+| LAB14 | Un plazo agotado (800 ms) devuelve «no disponible» y el grupo de una conexión sigue sirviendo; errores de conexión sin detalles internos. | Integración y unitarias. |
+| LAB15 | El mismo contenido en otro orden es equivalente; quitar una fila no lo es. | Integración. |
+| LAB16 | Una consulta válida que no cumple el pedido recibe feedback de objetivo (M10 con otro cálculo). | Integración y E2E. |
+| G10 | M10: la referencia y tres expresiones equivalentes son correctas en Oracle; dos salidas distintas, incorrectas; `AS` y columnas se comprueban antes. | Integración y E2E (Chromium, Edge, WebKit). |
+| T08 | `/lab` muestra la tabla real rotulada «Oracle (Oracle Database 23…)», un `ORA-01476` real y «No se envió a Oracle» para lo rechazado. | `tests/e2e/oracle-real.spec.ts` |
+| SEC01/SEC02 | Solo la sentencia canónica llega al driver; la salud rechaza cuentas con privilegios de más y una tabla que no coincide con el dataset. | Unitarias e integración. |
+
+Sin Oracle configurado, las mismas E2E comprueban que `/lab` y M10 declaran «no disponible» y no simulan resultados (`ORACLE_USER= ORACLE_PASSWORD= ORACLE_CONNECT_STRING= npm run test:e2e`). La carga de 60 estudiantes contra Oracle sigue pendiente (umbral de 2 s en la tabla de rendimiento).
+
+## Sala en vivo 1.1: pruebas automatizadas (Fase 7)
+
+La sala a ritmo propio de [REALTIME_SPEC](REALTIME_SPEC.md) 1.1 tiene tres niveles de prueba. Una misma batería de contrato (`tests/support/classroom-contract.ts`) se ejecuta con el almacenamiento en memoria (`tests/unit/classroom`) y con PostgreSQL embebido sobre la migración real, llamando a las funciones como `service_role` (`tests/integration/classroom-postgres.test.ts`). Las E2E (`tests/e2e/classroom.spec.ts`) recorren profesor y móviles en Chromium, Edge y WebKit con el almacenamiento en memoria.
+
+| ID | Cobertura | Dónde |
+|---|---|---|
+| T14 | QR y código a la misma sala, alias ocupado o no válido, cupo 61, sala iniciada, caducada e inexistente, recarga con la misma identidad. | Contrato y E2E. |
+| T15 | Puntos del servidor: 100, 80 (segundo intento o pista), 0 tras dos fallos; práctica sin puntos tras cerrar la oportunidad; fallo técnico sin consumir intento. | Contrato y E2E. |
+| T16 | Orden por puntos, misiones resueltas y tiempo; ranking de competición 1, 2, 3, 3, 5 (fixture de este plan). | Unitarias de dominio. |
+| T17 | Fixture M06 de cuatro inscritos (cinco intentos, 50 %, media 35 s, promedio 40), «Sin datos» sin intentos. | Unitarias de dominio. |
+| SEC03 | Respuestas con formato inválido o `requestId` no UUID se rechazan con Zod; el cliente no envía puntos. | Contrato y unitarias. |
+| SEC04 | Sin token de la sala no se leen vistas ni se dan órdenes. | Contrato y E2E. |
+| SEC05 | `anon` y `authenticated` sin acceso a tablas ni funciones, RLS activa sin políticas, restricciones de formato. | Integración PostgreSQL. |
+| SEC06 | Alias con HTML, correo o teléfono rechazado; se muestra siempre como texto. | Unitarias y contrato. |
+| SEC07 | La clave de servicio solo en módulos de servidor (`server-only`); vistas sin tokens ni huellas. | Unitarias y contrato. |
+| INT02 | 61 inscripciones simultáneas con cupo 60: entran 60. Mismo alias desde cinco móviles: entra uno. | Contrato (memoria y PostgreSQL). |
+| INT03 | Diez envíos simultáneos con el mismo `requestId`: un intento y un premio; mismo id con otro contenido: conflicto. | Contrato. |
+| INT04 | Envíos simultáneos desde dos pestañas: un pendiente como máximo y nunca más de dos intentos. | Contrato. |
+| RT04 | Avisos solo con la revisión; vistas tardías o de revisión menor ignoradas. | Diseño de `useRoomSync` y contrato (revisión creciente). |
+| RT06 | Reserva abandonada: a los 30 s deja de bloquear sin consumir intento. | Contrato. |
+| OPS01 | Mantenimiento: caduca salas vencidas y borra terminadas tras 30 días. | Integración PostgreSQL. |
+
+Concurrencia probada: 50 estudiantes que entran y responden a la vez. PGlite es una sola conexión, así que valida la lógica transaccional y los bloqueos por operación, no la contención de conexiones reales.
+
+**Pendiente, sin credenciales:** el ensayo del proyecto Supabase remoto (Realtime Broadcast, latencia, 60 móviles reales durante 20 minutos). Los umbrales de la tabla siguiente no están medidos para la sala. Pasos en [SUPABASE_SETUP.md](SUPABASE_SETUP.md#validación-pendiente).
+
 ## Rendimiento y carga
 
 Perfil de navegador: móvil de rendimiento medio, viewport 390 × 844, red simulada de 10 Mbps y latencia de 100 ms. Navegación inicial con caché vacía; medir carga útil sin iniciar vídeos. Registrar dispositivo y navegador reales, condiciones y fecha. Cinco recorridos para métricas web básicas; al menos 100 solicitudes o eventos para percentiles del servicio.
@@ -128,6 +172,64 @@ Si el grupo de diez conexiones no alcanza los objetivos, ajustar recursos o cons
 Tamaños: 360 × 800, 390 × 844, 768 × 1024, 1024 × 768, 1440 × 900 y 1920 × 1080. Probar Chrome/Edge de escritorio, Safari en iPhone y Chrome en Android en versiones soportadas al publicar. Navegación completa con teclado, zoom al 200 %, reducción de movimiento y lector de pantalla en al menos escritorio y móvil.
 
 Comprobar D01–D08: contraste de estados y sintaxis, orden de foco, ausencia de trampas, alternativa al arrastre, nombres de controles, subtítulos, tablas y anuncios de tiempo no invasivos. Registrar capturas de Home, lección, laboratorio, misión, sala y resultados. Corregir contenido cortado, scroll global accidental o SQL ilegible antes de cerrar aceptación.
+
+### Regresión visual y de desbordes (refinamiento final, 26 de septiembre de 2026)
+
+Suite E2E específica, sin comparación de píxeles: las fuentes de Windows, Linux y macOS darían falsos positivos. Comprueba invariantes de diseño y adjunta la captura de cada caso al informe de Playwright para la revisión humana.
+
+**Suites:**
+
+- `tests/e2e/visual-presentation.spec.ts`: 21 escenas clave a 1920×1080, 1366×768 y 390×844. Además, la pantalla completa: oculta la navegación del sitio y atenúa los controles.
+- `tests/e2e/visual-pages.spec.ts`: Home, Estudio (índice y cuatro lecciones), Laboratorio, Recursos y Ruta a 1366×768, 768×1024, 390×844 y 320×568. También cubre el orden de los paneles del laboratorio y un resultado de 12 columnas.
+- `tests/e2e/visual-responsive-data.spec.ts`:
+  - EMPLEADOS como tabla en escritorio y como fichas en móvil;
+  - la tabla de origen del Estudio entera;
+  - NULL como insignia accesible.
+
+**Ayudas** (`tests/e2e/support/layout.ts`):
+
+- `layoutReport` y `expectNoHorizontalScroll`: fallan si hay desplazamiento horizontal de la página, una tabla, código o región educativa con barra propia, texto recortado por `overflow: hidden` o texto visible de menos de 12 px;
+- `watchConsole`: falla ante `console.error`, excepciones sin capturar, avisos de hidratación o violaciones de CSP.
+
+La Exposición comprueba además que ningún bloque invade el título ni la idea clave (`spill ≤ 1 px`).
+
+**Pruebas unitarias nuevas:**
+
+- `tests/unit/concepts.test.ts`: definiciones de 25 palabras como máximo, categorías, ejemplos válidos y la misma definición en el Estudio, el buscador, la Exposición y los Recursos;
+- `tests/unit/sql/format.test.ts`: el formateador conserva los tokens y el resultado de todas las consultas del contenido, y es idempotente;
+- `tests/unit/data-view.test.tsx`: tabla y fichas, resumen, NULL, estado, encabezado de fila y columnas de código;
+- `tests/unit/presentation-scenes.test.tsx`: las 29 escenas con definición o propósito, notas del expositor y bloques.
+
+La auditoría de antes y después (615 mediciones y 123 capturas por pasada) está en [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md).
+
+**Pasada pedagógica del Challenge, Recursos y cierre (addendum):**
+
+- `tests/e2e/visual-challenge.spec.ts`: las diez misiones a 1366×768, 390×844 y 320×568 sin barra horizontal, con 60 celdas visibles como máximo y tablas de 7 columnas como máximo; la tabla completa plegada; «Comprobar» a menos de dos pantallas en escritorio; la tabla completa con sus 20 registros; M04 revela «Cumple / No cumple» solo al cerrar; el feedback muestra tipo, qué está bien, qué ajustar y pista.
+- `tests/unit/challenge/mission-density.test.tsx`: datos relevantes por misión, la muestra de M04 contiene todas las filas del resultado y basta para acertar, vista previa de M10, relación campo → valor accesible, orientación progresiva por intento sin revelar la solución, categoría de los errores del motor, explicación del acierto y punto y coma opcional.
+- `tests/unit/sql-highlight.test.tsx`: color semántico de cada cláusula y operador, y `*` como comodín.
+- `tests/unit/presentation-scenes.test.tsx`: mapa de la escena 02, síntesis de la 25, ruta de continuidad de la 28, cierre de la 29, los seis errores de la 22, vocabulario de la 03 y «Para qué sirve» en las escenas 11–19.
+- `tests/unit/concepts.test.ts`: glosas breves y fichas de la coma, los paréntesis, IS NOT NULL y la consulta.
+
+**Flujo de datos, bandas y laboratorio (27 de septiembre de 2026):**
+
+- `tests/e2e/lab-result-table.spec.ts`: `SELECT *` es una sola tabla de 12 columnas y 20 filas sin barra ni fichas a 1920, 1600, 1440, 1366 y 1280 píxeles, con el editor a todo el ancho y el resultado debajo; bandas con ID_EMPLEADO y las 20 filas a 1024, 768, 390 y 360 píxeles; `SELECT nombre, ciudad` muestra exactamente dos columnas; WHERE reduce a 5 filas con las columnas pedidas en su orden; ORDER BY marca el encabezado con `aria-sort`; NULL se distingue de 0.
+- `tests/unit/lab-result-table.test.tsx`: la vista previa y la ejecución en Oracle usan el mismo renderer (compacto, sin fichas) con rótulos distintos; la tabla muestra los datos de EMPLEADOS sin cambios.
+- `tests/unit/data-view.test.tsx`: reparto en bandas con ID_EMPLEADO repetido y las mismas filas; una tabla de resultados SQL nunca se convierte en fichas.
+- `tests/unit/didactic-projection.test.ts`: el dataset sigue completo; cada proyección tiene SQL válido, 2–6 filas reales y como mucho 7 columnas (salvo SELECT *); origen y resultado salen de las mismas filas; los filtros muestran filas que cumplen y que no.
+- `tests/e2e/home.spec.ts`: con 12 columnas la demostración pasa a ancho completo con dos bandas de 8 filas, conserva el orden elegido y no usa fichas.
+- `tests/e2e/presentation.spec.ts`: las escenas de filtro y orden muestran los cuatro pasos del flujo; «Paso a paso» resalta WHERE en el paso 2.
+- `tests/integration/oracle-real.test.ts`: las consultas de las proyecciones didácticas dan en Oracle el mismo resultado que el motor.
+
+**Rediseño pedagógico del Challenge y de las tablas (28 de septiembre de 2026):**
+
+- `tests/unit/challenge/missions.test.ts`: Challenge v4 (68 pruebas): cada misión acepta su solución y formas equivalentes, y explica cada error esperable con tipo, qué está bien y qué revisar; M03 orienta cada afirmación sin revelarla; M04 no nombra las filas que faltan; M05 no da el valor; las ocho variantes de M08 (tipo, zona y corrección); M09 distingue OR/AND y >/>=; M10 califica la salida de Oracle y recuerda que AND va antes que OR; la parte pública no contiene pistas, explicaciones ni correcciones.
+- `tests/unit/challenge/mission-density.test.tsx`: muestras de trabajo de 4–8 registros y como mucho 4 columnas, tabla real con el dataset completo como consulta secundaria, esquema 3 × 4 de M03, tabla de selección con casillas y estados con texto, resultado sobre la muestra, orden de cálculo sin valores y variante estable de M08.
+- `tests/unit/data-view.test.tsx`: cinco grupos de cuatro columnas con ID_EMPLEADO y NOMBRE, pestañas con teclado, dos partes en tableta, bandas apiladas con pocas filas, tablas de hasta cuatro columnas sin reparto, resultados parciales, nunca fichas para un resultado SQL.
+- `tests/unit/presentation-scenes.test.tsx`: «Qué cambió» en las escenas de concepto (SELECT cambia columnas, WHERE filas, ORDER BY solo el orden).
+- `tests/e2e/challenge-m01-m03.spec.ts`, `challenge-m04-m07.spec.ts` y `challenge-m08-m10.spec.ts`: recorridos con toque, ratón y teclado, feedback por tipo, antes/después de M04, M06 y M07, variantes de M08 y M10 con Oracle real.
+- `tests/e2e/visual-challenge.spec.ts`: las diez misiones a 1920, 1366, 1280, 1024, 820, 768, 430, 390, 360 y 320 px sin barra horizontal, con como mucho 8 registros, 4 columnas a la vez en el móvil (5 con la casilla de M04), sin fichas y sin texto de menos de 12 px; dataset completo en un diálogo y por grupos en el móvil.
+- `tests/e2e/lab-result-table.spec.ts`: `SELECT *` por partes o grupos con pestañas a 1024, 768, 430, 390, 360 y 320 px, con las 12 columnas entre todos los grupos, las 20 filas en cada uno y navegación con teclado.
+- `tests/e2e/audit-regressions.spec.ts` y `reflow.spec.ts`: sin desborde de página a 180 px (zoom 200 % sobre 360) en Aprender y en las diez misiones.
 
 ## Salida a producción
 

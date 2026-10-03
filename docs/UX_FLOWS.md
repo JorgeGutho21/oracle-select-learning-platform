@@ -1,37 +1,48 @@
 # UX_FLOWS — Navegación y comportamiento
 
-Versión 1.0 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md).
+Versión 1.2 · Requisitos P01–P18 de [PROJECT_SPEC.md](PROJECT_SPEC.md). La 1.1 incorpora la sala en vivo implementada en la Fase 7 ([REALTIME_SPEC.md](REALTIME_SPEC.md) 1.1); la 1.2, los controles de la Exposición y el orden del laboratorio del refinamiento final.
 
 ## Arquitectura de información
 
 | Ruta propuesta | Público y propósito | Salida principal |
 |---|---|---|
 | `/` | Todos: identidad, objetivo y elección de recorrido. | Exposición o Estudio. |
-| `/presentation` | Expositor: E01–E14, sin autenticación para enseñar. | Laboratorio, sala o cierre. |
+| `/presentation` | Expositor: 29 escenas 16:9 para proyector, sin autenticación para enseñar. | Laboratorio, sala o cierre. |
 | `/learn` y `/learn/{leccion}` | Estudiante: L00–L08 con progreso local. | Siguiente lección o practicar. |
 | `/lab` | Todos: escribir y ejecutar el subconjunto permitido. | Resultado y explicación. |
 | `/challenge` | Práctica individual de M01–M10. | `/results` local. |
-| `/live` | Participante: introducir código o resolver invitación QR. | Espera y rondas. |
-| `/live/{codigo}` | Participante inscrito: sala y resultados de esa sala. | Repasar o salir. |
-| `/presenter` | Presentador autenticado y autorizado: crear y dirigir sala. | `/presenter/{sala}`. |
-| `/presenter/{sala}` | Panel docente privado y vista de proyección sin credenciales. | Estadísticas y cierre. |
-| `/results` | Resultado individual de este navegador. | Repasar conceptos. |
-| `/resources` | Vídeos, chuleta y fuentes académicas. | Recurso o lección. |
-| `/modules` | Catálogo de futuras unidades. | Volver al curso actual. |
+| `/live` | Participante: escribir el código si no puede escanear el QR. | `/join/{codigo}`. |
+| `/join/{codigo}` | Participante, prioridad móvil: alias, espera, Challenge en vivo y resultado personal. Destino del QR. | Resultado o práctica. |
+| `/presenter` | Profesor con la clave del servidor: crear sala. | `/presenter/{codigo}`. |
+| `/presenter/{codigo}` | Consola del navegador que creó la sala: código, QR, participantes, inicio, ranking, progreso, cierre y estadísticas. Proyectable. | `/results?sala={codigo}`. |
+| `/results` | Práctica individual de este navegador y, con `?sala={codigo}`, la vista de esa sala que corresponde a este navegador (profesor o participante). | Repasar o practicar. |
+| `/resources` | Chuleta imprimible, referencia rápida, ejemplos SQL, videos, accesos directos y fuentes. | Recurso, lección o laboratorio. |
+| `/modules` | Catálogo: la unidad actual SELECT, con su progreso local, y siete módulos futuros «Próximamente». | Volver al curso actual. |
 
-Home no exige registro. Crear o dirigir salas sí requiere la identidad autorizada del presentador. Un QR público nunca conduce a un panel de administración.
+Navegación principal en escritorio: Inicio, Aprender (Estudio y Exposición), Laboratorio, Challenge, En vivo, Recursos y Buscar, en una sola fila; por debajo de 992 px, menú compacto. No hay barra lateral permanente fuera del temario de Estudio.
+
+Home no exige registro. Crear una sala requiere la clave del profesor configurada en el servidor; dirigirla, el token del navegador que la creó. Un QR público nunca conduce a un panel de administración: abre `/join/{codigo}`.
 
 ## Flujo A — Preparar y realizar la exposición
 
-1. Home → «Iniciar exposición». Se abre E01 o se ofrece reanudar la última escena local.
+1. Home → «Iniciar clase». Se abre la escena 01 o se ofrece reanudar la última escena local.
 2. El expositor avanza con botones o flechas. El contador indica escena actual y total.
 3. Pantalla completa se activa solo mediante acción del usuario. Si el navegador la rechaza, la escena sigue disponible en la ventana.
 4. Vídeos se reproducen manualmente, pueden omitirse y tienen transcripción. Al salir de su escena se pausa la reproducción.
 5. «Abrir en laboratorio» transfiere el ejemplo y mantiene un enlace para volver a la escena. Si existe un borrador distinto, se ofrece conservarlo o sustituirlo antes de perderlo.
-6. E13 abre la sala creada por el presentador o permite crearla tras autenticarse. Se proyectan QR, código y número de participantes, sin mostrar tokens ni datos privados.
-7. Tras el Challenge, E14 muestra estadísticas y acceso a la chuleta.
+6. La escena 15 mantiene el QR de la práctica individual y enlaza a «Sala en vivo» (`/presenter`): la sala proyecta su propio QR, código y participantes, sin tokens ni datos privados.
+7. Tras el Challenge, la escena 16 ofrece la chuleta, el Modo Estudio y el laboratorio; las estadísticas de la sala están en su consola y en `/results?sala={codigo}`.
 
-U01: un recorrido E04 → laboratorio → volver conserva escena y consulta. Las flechas solo navegan escenas cuando el foco está fuera de campos editables, reproductor y diálogos. Escape cierra primero el diálogo activo o sale de pantalla completa sin borrar progreso.
+U01: un recorrido escena 12 → laboratorio → volver conserva escena y consulta. Las flechas solo navegan escenas cuando el foco está fuera de campos editables, reproductor y diálogos. Escape cierra primero el diálogo activo o sale de pantalla completa sin borrar progreso.
+
+### Exposición: controles del refinamiento final (26 de septiembre de 2026)
+
+- **Barra inferior:** muestra el bloque, el número, el título corto y, en «Paso a paso», el paso. El progreso está segmentado por bloque.
+- **«Escenas»:** abre un panel con las 29 escenas en cinco bloques. El foco va a la escena actual; Escape cierra y devuelve el foco. En móvil es una hoja inferior.
+- **«Paso a paso» (opcional):** las escenas 05, 10, 11 y 19 se revelan por partes y la flecha avanza el paso antes que la escena.
+- **Notas (tecla N):** panel privado junto al lienzo, nunca en pantalla completa. «Abrir la vista del presentador» lleva a `/presentation/presentador`, con la escena actual, la siguiente, las notas, un cronómetro y los controles, sincronizados con la exposición del mismo navegador.
+- **Pantalla completa:** solo el lienzo. Los controles se atenúan a los 3 s y vuelven con el puntero, un toque o el teclado.
+- **Enlace código ↔ datos:** en las escenas 05 y 11, señalar o enfocar una cláusula resalta sus columnas y filas.
 
 ## Flujo B — Estudiar por cuenta propia
 
@@ -62,38 +73,44 @@ U03: consultas con tildes o mayúsculas encuentran el mismo título; una búsque
 
 U04: `SELECT DISTINCT ciudad FROM empleados;` muestra tres filas reales. Una caída de Oracle conserva el editor y muestra servicio no disponible, sin presentar una tabla precalculada como ejecución.
 
+El laboratorio muestra primero el editor, a todo el ancho, y debajo el resultado, también a todo el ancho; después, el diagnóstico, la lectura en español, la anatomía y el esquema. El resultado es siempre una tabla SQL: en escritorio, `SELECT *` muestra las 12 columnas y las 20 filas en una sola tabla sin barra horizontal; en tableta y móvil, grupos de columnas con pestañas (como mucho cuatro columnas a la vez en el móvil) con ID_EMPLEADO y NOMBRE repetidos. Los 20 registros de origen se abren con «Ver los 20 registros», rotulados como datos (no resultado).
+
 ## Flujo E — Challenge individual
 
 Portada → mapa de diez misiones → iniciar M01 → respuesta → validar → feedback → siguiente. Se permite repetir o saltar para estudiar; una misión omitida obtiene cero en la partida y se marca pendiente de repaso. Las soluciones solo se revelan al resolver o cerrar la oportunidad puntuada de esa misión.
 
 Cada misión dispone de dos intentos puntuados y una pista. Al agotarlos se ofrece práctica sin puntuación, con explicación completa. Se guarda localmente la partida, su versión y el resultado. Un nuevo recorrido comienza en cero y no altera una sala en vivo. El cronómetro individual muestra tiempo transcurrido y se pausa al salir u ocultar la pestaña; es informativo y no determina ranking público.
 
+**Cada misión (GAME_SPEC 4):** a la izquierda, el pedido, la consulta, el concepto clave y la **tabla original** (muestra de trabajo: como mucho 8 registros y 3–4 columnas, con «Muestra de trabajo: N registros · M columnas relevantes» y, discreto, «Dataset completo: 20 registros · 12 columnas · Consultar dataset EMPLEADOS completo», que abre un diálogo); a la derecha, los pasos de la interacción, el resultado junto a la consulta, el feedback y las acciones. En móvil, todo en una columna y el mapa de misiones como una fila de números. Un error se explica con su tipo, qué está bien, qué debes revisar y una pista (conceptual en el primer intento, localizada después); un acierto dice por qué es correcto. Al cerrar M04 se comparan ANTES (filas conservadas resaltadas, descartadas atenuadas) y DESPUÉS; M06 compara el encabezado sin y con AS; M07, antes y después de DISTINCT con una columna y con un par.
+
 U05: el usuario termina las diez misiones con ratón, toque o teclado. Regresar al mapa no reinicia los intentos ya consumidos. Los errores de conexión no se contabilizan como fallos académicos.
 
-## Flujo F — Entrar a sala
+## Flujo F — Crear la sala y entrar
 
-QR → `/live/{codigo}` → validación de sala → alias de 2–24 caracteres → sesión anónima → inscripción → espera. También se puede introducir manualmente el código en `/live`.
+Profesor: `/presenter` → clave del profesor → sala con código de seis caracteres y QR hacia `/join/{codigo}` → espera con la lista de participantes (conectados marcados) → «Iniciar el Challenge», que exige al menos un participante. Si el QR apunta a esta misma máquina (`localhost`, 127.0.0.1), la consola lo advierte: la URL pública sale de `NEXT_PUBLIC_SITE_URL`, de la URL de vista previa o, en desarrollo, del origen de la página.
 
-Estados de entrada: código inválido; sala inexistente/caducada; sala llena; alias ocupado; inscripción cerrada porque ya empezó; servicio temporalmente no disponible. Cada uno tiene mensaje y acción de retorno. No pedir correo, documento, teléfono ni nombre legal del estudiante.
+Estudiante: QR → `/join/{codigo}` → validación de la sala → alias de 2–24 caracteres con el aviso «Tu alias será visible para toda la clase en el ranking. No uses tu nombre completo, correo ni teléfono. No necesitas cuenta ni contraseña.» → «Estás dentro» y espera. También puede escribir el código en `/live`.
 
-La inscripción se cierra al comenzar la primera ronda. El servidor fija el grupo de participantes para todos los denominadores de estadísticas. Una sesión ya inscrita puede reconectarse durante la actividad. Perder la identidad del navegador no permite apropiarse de un alias existente.
+Estados de entrada, cada uno con mensaje y acción de retorno: código no válido; sala inexistente; sala caducada; sala llena; alias ocupado o no válido; «La actividad ya comenzó» (inscripción cerrada al iniciar); servicio no configurado o sin conexión. No se pide correo, documento, teléfono ni nombre legal.
 
-U06: QR y código conducen a la misma sala, duplicar pestaña con la misma identidad no crea otro participante y un estudiante no puede comenzar ni finalizar rondas.
+La identidad es una cookie `httpOnly` de esa sala: recargar o reconectar devuelve a la misma persona sin nuevo cupo; otro navegador no puede apropiarse de un alias. En espera, «Salir de la sala» (con confirmación) libera el alias.
 
-## Flujo G — Competir y reconectarse
+U06: QR y código conducen a la misma sala, duplicar pestaña con la misma identidad no crea otro participante y un estudiante no puede iniciar ni finalizar la sala.
 
-Espera → ronda abierta → resolver → envío confirmado → feedback permitido → cierre → explicación y ranking → siguiente ronda. Antes del cierre, el feedback indica acierto/error y una orientación breve, sin entregar la solución completa a quienes aún pueden responder.
+## Flujo G — Jugar en vivo y reconectarse
 
-Si se pierde conexión: mostrar «Sin conexión; tu respuesta aún no está confirmada», conservar borrador y desactivar envío. Al reconectar, obtener estado del servidor y consultar la petición pendiente antes de reenviarla. Si la ronda terminó, mostrar su estado real; no aceptar respuestas retroactivas basadas en el reloj del móvil.
+Inicio → cada móvil pasa sin recargar a «Comenzar el Challenge» → M01–M10 con las mismas interacciones de la práctica, a su ritmo → corrección en el servidor. Una barra fija muestra alias, «Puntos del servidor» y posición. No se ofrecen «Terminar» ni «Reiniciar»: la sala la cierra el profesor.
 
-Durante una pausa docente se congela la cuenta regresiva y se bloquean nuevas respuestas. Al reanudar, todos reciben un nuevo vencimiento. El presentador ve cuántos están conectados y cuántos enviaron; los participantes ven su propia confirmación.
+El profesor ve en vivo: participantes, conectados, cuántos respondieron, tiempo transcurrido, ranking y progreso por misión (resueltas y respondidas).
 
-U07: tras recargar durante M06, la identidad recupera misión, tiempo y puntuación vigentes sin un nuevo cupo ni puntos adicionales. Las pausas y la desconexión siguen [REALTIME_SPEC.md](REALTIME_SPEC.md).
+Sin conexión: aviso «Sin conexión: reintentando…»; el envío se reintenta una vez con el mismo identificador y, si falla, es un error técnico que no consume intento. Al volver se pide la vista al servidor. Tras la recarga, el avance local de esa sala se conserva y los puntos siguen siendo los del servidor.
+
+U07: tras recargar durante la partida, la identidad recupera la sala y su puntuación sin nuevo cupo ni puntos adicionales. La sincronización sigue [REALTIME_SPEC.md](REALTIME_SPEC.md).
 
 ## Flujo H — Resultados y cierre
 
-El participante ve puntaje sobre 1000, misiones resueltas, errores, pistas usadas y enlaces de repaso por concepto. La sala muestra ranking y estadísticas agregadas; el docente puede revisar intentos por participante dentro de su sala. El ranking proyectado solo contiene alias.
+El profesor finaliza con confirmación. Su consola muestra el ranking final y las estadísticas: participantes, promedio de puntos, precisión del grupo, tiempo medio, misión más fácil y más difícil (con empates explícitos). Cancelar cierra la sala sin ranking final.
 
-El presentador finaliza únicamente después del cierre y evaluación de las diez rondas. Si termina antes, el estado es «Cancelada», con resultados parciales claramente rotulados. Los participantes conservan acceso a su revisión mientras dure la retención.
+Cada estudiante ve su resultado personal calculado por el servidor: posición, puntos (sobre 1000), misiones resueltas, precisión, tiempo hasta su último acierto, intentos y pistas, con el ranking final completo. `/results?sala={codigo}` repite la vista que corresponde a ese navegador; sin permiso, «Sin resultados de esta sala». La práctica individual guardada en el navegador aparece aparte, rotulada como local.
 
-U08: para una sala sin intentos se muestra «Sin resultados» y nunca porcentajes falsos ni divisiones por cero. Los módulos futuros no aumentan el denominador de progreso.
+U08: para una sala sin intentos se muestra «Sin datos» (o «Sin resultados» si no hay participantes) y nunca porcentajes falsos ni divisiones por cero. Los módulos futuros no aumentan el denominador de progreso.

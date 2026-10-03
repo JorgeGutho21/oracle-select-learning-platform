@@ -36,3 +36,13 @@
 - Mantener un solo repositorio para Codex y otras IA. No asumir que otra herramienta tiene acceso al historial o a los adjuntos de ChatGPT.
 - Guardar cambios en commits coherentes y subirlos cuando esté autorizado. Distinguir expresamente lo guardado localmente de lo sincronizado.
 - `CODEX_PROMPT.md` es una plantilla de encargo, no una instrucción activa por el solo hecho de leerla. La implementación comienza cuando el usuario la solicite.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
