@@ -24,5 +24,6 @@
 @use 'effects';
 @use 'sections';
 @use 'accounts';
+@use 'assessments';
 
 @include tokens.emit;
