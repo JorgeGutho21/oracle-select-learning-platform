@@ -8,6 +8,7 @@ import {
   FUTURE_TOPICS,
   topicAnchor,
 } from '@/features/modules/application/modules-api';
+import { SECTION_IDS } from '@/features/sections/application/sections-api';
 import { LESSON_INDEX } from '@/features/study/application/lesson-index';
 import { LESSONS } from '@/features/study/application/study-api';
 
@@ -39,6 +40,8 @@ function routeExists(pathname: string): boolean {
   if (pathname === '/') return existsSync(path.join(app, 'page.tsx'));
   const lesson = /^\/learn\/([^/]+)$/.exec(pathname);
   if (lesson) return LESSON_INDEX.some(({ slug }) => slug === lesson[1]);
+  const section = /^\/sections\/([^/]+)$/.exec(pathname);
+  if (section) return (SECTION_IDS as readonly string[]).includes(section[1]!);
   return existsSync(path.join(app, ...pathname.split('/').filter(Boolean), 'page.tsx'));
 }
 

@@ -64,7 +64,8 @@ describe('Índice público de búsqueda', () => {
       for (const result of searchPublicCatalog(query).filter(
         ({ status }) => status === 'Próximamente',
       )) {
-        expect(result.href, query).toMatch(/^\/modules#(tema|nivel)-/);
+        // Lo próximo lleva a su ficha de la ruta o al plan publicado de su sección.
+        expect(result.href, query).toMatch(/^\/(modules#(tema|nivel)-|sections\/[a-z-]+$)/);
       }
     }
   });
@@ -72,7 +73,11 @@ describe('Índice público de búsqueda', () => {
   it('deriva toda la navegación del mismo catálogo público', () => {
     expect(getPlatformNavigation()).toEqual([
       { href: '/', label: 'Inicio', alsoActiveOn: [] },
-      { href: '/learn', label: 'Aprender', alsoActiveOn: ['/presentation', '/modules'] },
+      {
+        href: '/sections',
+        label: 'Secciones',
+        alsoActiveOn: ['/learn', '/presentation', '/modules'],
+      },
       { href: '/lab', label: 'Laboratorio', alsoActiveOn: [] },
       { href: '/challenge', label: 'Challenge', alsoActiveOn: [] },
       { href: '/live', label: 'En vivo', alsoActiveOn: [] },
@@ -80,15 +85,21 @@ describe('Índice público de búsqueda', () => {
     ]);
   });
 
-  it('marca «Aprender» en Estudio y Exposición, e «Inicio» solo en la portada', () => {
-    const [home, learn] = getPlatformNavigation();
+  it('marca «Secciones» en secciones, Estudio y Exposición, e «Inicio» solo en la portada', () => {
+    const [home, sections] = getPlatformNavigation();
     expect(isNavigationItemActive(home!, '/')).toBe(true);
     expect(isNavigationItemActive(home!, '/learn')).toBe(false);
-    for (const path of ['/learn', '/learn/alias', '/presentation']) {
-      expect(isNavigationItemActive(learn!, path)).toBe(true);
+    for (const path of [
+      '/sections',
+      '/sections/plsql',
+      '/learn',
+      '/learn/alias',
+      '/presentation',
+    ]) {
+      expect(isNavigationItemActive(sections!, path)).toBe(true);
     }
-    expect(isNavigationItemActive(learn!, '/lab')).toBe(false);
-    expect(isNavigationItemActive(learn!, '/learning')).toBe(false);
+    expect(isNavigationItemActive(sections!, '/lab')).toBe(false);
+    expect(isNavigationItemActive(sections!, '/learning')).toBe(false);
   });
 
   it('toma los títulos de las lecciones del mismo esquema que el Modo Estudio', () => {

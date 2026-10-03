@@ -3,6 +3,7 @@ import {
   FUTURE_TOPICS,
   topicAnchor,
 } from '@/features/modules/domain/curriculum';
+import { SECTIONS } from '@/features/sections/domain/sections';
 import { LESSON_OUTLINE } from '@/features/study/domain/lesson-outline';
 
 export const searchGroups = [
@@ -36,12 +37,27 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
   {
     id: 'home',
     title: 'Inicio',
-    description: 'Portada de SQL SELECT LAB y accesos a los recorridos.',
+    description: 'Portada de DB LAB: la ruta de secciones y cómo se aprende en la plataforma.',
     group: 'Recursos',
     href: '/',
-    aliases: ['inicio', 'portada', 'home', 'sql select lab'],
+    aliases: ['inicio', 'portada', 'home', 'db lab', 'sql select lab'],
     available: true,
     navigation: { label: 'Inicio', order: 1 },
+  },
+  {
+    id: 'sections',
+    title: 'Secciones de DB LAB',
+    description:
+      'Ruta académica: Fundamentos SQL, Consultas relacionales y análisis, y PL/SQL y automatización.',
+    group: 'Lecciones',
+    href: '/sections',
+    aliases: ['secciones', 'seccion', 'ruta', 'mi aprendizaje', 'progreso', 'avance'],
+    available: true,
+    navigation: {
+      label: 'Secciones',
+      order: 2,
+      alsoActiveOn: ['/learn', '/presentation', '/modules'],
+    },
   },
   {
     id: 'learn',
@@ -51,7 +67,6 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     href: '/learn',
     aliases: ['aprender', 'estudio', 'modo estudio', 'curso', 'lecciones'],
     available: true,
-    navigation: { label: 'Aprender', order: 2, alsoActiveOn: ['/presentation', '/modules'] },
   },
   {
     id: 'presentation',
@@ -120,6 +135,16 @@ export const publicCatalog: readonly PublicCatalogEntry[] = [
     available: true,
     navigation: { label: 'Recursos', order: 6 },
   },
+  // Secciones: la disponible enlaza con su página; las próximas, con su plan publicado.
+  ...SECTIONS.map((section): PublicCatalogEntry => ({
+    id: `section-${section.id}`,
+    title: `Sección ${section.number}: ${section.title}`,
+    description: section.summary,
+    group: section.status === 'available' ? 'Lecciones' : 'Próximamente',
+    href: `/sections/${section.id}`,
+    aliases: [section.title, `seccion ${section.number}`, ...section.highlights],
+    available: section.status === 'available',
+  })),
   ...LESSON_OUTLINE.map((lesson): PublicCatalogEntry => ({
     id: `lesson-${lesson.slug}`,
     title: lesson.title,

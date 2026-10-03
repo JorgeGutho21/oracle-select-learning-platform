@@ -22,5 +22,6 @@
 @use 'roadmap';
 @use 'classroom';
 @use 'effects';
+@use 'sections';
 
 @include tokens.emit;

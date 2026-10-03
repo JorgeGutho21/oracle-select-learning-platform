@@ -13,9 +13,13 @@ import {
   LoadingState,
   Progress,
   SearchField,
+  StatusBadge,
   Tabs,
   Tooltip,
+  Breadcrumb,
 } from '@/presentation/components/ui';
+import { QueryTransformation } from '@/presentation/components/data/query-transformation';
+import { LearningOverview } from '@/features/sections/presentation/learning-overview';
 
 const sections = [
   ['foundations', 'Fundamentos'],
@@ -29,6 +33,7 @@ const sections = [
   ['feedback', 'Feedback'],
   ['dialogs', 'Diálogos y ayuda'],
   ['loading', 'Carga'],
+  ['db-lab', 'DB LAB: secciones'],
 ] as const;
 
 const swatches = [
@@ -82,7 +87,7 @@ export function DesignSystemShowcase() {
     <div className="site-container showcase-page">
       <section className="showcase-hero" data-theme="dark" aria-labelledby="showcase-title">
         <div>
-          <span className="eyebrow">SQL SELECT LAB / Interfaz</span>
+          <span className="eyebrow">DB LAB / Sistema de diseño</span>
           <h1 id="showcase-title">
             Un lenguaje común.
             <br />
@@ -411,6 +416,64 @@ export function DesignSystemShowcase() {
                   <LoadingState variant="skeleton" label="Preparando vista de ejemplo" lines={3} />
                 </Card>
               </div>
+            </div>
+          </ShowcaseSection>
+          <ShowcaseSection
+            id="db-lab"
+            number="12"
+            title="DB LAB: secciones y avance"
+            description="Estados, ruta de navegación, patrón pedagógico y panel de avance. Los datos de esta muestra son de ejemplo."
+          >
+            <div className="showcase-stack">
+              <div className="showcase-row">
+                <StatusBadge tone="available">Disponible</StatusBadge>
+                <StatusBadge tone="coming-soon">Próximamente</StatusBadge>
+                <StatusBadge tone="planned">Previsto</StatusBadge>
+                <StatusBadge tone="info">Información</StatusBadge>
+              </div>
+              <Breadcrumb
+                items={[
+                  { label: 'Inicio', href: '/' },
+                  { label: 'Secciones', href: '/sections' },
+                  { label: 'Fundamentos SQL' },
+                ]}
+              />
+              <QueryTransformation
+                sources={[{ name: 'EMPLEADOS', rows: 20, columns: 12 }]}
+                sql={"SELECT nombre, salario\nFROM   empleados\nWHERE  ciudad = 'Cali';"}
+                explanation="WHERE conserva las filas de Cali y SELECT muestra dos columnas."
+                result={{ rows: 5, columns: 2 }}
+                resultLabel="Vista educativa"
+              />
+              <Alert tone="info" title="Datos de ejemplo">
+                El panel siguiente usa cifras inventadas para mostrar sus estados. En la plataforma
+                solo recibe el progreso real guardado en el navegador.
+              </Alert>
+              <LearningOverview
+                items={[
+                  {
+                    id: 'ejemplo-1',
+                    code: '01',
+                    title: 'Sección de ejemplo',
+                    status: 'available',
+                    done: 16,
+                    total: 20,
+                  },
+                  {
+                    id: 'ejemplo-2',
+                    code: '02',
+                    title: 'Sección próxima',
+                    status: 'coming-soon',
+                    done: null,
+                    total: null,
+                  },
+                ]}
+                next={{
+                  label: 'Continuar en la lección de ejemplo',
+                  href: '/dev/design-system#db-lab',
+                  detail: 'Última lección abierta: ejemplo.',
+                }}
+              />
             </div>
           </ShowcaseSection>
         </div>
