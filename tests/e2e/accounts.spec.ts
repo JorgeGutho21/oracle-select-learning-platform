@@ -66,7 +66,10 @@ test.describe('Invitado', () => {
 
     for (const path of ['/dashboard', '/profile', '/teacher']) {
       await page.goto(path);
-      await expect(page).toHaveURL(new RegExp(`/login\\?next=${encodeURIComponent(path)}$`));
+      // Sin Supabase configurado, la pantalla de acceso además avisa que no está disponible.
+      await expect(page).toHaveURL(
+        new RegExp(`/login\\?next=${encodeURIComponent(path)}(&aviso=no-disponible)?$`),
+      );
     }
     await expect(page.getByRole('heading', { level: 1, name: 'Iniciar sesión' })).toBeVisible();
   });

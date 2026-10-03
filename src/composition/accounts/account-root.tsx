@@ -51,7 +51,7 @@ export function AccountRoot() {
     const now = Date.now();
     if (!force && now - current.lastSent < PRESENCE_MIN_GAP_MS) return;
     current.lastSent = now;
-    void import('@/features/progress/application/progress-dto').then(({ presenceArea }) =>
+    void import('@/features/progress/application/progress-wire').then(({ presenceArea }) =>
       current.module.sendPresence(presenceArea(pathRef.current)),
     );
   }, []);

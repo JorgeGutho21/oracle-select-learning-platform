@@ -7,7 +7,8 @@ import {
   PROGRESS_CATALOG,
   sectionIsTracked,
 } from '@/features/progress/application/catalog';
-import { presenceArea, progressRecordSchema } from '@/features/progress/application/progress-dto';
+import { progressRecordSchema } from '@/features/progress/application/progress-dto';
+import { presenceArea, readProgressRecord } from '@/features/progress/application/progress-wire';
 import { learnerProgress } from '@/features/progress/application/summary';
 import {
   latestRecord,
@@ -129,6 +130,14 @@ describe('Registro canónico y avance', () => {
     expect(progress.overall).toEqual({ done: 0, total: LESSON_COUNT, percent: 0 });
     expect(progress.resume?.label).toBe(`Empezar por «${LESSON_INDEX[0]!.shortTitle}»`);
     expect(progress.recent).toEqual([]);
+  });
+
+  it('el navegador lee los registros sin zod y descarta los mal formados', () => {
+    const record = study('L05', 'completed', 3);
+    expect(readProgressRecord(record)).toEqual(record);
+    expect(readProgressRecord({ ...record, status: 'aprobado' })).toBeNull();
+    expect(readProgressRecord({ ...record, state: { scene: { x: 1 } } })).toBeNull();
+    expect(readProgressRecord('x')).toBeNull();
   });
 
   it('la presencia solo envía zonas generales, nunca la URL completa', () => {

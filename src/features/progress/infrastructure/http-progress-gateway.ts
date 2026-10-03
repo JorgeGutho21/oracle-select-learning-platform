@@ -1,5 +1,5 @@
 import type { CloudProgressGateway, CloudResult } from '../application/progress-sync';
-import { MAX_UPLOAD_RECORDS, progressRecordSchema } from '../application/progress-dto';
+import { MAX_UPLOAD_RECORDS, readProgressRecord } from '../application/progress-wire';
 import type { ProgressRecord } from '../domain/progress';
 
 /**
@@ -20,8 +20,8 @@ function readRecords(body: unknown): readonly ProgressRecord[] {
   const list = (body as { records?: unknown } | null)?.records;
   if (!Array.isArray(list)) return [];
   return list.flatMap((item) => {
-    const parsed = progressRecordSchema.safeParse(item);
-    return parsed.success ? [parsed.data] : [];
+    const record = readProgressRecord(item);
+    return record ? [record] : [];
   });
 }
 
