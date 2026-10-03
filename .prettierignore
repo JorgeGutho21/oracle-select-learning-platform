@@ -24,3 +24,5 @@ docs/TEST_PLAN.md
 docs/UX_FLOWS.md
 AGENTS.md
 CODEX_PROMPT.md
+# Generado por tests/integration/curriculum-oracle.test.ts (CURRICULUM_UPDATE=1).
+src/features/curriculum/application/oracle-results.json
