@@ -333,3 +333,34 @@ No se añadió ningún componente nuevo: los gratuitos que quedaban (Count Up, A
 - sin datos, en la actividad y en el grupo;
 - 403;
 - avisos de los flujos de correo.
+
+### Fase 3: evaluaciones
+
+**Principio:** el examen es deliberadamente sobrio. Sin fondos animados, partículas, cursores, carruseles, 3D ni animaciones largas. React Bits se usa fuera del examen, con intención.
+
+**Examen (`exam-*`):**
+
+- cabecera nocturna fija con nombre, «respondidas» y reloj (monoespaciado, cifras tabulares); el reloj pasa a ámbar a 5 min y a rojo suave a 1 min, siempre con texto;
+- estado de guardado discreto: «Guardando…», «Guardado», «Cambios pendientes» y «Sin conexión. Tus respuestas se conservarán temporalmente.»;
+- pregunta en tarjeta blanca; opciones de 44 px como mínimo con letra, borde y franja azul al elegir; opciones de código en fondo editor; opciones de tabla con un resumen y la tabla compacta;
+- ordenar fragmentos con botones ↑ ↓ de 44 px (teclado y toque) y anuncio del movimiento;
+- navegador de preguntas: números de 44 px; respondida en azul, sin responder en blanco, para revisar con franja ámbar y ⚑, actual con contorno cian; leyenda visible;
+- durante el examen la cabecera del sitio queda solo con la marca (sin menús ni pie, `body:has(.exam-shell)`);
+- en pantallas estrechas la pregunta va primero y el navegador después de «Anterior», «Siguiente» y «Entregar evaluación».
+
+**Colores de estado:** éxito verde moderado (`success`), aviso ámbar (`warning`), error rojo (`danger`), información azul o cian (`info`, `cyan`). El monitor no usa rojo para los eventos: muestra números y texto neutro.
+
+**Profesor:** navegación propia del panel; tarjetas por estado (Activas, Programadas, Borradores, Finalizadas, Archivadas plegadas); confirmación en dos pasos (`<details>`) para publicar, cerrar accesos, finalizar y eliminar; tablas de monitor y resultados que desde 991 px pasan a tarjetas con etiquetas; distribución de notas como barras con su número.
+
+**Nota:** «Nota final 4.2 / 5.0» en una tarjeta nocturna con el número grande en monoespaciado; nunca puntos.
+
+**React Bits reutilizado** (sin componentes nuevos ni dependencias):
+
+- Spotlight Card: tarjetas de evaluación (estudiante y profesor);
+- Star Border: evaluación en curso (estudiante) y activa (profesor);
+- Pixel Card: secciones del banco de preguntas;
+- Shape Grid: sin uso nuevo.
+
+Se evaluaron otros gratuitos para cuenta atrás, transiciones y resultados (Count Up, Animated List, Fade Content, Decrypted Text): dependen de motion o GSAP, ocultan el contenido hasta hidratar o distraen durante un examen. No se añadieron.
+
+**Microinteracciones (todas desaparecen con `prefers-reduced-motion`):** transición de 250 ms entre preguntas, entrada de la tarjeta de nota, crecimiento de las barras de distribución y cambio de color al guardar. Ninguna mueve la pantalla.

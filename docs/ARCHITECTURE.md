@@ -180,3 +180,22 @@ Contratos para la Fase 3 (evaluaciones):
 - Las tablas de evaluación usarán RLS con el mismo patrón: lectura propia, profesor lee todo y escrituras de calificación por funciones de servidor, nunca desde el cliente.
 - La Fase 3 activará el modo `evaluation` del registro de secciones con su `href` y su entrada en `PROGRESS_CATALOG`.
 - La supervisión de exámenes no reutilizará `learner_presence`: tendrá su propia tabla y función de escritura.
+
+## DB LAB Fase 3: evaluaciones calificadas
+
+Detalle completo en [ASSESSMENT_ARCHITECTURE.md](ASSESSMENT_ARCHITECTURE.md), seguridad en [ASSESSMENT_SECURITY.md](ASSESSMENT_SECURITY.md) y banco en [QUESTION_BANK_SPEC.md](QUESTION_BANK_SPEC.md). Resumen de decisiones:
+
+1. **La base decide la nota y el tiempo.** Iniciar, guardar, entregar, calificar (0.0–5.0, ponderada, reproducible), publicar y cerrar son funciones de PostgreSQL. El navegador envía identificadores de opciones con su revisión; nunca una nota ni una hora.
+2. **Contratos de la Fase 2 usados tal cual:** `profiles.id` como identidad, `private.is_teacher()` en todas las políticas y funciones docentes, `profiles.institutional` para «solo institucionales», sesión httpOnly sin cliente de Supabase autenticado en el navegador.
+3. **Más estricto que el patrón previsto:** el estudiante no lee ninguna tabla de evaluaciones, ni siquiera las suyas; todo pasa por funciones que devuelven solo lo permitido. El profesor lee con RLS. Ninguna escritura directa.
+4. **Copia congelada al publicar** (`assessment_questions.snapshot` con versión y peso): editar el banco no altera evaluaciones publicadas ni intentos entregados.
+5. **Evaluación ≠ progreso ni Challenge.** El modo `evaluation` de la Sección 1 enlaza a `/evaluations?seccion=fundamentos-sql`; no se añade a `PROGRESS_CATALOG` (una nota no es avance de aprendizaje) y no toca puntos ni ranking del Challenge.
+6. **Supervisión propia** (`assessment_events`), sin reutilizar `learner_presence`. Monitor con aviso por Realtime desde la base (sin datos personales) y consulta de respaldo.
+7. **Rutas nuevas:** `/evaluations`, `/evaluations/[id]`, `/evaluations/[id]/attempt`, `/api/attempts/[id]` (+ `answers`, `events`, `submit`), `/teacher/assessments` (+ `new`, `[id]`, `monitor`, `results`, `results/[attemptId]`, `export`), `/teacher/questions` (+ `new`, `[id]`, `[id]/edit`). `/evaluations` se suma a las rutas privadas del proxy. El panel docente tiene navegación propia (Resumen y estudiantes, Evaluaciones, Banco de preguntas).
+8. **Política de contenido:** `connect-src` admite el WebSocket de Supabase (`wss://` del proyecto) y, solo para pruebas, un Supabase local en 127.0.0.1 o localhost.
+
+Contratos para la Fase 4:
+
+- Una forma de respuesta nueva (texto o SQL ejecutado en Oracle) se añade en `private.normalize_response` y `private.item_credit`; para SQL, la calificación reutiliza `OracledbQueryExecutor` y la comparación de resultados del Challenge en el servidor.
+- Los bancos oficiales de las secciones 2 y 3 se añaden en `features/assessments/domain/bank/` con el mismo método de verificación.
+- Grupos o cursos: hoy la audiencia es «todos» o «elegidos» (`assessment_assignments`); un concepto de grupo puede sustituir la lista sin cambiar el motor.

@@ -115,3 +115,14 @@ V02 lleva además subtítulos WebVTT revisados y una transcripción. Cada reprod
 **Sin la migración**, las cuentas se muestran «no disponibles» y el resto sigue funcionando como invitado.
 
 **Detalle:** [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md), apartado 12.
+
+## Evaluaciones (Fase 3)
+
+**Variables.** Ninguna nueva. El monitor en vivo usa `NEXT_PUBLIC_SUPABASE_URL` (también al compilar: la política de contenido permite su WebSocket `wss://`) y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+
+**Antes de desplegar:**
+
+- aplicar `20261003120000_assessments.sql` después de la migración de cuentas ([SUPABASE_SETUP.md](SUPABASE_SETUP.md#evaluaciones-de-db-lab-fase-3));
+- con una cuenta de profesor, sincronizar el banco oficial desde «Banco de preguntas».
+
+**Sin la migración**, las páginas de evaluaciones muestran «No pudimos leer…» y el resto sigue igual.

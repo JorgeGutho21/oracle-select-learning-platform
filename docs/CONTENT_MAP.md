@@ -311,6 +311,24 @@ Las fichas de `/modules` (niveles 2–7) siguen siendo el mapa detallado de tema
 
 La Evaluación es un modo previsto en las tres secciones: no tiene ruta ni contenido.
 
+## Banco de preguntas de evaluación (3 de octubre de 2026)
+
+50 preguntas oficiales de la Sección 1 (`features/assessments/domain/bank/fundamentos-sql.ts`), sobre el dataset `empleados-select-v2` y el temario L00–L21. Cada una cita la lección que se debe revisar y su fuente en la documentación oficial de Oracle; los resultados correctos los calcula el motor educativo y las pruebas comprueban cada afirmación. Tipos, temas, dificultades y fuentes por grupo en [QUESTION_BANK_SPEC.md](QUESTION_BANK_SPEC.md). Las secciones 2 y 3 recibirán su banco con su contenido.
+
+| Tema | Preguntas | Lecciones |
+| --- | --- | --- |
+| Fundamentos | 3 | L00–L03 |
+| SELECT y FROM | 4 | L02–L05, L21 |
+| Expresiones y precedencia | 3 | L06–L07 |
+| Alias y concatenación | 4 | L08–L09 |
+| DISTINCT | 3 | L10, L18 |
+| WHERE y comparaciones | 5 | L11–L12 |
+| AND, OR y NOT | 4 | L13–L14, L18 |
+| BETWEEN, IN y LIKE | 6 | L15–L17 |
+| NULL | 6 | L18 |
+| ORDER BY | 5 | L19 |
+| Consulta completa y errores frecuentes | 7 | L10, L20–L21 |
+
 ## Próximos niveles (roadmap)
 
 `/modules` presenta la ruta completa. El Nivel 1 es el actual; los niveles 2 a 7 están en estado «Próximamente». Fuente única: `src/features/modules/domain/curriculum.ts`, que alimenta la ruta, la Home, la escena 28, el buscador y los enlaces «Ver en Próximamente» del laboratorio.

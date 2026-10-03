@@ -155,3 +155,29 @@ U08: para una sala sin intentos se muestra «Sin datos» (o «Sin resultados» s
 - Muestra registrados, activos en 7 días, conectados ahora, promedio y progreso por sección.
 - Lista de estudiantes con búsqueda que funciona sin JavaScript; en móvil, tres líneas por estudiante.
 - Un estudiante que entra a `/teacher` ve «Acceso denegado» sin ningún dato del panel.
+
+## Flujos de evaluación (DB LAB, Fase 3)
+
+### Flujo O — El profesor prepara el banco
+
+Panel docente → Banco de preguntas → «Sincronizar banco oficial de DB LAB» → aviso con nuevas, actualizadas y sin cambios. Búsqueda y filtros (sección, tema, tipo, estado) en el servidor, 20 por página. «Nueva pregunta» o «Duplicar como borrador propio» sobre una oficial; publicar, retirar o pasar a borrador desde la ficha.
+
+### Flujo P — El profesor crea y publica una evaluación
+
+Evaluaciones → «Nueva evaluación» → datos, selección manual o automática, temas, cantidad, tiempo, fechas, intentos, orden, retroalimentación, participantes, supervisión y nota mínima → «Guardar borrador» (nunca publica) → ficha con «Publicar…» → confirmación → «Evaluación publicada. Las preguntas quedaron congeladas…». Errores: resumen con foco, mensaje por campo y motivo de la base («No hay suficientes preguntas publicadas…»).
+
+### Flujo Q — El estudiante presenta
+
+Mi progreso → «Evaluaciones pendientes» (o Sección → Evaluación, o `/evaluations`) → tarjeta con sección, fecha, duración y estado → pantalla previa (datos, reglas, supervisión registrada, estado de la conexión) → «Comenzar evaluación» (el tiempo empieza aquí) → examen: responder, Anterior/Siguiente, número de pregunta, «Marcar para revisar»; todo se guarda solo → «Entregar evaluación» → diálogo con sin responder y marcadas → «Evaluación entregada». Estados claros: «Aún no abre», «Cerrada», «Ya presentaste esta evaluación», «El tiempo terminó…», «Sin conexión…», «Error temporal: no pudimos abrir tu evaluación».
+
+### Flujo R — Interrupciones
+
+Recargar, cambiar de pestaña, perder la conexión o cerrar y volver: el mismo examen, las mismas preguntas en el mismo orden, lo guardado y el reloj del servidor. Al terminar el tiempo se entrega solo (también si el navegador estaba cerrado: la siguiente lectura lo entrega con lo guardado).
+
+### Flujo S — El profesor supervisa y cierra
+
+Ficha → «Supervisar» → tabla en vivo (Realtime): estado, pregunta, progreso, tiempo restante, conexión, último evento y recuento neutro; lista «Sin iniciar». «Cerrar nuevos accesos…» (quien empezó sigue) o «Finalizar evaluación…» (entrega y califica lo abierto).
+
+### Flujo T — Resultados, retroalimentación y exportación
+
+Ficha → «Resultados» → resumen 0–5, distribución, tabla por estudiante («Ver intento» con respuestas y eventos) y análisis por pregunta → ficha → «Retroalimentación para los estudiantes» → «Aplicar» → el estudiante, en la ficha de la evaluación, ve «Nota final» y, si se liberó, «Tu respuesta», «Respuesta correcta», «Por qué», «Concepto» y «Qué debes revisar». «Exportar CSV», «CSV para Excel» o «Detalle por pregunta».

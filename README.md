@@ -27,6 +27,16 @@ DB LAB se organiza en tres secciones (`/sections`): **Fundamentos SQL** (disponi
 
 Supabase da la identidad y Oracle sigue ejecutando las prácticas. Detalle en [AUTH_ARCHITECTURE.md](docs/AUTH_ARCHITECTURE.md).
 
+**Fase 3:**
+
+- banco de preguntas por sección con diez tipos de pregunta y 50 preguntas oficiales de Fundamentos SQL verificadas con el motor educativo;
+- evaluaciones que crea y publica el profesor (selección manual o automática equivalente, fechas, duración, intentos, orden aleatorio, audiencia);
+- examen con tiempo del servidor, autoguardado, marcas de revisión, recuperación de la conexión y entrega confirmada;
+- nota de 0.0 a 5.0 calculada en la base, con pesos y retroalimentación que libera el profesor;
+- supervisión de eventos del navegador con monitor en vivo, resultados con análisis por pregunta y exportación CSV.
+
+Detalle en [ASSESSMENT_ARCHITECTURE.md](docs/ASSESSMENT_ARCHITECTURE.md) y guía de uso en [ASSESSMENT_TEACHER_GUIDE.md](docs/ASSESSMENT_TEACHER_GUIDE.md).
+
 La Sección 1 es la unidad completa de **Oracle SQL fundamental (SELECT)**:
 
 Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único dataset, `empleados-select-v2`: tabla EMPLEADOS de 12 columnas y 20 filas, cargada en Oracle desde `oracle/empleados-select-v2.sql`.
@@ -112,25 +122,30 @@ El alcance y los criterios de aceptación completos se encuentran en la document
 
 ## Documentación
 
-| Documento                                                 | Contenido                                                   |
-| --------------------------------------------------------- | ----------------------------------------------------------- |
-| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md)                   | Propósito, fuentes, alcance y aceptación por módulo.        |
-| [CONTENT_MAP.md](docs/CONTENT_MAP.md)                     | Lecciones, escenas, dataset, roadmap y vídeos.              |
-| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)                 | Identidad visual, componentes y accesibilidad.              |
-| [UX_FLOWS.md](docs/UX_FLOWS.md)                           | Recorridos, navegación y estados.                           |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md)                   | Capas, servicios y límites de confianza.                    |
-| [LAB_SPEC.md](docs/LAB_SPEC.md)                           | Subconjunto SQL y laboratorio Oracle.                       |
-| [GAME_SPEC.md](docs/GAME_SPEC.md)                         | Diez misiones, evaluación y puntuación.                     |
-| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md)                 | Salas, sincronización y reconexión.                         |
-| [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)               | Configurar Supabase para la sala en vivo.                   |
-| [FINAL_AUDIT.md](docs/FINAL_AUDIT.md)                     | Auditoría preproducción y prerrequisitos de despliegue.     |
-| [PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md)           | Servicios, variables y alojamiento de producción.           |
-| [DEPLOYMENT.md](docs/DEPLOYMENT.md)                       | Estado del despliegue en Vercel, procedimiento y reversión. |
-| [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)                   | Conectar el laboratorio y M10 a Oracle.                     |
-| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)             | Dataset v2, esquemas Oracle y persistencia.                 |
-| [CONTENT_REDESIGN_PLAN.md](docs/CONTENT_REDESIGN_PLAN.md) | Plan y decisiones de la unidad ampliada.                    |
-| [TEST_PLAN.md](docs/TEST_PLAN.md)                         | Plan de pruebas de la futura aplicación.                    |
-| [ROADMAP.md](docs/ROADMAP.md)                             | Hitos, dependencias y condiciones de entrega.               |
+| Documento                                                       | Contenido                                                       |
+| --------------------------------------------------------------- | --------------------------------------------------------------- |
+| [PROJECT_SPEC.md](docs/PROJECT_SPEC.md)                         | Propósito, fuentes, alcance y aceptación por módulo.            |
+| [CONTENT_MAP.md](docs/CONTENT_MAP.md)                           | Lecciones, escenas, dataset, roadmap y vídeos.                  |
+| [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)                       | Identidad visual, componentes y accesibilidad.                  |
+| [UX_FLOWS.md](docs/UX_FLOWS.md)                                 | Recorridos, navegación y estados.                               |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)                         | Capas, servicios y límites de confianza.                        |
+| [LAB_SPEC.md](docs/LAB_SPEC.md)                                 | Subconjunto SQL y laboratorio Oracle.                           |
+| [GAME_SPEC.md](docs/GAME_SPEC.md)                               | Diez misiones, evaluación y puntuación.                         |
+| [REALTIME_SPEC.md](docs/REALTIME_SPEC.md)                       | Salas, sincronización y reconexión.                             |
+| [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)                     | Configurar Supabase para la sala en vivo.                       |
+| [FINAL_AUDIT.md](docs/FINAL_AUDIT.md)                           | Auditoría preproducción y prerrequisitos de despliegue.         |
+| [PRODUCTION_SETUP.md](docs/PRODUCTION_SETUP.md)                 | Servicios, variables y alojamiento de producción.               |
+| [DEPLOYMENT.md](docs/DEPLOYMENT.md)                             | Estado del despliegue en Vercel, procedimiento y reversión.     |
+| [ORACLE_SETUP.md](docs/ORACLE_SETUP.md)                         | Conectar el laboratorio y M10 a Oracle.                         |
+| [DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)                   | Dataset v2, esquemas Oracle y persistencia.                     |
+| [CONTENT_REDESIGN_PLAN.md](docs/CONTENT_REDESIGN_PLAN.md)       | Plan y decisiones de la unidad ampliada.                        |
+| [TEST_PLAN.md](docs/TEST_PLAN.md)                               | Plan de pruebas de la futura aplicación.                        |
+| [AUTH_ARCHITECTURE.md](docs/AUTH_ARCHITECTURE.md)               | Cuentas, roles, progreso y panel docente (Fase 2).              |
+| [ASSESSMENT_ARCHITECTURE.md](docs/ASSESSMENT_ARCHITECTURE.md)   | Evaluaciones: modelo, tiempo, autoguardado, nota y supervisión. |
+| [ASSESSMENT_SECURITY.md](docs/ASSESSMENT_SECURITY.md)           | Seguridad, privacidad, integridad y retención de evaluaciones.  |
+| [QUESTION_BANK_SPEC.md](docs/QUESTION_BANK_SPEC.md)             | Banco de preguntas: tipos, calidad, fuentes y verificación.     |
+| [ASSESSMENT_TEACHER_GUIDE.md](docs/ASSESSMENT_TEACHER_GUIDE.md) | Guía del profesor para evaluaciones.                            |
+| [ROADMAP.md](docs/ROADMAP.md)                                   | Hitos, dependencias y condiciones de entrega.                   |
 
 ## Estructura
 

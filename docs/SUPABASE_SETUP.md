@@ -97,3 +97,19 @@ La segunda migración, [`20261002120000_learner_accounts.sql`](../supabase/migra
 
 - Auth, la API y Realtime;
 - un buzón de correos de prueba.
+
+## Evaluaciones de DB LAB (Fase 3)
+
+La tercera migración, [`20261003120000_assessments.sql`](../supabase/migrations/20261003120000_assessments.sql), añade el banco de preguntas, las evaluaciones, los intentos, las respuestas, los eventos de supervisión y la auditoría, con RLS en todas las tablas y funciones seguras para el estudiante y el profesor ([ASSESSMENT_SECURITY.md](ASSESSMENT_SECURITY.md)).
+
+**Qué no toca:** las tablas de la Fase 2 ni las de la sala en vivo.
+
+**Requisito:** la migración de cuentas (Fase 2) aplicada antes. Se aplican en orden: `20260924120000_classroom.sql`, `20261002120000_learner_accounts.sql`, `20261003120000_assessments.sql`.
+
+**Cómo aplicarla:** `supabase db push`, o pegarla en el SQL Editor una sola vez. Solo añade; no borra ni cambia datos existentes. `supabase db reset` en local la aplica desde cero junto con las anteriores.
+
+**Realtime del monitor:** usa «broadcast from database» (`realtime.send`) en canales públicos con un nombre aleatorio por evaluación; no requiere configuración adicional en un proyecto con Realtime habilitado (por defecto). Si Realtime no está disponible, el monitor consulta cada 20 s.
+
+**Después de aplicarla:** el profesor abre «Banco de preguntas» y pulsa «Sincronizar banco oficial de DB LAB» ([ASSESSMENT_TEACHER_GUIDE.md](ASSESSMENT_TEACHER_GUIDE.md)).
+
+**Retención de eventos:** `select public.admin_purge_assessment_events(180);` en el SQL Editor (solo con la clave secreta) borra los eventos de evaluaciones cerradas con más de 180 días.

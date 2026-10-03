@@ -91,6 +91,35 @@ Doce MINOR documentados. QA visual en ocho tamaños más zoom alto: 0 desbordes,
 
 **Actualización (Fase 4, motor SQL educativo y laboratorio):** un único léxico, parser y analizador del subconjunto SELECT en `src/domain/sql` (con AST, diagnósticos pedagógicos, evaluación educativa, traducción, anatomía y sentencia canónica), reutilizado por el laboratorio y por M05, M08, M09 y M10. `/lab` tiene seis paneles y editor CodeMirror 6. La ejecución Oracle es una operación separada tras el puerto `OracleQueryExecutor`, cuyo adaptador vigente declara «no conectado»; nunca se simula. Verificaciones en [Verificaciones tras la Fase 4](#verificaciones-tras-la-fase-4).
 
+## DB LAB, Fase 3: evaluaciones calificadas (3 de octubre de 2026)
+
+**Rama:** `claude-phase3-assessments-20261003`, derivada de la Fase 2 (etiqueta local `phase2-checkpoint-20261003` en `3e1bcfd`). `main` no se tocó. No está desplegada.
+
+**Arquitectura:** [ASSESSMENT_ARCHITECTURE.md](ASSESSMENT_ARCHITECTURE.md), [ASSESSMENT_SECURITY.md](ASSESSMENT_SECURITY.md), [QUESTION_BANK_SPEC.md](QUESTION_BANK_SPEC.md) y [ASSESSMENT_TEACHER_GUIDE.md](ASSESSMENT_TEACHER_GUIDE.md).
+
+**Qué hay:**
+
+- **Banco:** diez tipos de pregunta, tres secciones, versionado; 50 preguntas oficiales de Fundamentos SQL verificadas con el motor educativo (las secciones 2 y 3 esperan su contenido).
+- **Profesor:** crear (selección manual o automática equivalente), publicar con preguntas congeladas, cerrar accesos, finalizar, duplicar, archivar, liberar retroalimentación, supervisar en vivo, resultados con análisis por pregunta, revisión de intentos y exportación CSV; banco con búsqueda, filtros, páginas, preguntas propias y sincronización del banco oficial; auditoría.
+- **Estudiante:** evaluaciones pendientes en «Mi progreso» y en el modo Evaluación de la Sección 1, pantalla previa con reglas y supervisión, examen con tiempo del servidor, autoguardado, marcas de revisión, recuperación de la conexión, entrega confirmada y por tiempo, nota 0.0–5.0 y retroalimentación autorizada.
+- **Base:** migración `20261003120000_assessments.sql` con RLS en las nueve tablas, funciones seguras y calificación ponderada reproducible.
+
+**Verificación (Chromium 1194 de este entorno, Supabase local real):**
+
+| Comprobación              | Resultado                                                                                                                                                                                                                                                                                                                |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Lint, typecheck y formato | PASS                                                                                                                                                                                                                                                                                                                     |
+| Unitarias e integración   | PASS: 898 pasan y 12 se omiten (Supabase real y Oracle real, sin variables). Con el Supabase local, la integración pasa 75/75: RLS de cuentas 16, cuentas en Supabase 7, evaluaciones en PostgreSQL 25, evaluaciones en Supabase real con 40 estudiantes simultáneos 5, sala 22. Oracle real: omitida, sin credenciales. |
+| Banco oficial             | PASS: 142 comprobaciones (forma, retroalimentación y 78 afirmaciones contra el motor). Encontró y se corrigieron tres recuentos escritos a mano.                                                                                                                                                                         |
+| Build                     | PASS                                                                                                                                                                                                                                                                                                                     |
+| E2E con Supabase          | 266 pasan, 21 fallan, 2 se omiten. Las 21 son exactamente las de la base de las Fases 1 y 2 en este entorno (comparación por nombre). Las 7 de evaluaciones y las 11 de cuentas pasan.                                                                                                                                   |
+| Responsive                | 182 combinaciones: 14 tamaños de 1920×1080 a 320×640 (con los equivalentes de zoom 150 % y 200 %) × 13 pantallas con sesión, sin desborde de página, sin errores de consola y con un `h1`.                                                                                                                               |
+| Accesibilidad             | axe WCAG 2.0/2.1/2.2 A/AA sin infracciones a 1440 y 390 en las 13 pantallas, y en la pantalla previa, el examen y los resultados dentro de la E2E.                                                                                                                                                                       |
+| Rendimiento               | JavaScript inicial comprimido del examen: 290 KB (Inicio 359 KB). zod no llega al navegador. El banco nunca se descarga completo.                                                                                                                                                                                        |
+| Realtime                  | PASS: aviso desde la base recibido por el canal; en E2E el monitor muestra a un estudiante que comienza en unos 4 s sin recargar.                                                                                                                                                                                        |
+| Secretos                  | Ninguna clave en el repositorio, los bundles ni el HTML.                                                                                                                                                                                                                                                                 |
+| Vista previa              | No generada: no hay sesión de Vercel ni red hacia `vercel.com` en este entorno.                                                                                                                                                                                                                                          |
+
 ## DB LAB, Fase 2: cuentas, roles, progreso sincronizado y panel docente (3 de octubre de 2026)
 
 **Rama:** `claude-phase2-auth-progress-20261002`, derivada de la Fase 1 (`claude/gallant-cori-4rp11r`, etiqueta `phase1-checkpoint-20261003` en `9180bf5`). `main` no se tocó. No está desplegada.

@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 3 de octubre de 2026 (DB LAB, Fase 2: cuentas, roles, progreso sincronizado y panel docente en la rama `claude-phase2-auth-progress-20261002`, sin desplegar; la Fase 1 sigue en `claude/gallant-cori-4rp11r`). Punto de entrada para Codex u otra IA.
+Actualizado: 3 de octubre de 2026 (DB LAB, Fase 3: evaluaciones calificadas en la rama `claude-phase3-assessments-20261003`, sin desplegar; la Fase 2 sigue en `claude-phase2-auth-progress-20261002` y la Fase 1 en `claude/gallant-cori-4rp11r`). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -30,7 +30,12 @@ En otro equipo, usar el clon de ese mismo repositorio. No crear repositorios dif
   - `/dashboard`, `/profile` y `/teacher`;
   - RLS en todas las tablas nuevas.
   - Detalle en `docs/AUTH_ARCHITECTURE.md`.
-- Fuera de la Fase 2: evaluaciones, banco de preguntas, supervisión, exportaciones y contenido de las secciones 2 y 3.
+- Fase 3 (rama `claude-phase3-assessments-20261003`):
+  - banco de preguntas (diez tipos, versionado) con 50 preguntas oficiales de Fundamentos SQL;
+  - evaluaciones del profesor, examen con tiempo del servidor y autoguardado, nota 0.0–5.0 calculada en la base, retroalimentación liberada por el profesor;
+  - supervisión de eventos del navegador con monitor en vivo, resultados, análisis por pregunta y exportación CSV;
+  - detalle en `docs/ASSESSMENT_ARCHITECTURE.md`.
+- Fuera de la Fase 3: contenido y banco de las secciones 2 y 3, preguntas de SQL ejecutado en Oracle, grupos o cursos.
 - Decisiones en `docs/ARCHITECTURE.md` (sección DB LAB) y `docs/DESIGN_SYSTEM.md` 3.0.
 
 SQL SELECT LAB es una plataforma universitaria en español de Jorge Gutierrez Thomas para la asignatura Base de Datos (profesor Amilkar Sierra), programa de Ingeniería de Sistemas de la Universidad Popular del Cesar. Desde la reingeniería del 25 de septiembre de 2026 enseña el **Nivel 1, SELECT fundamental** completo: base de datos, tabla, fila, columna y SQL; SELECT, FROM, `*`, columnas, expresiones, precedencia, alias con AS, concatenación, DISTINCT, WHERE, comparaciones, AND/OR/NOT, paréntesis, BETWEEN, IN, LIKE, NULL, ORDER BY, la consulta completa y los errores frecuentes (22 lecciones, 29 escenas).
@@ -308,4 +313,30 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
 5. Validar el dominio institucional.
 6. Opcional: Microsoft en Entra y Supabase.
 
-**Siguiente: Fase 3, evaluaciones.** Contratos en `docs/ARCHITECTURE.md` (Fase 2).
+**Siguiente: Fase 3, evaluaciones.** Contratos en `docs/ARCHITECTURE.md` (Fase 2). Hecha el mismo día (ver abajo).
+
+## Sesión del 3 de octubre de 2026: DB LAB, Fase 3
+
+**Rama y checkpoint**
+
+- Rama `claude-phase3-assessments-20261003`, subida a GitHub.
+- Checkpoint: etiqueta local `phase2-checkpoint-20261003` en `3e1bcfd`.
+
+**Hecho**
+
+- Migración `20261003120000_assessments.sql`: banco, evaluaciones, preguntas congeladas, intentos, respuestas, eventos, auditoría, RLS solo para el profesor y funciones seguras (el estudiante no lee tablas).
+- Banco oficial de la Sección 1 (50) en `src/features/assessments/domain/bank`, verificado con el motor educativo.
+- Panel docente: Evaluaciones, Banco de preguntas, monitor en vivo, resultados, revisión de intentos, exportación CSV.
+- Estudiante: `/evaluations`, pantalla previa, examen y resultado; pendientes en «Mi progreso»; modo Evaluación de la Sección 1 activo.
+- CSP: `connect-src` admite un Supabase local de loopback (pruebas) además del `wss://` del proyecto.
+
+**Verificado:** ver la tabla de la Fase 3 en `docs/PROJECT_STATUS.md` (E2E 266/21/2 con las mismas 21 fallas de entorno; integración 75/75 con Supabase local; 182 combinaciones responsive y axe sin problemas).
+
+**Pendiente del responsable**
+
+1. Aplicar `20261003120000_assessments.sql` en Supabase después de la de cuentas (mismo proyecto para Production y Preview).
+2. Con la cuenta del profesor, «Sincronizar banco oficial de DB LAB».
+3. Desplegar la vista previa desde esta rama.
+4. Los pendientes de la Fase 2 (Auth, SMTP, rol de profesor, dominio institucional, Microsoft).
+
+**Siguiente: Fase 4.** Contenido y banco de las secciones 2 y 3; contratos en `docs/ARCHITECTURE.md` (Fase 3).

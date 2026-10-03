@@ -259,3 +259,17 @@ Sin esas variables:
 - la prueba de invitado y la de RLS en PostgreSQL corren siempre.
 
 **Microsoft** se valida a mano: lista en [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md), apartado 15.
+
+## Evaluaciones: pruebas automatizadas (DB LAB, Fase 3)
+
+| Nivel | Archivo | Cubre |
+| --- | --- | --- |
+| Unitarias | `tests/unit/assessments/official-bank.test.ts` | Banco oficial: 50 preguntas, claves estables, diez tipos, forma válida, retroalimentación completa; 78 afirmaciones comprobadas con el motor educativo; distractores de resultado distintos del correcto |
+| Unitarias | `tests/unit/assessments/assessment-engine.test.ts` | Autoguardado (agrupación, revisión, copia local, sin conexión y reintento, recarga, intento cerrado); reloj con hora del servidor y avisos solo a 10/5/1 min; eventos (repeticiones, duración, reintento); vista sin clave; estadísticas 0–5, ausente ≠ 0.0, mejor intento, audiencia, análisis por pregunta; CSV (columnas, BOM, Excel en español, fórmulas neutralizadas); formularios (fechas de Colombia, errores, cantidades libres, clave por forma, tabla de origen); fases y estado del estudiante |
+| PostgreSQL (siempre) | `tests/integration/assessments-rls-postgres.test.ts` | Banco: solo el profesor crea, anon no ejecuta, versión por contenido, problemas de forma, el estudiante no lee el banco ni la clave, oficiales de solo lectura. Evaluación: borrador invisible, publicación que congela versión, inicio y reintento (un intento), vista sin clave, revisiones atrasadas, opción ajena rechazada, recarga idéntica, aislamiento entre estudiantes, nota no editable, calificación ponderada exacta (3.3 y 0.8), doble envío, nota reproducible, cuatro niveles de retroalimentación, vencimiento perezoso (entrega por tiempo al plazo exacto). Supervisión: tipos y tope, monitor solo del profesor, cerrar accesos y finalizar. Auditoría. Purga solo con la clave secreta. Audiencia institucional y elegida; sorteo equivalente (2 + 2 + 2 en cinco intentos); conjunto insuficiente no publica |
+| Supabase real (con variables) | `tests/integration/assessments-supabase.test.ts` | Sincronización del banco por API, RLS para estudiante y anon, seis inicios simultáneos → un intento, revisiones fuera de orden, **40 estudiantes a la vez** con doble entrega (40 notas, sin mezclar respuestas), nota liberada propia, monitor solo del profesor |
+| E2E (con variables) | `tests/e2e/assessments.spec.ts` | Profesor sincroniza, crea (manual, tema NULL, 3 preguntas) y publica; monitor en vivo por Realtime; estudiante comienza, responde, marca, recarga, continúa y entrega (axe en la pantalla previa y el examen; sin clave en el HTML); profesor supervisa, revisa resultados (axe), ve el intento, exporta CSV y detalle y libera la retroalimentación; el estudiante ve nota y retroalimentación; otro estudiante recibe 404 y «Acceso denegado»; en el móvil (360 px) el examen cabe y al terminar el tiempo se entrega solo |
+
+Revisión visual automatizada (sin archivo en el repositorio; script de QA): 14 tamaños (1920×1080 a 320×640, incluidos los equivalentes de zoom 150 % y 200 %) × 13 pantallas de evaluación con sesión: sin barra horizontal, sin errores de consola, un `h1` por página y axe (WCAG 2.0, 2.1 y 2.2 A/AA) sin infracciones a 1440 y 390.
+
+**Cómo ejecutarlas:** las mismas variables que la Fase 2. La E2E necesita el servidor compilado con `NEXT_PUBLIC_SUPABASE_URL` del Supabase local (para que la política de contenido permita su WebSocket).

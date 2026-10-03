@@ -153,7 +153,7 @@ Para desplegar en cada `git push`, se puede conectar el repositorio con `vercel 
 **Orden recomendado:**
 
 1. **Supabase.** Seguir [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md) (apartado 12):
-   - aplicar la migración de cuentas;
+   - aplicar la migración de cuentas y, para la Fase 3, la de evaluaciones (`20261003120000_assessments.sql`);
    - Site URL y redirecciones `https://<producción>/**` y `https://*-<equipo>.vercel.app/**`;
    - plantillas en español, SMTP propio y límites de Auth;
    - Microsoft, si se quiere.
