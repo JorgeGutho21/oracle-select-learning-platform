@@ -1,1 +1,1 @@
-SQL SELECT LAB: SELECT en Oracle SQL. Universidad Popular del Cesar, Ingeniería de Sistemas, Base de Datos. Autor Jorge Gutierrez Thomas, profesor Amilkar Sierra.
+DB LAB: Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico de Jorge Gutiérrez Thomas, docente Amílcar Sierra Romano. Bases de Datos, Ingeniería de Sistemas, Universidad Popular del Cesar.

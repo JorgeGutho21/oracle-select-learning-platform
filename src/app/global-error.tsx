@@ -24,10 +24,10 @@ export default function GlobalError({
           font: '16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif',
         }}
       >
-        <title>Error | SQL SELECT LAB</title>
+        <title>Error | DB LAB</title>
         <main style={{ maxWidth: 560, textAlign: 'center' }}>
-          <h1 style={{ fontSize: 28, lineHeight: 1.2 }}>No fue posible cargar SQL SELECT LAB</h1>
-          <p>Vuelve a intentarlo en unos segundos. Si el problema continúa, avisa al profesor.</p>
+          <h1 style={{ fontSize: 28, lineHeight: 1.2 }}>No fue posible cargar DB LAB</h1>
+          <p>Vuelve a intentarlo en unos segundos. Si el problema continúa, avisa al docente.</p>
           <p style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
             <button
               type="button"

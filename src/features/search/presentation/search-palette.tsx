@@ -129,7 +129,7 @@ export function SearchPalette() {
         className="search-dialog"
         open={open}
         onClose={() => setOpen(false)}
-        title="Buscar en SQL SELECT LAB"
+        title="Buscar en DB LAB"
         description="Encuentra conceptos, lecciones, prácticas y recursos públicos."
       >
         <div className="search-palette">

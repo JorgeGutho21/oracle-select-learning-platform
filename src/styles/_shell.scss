@@ -1,5 +1,12 @@
 // Estructura común: cabecera, navegación, pie y encabezados de módulo.
 
+// El contenido ocupa al menos la pantalla: mientras llega el contenido transmitido, el pie
+// queda fuera de la vista y no salta hacia abajo (CLS).
+.app-main {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
 .site-header {
   position: relative;
   z-index: var(--z-sticky);
@@ -28,6 +35,21 @@
 }
 .site-brand strong {
   color: var(--color-primary);
+}
+.site-brand__text {
+  display: grid;
+  gap: 1px;
+}
+.site-brand__name {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.site-brand__tagline {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 .site-brand__mark {
   display: inline-grid;
@@ -124,7 +146,7 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: 6px;
-  font-size: 0.75rem;
+  font-size: var(--type-label);
 }
 .mobile-menu {
   display: none;
@@ -293,6 +315,14 @@
   gap: var(--space-7);
   padding-block: var(--space-8) var(--space-6);
 }
+.footer-brand__eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--color-cyan);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
 .footer-brand__name {
   display: block;
   margin-bottom: var(--space-2);
@@ -321,7 +351,7 @@
 }
 .footer-identity dt {
   color: var(--color-cyan);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -329,6 +359,7 @@
 .footer-identity dd {
   margin: 2px 0 0;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 .footer-links {
   display: grid;
@@ -353,6 +384,10 @@
   padding-block: var(--space-5);
   border-top: 1px solid rgb(247 250 255 / 14%);
 }
+.footer-note {
+  display: grid;
+  gap: var(--space-2);
+}
 .footer-note p {
   margin: 0;
   color: rgb(247 250 255 / 72%);
@@ -360,7 +395,8 @@
 }
 
 @media (max-width: 1199px) {
-  .global-search-trigger kbd {
+  .global-search-trigger kbd,
+  .site-brand__tagline {
     display: none;
   }
   .desktop-nav a {
@@ -425,7 +461,9 @@
   .hero-action {
     flex-wrap: wrap;
     gap: var(--space-2);
+    max-width: 100%;
     padding: var(--space-3);
+    overflow-wrap: anywhere;
   }
   .empty-state {
     padding: var(--space-4);

@@ -4,6 +4,7 @@ import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import { PRODUCT_IDENTITY as product } from '@/application/academic-identity';
 import { isNavigationItemActive } from '@/features/search/application/search-index';
 import { SearchPalette } from '@/features/search/presentation/search-palette';
 import { platformRoutes } from '@/presentation/navigation/routes';
@@ -39,12 +40,15 @@ export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="site-container site-header__bar">
-        <Link href="/" className="site-brand" aria-label="SQL SELECT LAB — Inicio">
+        <Link href="/" className="site-brand" aria-label={`${product.name} — Inicio`}>
           <span className="site-brand__mark" aria-hidden="true">
             &gt;_
           </span>
-          <span>
-            SQL SELECT <strong>LAB</strong>
+          <span className="site-brand__text" aria-hidden="true">
+            <span className="site-brand__name">
+              DB <strong>LAB</strong>
+            </span>
+            <span className="site-brand__tagline">Bases de Datos con Oracle</span>
           </span>
         </Link>
         <nav className="desktop-nav" aria-label="Navegación principal">
