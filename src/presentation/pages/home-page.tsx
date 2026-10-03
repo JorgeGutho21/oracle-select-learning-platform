@@ -1,18 +1,18 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { ACADEMIC_IDENTITY as identity } from '@/application/academic-identity';
-import { PRACTICE_RULES } from '@/features/challenge/application/challenge-api';
-import { STAGE_LABEL, upcomingLevels } from '@/features/modules/application/modules-api';
-import { getVideo } from '@/features/resources/application/resources-api';
-import { analyzeLabQuery, EMPLEADOS } from '@/features/laboratory/application/lab-api';
 import {
-  LESSON_COUNT,
-  LESSON_INDEX,
-  STUDY_BLOCKS,
-} from '@/features/study/application/lesson-index';
+  ACADEMIC_IDENTITY as identity,
+  PRODUCT_IDENTITY as product,
+} from '@/application/academic-identity';
+import { analyzeLabQuery, EMPLEADOS } from '@/features/laboratory/application/lab-api';
+import { getVideo } from '@/features/resources/application/resources-api';
+import { SECTION_LIST, type SectionDto } from '@/features/sections/application/sections-api';
+import { SectionCard } from '@/features/sections/presentation/section-card';
 import { CellValueView } from '@/presentation/components/data/cell-format';
+import { QueryTransformation } from '@/presentation/components/data/query-transformation';
 import { highlightSql } from '@/presentation/components/data/sql-code';
+import { ShapeGrid } from '@/presentation/components/effects/shape-grid';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { HomeDemonstration } from './home-demonstration';
 
@@ -74,42 +74,73 @@ function HeroTerminal() {
   );
 }
 
-export function HomePage({ progress }: { readonly progress: ReactNode }) {
+/** Ejemplo del patrón tabla original → consulta → resultado, calculado por el motor. */
+const PATTERN_SQL = `SELECT nombre, salario
+FROM   empleados
+WHERE  ciudad = 'Cali';`;
+
+const EXPERIENCE = [
+  { title: 'Conceptos', text: 'Qué hace cada cláusula y para qué sirve, en una frase.' },
+  { title: 'Ejemplos', text: 'La tabla original, la consulta, el resultado y qué cambió.' },
+  { title: 'Práctica', text: 'Laboratorio, mini comprobaciones y misiones del Challenge.' },
+  { title: 'Ejecución', text: 'La misma consulta, ejecutada en Oracle Database.' },
+  {
+    title: 'Retroalimentación',
+    text: 'Diagnóstico con el fragmento, la causa y una corrección posible.',
+  },
+] as const;
+
+const ORACLE_FLOW = [
+  { title: 'Escribes la consulta', text: 'En el editor SQL del laboratorio.' },
+  {
+    title: 'Análisis educativo',
+    text: 'En tu navegador: sintaxis, alcance de la sección y vista educativa.',
+  },
+  {
+    title: 'Servidor de DB LAB',
+    text: 'Envía solo la sentencia validada. Las credenciales nunca salen del servidor.',
+  },
+  {
+    title: 'Oracle Database',
+    text: 'Una cuenta de solo lectura ejecuta la consulta sobre la tabla del curso.',
+  },
+  { title: 'Resultado real', text: 'Hasta 100 filas, rotuladas como resultado de Oracle.' },
+] as const;
+
+export interface HomePageProps {
+  /** Progreso del Modo Estudio (cliente). */
+  readonly progress: ReactNode;
+  /** «Continuar aprendiendo», resuelto en el cliente con la última lección abierta. */
+  readonly continueAction: ReactNode;
+  /** Avance de cada sección en su tarjeta (cliente o estado neutro). */
+  readonly sectionProgress: (section: SectionDto) => ReactNode;
+}
+
+export function HomePage({ progress, continueAction, sectionProgress }: HomePageProps) {
   const intro = getVideo('intro');
+  const pattern = analyzeLabQuery(PATTERN_SQL).preview;
   return (
     <div className="home">
       <section className="home-band home-band--night home-hero" aria-labelledby="home-title">
+        <ShapeGrid className="home-hero__grid-bg" />
         <div className="site-container home-hero__grid">
           <div className="home-hero__copy">
-            <p className="home-eyebrow">Oracle Database · SQL Fundamentals</p>
+            <p className="home-eyebrow">Plataforma académica · Oracle Database</p>
             <h1 id="home-title" className="home-hero__title">
-              <span className="home-hero__select">SELECT</span>{' '}
-              <span className="home-hero__rest">
-                en Oracle SQL<span aria-hidden="true">.</span>
-              </span>
+              DB <span>LAB</span>
             </h1>
-            <p className="home-hero__lead">
-              Aprende a pedir datos a una tabla: elegir columnas, calcular, filtrar filas, tratar
-              valores vacíos y ordenar el resultado. Sin experiencia previa.
-            </p>
+            <p className="home-hero__subtitle">{product.subtitle}</p>
+            <p className="home-hero__lead">{product.pitch}</p>
             <p className="home-hero__byline">
               <span>{identity.author}</span>
               <span>{identity.course}</span>
               <span>{identity.institution}</span>
             </p>
-            <nav className="home-hero__actions" aria-label="Recorridos principales">
-              <Link href="/presentation" className="hero-action hero-action--primary">
-                Iniciar clase <span aria-hidden="true">→</span>
+            <nav className="home-hero__actions" aria-label="Accesos principales">
+              <Link href="/sections" className="hero-action hero-action--primary">
+                Explorar plataforma <span aria-hidden="true">→</span>
               </Link>
-              <Link href="/learn" className="hero-action">
-                Estudiar <span aria-hidden="true">→</span>
-              </Link>
-              <Link href="/lab" className="hero-action">
-                Practicar SQL <span aria-hidden="true">→</span>
-              </Link>
-              <Link href="/challenge" className="hero-action">
-                Iniciar Challenge <span aria-hidden="true">→</span>
-              </Link>
+              {continueAction}
             </nav>
           </div>
           <HeroTerminal />
@@ -131,122 +162,135 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
           />
           <dl className="home-identity__facts">
             <div>
-              <dt>Universidad</dt>
-              <dd>{identity.institution}</dd>
+              <dt>Proyecto académico</dt>
+              <dd>{product.name}</dd>
+            </div>
+            <div>
+              <dt>Desarrollado por</dt>
+              <dd>{identity.author}</dd>
+            </div>
+            <div>
+              <dt>Docente</dt>
+              <dd>{identity.teacher}</dd>
+            </div>
+            <div>
+              <dt>Contexto</dt>
+              <dd>{identity.course}</dd>
             </div>
             <div>
               <dt>Programa</dt>
               <dd>{identity.program}</dd>
             </div>
             <div>
-              <dt>Asignatura</dt>
-              <dd>{identity.course}</dd>
-            </div>
-            <div>
-              <dt>Unidad</dt>
-              <dd>{identity.unitTitle}</dd>
-            </div>
-            <div>
-              <dt>Autor</dt>
-              <dd>{identity.author}</dd>
-            </div>
-            <div>
-              <dt>Profesor</dt>
-              <dd>{identity.teacher}</dd>
+              <dt>Universidad</dt>
+              <dd>{identity.institution}</dd>
             </div>
           </dl>
         </div>
       </section>
 
-      <section className="home-band home-band--soft" aria-labelledby="learn-title">
+      <section className="home-band home-band--soft" aria-labelledby="route-title">
         <div className="site-container">
           <header className="home-heading">
-            <p className="home-eyebrow">01 · Qué aprenderás</p>
-            <h2 id="learn-title">
-              {STUDY_BLOCKS.length} bloques, {LESSON_COUNT} lecciones. Una sola tabla.
-            </h2>
+            <p className="home-eyebrow">01 · La ruta</p>
+            <h2 id="route-title">Tres secciones, una misma forma de aprender.</h2>
             <p>
-              Todo el recorrido usa EMPLEADOS: {EMPLEADOS.rows.length} personas y{' '}
-              {EMPLEADOS.columns.length} columnas. Cada lección muestra la tabla, la consulta, lo
-              que hace y el resultado.
+              Empieza por los fundamentos y avanza hacia consultas con varias tablas y la
+              programación en la base de datos. Cada sección indica qué aprenderás, cómo practicarás
+              y en qué estado está.
             </p>
           </header>
-          <ol className="home-path">
-            {STUDY_BLOCKS.map((block) => {
-              const lessons = LESSON_INDEX.filter((lesson) => lesson.block === block.id);
-              const first = lessons[0]!;
-              return (
-                <li key={block.id}>
-                  <Link href={`/learn/${first.slug}`} className="home-path__card">
-                    <span className="home-path__number">{block.letter}</span>
-                    <span className="home-path__copy">
-                      <strong>{block.title}</strong>
-                      <span>{block.summary}</span>
-                    </span>
-                    <code className="home-path__code">
-                      {lessons.map((lesson) => lesson.badge).join(' · ')}
-                    </code>
-                  </Link>
-                </li>
-              );
-            })}
+          <ol className="section-grid">
+            {SECTION_LIST.map((section) => (
+              <li key={section.id}>
+                <SectionCard section={section} progress={sectionProgress(section)} />
+              </li>
+            ))}
           </ol>
+          <Link href="/sections" className="inline-action home-route__link">
+            Ver las secciones y tu avance <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </section>
 
-      <section className="home-band home-band--primary" aria-labelledby="demo-title">
-        <div className="site-container home-demo-band">
+      <section className="home-band home-band--primary" aria-labelledby="experience-title">
+        <div className="site-container">
           <header className="home-heading home-heading--inverse">
-            <p className="home-eyebrow">02 · Pruébalo ahora</p>
-            <h2 id="demo-title">Elige columnas. Mira el resultado.</h2>
+            <p className="home-eyebrow">02 · Cómo se aprende</p>
+            <h2 id="experience-title">Del concepto a la ejecución, con retroalimentación.</h2>
             <p>
-              Toca las columnas en el orden que quieras. La consulta se escribe sola y todas las
-              filas se conservan: SELECT elige columnas, no filas.
+              Cada tema sigue el mismo recorrido. La consulta nunca aparece sola: siempre se ve la
+              tabla de la que parte y el resultado que produce.
             </p>
           </header>
-          <HomeDemonstration />
+          <ol className="experience-steps">
+            {EXPERIENCE.map((step, index) => (
+              <li key={step.title}>
+                <span className="experience-steps__number" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <strong>{step.title}</strong>
+                <span>{step.text}</span>
+              </li>
+            ))}
+          </ol>
+          {pattern && (
+            <div className="home-pattern">
+              <h3 className="home-pattern__title">El patrón de cada ejemplo</h3>
+              <QueryTransformation
+                tone="dark"
+                sources={[
+                  {
+                    name: EMPLEADOS.table,
+                    rows: EMPLEADOS.rows.length,
+                    columns: EMPLEADOS.columns.length,
+                  },
+                ]}
+                sql={PATTERN_SQL}
+                explanation="WHERE conserva solo las filas de Cali y SELECT muestra dos columnas: nombre y salario."
+                result={{ rows: pattern.rows.length, columns: pattern.columns.length }}
+                resultLabel="Vista educativa"
+              />
+            </div>
+          )}
+          <div className="home-demo-band">
+            <h3 className="home-pattern__title">
+              Pruébalo ahora: elige columnas y mira el resultado
+            </h3>
+            <HomeDemonstration />
+          </div>
         </div>
       </section>
 
-      <section className="home-band home-band--tech" aria-labelledby="challenge-title">
-        <div className="site-container home-challenge">
-          <div className="home-challenge__copy">
-            <p className="home-eyebrow">03 · SQL Oracle Challenge</p>
-            <h2 id="challenge-title">Diez misiones para demostrar lo aprendido.</h2>
+      <section className="home-band home-band--tech" aria-labelledby="oracle-title">
+        <div className="site-container home-oracle">
+          <header className="home-heading home-heading--inverse">
+            <p className="home-eyebrow">03 · Oracle real</p>
+            <h2 id="oracle-title">Tus consultas, en Oracle Database.</h2>
             <p>
-              Ordena piezas, predice resultados, detecta errores y escribe la consulta final. Con
-              ratón, toque o teclado.
+              El laboratorio no se queda en una simulación: cuando el servicio está conectado, la
+              consulta validada se ejecuta en Oracle y el resultado se rotula como tal.
             </p>
-            <Link href="/challenge" className="hero-action hero-action--primary">
-              SQL Challenge <span aria-hidden="true">→</span>
+          </header>
+          <ol className="oracle-flow" aria-label="Recorrido de una consulta">
+            {ORACLE_FLOW.map((step, index) => (
+              <li key={step.title}>
+                <span className="oracle-flow__number" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <strong>{step.title}</strong>
+                <span>{step.text}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="home-oracle__footer">
+            <p className="home-oracle__note">
+              Si Oracle no está disponible, el laboratorio lo dice y muestra solo la vista
+              educativa: nunca presenta una simulación como ejecución real.
+            </p>
+            <Link href="/lab" className="hero-action hero-action--primary">
+              Probar en el laboratorio <span aria-hidden="true">→</span>
             </Link>
-          </div>
-          <div className="home-challenge__console" aria-label="Reglas de la práctica">
-            <p className="home-challenge__prompt">
-              <span aria-hidden="true">$</span> reglas --practica-individual
-            </p>
-            <dl>
-              <div>
-                <dt>Misiones</dt>
-                <dd>10</dd>
-              </div>
-              <div>
-                <dt>Puntos máximos</dt>
-                <dd>{PRACTICE_RULES.maxScorePerMission * 10}</dd>
-              </div>
-              <div>
-                <dt>Intentos puntuados</dt>
-                <dd>{PRACTICE_RULES.maxScoredAttempts} por misión</dd>
-              </div>
-              <div>
-                <dt>Pista opcional</dt>
-                <dd>−{PRACTICE_RULES.hintPenalty} puntos</dd>
-              </div>
-            </dl>
-            <p className="home-challenge__note">
-              El reto final se califica con Oracle; mientras el servicio no esté conectado, se
-              revisa su estructura sin puntuar.
-            </p>
           </div>
         </div>
       </section>
@@ -255,7 +299,7 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
         <div className="site-container home-start">
           <div className="home-video">
             <header className="home-heading home-heading--compact">
-              <p className="home-eyebrow">Inicio del recorrido</p>
+              <p className="home-eyebrow">Empieza aquí · Sección 1</p>
               <h2 id="start-title">Antes de empezar</h2>
             </header>
             <VideoPlayer
@@ -270,41 +314,10 @@ export function HomePage({ progress }: { readonly progress: ReactNode }) {
           </div>
           <div className="home-progress">
             {progress}
-            <Link href="/learn/introduccion" className="inline-action">
-              Empezar por «¿Qué es SQL?» <span aria-hidden="true">→</span>
+            <Link href="/sections/fundamentos-sql" className="inline-action">
+              Continuar con Fundamentos SQL <span aria-hidden="true">→</span>
             </Link>
           </div>
-        </div>
-      </section>
-
-      <section
-        className="home-band home-band--light home-future"
-        id="proximos-modulos"
-        aria-labelledby="future-title"
-      >
-        <div className="site-container">
-          <header className="home-heading">
-            <p className="home-eyebrow">La ruta continúa</p>
-            <h2 id="future-title">Después de SELECT.</h2>
-            <p>
-              Esta unidad es el nivel 1. Los siguientes ya tienen sus temas definidos y aparecen
-              como «Próximamente».
-            </p>
-          </header>
-          <ul className="home-future__grid">
-            {upcomingLevels().map((level) => (
-              <li key={level.id}>
-                <span className="home-future__tag">
-                  Nivel {level.number} · {STAGE_LABEL[level.stage]} · Próximamente
-                </span>
-                <strong>{level.title}</strong>
-                <span>{level.topics.map((topic) => topic.title).join(' · ')}</span>
-              </li>
-            ))}
-          </ul>
-          <Link href="/modules" className="inline-action home-future__link">
-            Ver la ruta de aprendizaje <span aria-hidden="true">→</span>
-          </Link>
         </div>
       </section>
     </div>

@@ -48,13 +48,16 @@
 }
 .home-heading {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2);
   max-width: 760px;
   margin-bottom: var(--space-7);
 }
 .home-heading h2 {
   margin-bottom: 0;
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(1.75rem, 4vw + 0.5rem, 3.25rem);
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .home-heading p:last-child {
   margin-bottom: 0;
@@ -67,7 +70,18 @@
 
 // Hero.
 .home-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   padding-block: clamp(48px, 7vw, 120px) clamp(56px, 8vw, 128px);
+}
+// Fondo de celdas (Shape Grid): detrás del contenido, sin recibir clics.
+.home-hero__grid-bg {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 .home-hero__grid {
   display: grid;
@@ -76,22 +90,23 @@
   align-items: center;
 }
 .home-hero__title {
-  display: grid;
-  margin-bottom: var(--space-5);
-  letter-spacing: -0.05em;
+  margin-bottom: var(--space-3);
+  font-size: clamp(3.5rem, 9vw, 7.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
   line-height: 0.92;
 }
-.home-hero__select {
-  font-size: clamp(4rem, 10vw, 9rem);
-  font-weight: 800;
-}
-.home-hero__rest {
-  font-size: clamp(2rem, 4.6vw, 4.25rem);
-  font-weight: 750;
-  text-transform: uppercase;
-}
-.home-hero__rest span {
+.home-hero__title span {
   color: var(--color-cyan);
+}
+.home-hero__subtitle {
+  max-width: 26ch;
+  margin-bottom: var(--space-4);
+  color: var(--color-inverse);
+  font-size: clamp(1.25rem, 1.4vw + 0.9rem, 1.75rem);
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 .home-hero__lead {
   max-width: 34ch;
@@ -128,7 +143,6 @@
   gap: var(--space-3);
 }
 .home-hero__actions .hero-action,
-.home-challenge .hero-action,
 .home-demo .hero-action {
   text-transform: uppercase;
 }
@@ -236,7 +250,7 @@
 }
 .home-identity__facts dt {
   color: var(--color-muted);
-  font-size: 0.75rem;
+  font-size: var(--type-label);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -245,69 +259,6 @@
   margin: 2px 0 0;
   color: var(--color-ink);
   font-weight: 650;
-}
-
-// Qué aprenderás.
-.home-path {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-.home-path__card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
-  gap: var(--space-2) var(--space-4);
-  height: 100%;
-  padding: var(--space-5);
-  color: var(--color-ink);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
-  text-decoration: none;
-  transition:
-    border-color var(--duration-feedback),
-    transform var(--duration-feedback);
-}
-.home-path__card:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-}
-.home-path__number {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  color: var(--color-inverse);
-  background: var(--color-night);
-  border-radius: 12px;
-  font: 700 0.9375rem var(--font-mono);
-}
-.home-path__copy {
-  display: grid;
-  gap: var(--space-1);
-}
-.home-path__copy strong {
-  font-size: 1.1875rem;
-}
-.home-path__copy span {
-  color: var(--color-muted);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-}
-.home-path__code {
-  grid-column: 2;
-  justify-self: start;
-  align-self: end;
-  padding: 4px 10px;
-  color: var(--color-primary);
-  background: var(--color-soft);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 700;
 }
 
 // Demostración. Con 1–4 columnas, controles y resultado lado a lado; con 5 o más, el
@@ -435,61 +386,6 @@
   text-align: center;
 }
 
-// Challenge.
-.home-challenge {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(32px, 5vw, 80px);
-  align-items: center;
-}
-.home-challenge__copy h2 {
-  font-size: clamp(2rem, 4vw, 3.25rem);
-}
-.home-challenge__copy p:not(.home-eyebrow) {
-  max-width: 46ch;
-  margin-bottom: var(--space-6);
-  color: rgb(247 250 255 / 84%);
-  font-size: 1.125rem;
-}
-.home-challenge__console {
-  padding: var(--space-6);
-  background: rgb(32 204 229 / 5%);
-  border: 1px solid rgb(32 204 229 / 40%);
-  border-radius: var(--radius-card);
-  font-family: var(--font-mono);
-}
-.home-challenge__prompt {
-  color: var(--color-cyan);
-  font-size: 1rem;
-}
-.home-challenge__console dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
-  margin: var(--space-5) 0;
-}
-.home-challenge__console dl div {
-  padding: var(--space-4);
-  background: rgb(247 250 255 / 5%);
-  border-radius: 12px;
-}
-.home-challenge__console dt {
-  color: rgb(247 250 255 / 72%);
-  font-size: 0.8125rem;
-}
-.home-challenge__console dd {
-  margin: 4px 0 0;
-  color: var(--color-inverse);
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-.home-challenge__note {
-  margin: 0;
-  color: rgb(247 250 255 / 72%);
-  font-family: var(--font-sans);
-  font-size: 0.9375rem;
-}
-
 // Video y progreso.
 .home-start {
   display: grid;
@@ -499,6 +395,7 @@
 }
 .home-video {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   min-width: 0;
 }
@@ -509,51 +406,6 @@
   display: grid;
   align-content: start;
   gap: var(--space-4);
-}
-
-// Próximos módulos.
-.home-future {
-  padding-top: 0;
-}
-.home-future__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
-  gap: var(--space-3);
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-.home-future__grid li {
-  display: grid;
-  align-content: start;
-  gap: var(--space-2);
-  padding: var(--space-4);
-  background: var(--color-page);
-  border: 1px dashed var(--color-border-control);
-  border-radius: var(--radius-card);
-}
-.home-future__grid code {
-  color: var(--color-ink);
-  font-size: 1.0625rem;
-  font-weight: 700;
-}
-.home-future__grid span:last-child {
-  color: var(--color-muted);
-  font-size: 0.875rem;
-  line-height: 1.45;
-}
-.home-future__link {
-  margin-top: var(--space-4);
-}
-.home-future__tag {
-  justify-self: start;
-  padding: 2px 8px;
-  color: var(--color-warning);
-  background: color-mix(in srgb, var(--color-warning) 8%, var(--color-surface));
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
 }
 
 @media (max-width: 1199px) {
@@ -567,12 +419,8 @@
   .home-demo--few,
   .home-demo--some .home-demo__controls,
   .home-demo--many .home-demo__controls,
-  .home-challenge,
   .home-start {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .home-path {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 767px) {
@@ -588,47 +436,154 @@
   .home-hero__actions .hero-action {
     width: 100%;
   }
-  .home-path {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .home-identity__facts,
-  .home-challenge__console dl {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .home-challenge__console {
-    padding: var(--space-5);
+  .home-identity__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .home-path__card:hover {
-    transform: none;
+@media (max-width: 359px) {
+  .home-identity__facts {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (max-width: 300px) {
-  .home-hero__select {
+  .home-hero__title {
     font-size: 3rem;
-  }
-  .home-hero__rest {
-    font-size: 1.5rem;
   }
   .home-hero__title,
   .home-heading h2 {
     overflow-wrap: anywhere;
   }
-  .home-demo__controls,
-  .home-challenge__console {
+  .home-demo__controls {
     padding: var(--space-4);
   }
 }
-@media (max-width: 300px) {
-  .home-path__card {
+// Ruta, experiencia y Oracle real (DB LAB).
+.home-route__link {
+  margin-top: var(--space-5);
+}
+.experience-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-7);
+  padding: 0;
+  list-style: none;
+}
+.experience-steps li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow-wrap: break-word;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+  background: rgb(247 250 255 / 8%);
+  border: 1px solid rgb(247 250 255 / 24%);
+  border-radius: var(--radius-lg);
+}
+.experience-steps__number {
+  color: var(--color-inverse);
+  font: 800 1.25rem/1 var(--font-mono);
+}
+.experience-steps strong {
+  font-size: 1.125rem;
+}
+.experience-steps li > span:last-child {
+  color: rgb(247 250 255 / 90%);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.home-pattern {
+  margin-bottom: var(--space-7);
+}
+.home-pattern__title {
+  margin-bottom: var(--space-4);
+  font-size: clamp(1.25rem, 1vw + 1rem, 1.5rem);
+  letter-spacing: -0.01em;
+}
+.oracle-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+.oracle-flow li {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow-wrap: break-word;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+  background: rgb(247 250 255 / 4%);
+  border: 1px solid rgb(247 250 255 / 16%);
+  border-radius: var(--radius-lg);
+}
+.oracle-flow__number {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: var(--color-cyan);
+  border: 2px solid var(--color-cyan);
+  border-radius: 50%;
+  font: 800 0.9375rem var(--font-mono);
+}
+.oracle-flow strong {
+  font-size: 1.0625rem;
+}
+.oracle-flow li > span:last-child {
+  color: rgb(247 250 255 / 82%);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.home-oracle__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.home-oracle__note {
+  max-width: 62ch;
+  margin: 0;
+  color: rgb(247 250 255 / 82%);
+}
+@media (max-width: 1199px) {
+  .experience-steps,
+  .oracle-flow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 767px) {
+  .experience-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .oracle-flow {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 359px) {
+  .experience-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+// Reflujo a 200 % sobre 360 px (≈180 px CSS): nada empuja la página hacia los lados.
+@media (max-width: 300px) {
+  .experience-steps li,
+  .oracle-flow li {
     padding: var(--space-3);
-  }
-  .home-path__code {
-    grid-column: auto;
-  }
-  .home-path__copy {
     overflow-wrap: anywhere;
+  }
+  .home-demo__columns button {
+    padding-inline: var(--space-2);
+    font-size: 0.8125rem;
+    word-break: break-all;
+  }
+  .home-oracle__footer .hero-action {
+    width: 100%;
   }
 }
