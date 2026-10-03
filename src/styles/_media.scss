@@ -83,12 +83,15 @@
 }
 .video-player__caption {
   display: grid;
+  // Sin columna explícita, una palabra larga del título ensancha la rejilla al reflujo.
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.35em;
 }
 .video-player__title {
   margin: 0;
   font-size: 1.25em;
   line-height: 1.25;
+  overflow-wrap: break-word;
 }
 .video-player__description,
 .video-player__meta,

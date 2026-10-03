@@ -699,3 +699,212 @@
     animation: none;
   }
 }
+
+// Estado con icono y texto (DB LAB). El color refuerza, no informa solo.
+.ds-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  min-height: 28px;
+  padding: 2px 10px;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-label);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.ds-status svg {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+.ds-status--available {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+.ds-status--coming-soon {
+  color: var(--color-info);
+  background: var(--color-info-soft);
+}
+.ds-status--planned {
+  color: var(--color-muted);
+  background: var(--color-surface-alt);
+  border-style: dashed;
+}
+.ds-status--info {
+  color: var(--color-primary);
+  background: var(--color-soft);
+}
+
+// Ruta de navegación (breadcrumb).
+.ds-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+  font-size: var(--type-caption);
+  font-weight: 600;
+}
+.ds-breadcrumb li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ds-breadcrumb li + li::before {
+  color: var(--color-muted);
+  content: '/';
+}
+.ds-breadcrumb a,
+.ds-breadcrumb span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+}
+.ds-breadcrumb a {
+  color: var(--color-primary);
+}
+.ds-breadcrumb [aria-current='page'] {
+  color: var(--color-ink);
+}
+.ds-breadcrumb--dark a,
+.ds-breadcrumb--dark [aria-current='page'],
+.ds-breadcrumb--dark li + li::before {
+  color: rgb(247 250 255 / 88%);
+}
+.ds-breadcrumb--dark [aria-current='page'] {
+  color: var(--color-inverse);
+}
+
+// Cabecera de página: dónde estoy, qué es y qué puedo hacer.
+.ds-page-header {
+  padding-block: clamp(28px, 4vw, 64px) clamp(32px, 4vw, 56px);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.ds-page-header--night {
+  --color-focus: var(--color-cyan);
+  color: var(--color-inverse);
+  background:
+    radial-gradient(90% 120% at 100% 0%, rgb(32 204 229 / 14%), transparent 55%), var(--color-night);
+  border-bottom: 0;
+}
+.ds-page-header__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+.ds-page-header__eyebrow {
+  margin-bottom: var(--space-3);
+  color: var(--color-primary);
+  font-size: var(--type-label);
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ds-page-header--night .ds-page-header__eyebrow {
+  color: var(--color-cyan);
+}
+.ds-page-header h1 {
+  margin-bottom: var(--space-3);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+@media (max-width: 300px) {
+  .ds-page-header h1 {
+    font-size: 1.75rem;
+    overflow-wrap: anywhere;
+  }
+}
+.ds-page-header__lead {
+  max-width: 62ch;
+  margin-bottom: 0;
+  color: var(--color-muted);
+  font-size: var(--type-lead);
+  line-height: 1.55;
+}
+.ds-page-header--night .ds-page-header__lead {
+  color: rgb(247 250 255 / 88%);
+}
+.ds-page-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+@media (min-width: 992px) {
+  .ds-page-header__grid--aside {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: var(--space-7);
+  }
+}
+
+// Patrón tabla original → consulta → qué hace → resultado (QueryTransformation).
+.qt {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: qt;
+}
+.qt__step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+.qt__label {
+  color: var(--color-primary);
+  font-size: var(--type-label);
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.qt__table {
+  display: grid;
+  gap: 2px;
+}
+.qt__table strong {
+  font-family: var(--font-mono);
+  font-size: 1.0625rem;
+}
+.qt-dimensions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+.qt__explanation {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.qt__step--query .sql-code__pre {
+  font-size: 0.9375rem;
+}
+@media (max-width: 1199px) {
+  .qt {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 575px) {
+  .qt {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

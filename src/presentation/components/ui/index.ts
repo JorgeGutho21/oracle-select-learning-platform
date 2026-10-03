@@ -1,4 +1,5 @@
 export { Alert, type AlertProps } from './alert';
+export { Breadcrumb, type BreadcrumbItem, type BreadcrumbProps } from './breadcrumb';
 export { BreakableUrl, type BreakableUrlProps } from './breakable-url';
 export { Button, type ButtonProps } from './button';
 export { Card, type CardProps } from './card';
@@ -8,7 +9,9 @@ export { DataTable, type DataTableColumn, type DataTableProps } from './data-tab
 export { Dialog, type DialogProps } from './dialog';
 export { Heading, type HeadingProps } from './heading';
 export { LoadingState, type LoadingStateProps } from './loading-state';
+export { PageHeader, type PageHeaderProps } from './page-header';
 export { Progress, type ProgressProps } from './progress';
 export { SearchField, type SearchFieldProps } from './search-field';
+export { StatusBadge, type StatusBadgeProps, type StatusBadgeTone } from './status-badge';
 export { Tabs, type TabItem, type TabsProps } from './tabs';
 export { Tooltip, type TooltipProps } from './tooltip';

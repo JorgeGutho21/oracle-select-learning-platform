@@ -34,13 +34,13 @@ h3 {
   text-wrap: balance;
 }
 h1 {
-  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-size: var(--type-h1);
 }
 h2 {
-  font-size: clamp(2rem, 3vw, 2.5rem);
+  font-size: var(--type-h2);
 }
 h3 {
-  font-size: 1.5rem;
+  font-size: var(--type-h3);
 }
 p {
   margin-bottom: var(--space-4);

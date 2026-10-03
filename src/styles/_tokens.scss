@@ -16,6 +16,9 @@ $colors: (
   success: #176b45,
   warning: #855500,
   danger: #b42332,
+  // Información neutra (avisos, estados «próximamente»): azul distinto de la acción.
+  info: #0b5cad,
+  info-soft: #e7f0fb,
   border-subtle: #d4deef,
   border-control: #63738d,
   focus: #1746b8,
@@ -40,12 +43,19 @@ $colors: (
   sem-filter: #6d28d9,
   sem-operator: #92400e,
   sem-order: #be185d,
+  // Sección 2: relación entre tablas (JOIN y ON) y agrupación (GROUP BY y HAVING).
+  sem-join: #047857,
+  sem-group: #c2410c,
   // Variantes para fondos oscuros (editor y escenas nocturnas).
   sem-select-dark: #22d3ee,
   sem-from-dark: #93b8ff,
   sem-filter-dark: #c4b5fd,
   sem-operator-dark: #fcd34d,
   sem-order-dark: #f9a8d4,
+  sem-join-dark: #6ee7b7,
+  sem-group-dark: #fdba74,
+  // Funciones (COUNT, ROUND, NVL…): claro y seminegrita, sin competir con las cláusulas.
+  sem-function-dark: #e2e8f0,
 );
 $spacing: (
   1: 4px,
@@ -56,6 +66,7 @@ $spacing: (
   6: 32px,
   7: 48px,
   8: 64px,
+  9: 96px,
 );
 $radii: (
   control: 10px,
@@ -72,20 +83,26 @@ $shadows: (
   xs: 0 1px 2px rgb(11 23 51 / 6%),
   sm: 0 2px 8px rgb(11 23 51 / 8%),
   md: 0 12px 32px rgb(11 23 51 / 12%),
+  lg: 0 24px 56px rgb(11 23 51 / 16%),
 );
 $transitions: (
   feedback: 150ms,
   transition: 250ms,
   slow: 350ms,
+  // Entrada de la portada; los efectos de fondo usan su propio ritmo y se detienen fuera de vista.
+  entrance: 500ms,
 );
 $layers: (
   base: 0,
   sticky: 100,
+  menu: 150,
   overlay: 200,
   dialog: 300,
+  toast: 400,
 );
 $containers: (
   max: 1320px,
+  narrow: 960px,
   readable: 72ch,
 );
 $breakpoints: (
@@ -119,6 +136,13 @@ $type-scale: (
   body: clamp(1rem, 0.4vw + 0.9rem, 1.2rem),
   code: clamp(0.95rem, 0.4vw + 0.85rem, 1.15rem),
   small: max(0.8125rem, 13px),
+  // Roles tipográficos del sistema DB LAB. h1–h3 conservan las medidas que ya usaba la base.
+  h1: clamp(2rem, 4.5vw, 3.5rem),
+  h2: clamp(2rem, 3vw, 2.5rem),
+  h3: 1.5rem,
+  lead: clamp(1.125rem, 0.6vw + 1rem, 1.375rem),
+  caption: 0.875rem,
+  label: 0.8125rem,
 );
 
 @function color($name) {
@@ -146,5 +170,7 @@ $type-scale: (
     --font-sans: #{$font-sans};
     --font-mono: #{$font-mono};
     --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --tap-target: 44px;
   }
 }
