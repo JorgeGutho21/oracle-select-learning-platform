@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChallengeEngine } from '@/features/challenge/application/challenge-engine';
-import { BrowserChallengeRepository } from '@/features/challenge/infrastructure/browser-challenge-repository';
+import { SyncedChallengeRepository } from '../progress/progress-sync-client';
 import { randomIdGenerator, systemClock } from '@/features/challenge/infrastructure/system-clock';
 import { ChallengeExperience } from '@/features/challenge/presentation/challenge-experience';
 import { evaluatePracticeAnswer, getPracticeExplanation, getPracticeHint } from './actions';
@@ -20,7 +20,7 @@ export function ChallengeRoot() {
           getHint: getPracticeHint,
           getExplanation: getPracticeExplanation,
         },
-        repository: new BrowserChallengeRepository(),
+        repository: new SyncedChallengeRepository(),
         clock: systemClock,
         ids: randomIdGenerator,
       }),

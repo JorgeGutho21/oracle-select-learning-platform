@@ -16,8 +16,9 @@ import {
   LESSON_VERSIONS,
 } from '@/features/study/application/lesson-index';
 import { currentCompletedCount } from '@/features/study/application/progress';
-import { BrowserStudyProgressRepository } from '@/features/study/infrastructure/browser-study-progress';
+import { SyncedStudyProgressRepository } from '../progress/progress-sync-client';
 import { useStudyProgress } from '@/features/study/presentation/study-progress';
+import { ProgressStorageNote } from '../accounts/progress-storage-note';
 
 /**
  * Raíces cliente del avance por sección. Solo leen el progreso real del Modo Estudio
@@ -34,7 +35,7 @@ export interface SectionSummary {
 const FIRST_LESSON = LESSON_INDEX[0]!;
 
 function useLocalStudy() {
-  const [repository] = useState(() => new BrowserStudyProgressRepository());
+  const [repository] = useState(() => new SyncedStudyProgressRepository());
   const { progress } = useStudyProgress(repository);
   return {
     done: currentCompletedCount(progress, LESSON_VERSIONS),
@@ -72,7 +73,11 @@ export function LearningOverviewRoot({
         detail: 'Todavía no has abierto ninguna lección de Fundamentos SQL en este navegador.',
       };
   return (
-    <LearningOverview items={sections.map((section) => progressItem(section, done))} next={next} />
+    <LearningOverview
+      items={sections.map((section) => progressItem(section, done))}
+      next={next}
+      storageNote={<ProgressStorageNote />}
+    />
   );
 }
 

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { BrowserSceneMemory } from '@/features/presentation/infrastructure/browser-scene-memory';
+import { SyncedSceneMemory } from '../progress/progress-sync-client';
 import { PresentationDeck } from '@/features/presentation/presentation/presentation-deck';
 
 export function PresentationRoot({ requestedScene }: { readonly requestedScene: number | null }) {
-  const [memory] = useState(() => new BrowserSceneMemory());
+  const [memory] = useState(() => new SyncedSceneMemory());
   return <PresentationDeck requestedScene={requestedScene} memory={memory} />;
 }

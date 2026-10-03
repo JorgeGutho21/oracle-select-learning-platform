@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BrowserStudyProgressRepository } from '@/features/study/infrastructure/browser-study-progress';
+import { SyncedStudyProgressRepository } from '../progress/progress-sync-client';
 import {
   StudyProgressSummary,
   useStudyProgress,
@@ -9,7 +9,7 @@ import {
 
 /** Progreso local de la unidad actual, para su tarjeta en el catálogo de módulos. */
 export function ModuleProgressRoot() {
-  const [repository] = useState(() => new BrowserStudyProgressRepository());
+  const [repository] = useState(() => new SyncedStudyProgressRepository());
   const { progress } = useStudyProgress(repository);
   return <StudyProgressSummary progress={progress} />;
 }

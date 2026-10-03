@@ -1,10 +1,11 @@
 'use client';
 import { useState } from 'react';
-import { BrowserStudyProgressRepository } from '@/features/study/infrastructure/browser-study-progress';
+import { SyncedStudyProgressRepository } from '../progress/progress-sync-client';
 import { StudyProgress, useStudyProgress } from '@/features/study/presentation/study-progress';
 import { Alert } from '@/presentation/components/ui';
+import { ProgressStorageNote } from '../accounts/progress-storage-note';
 export function StudyProgressRoot({ compact = true }: { compact?: boolean }) {
-  const [repository] = useState(() => new BrowserStudyProgressRepository());
+  const [repository] = useState(() => new SyncedStudyProgressRepository());
   const { progress, warning } = useStudyProgress(repository);
   return (
     <>
@@ -13,7 +14,7 @@ export function StudyProgressRoot({ compact = true }: { compact?: boolean }) {
           {warning}
         </Alert>
       )}
-      <StudyProgress progress={progress} compact={compact} />
+      <StudyProgress progress={progress} compact={compact} storageNote={<ProgressStorageNote />} />
     </>
   );
 }

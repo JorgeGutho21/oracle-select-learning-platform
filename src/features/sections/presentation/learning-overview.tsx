@@ -1,5 +1,6 @@
 import type { Route } from 'next';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { Progress, StatusBadge } from '@/presentation/components/ui';
 import type { SectionStatus } from '../application/sections-api';
 
@@ -48,18 +49,21 @@ export function SectionProgressMeter({ item }: { readonly item: SectionProgressI
 export interface LearningOverviewProps {
   readonly items: readonly SectionProgressItem[];
   readonly next: ContinueItem;
+  /** Dónde se guarda el avance (dispositivo o cuenta). */
+  readonly storageNote?: ReactNode;
 }
 
-export function LearningOverview({ items, next }: LearningOverviewProps) {
+export function LearningOverview({
+  items,
+  next,
+  storageNote = 'Se guarda en este dispositivo.',
+}: LearningOverviewProps) {
   return (
     <section className="learning-overview" aria-labelledby="learning-overview-title">
       <header className="learning-overview__head">
         <p className="learning-overview__eyebrow">Mi aprendizaje</p>
         <h2 id="learning-overview-title">Tu avance</h2>
-        <p>
-          Se guarda solo en este navegador. Con las cuentas de estudiante llegarán el historial y
-          las evaluaciones.
-        </p>
+        <p>{storageNote}</p>
       </header>
       <div className="learning-overview__grid">
         <div className="overview-panel overview-panel--wide">
@@ -89,8 +93,9 @@ export function LearningOverview({ items, next }: LearningOverviewProps) {
         <div className="overview-panel overview-panel--empty">
           <h3>Actividad reciente</h3>
           <p>
-            El historial llegará con las cuentas de estudiante. Hoy DB LAB recuerda tu última
-            lección en este navegador.
+            Con una cuenta, tu actividad reciente aparece en{' '}
+            <Link href="/dashboard">Mi progreso</Link>. Sin cuenta, DB LAB recuerda tu última
+            lección en este dispositivo.
           </p>
         </div>
       </div>

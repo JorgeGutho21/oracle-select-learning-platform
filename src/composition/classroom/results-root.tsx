@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChallengeEngine } from '@/features/challenge/application/challenge-engine';
-import { BrowserChallengeRepository } from '@/features/challenge/infrastructure/browser-challenge-repository';
+import { SyncedChallengeRepository } from '../progress/progress-sync-client';
 import { randomIdGenerator, systemClock } from '@/features/challenge/infrastructure/system-clock';
 import { ResultsPage } from '@/features/results/presentation/results-page';
 import { participantViewAction, presenterViewAction } from './actions';
@@ -19,7 +19,7 @@ export function ResultsRoot({ roomCode }: { readonly roomCode: string | null }) 
     () =>
       new ChallengeEngine({
         evaluator: READ_ONLY_EVALUATOR,
-        repository: new BrowserChallengeRepository(),
+        repository: new SyncedChallengeRepository(),
         clock: systemClock,
         ids: randomIdGenerator,
       }),

@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -107,18 +108,24 @@ export function useStudyProgress(repository: StudyProgressRepository) {
   return { progress, warning, otherRelease, ready, visit, complete, reset };
 }
 
-type StudyProgressValue = ReturnType<typeof useStudyProgress>;
+type StudyProgressValue = ReturnType<typeof useStudyProgress> & {
+  readonly storageNote?: ReactNode;
+};
 
 const StudyProgressContext = createContext<StudyProgressValue | null>(null);
 
 export function StudyProgressProvider({
   repository,
+  storageNote,
   children,
 }: {
   readonly repository: StudyProgressRepository;
+  /** Dónde se guarda el avance (dispositivo o cuenta); lo decide la composición. */
+  readonly storageNote?: ReactNode;
   readonly children: ReactNode;
 }) {
-  const value = useStudyProgress(repository);
+  const progress = useStudyProgress(repository);
+  const value = useMemo(() => ({ ...progress, storageNote }), [progress, storageNote]);
   return <StudyProgressContext.Provider value={value}>{children}</StudyProgressContext.Provider>;
 }
 
@@ -150,9 +157,11 @@ export function StudyAlerts() {
 export function StudyProgress({
   progress,
   compact = false,
+  storageNote = 'Se guarda en este dispositivo.',
 }: {
   readonly progress: StudyProgressState;
   readonly compact?: boolean;
+  readonly storageNote?: ReactNode;
 }) {
   const last = LESSON_INDEX.find((lesson) => lesson.id === progress.lastLesson);
   const done = currentCompletedCount(progress, LESSON_VERSIONS);
@@ -192,7 +201,7 @@ export function StudyProgress({
         )}
       </div>
       <p className="study-progress__note">
-        Se guarda solo en este navegador. Cada lección se completa al resolver su mini comprobación.
+        {storageNote} Cada lección se completa al resolver su mini comprobación.
       </p>
     </section>
   );
@@ -200,8 +209,8 @@ export function StudyProgress({
 
 /** Progreso del proveedor de la página. */
 export function StudyProgressPanel({ compact = false }: { readonly compact?: boolean }) {
-  const { progress } = useProgressContext();
-  return <StudyProgress progress={progress} compact={compact} />;
+  const { progress, storageNote } = useProgressContext();
+  return <StudyProgress progress={progress} compact={compact} storageNote={storageNote} />;
 }
 
 /** Resumen breve del avance para tarjetas, como la del catálogo de módulos. */
