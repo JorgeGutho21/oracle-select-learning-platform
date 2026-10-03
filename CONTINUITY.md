@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 3 de octubre de 2026 (DB LAB, Fase 1: arquitectura de secciones, marca y sistema de diseño en la rama `claude/gallant-cori-4rp11r`, sin desplegar). Punto de entrada para Codex u otra IA.
+Actualizado: 3 de octubre de 2026 (DB LAB, Fase 2: cuentas, roles, progreso sincronizado y panel docente en la rama `claude-phase2-auth-progress-20261002`, sin desplegar; la Fase 1 sigue en `claude/gallant-cori-4rp11r`). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -23,7 +23,14 @@ En otro equipo, usar el clon de ese mismo repositorio. No crear repositorios dif
   1. **Fundamentos SQL:** disponible; es todo lo que se describe abajo.
   2. **Consultas relacionales y análisis:** «Próximamente», con su plan publicado.
   3. **PL/SQL y automatización:** «Próximamente», con su plan publicado.
-- Fuera de la Fase 1: autenticación, usuarios, panel docente, evaluaciones, banco de preguntas y backend nuevo.
+- Fase 2 (rama `claude-phase2-auth-progress-20261002`):
+  - cuentas con Supabase Auth (invitado, correo y contraseña, Microsoft cuando se configure);
+  - roles `student` y `teacher`, este último asignado solo con `scripts/assign-role.mjs` o `admin_set_role`;
+  - progreso sincronizado con fusión del progreso de invitado;
+  - `/dashboard`, `/profile` y `/teacher`;
+  - RLS en todas las tablas nuevas.
+  - Detalle en `docs/AUTH_ARCHITECTURE.md`.
+- Fuera de la Fase 2: evaluaciones, banco de preguntas, supervisión, exportaciones y contenido de las secciones 2 y 3.
 - Decisiones en `docs/ARCHITECTURE.md` (sección DB LAB) y `docs/DESIGN_SYSTEM.md` 3.0.
 
 SQL SELECT LAB es una plataforma universitaria en español de Jorge Gutierrez Thomas para la asignatura Base de Datos (profesor Amilkar Sierra), programa de Ingeniería de Sistemas de la Universidad Popular del Cesar. Desde la reingeniería del 25 de septiembre de 2026 enseña el **Nivel 1, SELECT fundamental** completo: base de datos, tabla, fila, columna y SQL; SELECT, FROM, `*`, columnas, expresiones, precedencia, alias con AS, concatenación, DISTINCT, WHERE, comparaciones, AND/OR/NOT, paréntesis, BETWEEN, IN, LIKE, NULL, ORDER BY, la consulta completa y los errores frecuentes (22 lecciones, 29 escenas).
@@ -270,3 +277,35 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
     - E2E en Chromium: 248 pasan. Los 21 fallos también fallan en la base sin cambios en este contenedor (fuentes y navegador); la rama corrige 4 fallos previos.
   - **Sin cambios:** Supabase, Oracle, credenciales, claves de almacenamiento, rutas existentes y QR.
   - **Pendiente:** la vista previa en Vercel. Sin sesión del CLI ni acceso a Vercel desde el contenedor.
+
+## Sesión del 3 de octubre de 2026: DB LAB, Fase 2
+
+**Rama y checkpoint**
+
+- Rama `claude-phase2-auth-progress-20261002`, subida a GitHub.
+- Checkpoint: etiqueta local `phase1-checkpoint-20261003` en `9180bf5`.
+
+**Hecho**
+
+- Migración `20261002120000_learner_accounts.sql`: perfiles, progreso, presencia, dominios institucionales, RLS y `admin_set_role`.
+- `supabase/config.toml` y plantillas de correo en español.
+- Sesión en el servidor con `@supabase/ssr` 0.12.7 y cookies httpOnly; proxy en las rutas privadas.
+- Pantallas de acceso, menú de cuenta, panel del estudiante, perfil y panel docente.
+- Sincronización del progreso: repositorios locales envueltos, fusión monótona y limpieza del dispositivo al cerrar sesión.
+
+**Verificado:** ver la tabla de la Fase 2 en `docs/PROJECT_STATUS.md`.
+
+- Supabase local real con Docker y la CLI 2.119 (`SUPABASE_INTERNAL_IMAGE_REGISTRY=docker.io`).
+- 11 E2E de cuentas, RLS en PostgreSQL y en Supabase real.
+- Las 21 E2E que fallan son las mismas de la base en este entorno.
+
+**Pendiente del responsable (detalle en `docs/AUTH_ARCHITECTURE.md`, apartado 12)**
+
+1. Aplicar la migración en Supabase. El mismo proyecto atiende Production y Preview.
+2. Configurar Site URL, redirecciones, plantillas, SMTP propio y límites de Auth.
+3. Desplegar la vista previa desde esta rama.
+4. Asignar el rol de profesor cuando Amilkar Sierra Romano tenga cuenta.
+5. Validar el dominio institucional.
+6. Opcional: Microsoft en Entra y Supabase.
+
+**Siguiente: Fase 3, evaluaciones.** Contratos en `docs/ARCHITECTURE.md` (Fase 2).

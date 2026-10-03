@@ -301,3 +301,35 @@ React Bits Pro no se usó.
 - La ruta de navegación aparece en las páginas de sección.
 - Los modos se repiten en todas las secciones, con microcopia que dice adónde lleva cada enlace («Abrir el laboratorio», «Ver el plan de la Sección 2»).
 
+### Fase 2: cuentas
+
+**Componentes:**
+
+- `TextField` y `PasswordField`, con «Mostrar/Ocultar», etiqueta visible, ayuda y error con `aria-describedby`;
+- resumen de formulario con foco y `role="alert"`;
+- `AuthLayout`: identidad nocturna con la cuadrícula de la portada, muy tenue, y formulario claro; en móvil, una columna;
+- `AccessMethods`;
+- `AccountMenu`: en la cabecera, de 44 px, cerrable con Escape y con clic fuera;
+- `LearnerDashboard`, `ProfileView`, `TeacherDashboard` y `AccessDenied`.
+
+**React Bits reutilizado**, sin componentes nuevos:
+
+- Shape Grid tenue en el lado visual del acceso;
+- Spotlight Card en los métodos de acceso, en la sección disponible del panel y en los modos;
+- Star Border en «Continuar en …»;
+- Pixel Card en las secciones «Próximamente».
+
+No se añadió ningún componente nuevo: los gratuitos que quedaban (Count Up, Animated List, Fade Content) dependen de motion o GSAP, o retrasan el contenido hasta hidratar.
+
+**Datos del profesor:** tabla en escritorio; desde 991 px, tres líneas por estudiante, sin desplazamiento lateral ni tarjetas altas.
+
+**Estados:**
+
+- cargando: el menú tiene el mismo tamaño en todos sus estados, así que no hay CLS;
+- invitado y con sesión;
+- sin conexión, en el menú y en el panel;
+- sincronizando o sincronizado;
+- error;
+- sin datos, en la actividad y en el grupo;
+- 403;
+- avisos de los flujos de correo.

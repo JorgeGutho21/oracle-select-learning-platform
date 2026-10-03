@@ -154,19 +154,29 @@ Diferencias con la identidad descrita arriba, aceptadas para v1.1: el profesor u
 
 1. **Contenido nuevo de una sección:** se añade a su registro y a su propio módulo, sin tocar la Sección 1. Para publicar una sección basta con cambiar su estado y dar `href` a sus modos.
 2. **Plan de la Sección 2** ([SECTION_2_MIGRATION_PLAN.md](SECTION_2_MIGRATION_PLAN.md)): la portada pública de la sección es `/sections/consultas-relacionales`. Las lecciones pueden vivir en `/learn/<slug>` o bajo la sección, según se decida al implementarlas. Esto sustituye a `/learn/sql-avanzado` como portada.
-3. **Progreso:** hoy es local y por navegador.
-
-   Contrato esperado cuando haya cuentas (Fase 2+). Es un puerto de aplicación implementado en infraestructura con Supabase y RLS, sin escribir desde React:
-
-   ```ts
-   interface LearnerProgressRepository {
-     sectionProgress(learnerId: string, sectionId: SectionId): Promise<{ completed: string[]; total: number; lastLesson: string | null; updatedAt: string }>;
-     recordCompletion(learnerId: string, sectionId: SectionId, lessonId: string, contentVersion: number): Promise<void>;
-     recentActivity(learnerId: string, limit: number): Promise<{ kind: 'lesson' | 'mission' | 'evaluation'; ref: string; at: string }[]>;
-   }
-   ```
-
-   La importación inicial del progreso local se hará una sola vez y con consentimiento del estudiante.
+3. **Progreso:** desde la Fase 2 se sincroniza con la cuenta (sección siguiente). El contrato previsto aquí se cumplió con un modelo más general: registros por sección, modo y elemento (`learning_progress`), registro canónico de elementos y fusión monótona en el cliente y en la base. La importación del progreso local ocurre al iniciar sesión, sin perder nada; se anuncia en el registro («Tu progreso de invitado en este dispositivo se suma a la cuenta»).
 4. **Evaluaciones:** el modo `evaluation` ya existe en el registro con `href: null`. La futura ruta (`/sections/<id>/evaluacion` o `/evaluaciones`) debe validar en el servidor y no reutilizar la puntuación del Challenge.
-5. **Navegación:** se mantienen seis entradas. Cuando existan cuentas, «Mi aprendizaje» y «Perfil» irán en el menú de usuario, no como entradas nuevas de la barra.
+5. **Navegación:** se mantienen seis entradas. «Mi progreso», «Mi perfil» y «Panel docente» están en el menú de cuenta (Fase 2), no en la barra.
 
+## DB LAB Fase 2: cuentas, roles, progreso sincronizado y panel docente
+
+Detalle completo en [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md). Resumen de decisiones:
+
+1. **Supabase para identidad y plataforma; Oracle para las prácticas.** Ninguna consulta de estudiante pasa por Supabase.
+2. **Sesión en cookies httpOnly con `@supabase/ssr` y sin cliente de Supabase en el navegador para cuentas o progreso.** Las páginas y rutas de API del servidor consultan con la clave publicable y la sesión (RLS como esa persona). La clave secreta no participa en ningún flujo de la aplicación.
+3. **Autorización en la base:** RLS, privilegios por columna, disparadores y `admin_set_role` (solo `service_role`). El rol `teacher` no se puede elegir ni enviar desde el cliente.
+4. **Contenido público estático.** Solo `/dashboard`, `/profile`, `/teacher` y `/reset-password` pasan por `src/proxy.ts`. La cabecera resuelve el menú de cuenta en el navegador y un invitado no hace peticiones extra.
+5. **Progreso local primero.** Las claves de siempre siguen siendo la fuente inmediata. Los repositorios se envuelven en la composición (`composition/progress/progress-sync-client.ts`) para avisar a la sincronización, sin cambiar las funcionalidades de la Fase 1.
+6. **Rutas nuevas:**
+   - acceso: `/login`, `/register`, `/forgot-password`, `/reset-password`, `/auth/confirm`, `/auth/callback`;
+   - cuenta: `/dashboard`, `/profile`, `/teacher`, `/access-denied`;
+   - API: `/api/session`, `/api/progress`, `/api/presence`.
+7. **Presencia por señal lenta en tabla con RLS** y no por Realtime Presence: un canal privado compartido expondría la presencia de cada estudiante a los demás.
+8. **Sin tabla de actividad.** La actividad reciente sale de `learning_progress.last_activity_at`.
+
+Contratos para la Fase 3 (evaluaciones):
+
+- `profiles.id` es la identidad. `private.is_teacher()` autoriza al profesor y `profiles.institutional` marca a los estudiantes institucionales verificados.
+- Las tablas de evaluación usarán RLS con el mismo patrón: lectura propia, profesor lee todo y escrituras de calificación por funciones de servidor, nunca desde el cliente.
+- La Fase 3 activará el modo `evaluation` del registro de secciones con su `href` y su entrada en `PROGRESS_CATALOG`.
+- La supervisión de exámenes no reutilizará `learner_presence`: tendrá su propia tabla y función de escritura.

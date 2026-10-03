@@ -18,6 +18,15 @@ Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico: no es 
 
 DB LAB se organiza en tres secciones (`/sections`): **Fundamentos SQL** (disponible, todo lo que se describe abajo), **Consultas relacionales y análisis** y **PL/SQL y automatización** (planes publicados, «Próximamente»). Cada sección reúne los mismos modos: iniciar clase, estudiar, practicar, Challenge, recursos y evaluación. Decisiones de la Fase 1 en [ARCHITECTURE.md](docs/ARCHITECTURE.md#db-lab-fase-1-arquitectura-de-secciones) y [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md#db-lab-30).
 
+**Fase 2:**
+
+- cuentas opcionales: invitado, correo y contraseña, o Microsoft;
+- roles de estudiante y profesor;
+- progreso sincronizado entre dispositivos;
+- «Mi progreso», perfil y panel docente.
+
+Supabase da la identidad y Oracle sigue ejecutando las prácticas. Detalle en [AUTH_ARCHITECTURE.md](docs/AUTH_ARCHITECTURE.md).
+
 La Sección 1 es la unidad completa de **Oracle SQL fundamental (SELECT)**:
 
 Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único dataset, `empleados-select-v2`: tabla EMPLEADOS de 12 columnas y 20 filas, cargada en Oracle desde `oracle/empleados-select-v2.sql`.

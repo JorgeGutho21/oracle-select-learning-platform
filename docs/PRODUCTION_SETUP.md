@@ -35,25 +35,25 @@ Estados:
 - **LOCAL:** solo existe en archivos de esta máquina.
 - **NO USADA:** el código no la necesita en ese entorno.
 
-| Variable                                 | Tipo               | Ámbito                       | Función                                                     | Vercel Production                   | Vercel Preview                                |
-| ---------------------------------------- | ------------------ | ---------------------------- | ----------------------------------------------------------- | ----------------------------------- | --------------------------------------------- |
-| `ORACLE_USER`                            | REQUIRED           | Servidor                     | Cuenta lectora `SQL_LAB_V2_READER`                          | AVAILABLE                           | AVAILABLE                                     |
-| `ORACLE_PASSWORD`                        | REQUIRED           | Servidor, secreta            | Contraseña de la cuenta lectora                             | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
-| `ORACLE_CONNECT_STRING`                  | REQUIRED           | Servidor, secreta            | Descriptor TCPS del servicio `sqlselect_tp`                 | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
-| `ORACLE_SCHEMA`                          | OPTIONAL           | Servidor                     | Propietario de `EMPLEADOS` (`SQL_LAB_OWNER`)                | AVAILABLE                           | AVAILABLE                                     |
-| `ORACLE_WALLET_PEM_BASE64`               | REQUIRED con mTLS  | Servidor, secreta            | `ewallet.pem` de la cartera, en base64                      | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
-| `ORACLE_WALLET_PASSWORD`                 | REQUIRED con mTLS  | Servidor, secreta            | Contraseña de la cartera                                    | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
-| `ORACLE_POOL_MAX`                        | OPTIONAL           | Servidor                     | Conexiones por instancia (10 por defecto)                   | `4`                                 | `4`                                           |
-| `ORACLE_QUEUE_MAX` / `ORACLE_TIMEOUT_MS` | OPTIONAL           | Servidor                     | Cola (60) y plazo (5000 ms)                                 | Por defecto                         | Por defecto                                   |
-| `SUPABASE_URL`                           | REQUIRED           | Servidor                     | URL del proyecto                                            | AVAILABLE                           | AVAILABLE                                     |
-| `SUPABASE_SECRET_KEY`                    | REQUIRED           | Servidor, secreta            | Clave `sb_secret_…`. **Nunca** `NEXT_PUBLIC_`               | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
-| `SUPABASE_SERVICE_ROLE_KEY`              | OPTIONAL           | Servidor, secreta            | Nombre antiguo de la clave secreta                          | NO USADA                            | NO USADA                                      |
-| `NEXT_PUBLIC_SUPABASE_URL`               | OPTIONAL           | Pública, se fija en el build | Realtime en el navegador y origen de la CSP                 | AVAILABLE                           | AVAILABLE                                     |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`   | OPTIONAL           | Pública, se fija en el build | Clave `sb_publishable_…` para Realtime; sin acceso a tablas | AVAILABLE                           | AVAILABLE                                     |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`          | OPTIONAL           | Pública                      | Nombre antiguo de la clave publishable                      | NO USADA                            | NO USADA                                      |
-| `PRESENTER_ACCESS_CODE`                  | REQUIRED           | Servidor, secreta            | Clave del profesor para crear salas                         | AVAILABLE, la real (sensitive)      | AVAILABLE, una de prueba distinta (sensitive) |
-| `NEXT_PUBLIC_SITE_URL`                   | OPTIONAL en Vercel | Pública, se fija en el build | Dirección de los QR y de OpenGraph                          | `https://sql-select-lab.vercel.app` | NO USADA (usa la URL de la vista previa)      |
-| `CLASSROOM_BACKEND`                      | OPTIONAL           | Servidor                     | `memory` solo en desarrollo y pruebas                       | NO USADA (vacía)                    | NO USADA (vacía)                              |
+| Variable                                 | Tipo               | Ámbito                       | Función                                                                             | Vercel Production                   | Vercel Preview                                |
+| ---------------------------------------- | ------------------ | ---------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------- | --------------------------------------------- |
+| `ORACLE_USER`                            | REQUIRED           | Servidor                     | Cuenta lectora `SQL_LAB_V2_READER`                                                  | AVAILABLE                           | AVAILABLE                                     |
+| `ORACLE_PASSWORD`                        | REQUIRED           | Servidor, secreta            | Contraseña de la cuenta lectora                                                     | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_CONNECT_STRING`                  | REQUIRED           | Servidor, secreta            | Descriptor TCPS del servicio `sqlselect_tp`                                         | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_SCHEMA`                          | OPTIONAL           | Servidor                     | Propietario de `EMPLEADOS` (`SQL_LAB_OWNER`)                                        | AVAILABLE                           | AVAILABLE                                     |
+| `ORACLE_WALLET_PEM_BASE64`               | REQUIRED con mTLS  | Servidor, secreta            | `ewallet.pem` de la cartera, en base64                                              | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_WALLET_PASSWORD`                 | REQUIRED con mTLS  | Servidor, secreta            | Contraseña de la cartera                                                            | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `ORACLE_POOL_MAX`                        | OPTIONAL           | Servidor                     | Conexiones por instancia (10 por defecto)                                           | `4`                                 | `4`                                           |
+| `ORACLE_QUEUE_MAX` / `ORACLE_TIMEOUT_MS` | OPTIONAL           | Servidor                     | Cola (60) y plazo (5000 ms)                                                         | Por defecto                         | Por defecto                                   |
+| `SUPABASE_URL`                           | REQUIRED           | Servidor                     | URL del proyecto                                                                    | AVAILABLE                           | AVAILABLE                                     |
+| `SUPABASE_SECRET_KEY`                    | REQUIRED           | Servidor, secreta            | Clave `sb_secret_…`. **Nunca** `NEXT_PUBLIC_`                                       | AVAILABLE (sensitive)               | AVAILABLE (sensitive)                         |
+| `SUPABASE_SERVICE_ROLE_KEY`              | OPTIONAL           | Servidor, secreta            | Nombre antiguo de la clave secreta                                                  | NO USADA                            | NO USADA                                      |
+| `NEXT_PUBLIC_SUPABASE_URL`               | OPTIONAL           | Pública, se fija en el build | Realtime en el navegador, origen de la CSP y cuentas (Fase 2, leída en el servidor) | AVAILABLE                           | AVAILABLE                                     |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`   | OPTIONAL           | Pública, se fija en el build | Clave `sb_publishable_…` para Realtime y cuentas (RLS decide qué ve cada sesión)    | AVAILABLE                           | AVAILABLE                                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`          | OPTIONAL           | Pública                      | Nombre antiguo de la clave publishable                                              | NO USADA                            | NO USADA                                      |
+| `PRESENTER_ACCESS_CODE`                  | REQUIRED           | Servidor, secreta            | Clave del profesor para crear salas                                                 | AVAILABLE, la real (sensitive)      | AVAILABLE, una de prueba distinta (sensitive) |
+| `NEXT_PUBLIC_SITE_URL`                   | OPTIONAL en Vercel | Pública, se fija en el build | Dirección de los QR y de OpenGraph                                                  | `https://sql-select-lab.vercel.app` | NO USADA (usa la URL de la vista previa)      |
+| `CLASSROOM_BACKEND`                      | OPTIONAL           | Servidor                     | `memory` solo en desarrollo y pruebas                                               | NO USADA (vacía)                    | NO USADA (vacía)                              |
 
 Variables que no se configuran a mano:
 
@@ -99,3 +99,19 @@ V02 lleva además subtítulos WebVTT revisados y una transcripción. Cada reprod
 2. Cambiar la contraseña de ADMIN de Oracle Cloud, que quedó escrita en una conversación; la aplicación no la usa.
 3. Validar el uso público del emblema institucional ([public/identity/README.md](../public/identity/README.md)).
 4. Opcional: ensayo de carga con 50–60 móviles ([SUPABASE_SETUP.md](SUPABASE_SETUP.md)).
+
+## Cuentas (Fase 2)
+
+**Variables.** No hay variables nuevas. Las cuentas usan `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, que ya están en Production y Preview; el servidor las lee en cada petición.
+
+**Antes de desplegar**, el responsable completa en Supabase:
+
+- la migración de cuentas;
+- Site URL y URL de redirección;
+- plantillas de correo y SMTP propio;
+- límites de Auth;
+- opcionalmente, Microsoft.
+
+**Sin la migración**, las cuentas se muestran «no disponibles» y el resto sigue funcionando como invitado.
+
+**Detalle:** [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md), apartado 12.

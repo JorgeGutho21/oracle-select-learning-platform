@@ -91,6 +91,38 @@ Doce MINOR documentados. QA visual en ocho tamaños más zoom alto: 0 desbordes,
 
 **Actualización (Fase 4, motor SQL educativo y laboratorio):** un único léxico, parser y analizador del subconjunto SELECT en `src/domain/sql` (con AST, diagnósticos pedagógicos, evaluación educativa, traducción, anatomía y sentencia canónica), reutilizado por el laboratorio y por M05, M08, M09 y M10. `/lab` tiene seis paneles y editor CodeMirror 6. La ejecución Oracle es una operación separada tras el puerto `OracleQueryExecutor`, cuyo adaptador vigente declara «no conectado»; nunca se simula. Verificaciones en [Verificaciones tras la Fase 4](#verificaciones-tras-la-fase-4).
 
+## DB LAB, Fase 2: cuentas, roles, progreso sincronizado y panel docente (3 de octubre de 2026)
+
+**Rama:** `claude-phase2-auth-progress-20261002`, derivada de la Fase 1 (`claude/gallant-cori-4rp11r`, etiqueta `phase1-checkpoint-20261003` en `9180bf5`). `main` no se tocó. No está desplegada.
+
+**Arquitectura:** [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md) y [ARCHITECTURE.md](ARCHITECTURE.md#db-lab-fase-2-cuentas-roles-progreso-sincronizado-y-panel-docente).
+
+**Qué hay:**
+
+- **Acceso:** invitado sin bloqueo; registro con nombre, apellido, correo y contraseña, con confirmación de correo; acceso, cierre de sesión y recuperación de contraseña; Microsoft, que se activa solo si el proyecto lo tiene configurado.
+- **Perfiles y roles:** `student` por defecto; `teacher` solo por administración.
+- **Progreso:** sincronizado entre dispositivos, con fusión del progreso de invitado al entrar.
+- **Páginas:** `/dashboard`, `/profile` y `/teacher` (búsqueda y conexión).
+- **Base de datos:** RLS en todas las tablas nuevas.
+- **Cabecera:** menú de cuenta.
+
+**Verificación (Chromium 1194 de este entorno, Supabase local real con `supabase start`):**
+
+| Comprobación              | Resultado                                                                                                                                                                                                                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lint, typecheck y formato | PASS                                                                                                                                                                                                                                                                                |
+| Unitarias e integración   | PASS. Unitarias, integración con RLS en PostgreSQL (16) y sala en PostgreSQL. Además, `accounts-supabase.test.ts` contra Supabase real: 7/7. Oracle real: omitida, sin credenciales en este entorno.                                                                                |
+| Build                     | PASS                                                                                                                                                                                                                                                                                |
+| E2E con Supabase          | 259 pasan, 21 fallan, 2 se omiten. Las 21 son exactamente las de la base de la Fase 1 en este entorno (fuentes y versión de Chromium): mismas pruebas, mismos mensajes. Las 11 de cuentas pasan.                                                                                    |
+| E2E sin Supabase          | 78 pasan (rutas, inicio, secciones, estudio, búsqueda, sala, Challenge, laboratorio e invitado) y 10 de cuentas se omiten.                                                                                                                                                          |
+| Intermitencia previa      | «la ayuda… permanece dentro del móvil» (`interactions.spec.ts`) falla de forma intermitente también en el build de la Fase 1: 3 de 10.                                                                                                                                              |
+| Responsive                | 130 combinaciones: 13 tamaños, de 1920 a 320, con los equivalentes de zoom de 125 %, 150 % y 200 %. Diez pantallas de acceso, cuenta y profesor sin desborde de página, sin errores de consola y con un solo `h1`. La tabla docente pasa a tres líneas por estudiante desde 991 px. |
+| Accesibilidad             | axe WCAG 2 A/AA sin infracciones en el panel, el perfil y el panel docente. Formularios con etiquetas, resumen de errores con foco y `role="alert"`, menú accesible con teclado.                                                                                                    |
+| Rendimiento               | JavaScript inicial comprimido: +8 KB en Inicio y Estudio, +15 KB en Secciones y Challenge, +20 KB en Exposición frente a la Fase 1. CLS 0 como invitado y 0,0002 con sesión. zod se quedó fuera del navegador.                                                                      |
+| Secretos                  | Ninguna clave secreta en el repositorio, los bundles ni el HTML. Las cookies de sesión son httpOnly.                                                                                                                                                                                |
+| Microsoft                 | BLOCKED: falta configurar la aplicación de Microsoft Entra en Supabase. Lista manual en [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md#15-validación-manual-pendiente-de-microsoft).                                                                                                   |
+| Vista previa              | No generada: no hay sesión de Vercel ni red hacia `vercel.com` en este entorno.                                                                                                                                                                                                     |
+
 ## DB LAB, Fase 1: arquitectura visual, secciones y diseño (3 de octubre de 2026)
 
 **Rama:** `claude/gallant-cori-4rp11r`. Incorpora `claude-final-ui-polish-20260926` (874f774, código de producción) mediante un merge; el checkpoint es `7f69de9`. `main` no se tocó.

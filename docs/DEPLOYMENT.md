@@ -145,3 +145,29 @@ Para desplegar en cada `git push`, se puede conectar el repositorio con `vercel 
 | Supabase                            | La migración solo añade tablas y funciones. Volver a una versión anterior de la web no exige tocar la base.                                                                                                                                                                                                                                                                   |
 | Oracle                              | La web solo lee `EMPLEADOS`: no hay datos que revertir. Si la salud falla, `/lab` se declara no disponible por sí solo. `node scripts/oracle-cloud.mjs setup` recrea el esquema y rota la contraseña de la cuenta lectora, que después hay que actualizar en Vercel.                                                                                                          |
 | Código                              | Cada fase es un commit en `claude-finish-20260923`. `git revert <commit>` y un nuevo despliegue.                                                                                                                                                                                                                                                                              |
+
+## DB LAB Fase 2 (cuentas): vista previa pendiente
+
+**Rama:** `claude-phase2-auth-progress-20261002`. No está desplegada: este entorno de trabajo no tiene sesión de Vercel ni red hacia `vercel.com`.
+
+**Orden recomendado:**
+
+1. **Supabase.** Seguir [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md) (apartado 12):
+   - aplicar la migración de cuentas;
+   - Site URL y redirecciones `https://<producción>/**` y `https://*-<equipo>.vercel.app/**`;
+   - plantillas en español, SMTP propio y límites de Auth;
+   - Microsoft, si se quiere.
+2. **Vista previa** desde la rama: `npx vercel@60.0.1 --global-config .vercel/cli deploy --target preview`.
+3. **Pruebas sobre la vista previa:**
+   - registro con confirmación;
+   - acceso, perfil y cierre de sesión;
+   - progreso en dos navegadores;
+   - estudiante en `/teacher`, que debe ver «Acceso denegado»;
+   - profesor, tras `scripts/assign-role.mjs`.
+4. **Producción**, solo después de validar la vista previa.
+
+**Vuelta atrás:**
+
+- Redesplegar el despliegue anterior.
+- La migración no necesita revertirse: solo añade tablas.
+- Para retirarla del todo, borrar las tablas `profiles`, `learning_progress`, `learner_presence` e `institutional_domains`, el esquema `private` y los disparadores `on_auth_user_*` de `auth.users`.

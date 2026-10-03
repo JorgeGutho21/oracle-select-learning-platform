@@ -74,3 +74,26 @@ Antes de declarar la sala lista para una clase real con Supabase:
 4. Endurecimiento opcional: pasar el canal a privado con políticas sobre `realtime.messages` para que solo participantes de la sala reciban sus avisos.
 
 Hasta completar estos pasos, la capacidad de 50–60 estudiantes es un objetivo de diseño probado en concurrencia con memoria y PostgreSQL embebido, **no una capacidad medida** en el servicio remoto.
+
+## Cuentas de DB LAB (Fase 2)
+
+La segunda migración, [`20261002120000_learner_accounts.sql`](../supabase/migrations/20261002120000_learner_accounts.sql), añade:
+
+- perfiles, roles, progreso, presencia y dominios institucionales;
+- RLS en todas esas tablas.
+
+**Qué no toca:** las tablas ni las funciones de la sala en vivo.
+
+**Cómo aplicarla:**
+
+- igual que la primera: `supabase db push`, o pegarla en el editor SQL una sola vez;
+- antes de desplegar la Fase 2.
+
+**Ojo:** Production y Preview usan hoy el mismo proyecto. Aplicarla para una vista previa también cambia la base de producción. La migración solo añade tablas y funciones, pero la decisión es del responsable. Alternativa: un proyecto Supabase de vista previa.
+
+**Auth (Site URL, redirecciones, plantillas de correo, SMTP propio, límites, Microsoft) y rol de profesor:** [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md), apartados 8, 9 y 12.
+
+**Entorno local reproducible:** `supabase start` con [`supabase/config.toml`](../supabase/config.toml) aplica las dos migraciones y levanta:
+
+- Auth, la API y Realtime;
+- un buzón de correos de prueba.

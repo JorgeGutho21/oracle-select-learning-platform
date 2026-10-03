@@ -114,3 +114,44 @@ El profesor finaliza con confirmación. Su consola muestra el ranking final y la
 Cada estudiante ve su resultado personal calculado por el servidor: posición, puntos (sobre 1000), misiones resueltas, precisión, tiempo hasta su último acierto, intentos y pistas, con el ranking final completo. `/results?sala={codigo}` repite la vista que corresponde a ese navegador; sin permiso, «Sin resultados de esta sala». La práctica individual guardada en el navegador aparece aparte, rotulada como local.
 
 U08: para una sala sin intentos se muestra «Sin datos» (o «Sin resultados» si no hay participantes) y nunca porcentajes falsos ni divisiones por cero. Los módulos futuros no aumentan el denominador de progreso.
+
+## Flujos de cuenta (DB LAB, Fase 2)
+
+**Flujo I — Invitado**
+
+1. Entra a cualquier contenido sin registrarse.
+2. El menú «Entrar» y las notas de progreso dicen «Tu progreso se está guardando en este dispositivo» y ofrecen «Crear cuenta para sincronizar tu progreso».
+3. Nunca se bloquea el estudio.
+
+**Flujo J — Registro**
+
+1. Pide nombre, apellido, correo, contraseña y confirmación.
+2. Los errores aparecen al enviar, en un resumen que recibe el foco, y se corrigen mientras se escribe.
+3. Se conservan nombre, apellido y correo.
+4. Siempre responde «Revisa tu correo», exista o no la cuenta.
+5. El enlace lleva a una página con un botón «Confirmar mi correo» y luego a `/dashboard`.
+
+**Flujo K — Acceso**
+
+- Con correo y contraseña, o con «Continuar con Microsoft» (desactivado y explicado si no está configurado), lleva a `/dashboard` o a la ruta pedida.
+- Los errores son claros y no revelan si la cuenta existe.
+- «¿Olvidaste tu contraseña?» manda un enlace al correo; luego se elige una contraseña nueva y se llega a `/dashboard`.
+
+**Flujo L — Panel del estudiante**
+
+- Saludo, porcentaje general y estado de sincronización.
+- Tarjetas de cada sección con lecciones, misiones y escenas.
+- «Continuar en …», accesos a los modos y actividad reciente.
+
+**Flujo M — Perfil y salida**
+
+1. Muestra iniciales, nombre, correo, método de acceso, rol, estado institucional y progreso.
+2. Se editan nombre y apellido.
+3. «Cerrar sesión» sube lo pendiente, limpia el dispositivo y vuelve a Inicio como invitado.
+
+**Flujo N — Panel docente**
+
+- Solo para el rol de profesor.
+- Muestra registrados, activos en 7 días, conectados ahora, promedio y progreso por sección.
+- Lista de estudiantes con búsqueda que funciona sin JavaScript; en móvil, tres líneas por estudiante.
+- Un estudiante que entra a `/teacher` ve «Acceso denegado» sin ningún dato del panel.

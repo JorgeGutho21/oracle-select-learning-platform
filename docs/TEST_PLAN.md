@@ -238,3 +238,24 @@ La entrega funcional se acepta cuando P01–P18 pasan, G01–G15 y LAB01–LAB16
 Bloquean publicación: cualquier error de resultado SQL o puntaje, pérdida de intentos, permisos incorrectos, falta de Oracle real, misión imposible de completar, flujo crítico inaccesible o ausencia de un recurso obligatorio. Defectos menores no críticos pueden registrarse con responsable y fecha, sin ocultarlos como funcionalidades completas.
 
 Evidencias por ejecución: versión, entorno, prueba, resultado, captura o registro mínimo, incidencia y corrección. Ninguna prueba se marca aprobada únicamente por estar descrita en este archivo.
+
+## Cuentas, roles y progreso: pruebas automatizadas (DB LAB, Fase 2)
+
+| Nivel                         | Archivo                                                                                                    | Cubre                                                                                                                                                                                                                                                                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unitarias                     | `tests/unit/accounts/*`, `tests/unit/progress/*`                                                           | Validación y mensajes sin enumeración, redirecciones seguras, marca de sesión, límite de intentos (cuenta y salón), menú por rol, fusión monótona (completado nunca vuelve atrás), registro canónico, porcentajes, mapeo del progreso local, motor de sincronización (primer acceso, otra cuenta, sin conexión, cierre de sesión), panel docente |
+| RLS en PostgreSQL (siempre)   | `tests/integration/accounts-rls-postgres.test.ts`                                                          | anon sin acceso; A lee y edita lo suyo y no lo de B; nadie se asigna `teacher` (columna, inserción, función, columna concedida por error); profesor lee todo y no modifica; progreso monótono en la base; restricciones; presencia; estado institucional; sala intacta                                            |
+| Supabase real (con variables) | `tests/integration/accounts-supabase.test.ts`                                                              | Lo mismo con Auth y la API REST directa (sin interfaz): perfil `student` aunque se pida `teacher`, aislamiento A/B, metadatos sin autoridad, profesor                                                                                                                                                                 |
+| E2E (con variables)           | `tests/e2e/accounts.spec.ts`                                                                               | Invitado; registro con correo; validación; recuperación de contraseña; acceso, perfil y cierre de sesión; dispositivo limpio al salir; progreso entre dispositivos; fusión invitado → cuenta; estudiante en `/teacher`; API protegida (registro inventado, otro origen); profesor con búsqueda y conexión; desbordes y axe |
+
+**Cómo ejecutarlas.** `supabase start` y después, con los valores de `supabase status`:
+
+- `SUPABASE_TEST_URL`, `SUPABASE_TEST_PUBLISHABLE_KEY` y `SUPABASE_TEST_SECRET_KEY` para la integración;
+- `E2E_SUPABASE_URL`, `E2E_SUPABASE_PUBLISHABLE_KEY`, `E2E_SUPABASE_SECRET_KEY` y `E2E_MAILPIT_URL=http://127.0.0.1:54324` para las E2E.
+
+Sin esas variables:
+
+- la prueba de integración con Supabase y las E2E con cuenta se omiten;
+- la prueba de invitado y la de RLS en PostgreSQL corren siempre.
+
+**Microsoft** se valida a mano: lista en [AUTH_ARCHITECTURE.md](AUTH_ARCHITECTURE.md), apartado 15.
