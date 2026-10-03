@@ -1,0 +1,10 @@
+<h2>Confirma tu nuevo correo en DB LAB</h2>
+<p>Hola:</p>
+<p>Para cambiar el correo de tu cuenta de {{ .Email }} a {{ .NewEmail }}, confirma el cambio:</p>
+<p>
+  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email_change"
+    >Confirmar el cambio de correo</a
+  >
+</p>
+<p>Si no lo pediste, ignora este mensaje y tu correo no cambiará.</p>
+<p>DB LAB · Proyecto académico</p>

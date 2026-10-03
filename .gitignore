@@ -39,3 +39,7 @@ PASSWORD.txt
 *.sso
 ewallet.pem
 Wallet_*.zip
+
+# Estado local de la CLI de Supabase (supabase start)
+supabase/.branches/
+supabase/.temp/

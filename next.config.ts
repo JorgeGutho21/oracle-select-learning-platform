@@ -60,6 +60,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   typedRoutes: true,
+  // forbidden(): el panel docente responde 403 a quien no tiene el rol de profesor.
+  experimental: { authInterrupts: true },
   // El driver de Oracle se carga desde node_modules en el servidor, sin empaquetarlo.
   serverExternalPackages: ['oracledb'],
   sassOptions: {
