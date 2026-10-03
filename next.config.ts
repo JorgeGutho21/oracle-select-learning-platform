@@ -6,13 +6,19 @@ const isDev = process.env.NODE_ENV === 'development';
 // sus orígenes se permiten únicamente al compilar una vista previa, nunca en producción.
 const toolbar = process.env.VERCEL_ENV === 'preview';
 
-/** Origen HTTPS y WebSocket del proyecto Supabase para el aviso en tiempo real (opcional). */
+/**
+ * Origen HTTPS y WebSocket del proyecto Supabase para los avisos en tiempo real (sala en vivo
+ * y monitor de evaluaciones). Un Supabase local por http (`supabase start`) solo se admite en
+ * el propio equipo (127.0.0.1 o localhost), para las pruebas.
+ */
 function supabaseOrigins(): string {
   const configured = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   if (!configured) return '';
   try {
     const url = new URL(configured);
-    return url.protocol === 'https:' ? ` ${url.origin} wss://${url.host}` : '';
+    if (url.protocol === 'https:') return ` ${url.origin} wss://${url.host}`;
+    const loopback = url.hostname === '127.0.0.1' || url.hostname === 'localhost';
+    return url.protocol === 'http:' && loopback ? ` ${url.origin} ws://${url.host}` : '';
   } catch {
     return '';
   }
