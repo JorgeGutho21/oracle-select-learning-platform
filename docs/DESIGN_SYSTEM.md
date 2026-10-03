@@ -1,6 +1,6 @@
 # DESIGN_SYSTEM — Identidad y componentes
 
-Versión 2.0 · 26 de septiembre de 2026 · Relacionado con [UX_FLOWS.md](UX_FLOWS.md), [CONTENT_MAP.md](CONTENT_MAP.md) y [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md). La sección [Sistema final (2.0)](#sistema-final-20) prevalece sobre lo anterior cuando difieren.
+Versión 3.0 · 3 de octubre de 2026 · Relacionado con [UX_FLOWS.md](UX_FLOWS.md), [CONTENT_MAP.md](CONTENT_MAP.md) y [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md). La sección [DB LAB 3.0](#db-lab-30) prevalece sobre lo anterior cuando difieren; [Sistema final (2.0)](#sistema-final-20) sigue vigente en lo que 3.0 no cambia.
 
 ## Dirección visual fundada en las referencias
 
@@ -16,7 +16,7 @@ Bootstrap se usará como base de retícula y utilidades, personalizado con Sass 
 
 ## Identidad institucional
 
-Nombre público: **SQL SELECT LAB**. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutierrez Thomas» y profesor «Amilkar Sierra» en pie y modo Exposición. Institución: Universidad Popular del Cesar. Usar el logotipo oficial en navegación o portada sobre fondo compatible, sin deformarlo, recolorearlo ni imponerlo como marca de agua sobre tablas. Identidad confirmada por el responsable (PROJECT_SPEC). Logotipo obtenido del sitio institucional; procedencia registrada en `public/identity/README.md`.
+Nombre público: **DB LAB** («Plataforma interactiva de Bases de Datos con Oracle»), desde la versión 3.0; antes, SQL SELECT LAB. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutiérrez Thomas» y docente «Amílcar Sierra Romano» en pie, portada y modo Exposición. DB LAB es un proyecto académico: no se presenta como producto oficial de Oracle ni de la universidad. Institución: Universidad Popular del Cesar. Usar el logotipo oficial en navegación o portada sobre fondo compatible, sin deformarlo, recolorearlo ni imponerlo como marca de agua sobre tablas. Identidad confirmada por el responsable (PROJECT_SPEC). Logotipo obtenido del sitio institucional; procedencia registrada en `public/identity/README.md`.
 
 ## Tokens propuestos
 
@@ -184,3 +184,120 @@ El verde (`--color-success`) queda para lo correcto y el rojo (`--color-danger`)
 - **Misión del Challenge:** contexto (pedido, consulta, concepto clave y «Datos necesarios para esta misión») junto a la interacción cuando la misión mide 52 rem o más; una columna en móvil. La tabla completa es un desplegable «Ver tabla completa» con el explorador de datos (selector de columnas por grupos).
 - **Selección de filas (`RowPicker`):** cada fila es una casilla con sus campos en una lista de definición; con ancho se alinea como una tabla, en estrecho cada campo lleva su nombre. Al cerrar la misión indica «Cumple» o «No cumple» con símbolo y texto.
 - **Feedback del Challenge:** tipo de error, «Qué está bien», «Qué necesita ajuste» y «Pista», en tono de advertencia, no de castigo.
+
+## DB LAB 3.0
+
+Fase 1 de DB LAB (3 de octubre de 2026): la plataforma deja de ser una página de SELECT y se organiza en secciones. Se evoluciona el sistema 2.0; no se sustituye.
+
+### Marca
+
+- **Nombre y subtítulo:** salen de `PRODUCT_IDENTITY` (`src/application/academic-identity.ts`), junto con la promesa y el aviso académico. Ningún componente escribe la marca a mano.
+- **Símbolo:** se conserva `>_` (terminal) en la cabecera, los iconos y la imagen social.
+- **Logotipo:** «DB» en tinta y «LAB» en azul (cian sobre fondo oscuro).
+- **Emblema institucional:** el registrado en `public/identity` ocupa su lugar en el pie y en la banda de identidad. No se añadieron logotipos nuevos.
+- **Imagen social:** `src/app/opengraph-image.png`, 1200 × 630, se generó desde HTML con los tokens.
+
+### Tokens añadidos
+
+Se añaden en `_tokens.scss` y se emiten como propiedades CSS.
+
+| Categoría | Token | Valor y uso |
+| --- | --- | --- |
+| Color | `info` / `info-soft` | #0B5CAD / #E7F0FB. Estado «Próximamente» y avisos neutros (contraste 5,6:1). |
+| Color SQL | `sem-join` / `sem-group` (+ `-dark`) | #047857 / #C2410C · #6EE7B7 / #FDBA74. JOIN y ON; GROUP BY y HAVING. |
+| Color SQL | `sem-function-dark` | #E2E8F0, en seminegrita. Funciones (COUNT, ROUND, NVL…). |
+| Espaciado | `space-9` | 96 px. |
+| Sombra | `shadow-lg` | 0 24 56, al 16 %. |
+| Movimiento | `duration-entrance` · `ease-out` | 500 ms · cubic-bezier(0.16, 1, 0.3, 1). |
+| Capas | `z-menu` / `z-toast` | 150 / 400 (se suman a base, sticky, overlay y dialog). |
+| Contenedor | `container-narrow` | 960 px. |
+| Interacción | `tap-target` | 44 px. |
+
+**Tipografía por rol.** h1–h3 conservan las medidas que ya tenía la base. Fuentes del sistema: no se descargan fuentes web.
+
+| Rol | Token o regla | Medida |
+| --- | --- | --- |
+| Display | `.home-hero__title` | clamp(3.5rem, 9vw, 7.5rem), 800 |
+| H1 | `--type-h1` | clamp(2rem, 4.5vw, 3.5rem) |
+| H2 | `--type-h2` | clamp(2rem, 3vw, 2.5rem) |
+| H3 | `--type-h3` | 1.5rem |
+| Body | `--text-body` | 18 px, interlineado 1.65 |
+| Lead | `--type-lead` | clamp(1.125rem, …, 1.375rem) |
+| Caption | `--type-caption` | 14 px |
+| Label | `--type-label` | 13 px, mayúsculas y espaciado |
+| Code | `--font-mono`, `--type-code` | monoespaciada |
+
+El texto secundario nunca baja de 13 px; en esta fase se subieron a ese mínimo el atajo de búsqueda, los rótulos del pie y los de identidad.
+
+**Puntos de corte:** los de Bootstrap (576, 768, 992, 1200 y 1400 px), más 360 px y 300 px para el reflujo con zoom del 200 %.
+
+### Componentes base
+
+| Componente | Archivo | Uso |
+| --- | --- | --- |
+| AppShell | `presentation/layouts/app-shell.tsx` | Salto al contenido, cabecera, `main` (al menos una pantalla de alto, sin CLS del pie) y pie. Lo usa el layout raíz. |
+| Header y navegación móvil | `presentation/layouts/site-header.tsx` | Seis entradas: Inicio, Secciones, Laboratorio, Challenge, En vivo y Recursos. Menú `details` accesible por debajo de 992 px. |
+| Footer | `presentation/layouts/site-footer.tsx` | Proyecto, autor, docente, contexto, tecnologías, enlaces y avisos académicos. |
+| PageHeader | `ui/page-header.tsx` | Ruta de navegación, antetítulo, h1, entrada, acciones y lateral; tonos claro y noche. |
+| Breadcrumb | `ui/breadcrumb.tsx` | `nav` «Ruta de navegación» con `aria-current="page"`. |
+| StatusBadge | `ui/status-badge.tsx` | Disponible, Próximamente, Previsto e Información. Cada estado tiene icono propio y texto: el color no es la única señal. |
+| SectionCard | `features/sections/presentation/section-card.tsx` | Qué se aprende, práctica, estado, avance y un enlace con texto explícito. |
+| ModeGrid y ModeCard | `features/sections/presentation/mode-grid.tsx` | Modo con destino real como enlace; sin destino, tarjeta no interactiva «Próximamente». |
+| SectionRoute | `features/sections/presentation/section-route.tsx` | Ruta 01 → 02 → 03 con `aria-current="step"`. |
+| ProgressCard / LearningOverview | `features/sections/presentation/learning-overview.tsx` | Progreso general, continuar, evaluaciones y actividad. Recibe solo datos reales; lo demás, en estado neutro. |
+| ComingSoon | `SectionDetail` con estado `coming-soon` | Objetivo, temas, requisitos, posición y modos previstos. |
+| QueryTransformation | `presentation/components/data/query-transformation.tsx` | Tabla original → consulta → qué hace → resultado → qué cambió. Admite varias tablas de origen (JOIN). |
+
+Reutilizados sin cambios: SQLCodeBlock (`SqlCode`), DataTable/DataView, Progress, Alert, LoadingState, EmptyState (`.empty-state`), `error.tsx` y `global-error.tsx`, y la vista de datos adaptable de la versión 2.0.
+
+### Color de SQL ampliado
+
+Se añaden JOIN, INNER, LEFT, RIGHT, FULL, OUTER, CROSS, ON y USING (relación, verde); GROUP BY y HAVING (agrupación, naranja); funciones conocidas seguidas de paréntesis (claro y seminegrita); y UNION, ALL, INTERSECT y MINUS como palabras clave.
+
+`BY` toma el papel de la cláusula a la que acompaña. Un nombre seguido de paréntesis que no es una función conocida (`INSERT INTO empleados (…)`) no se colorea como función.
+
+### Movimiento y React Bits
+
+Regla de densidad: un efecto protagonista por pantalla; el resto son microinteracciones. Ningún efecto entra en el laboratorio, el Challenge, la Exposición ni las lecciones.
+
+**Movimiento reducido:**
+- La regla global de `_base.scss` detiene animaciones y transiciones.
+- Los lienzos dibujan un solo fotograma estático o no se animan.
+- Los efectos también quedan quietos en pantallas táctiles y con ahorro de datos (`prefersStaticEffects`).
+- Con `forced-colors` se ocultan.
+
+**Componentes usados** (gratuitos, MIT + Commons Clause, atribución en `THIRD_PARTY_NOTICES.md`):
+
+| React Bits | Dónde | Por qué |
+| --- | --- | --- |
+| Shape Grid (antes Squares) | Fondo del hero de la portada | Celdas como las de una tabla. Canvas 2D sin dependencias. Se detiene fuera de vista y con la pestaña oculta. Es el único efecto protagonista. |
+| Spotlight Card | Tarjetas de sección y de modo | Microinteracción con el ratón y con el foco. Solo CSS y una variable. |
+| Star Border | Sección disponible | Señala el estado importante. Solo CSS; componente de servidor. |
+| Pixel Card | Secciones «Próximamente» | Metáfora de «en construcción». Canvas solo mientras hay ratón o foco. |
+
+**Descartados:**
+
+| Componente | Motivo |
+| --- | --- |
+| Pattern Waves, Circular Gallery | WebGL y dependencia `ogl`. |
+| Fade Content, Animated Content, Dot Grid, Target Cursor, Depth Carousel | Dependen de GSAP. Fade y Animated ocultan el contenido hasta que llega JavaScript. |
+| Counter, Count Up, Animated List, Stepper, Carousel, Shiny Text | Dependen de `motion`, una biblioteca completa para una animación. Los carruseles esconden contenido. El progreso usa la transición CSS de `Progress`. |
+| Electric Border | Canvas animado sin pausa ni movimiento reducido. Star Border cumple el mismo papel con CSS. |
+| Folder | Esconde el temario detrás de un clic. |
+| Cursor Grid, Waves | Alternativas de fondo descartadas frente a Shape Grid: listeners globales y sin pausa fuera de vista (Waves). |
+| Magnet, Click Spark, Pixel Swap | Decoración sin función pedagógica. |
+
+React Bits Pro no se usó.
+
+### Navegación y orientación
+
+**Navegación principal:**
+- Inicio · **Secciones** · Laboratorio · Challenge · En vivo · Recursos.
+- «Secciones» sustituye a «Aprender» y queda activa en `/sections`, `/learn`, `/presentation` y `/modules`.
+- No se añaden entradas sin destino. Mi aprendizaje, Evaluaciones y Perfil llegarán con las cuentas de estudiante.
+- El avance local se muestra en `/sections`.
+
+**Orientación:**
+- La ruta de navegación aparece en las páginas de sección.
+- Los modos se repiten en todas las secciones, con microcopia que dice adónde lleva cada enlace («Abrir el laboratorio», «Ver el plan de la Sección 2»).
+

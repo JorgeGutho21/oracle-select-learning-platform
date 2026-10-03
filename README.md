@@ -1,12 +1,12 @@
-# SQL SELECT LAB
+# DB LAB
 
-Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
+Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico: no es un producto oficial de Oracle ni de la Universidad Popular del Cesar.
 
-**Autor:** Jorge Gutierrez Thomas
+**Desarrollado por:** Jorge Gutiérrez Thomas
 
-**Profesor:** Amilkar Sierra
+**Docente:** Amílcar Sierra Romano
 
-**Asignatura:** Base de Datos
+**Contexto:** Bases de Datos
 
 **Programa:** Ingeniería de Sistemas
 
@@ -15,6 +15,10 @@ Plataforma universitaria interactiva para aprender SELECT en Oracle SQL.
 **En línea:** <https://sql-select-lab.vercel.app> (Vercel, con Oracle Autonomous Database v2 y Supabase reales; v2 activa desde el 26 de septiembre de 2026). Detalle en [DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Estado del proyecto
+
+DB LAB se organiza en tres secciones (`/sections`): **Fundamentos SQL** (disponible, todo lo que se describe abajo), **Consultas relacionales y análisis** y **PL/SQL y automatización** (planes publicados, «Próximamente»). Cada sección reúne los mismos modos: iniciar clase, estudiar, practicar, Challenge, recursos y evaluación. Decisiones de la Fase 1 en [ARCHITECTURE.md](docs/ARCHITECTURE.md#db-lab-fase-1-arquitectura-de-secciones) y [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md#db-lab-30).
+
+La Sección 1 es la unidad completa de **Oracle SQL fundamental (SELECT)**:
 
 Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único dataset, `empleados-select-v2`: tabla EMPLEADOS de 12 columnas y 20 filas, cargada en Oracle desde `oracle/empleados-select-v2.sql`.
 

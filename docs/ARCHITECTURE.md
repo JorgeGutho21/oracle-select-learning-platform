@@ -116,3 +116,57 @@ Diferencias con la identidad descrita arriba, aceptadas para v1.1: el profesor u
 - A05: aplicación, dominio y adaptadores se prueban por separado; reglas de evaluación y puntuación tienen una única definición versionada.
 - A06: una sala con versión anterior sigue funcionando tras publicar una nueva versión del contenido.
 - A07: restaurar una copia de la base de aplicación en un entorno de prueba permite recalcular los resultados desde intentos y rúbrica, sin depender de memoria del servidor.
+
+## DB LAB Fase 1: arquitectura de secciones
+
+3 de octubre de 2026. La plataforma se presenta como DB LAB y se organiza en tres secciones que **envuelven** las funcionalidades existentes. No se tocó el backend: ni Supabase, ni Oracle, ni las credenciales, ni las tablas, ni la sala.
+
+### Módulo `features/sections`
+
+| Capa | Archivo | Responsabilidad |
+| --- | --- | --- |
+| Dominio | `domain/sections.ts` | Registro `SECTIONS`: id, número, título, objetivo, práctica, estado (`available` o `coming-soon`), requisitos, temas previstos y modos (`class`, `study`, `practice`, `challenge`, `resources`, `evaluation`). Un modo sin destino tiene `href: null`. |
+| Aplicación | `application/sections-api.ts` | DTO de cada sección. Para la Sección 1, el temario sale de los bloques y lecciones reales del Modo Estudio y las cifras, del contenido publicado. También da vecinos y modos disponibles. |
+| Presentación | `presentation/*` | SectionCard, ModeGrid, SectionRoute, SectionDetail, SectionsHub y LearningOverview. |
+| Composición | `composition/sections/*` | Raíces cliente que **leen** el progreso real del Modo Estudio (misma clave `sql-select-lab:study:progress`) y huecos de avance por sección. |
+
+### Rutas
+
+**Nuevas:**
+- `/sections`: portada de secciones y «Mi aprendizaje».
+- `/sections/[section]`, con `generateStaticParams` sobre `SECTION_IDS` y `dynamicParams = false`: `fundamentos-sql`, `consultas-relacionales`, `plsql`. Cualquier otra dirección da 404.
+
+**Conservadas sin cambios:**
+- Estudio: `/learn` y `/learn/[slug]`.
+- Exposición: `/presentation` y `/presentation/presentador`.
+- Práctica y juego: `/lab`, `/challenge`.
+- Sala: `/live`, `/join/[code]`, `/presenter/[code]`, `/results`.
+- Recursos y ruta: `/resources`, `/modules`.
+- Los QR, las claves de almacenamiento y las versiones (`select-study-v2`, `select-challenge-v4`, `empleados-select-v2`).
+
+**Modos de la Sección 1:** enlazan esas rutas; no se duplican bajo `/sections/1/...`. Así no hay dos URL para el mismo contenido.
+
+### AppShell
+
+`presentation/layouts/app-shell.tsx` reúne salto al contenido, cabecera, `main` y pie. Las variantes por modo siguen en `ModuleLayout`. `main` mide al menos una pantalla: así el pie no salta cuando React revela el contenido transmitido. El CLS de Inicio, Estudio y Challenge bajó de 0,25–0,65 a 0.
+
+### Decisiones para las fases siguientes
+
+1. **Contenido nuevo de una sección:** se añade a su registro y a su propio módulo, sin tocar la Sección 1. Para publicar una sección basta con cambiar su estado y dar `href` a sus modos.
+2. **Plan de la Sección 2** ([SECTION_2_MIGRATION_PLAN.md](SECTION_2_MIGRATION_PLAN.md)): la portada pública de la sección es `/sections/consultas-relacionales`. Las lecciones pueden vivir en `/learn/<slug>` o bajo la sección, según se decida al implementarlas. Esto sustituye a `/learn/sql-avanzado` como portada.
+3. **Progreso:** hoy es local y por navegador.
+
+   Contrato esperado cuando haya cuentas (Fase 2+). Es un puerto de aplicación implementado en infraestructura con Supabase y RLS, sin escribir desde React:
+
+   ```ts
+   interface LearnerProgressRepository {
+     sectionProgress(learnerId: string, sectionId: SectionId): Promise<{ completed: string[]; total: number; lastLesson: string | null; updatedAt: string }>;
+     recordCompletion(learnerId: string, sectionId: SectionId, lessonId: string, contentVersion: number): Promise<void>;
+     recentActivity(learnerId: string, limit: number): Promise<{ kind: 'lesson' | 'mission' | 'evaluation'; ref: string; at: string }[]>;
+   }
+   ```
+
+   La importación inicial del progreso local se hará una sola vez y con consentimiento del estudiante.
+4. **Evaluaciones:** el modo `evaluation` ya existe en el registro con `href: null`. La futura ruta (`/sections/<id>/evaluacion` o `/evaluaciones`) debe validar en el servidor y no reutilizar la puntuación del Challenge.
+5. **Navegación:** se mantienen seis entradas. Cuando existan cuentas, «Mi aprendizaje» y «Perfil» irán en el menú de usuario, no como entradas nuevas de la barra.
+

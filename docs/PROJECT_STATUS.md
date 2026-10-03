@@ -91,6 +91,66 @@ Doce MINOR documentados. QA visual en ocho tamaños más zoom alto: 0 desbordes,
 
 **Actualización (Fase 4, motor SQL educativo y laboratorio):** un único léxico, parser y analizador del subconjunto SELECT en `src/domain/sql` (con AST, diagnósticos pedagógicos, evaluación educativa, traducción, anatomía y sentencia canónica), reutilizado por el laboratorio y por M05, M08, M09 y M10. `/lab` tiene seis paneles y editor CodeMirror 6. La ejecución Oracle es una operación separada tras el puerto `OracleQueryExecutor`, cuyo adaptador vigente declara «no conectado»; nunca se simula. Verificaciones en [Verificaciones tras la Fase 4](#verificaciones-tras-la-fase-4).
 
+## DB LAB, Fase 1: arquitectura visual, secciones y diseño (3 de octubre de 2026)
+
+**Rama:** `claude/gallant-cori-4rp11r`. Incorpora `claude-final-ui-polish-20260926` (874f774, código de producción) mediante un merge; el checkpoint es `7f69de9`. `main` no se tocó.
+
+**Producción:**
+
+- No se reemplazó: sigue en `sql-select-lab.vercel.app` con el despliegue anterior.
+- No se tocaron Supabase, Oracle ni las credenciales.
+
+**Implementado:**
+
+- **Marca:** DB LAB, con identidad académica y avisos.
+- **AppShell.**
+- **Secciones:** `/sections` y `/sections/[section]`. La Sección 1 envuelve lo existente; las secciones 2 y 3 son «Próximamente» completas.
+- **Navegación:** «Secciones» sustituye a «Aprender»; siguen seis entradas.
+- **Portada nueva.**
+- **Sistema de diseño:** tokens y componentes base ampliados (DESIGN_SYSTEM 3.0).
+- **Color de SQL:** JOIN, agrupación y funciones.
+- **React Bits:** cuatro efectos gratuitos sin dependencias, con atribución.
+- **CLS:** 0 en Inicio, Estudio y Challenge (antes 0,25–0,65).
+
+**Verificaciones en este entorno (contenedor Linux, Node 22.22.0):**
+
+| Prueba                                                         | Resultado                                                                                                           |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Lint (con fronteras de arquitectura), typecheck y format:check | En verde                                                                                                            |
+| Unitarias e integración                                        | 644/644. La sala sobre PostgreSQL embebido sí se ejecuta; `oracle-real.test.ts` se omite sin credenciales de Oracle |
+| Build de producción                                            | En verde: 45 páginas, incluidas las tres secciones estáticas                                                        |
+| E2E en Chromium 1194 (el único navegador disponible)           | 248 pasan, 21 fallan y 2 se omiten (Oracle real)                                                                    |
+
+**Los 21 fallos de E2E son del entorno, no del cambio:**
+
+- La base sin modificar (`874f774`, compilada y probada aquí mismo) falla las mismas 21 pruebas y 4 más.
+- Esas 4 quedan corregidas en esta rama: Inicio a 180 px, el sistema de diseño a 180 px, la ayuda en móvil y la paleta con zoom del 200 %.
+- Los 21 fallos dependen de las métricas de fuente (DejaVu en Linux frente a las fuentes de Windows en las que se validaron) y de la versión del navegador:
+  - las escenas que caben en 16:9;
+  - las bandas de la tabla del laboratorio;
+  - las muestras del Challenge;
+  - el reflujo de `/resources` y `/modules` a 180 px;
+  - los subtítulos del video resumen.
+- No se ejecutaron Edge ni WebKit: no están instalados en el contenedor.
+
+**Revisión visual y de rendimiento (script propio):**
+
+- **Desbordamiento horizontal:**
+  - 13 tamaños, de 1920 × 1080 a 320 × 568, incluidos 853 × 480 y 640 × 360 (zoom del 150 % y del 200 % sobre 1280 × 720).
+  - 12 rutas: Inicio, Secciones, Sección 1, Sección 3, Exposición, Estudio, una lección, Laboratorio, Challenge, Recursos, En vivo y Ruta.
+  - Resultado: ningún desbordamiento horizontal y ningún error de consola.
+- **Reflujo a 180 px:** las páginas nuevas no desbordan.
+- **Peso:**
+  - JavaScript inicial: Inicio +18 KB sin comprimir; el resto, +9 KB por el chunk compartido de cabecera y pie.
+  - CSS: +21 KB sin comprimir.
+- **Efectos fuera de la portada y las secciones:** ninguno; el laboratorio, la Exposición y el Challenge no cargan efectos.
+
+**Vista previa (Preview):**
+
+- No se pudo publicar desde este entorno. El proyecto de Vercel no está conectado a Git y se despliega con el CLI y la sesión del responsable (`docs/DEPLOYMENT.md`).
+- El contenedor no tiene esa sesión ni token, y el proxy bloquea los dominios de Vercel.
+- Orden pendiente, desde el equipo del responsable y en esta rama: `npx vercel@60.0.1 --global-config .vercel/cli deploy --target preview`.
+
 ## Resumen
 
 El proyecto está en la fase **R2 parcial: cimientos técnicos y sistema de diseño**. Existen la estructura por capas, ocho rutas navegables con estados vacíos, trece componentes de interfaz accesibles, tokens Sass, un showcase interno y una batería de pruebas de componentes, arquitectura y navegación.

@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 28 de septiembre de 2026 (rediseño pedagógico de la representación de datos y del Challenge en producción). Punto de entrada para Codex u otra IA.
+Actualizado: 3 de octubre de 2026 (DB LAB, Fase 1: arquitectura de secciones, marca y sistema de diseño en la rama `claude/gallant-cori-4rp11r`, sin desplegar). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -15,6 +15,16 @@ Copia de desarrollo verificada en el equipo del usuario:
 En otro equipo, usar el clon de ese mismo repositorio. No crear repositorios diferentes por herramienta de IA.
 
 ## Objetivo y alcance acordados
+
+**DB LAB (desde el 3 de octubre de 2026):**
+
+- La plataforma se llama **DB LAB, Plataforma interactiva de Bases de Datos con Oracle**. Créditos: desarrollado por Jorge Gutiérrez Thomas; docente Amílcar Sierra Romano; contexto, Bases de Datos.
+- Se organiza en tres secciones (`/sections`):
+  1. **Fundamentos SQL:** disponible; es todo lo que se describe abajo.
+  2. **Consultas relacionales y análisis:** «Próximamente», con su plan publicado.
+  3. **PL/SQL y automatización:** «Próximamente», con su plan publicado.
+- Fuera de la Fase 1: autenticación, usuarios, panel docente, evaluaciones, banco de preguntas y backend nuevo.
+- Decisiones en `docs/ARCHITECTURE.md` (sección DB LAB) y `docs/DESIGN_SYSTEM.md` 3.0.
 
 SQL SELECT LAB es una plataforma universitaria en español de Jorge Gutierrez Thomas para la asignatura Base de Datos (profesor Amilkar Sierra), programa de Ingeniería de Sistemas de la Universidad Popular del Cesar. Desde la reingeniería del 25 de septiembre de 2026 enseña el **Nivel 1, SELECT fundamental** completo: base de datos, tabla, fila, columna y SQL; SELECT, FROM, `*`, columnas, expresiones, precedencia, alias con AS, concatenación, DISTINCT, WHERE, comparaciones, AND/OR/NOT, paréntesis, BETWEEN, IN, LIKE, NULL, ORDER BY, la consulta completa y los errores frecuentes (22 lecciones, 29 escenas).
 
@@ -71,6 +81,17 @@ Conversaciones de origen: «Diseñar Documentación Plataforma SQL» (`6ab408e7-
 La última captura muestra una carpeta `Presentacion_SELECT_JorgeGutierrez/Juego_Select`. Su ruta absoluta y contenido no se han verificado. No asumir que contiene el repositorio ni sobrescribirla. Si se necesita reutilizar el código del juego, localizar y revisar esa exportación antes de integrarla.
 
 ## Siguiente trabajo
+
+**DB LAB:**
+
+- **Fase 1:** implementada y verificada en `claude/gallant-cori-4rp11r`. Pendientes:
+  - la vista previa en Vercel, con el CLI desde el equipo del responsable;
+  - su revisión;
+  - después, decidir la producción.
+- **Fase 2:** cuentas, progreso en servidor y evaluaciones. Seguir los contratos descritos en ARCHITECTURE.md.
+- **Contenido de la Sección 2:** seguir `docs/SECTION_2_MIGRATION_PLAN.md`.
+
+**Histórico de fases anteriores:**
 
 Fases 1 a 6 cerradas (la 5 continúa y completa el trabajo de Codex auditado en `docs/CODEX_HANDOFF_AUDIT.md`); Fase 7 implementada y marcada PARTIAL hasta validarla en Supabase remoto. La rama de trabajo autorizada es `claude-finish-20260923`; no trabajar en `main` ni hacer push a `main`. Siguientes pasos: una instancia Oracle accesible desde el despliegue con la cuenta lectora (`docs/ORACLE_SETUP.md`, opción B), validar la sala con un proyecto Supabase real (`docs/SUPABASE_SETUP.md`, sección «Validación pendiente»: variables, migración, dos móviles reales y ensayo de 60 participantes), R1 (Oracle y adaptador node-oracledb del puerto `OracleQueryExecutor`), despliegue con `NEXT_PUBLIC_SITE_URL`, producción y publicación de V01/V02 (basta completar `src/features/resources/domain/videos.ts`), validación del uso público del emblema y la decisión sobre la bonificación por tiempo (contradice GAME_SPEC y vale 0). Oracle no está simulado.
 
@@ -232,3 +253,20 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - **Sin cambios:** Oracle, Supabase, Realtime, la puntuación, los tiempos base, el protocolo de salas y las variables de producción. Las partidas guardadas con `select-challenge-v3` se descartan (cambió la versión). Vuelta atrás: `vercel promote dpl_2Bx2nGrZaKLEX8x8e7i8K3Cjon9b`.
   - **No versionado a propósito:** `docs/Guia_herramientas_SQL_SELECT_LAB.docx` y la QA remota de otra herramienta (`tests/remote/`, `scripts/audit-responsive.mjs`, cambios locales de `playwright.remote.config.ts`).
   - **Pendiente del responsable:** crear una sala en producción con su clave (la sala real de Supabase no se prueba con la clave docente en las pruebas automáticas).
+- 2026-10-03: **DB LAB, Fase 1** en `claude/gallant-cori-4rp11r` (merge de `claude-final-ui-polish-20260926` en `7f69de9`, que sirve de checkpoint; `main` sin tocar).
+  - **Qué se hizo:**
+    - Marca DB LAB y AppShell.
+    - Secciones `/sections` y `/sections/[section]`.
+    - «Secciones» en la navegación.
+    - Portada nueva.
+    - DESIGN_SYSTEM 3.0, con tokens, StatusBadge, Breadcrumb, PageHeader y QueryTransformation.
+    - Color de SQL para JOIN, agrupación y funciones.
+    - Cuatro efectos de React Bits gratuitos (`THIRD_PARTY_NOTICES.md`).
+    - CLS del pie corregido.
+  - **Verificado:**
+    - lint, typecheck y format;
+    - 644/644 unitarias e integración (Oracle real omitido);
+    - build;
+    - E2E en Chromium: 248 pasan. Los 21 fallos también fallan en la base sin cambios en este contenedor (fuentes y navegador); la rama corrige 4 fallos previos.
+  - **Sin cambios:** Supabase, Oracle, credenciales, claves de almacenamiento, rutas existentes y QR.
+  - **Pendiente:** la vista previa en Vercel. Sin sesión del CLI ni acceso a Vercel desde el contenedor.

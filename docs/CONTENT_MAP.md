@@ -297,6 +297,20 @@ Al imprimir quedan solo la chuleta y la referencia.
 
 La interfaz no muestra rótulos de duración (el reproductor nativo ya la indica). Los videos cubren la primera parte de la unidad (SELECT, FROM, *, cálculos, AS y DISTINCT) y usan tablas de ejemplo que no son EMPLEADOS; sus descripciones lo advierten. Detalle en `public/media/README.md`.
 
+## Secciones de DB LAB (3 de octubre de 2026)
+
+La fuente es el registro `src/features/sections/domain/sections.ts`. La portada pública de la ruta es `/sections`.
+
+| Sección | Estado | Contenido | Modos con destino |
+| --- | --- | --- | --- |
+| 1 · Fundamentos SQL | Disponible | Todo lo descrito en este mapa: 22 lecciones en 8 bloques, 30 escenas, LAB01–LAB24, M01–M10, chuleta y videos. Ampliaciones previstas: funciones de texto, numéricas y de fecha; INSERT, UPDATE y DELETE. | Iniciar clase (`/presentation`), Estudiar (`/learn`), Practicar SQL (`/lab`), Challenge (`/challenge`), Recursos (`/resources`) |
+| 2 · Consultas relacionales y análisis | Próximamente | PK y FK, alias de tablas y ON; INNER, LEFT, RIGHT, FULL, CROSS y SELF JOIN; COUNT, SUM, AVG, MIN y MAX; GROUP BY, HAVING y WHERE frente a HAVING; subconsultas; UNION, UNION ALL, INTERSECT y MINUS. Plan en [SECTION_2_MIGRATION_PLAN.md](SECTION_2_MIGRATION_PLAN.md). | Ninguno todavía |
+| 3 · PL/SQL y automatización | Próximamente | Bloques (DECLARE, BEGIN, EXCEPTION y END), variables, constantes, tipos, %TYPE y %ROWTYPE, SELECT INTO y DBMS_OUTPUT; IF, CASE y bucles; cursores y excepciones; procedimientos, funciones, parámetros y paquetes; triggers (BEFORE y AFTER, FOR EACH ROW, :OLD y :NEW). | Ninguno todavía |
+
+Las fichas de `/modules` (niveles 2–7) siguen siendo el mapa detallado de temas futuros. Las secciones 2 y 3 enlazan con ellas cuando existe la ficha.
+
+La Evaluación es un modo previsto en las tres secciones: no tiene ruta ni contenido.
+
 ## Próximos niveles (roadmap)
 
 `/modules` presenta la ruta completa. El Nivel 1 es el actual; los niveles 2 a 7 están en estado «Próximamente». Fuente única: `src/features/modules/domain/curriculum.ts`, que alimenta la ruta, la Home, la escena 28, el buscador y los enlaces «Ver en Próximamente» del laboratorio.
