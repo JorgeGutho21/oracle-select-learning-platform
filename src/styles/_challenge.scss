@@ -412,6 +412,14 @@
   color: var(--color-sem-order);
   box-shadow: inset 0 -3px 0 var(--color-sem-order);
 }
+.ch-piece[data-sql-role='join'] {
+  color: var(--color-sem-join);
+  box-shadow: inset 0 -3px 0 var(--color-sem-join);
+}
+.ch-piece[data-sql-role='group'] {
+  color: var(--color-sem-group);
+  box-shadow: inset 0 -3px 0 var(--color-sem-group);
+}
 .ch-piece[data-sql-role='operator'] {
   color: var(--color-sem-operator);
   box-shadow: inset 0 -3px 0 var(--color-sem-operator);

@@ -121,6 +121,15 @@
   .sql-token--order {
     color: var(--color-sem-order);
   }
+  .sql-token--join {
+    color: var(--color-sem-join);
+  }
+  .sql-token--group {
+    color: var(--color-sem-group);
+  }
+  .sql-token--function {
+    color: var(--color-ink);
+  }
   .sql-token--operator {
     color: var(--color-sem-operator);
   }
@@ -2130,6 +2139,15 @@
   }
   .sql-token--order {
     color: var(--color-sem-order);
+  }
+  .sql-token--join {
+    color: var(--color-sem-join);
+  }
+  .sql-token--group {
+    color: var(--color-sem-group);
+  }
+  .sql-token--function {
+    color: var(--color-ink);
   }
   .sql-token--operator {
     color: var(--color-sem-operator);

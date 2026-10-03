@@ -38,4 +38,38 @@ describe('color semántico del SQL', () => {
     expect(sqlRole('*')).toBe('operator');
     expect(sqlRole('nombre')).toBeNull();
   });
+
+  it('JOIN y ON, GROUP BY y HAVING y las funciones tienen papel propio', () => {
+    const { container } = render(
+      <SqlLines
+        sql={
+          'SELECT e.departamento, COUNT(*) AS total\nFROM empleados e\nINNER JOIN departamentos d ON d.departamento = e.departamento\nGROUP BY e.departamento\nHAVING COUNT(*) >= 4\nORDER BY total DESC;'
+        }
+      />,
+    );
+    const tokens = [...container.querySelectorAll('.sql-token')];
+    const classOf = (text: string, index = 0) =>
+      tokens.filter((token) => token.textContent === text)[index]?.className ?? '';
+    for (const word of ['INNER', 'JOIN', 'ON']) {
+      expect(classOf(word), word).toContain('sql-token--join');
+    }
+    expect(classOf('GROUP')).toContain('sql-token--group');
+    // BY toma el papel de la cláusula que acompaña: agrupación u orden.
+    expect(classOf('BY', 0)).toContain('sql-token--group');
+    expect(classOf('BY', 1)).toContain('sql-token--order');
+    expect(classOf('HAVING')).toContain('sql-token--group');
+    expect(classOf('COUNT')).toContain('sql-token--function');
+  });
+
+  it('solo marca funciones conocidas seguidas de paréntesis', () => {
+    const { container } = render(
+      <SqlLines sql={"INSERT INTO empleados (id_empleado, nombre) VALUES (99, 'Max');"} />,
+    );
+    const functions = [...container.querySelectorAll('.sql-token--function')];
+    expect(functions).toHaveLength(0);
+    expect(sqlRole('GROUP BY')).toBe('group');
+    expect(sqlRole('BY', 'GROUP')).toBe('group');
+    expect(sqlRole('BY', 'ORDER')).toBe('order');
+    expect(sqlRole('LEFT')).toBe('join');
+  });
 });

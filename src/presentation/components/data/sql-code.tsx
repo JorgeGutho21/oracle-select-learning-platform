@@ -61,12 +61,54 @@ const KEYWORDS = [
   'UNIQUE',
   'CHECK',
   'DEFAULT',
+  'UNION',
+  'ALL',
+  'INTERSECT',
+  'MINUS',
 ];
+
+// Funciones de Oracle reconocidas solo cuando las sigue un paréntesis: `empleados (` en un
+// INSERT no es una función, `COUNT(` sí.
+const FUNCTIONS = [
+  'COUNT',
+  'SUM',
+  'AVG',
+  'MIN',
+  'MAX',
+  'UPPER',
+  'LOWER',
+  'INITCAP',
+  'LENGTH',
+  'SUBSTR',
+  'INSTR',
+  'TRIM',
+  'LPAD',
+  'RPAD',
+  'REPLACE',
+  'CONCAT',
+  'ROUND',
+  'TRUNC',
+  'MOD',
+  'ABS',
+  'CEIL',
+  'FLOOR',
+  'NVL',
+  'NVL2',
+  'COALESCE',
+  'NULLIF',
+  'TO_CHAR',
+  'TO_DATE',
+  'TO_NUMBER',
+  'ADD_MONTHS',
+  'MONTHS_BETWEEN',
+  'EXTRACT',
+];
+const FUNCTION_NAMES = new Set(FUNCTIONS);
 
 // Los operadores de comparación y aritméticos se marcan aparte (color ámbar); `-` solo con
 // espacios alrededor, para no confundirlo con un comentario o un número negativo.
 const TOKENS = new RegExp(
-  `--[^\\n]*|"(?:[^"]|"")*"|'(?:[^']|'')*'|\\b(?:${KEYWORDS.join('|')})\\b|\\b\\d+(?:\\.\\d+)?\\b|<>|!=|>=|<=|\\|\\||[=<>+/*]|(?<= )-(?= )`,
+  `--[^\\n]*|"(?:[^"]|"")*"|'(?:[^']|'')*'|\\b(?:${FUNCTIONS.join('|')})(?=\\s*\\()|\\b(?:${KEYWORDS.join('|')})\\b|\\b\\d+(?:\\.\\d+)?\\b|<>|!=|>=|<=|\\|\\||[=<>+/*]|(?<= )-(?= )`,
   'gi',
 );
 
@@ -89,12 +131,14 @@ export function highlightSql(code: string): ReactNode[] {
           ? 'identifier'
           : /^\d/.test(value)
             ? 'number'
-            : /^\w/.test(value)
-              ? 'keyword'
-              : star
-                ? 'star'
-                : 'operator';
-    const role = tone === 'keyword' ? sqlRole(value) : null;
+            : FUNCTION_NAMES.has(value.toUpperCase())
+              ? 'function'
+              : /^\w/.test(value)
+                ? 'keyword'
+                : star
+                  ? 'star'
+                  : 'operator';
+    const role = tone === 'keyword' ? sqlRole(value, previous) : null;
     output.push(
       <span
         className={`sql-token sql-token--${tone}${role ? ` sql-token--${role}` : ''}`}

@@ -81,6 +81,17 @@
 .sql-token--order {
   color: var(--color-sem-order-dark);
 }
+.sql-token--join {
+  color: var(--color-sem-join-dark);
+}
+.sql-token--group {
+  color: var(--color-sem-group-dark);
+}
+// Las funciones no son cláusulas: claras y seminegritas, distintas de las palabras clave.
+.sql-token--function {
+  color: var(--color-sem-function-dark);
+  font-weight: 650;
+}
 .sql-token--operator {
   color: var(--color-sem-operator-dark);
   font-weight: 750;
