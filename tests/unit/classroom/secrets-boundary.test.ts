@@ -22,6 +22,7 @@ describe('Sala en vivo · secretos fuera del navegador', () => {
       .filter(({ text }) => /SUPABASE_SERVICE_ROLE_KEY|serviceRoleKey/.test(text))
       .map(({ file }) => file);
     expect(readers.sort()).toEqual([
+      'composition/assessments/monitor-server.ts',
       'composition/classroom/classroom-server.ts',
       'features/classroom/infrastructure/classroom-config.ts',
       'features/classroom/infrastructure/notifiers.ts',
@@ -29,11 +30,18 @@ describe('Sala en vivo · secretos fuera del navegador', () => {
     expect(clientModules.some(({ file }) => readers.includes(file))).toBe(false);
   });
 
-  it('la raíz de servidor de la sala está marcada server-only y ningún cliente la importa', () => {
-    const server = sources.find(({ file }) => file === 'composition/classroom/classroom-server.ts');
-    expect(server?.text.startsWith("import 'server-only';")).toBe(true);
+  it('las raíces privilegiadas de sala y monitor son server-only y ningún cliente las importa', () => {
+    for (const file of [
+      'composition/classroom/classroom-server.ts',
+      'composition/assessments/monitor-server.ts',
+      'features/assessments/infrastructure/monitor-notifier.ts',
+    ]) {
+      expect(
+        sources.find((source) => source.file === file)?.text.startsWith("import 'server-only';"),
+      ).toBe(true);
+    }
     const offenders = clientModules.filter(({ text }) =>
-      /classroom-server|node-secrets|classroom-config|memory-classroom-repository|supabase-classroom-repository/.test(
+      /monitor-server|monitor-notifier|classroom-server|node-secrets|classroom-config|memory-classroom-repository|supabase-classroom-repository/.test(
         text,
       ),
     );
