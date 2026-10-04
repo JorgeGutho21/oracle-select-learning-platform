@@ -24,7 +24,9 @@ class ServerClock {
       this.monotonicReference === undefined
         ? 0
         : Math.max(0, performance.now() - this.monotonicReference);
-    return Math.floor((this.reference + elapsed) / 1000) * 1000;
+    // Preserve the server's millisecond precision: flooring the reference itself
+    // can add a displayed second to a newly started exam (ceil in formatClock).
+    return this.reference + Math.floor(elapsed / 1000) * 1000;
   };
 
   readonly server = (): number => this.reference;
