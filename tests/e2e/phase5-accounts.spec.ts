@@ -26,7 +26,9 @@ async function admin(path: string, method: string) {
   });
 }
 async function capture(page: Page, name: string) {
-  for (const width of [320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1600, 1920]) {
+  for (const width of [
+    320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1536, 1600, 1920,
+  ]) {
     await page.setViewportSize({ width, height: 900 });
     await expectNoHorizontalScroll(page, `${name} @${width}`);
     const records = page.locator('.record-table');
@@ -167,13 +169,38 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
       ownedAssessments.push(path.split('/').at(-1)!);
       await page.locator('summary', { hasText: 'Publicar…' }).click();
       await page.getByRole('button', { name: 'Publicar evaluación', exact: true }).click();
-      const context = await browser.newContext(state ? { storageState: state } : {});
+      const context = await browser.newContext({
+        ...(state ? { storageState: state } : {}),
+        timezoneId: section === 'plsql' ? 'Asia/Tokyo' : 'Pacific/Honolulu',
+      });
       try {
         const exam = await context.newPage();
         await signIn(exam, student);
+        if (section === 'consultas-relacionales')
+          await exam.clock.setSystemTime(Date.now() - 6 * 60 * 60 * 1000);
         await exam.goto(path.replace('/teacher/assessments/', '/evaluations/'));
+        await page.goto(`${path}/monitor`);
+        await expect(page.locator('.monitor-status')).toContainText('En vivo', {
+          timeout: 20_000,
+        });
         await exam.getByRole('button', { name: 'Comenzar evaluación' }).click();
         await expect(exam.getByRole('timer')).toBeVisible();
+        const remainingSeconds = async () => {
+          const [minutes, seconds] = (await exam.locator('.exam-clock__value').innerText())
+            .split(':')
+            .map(Number);
+          return minutes! * 60 + seconds!;
+        };
+        expect(
+          await remainingSeconds(),
+          'Server time corrects the timezone/device clock',
+        ).toBeLessThanOrEqual(300);
+        // No navigation/refresh in the monitor: the Broadcast must arrive before
+        // its 60-second fallback poll, both locally and on the real Preview.
+        await expect(page.getByRole('row', { name: new RegExp(student.email) })).toContainText(
+          'En curso',
+          { timeout: 15_000 },
+        );
         expect(await exam.content()).not.toMatch(/is_correct|"correct":|"explanation":/);
         if (section === sections[0]) await capture(exam, 'student-exam');
         await context.setOffline(true);
@@ -183,7 +210,7 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
         await expect(exam.locator('.exam-save')).toHaveText('Guardado', { timeout: 15_000 });
         await exam.reload();
         await expect(exam.locator('.exam-header__progress')).toContainText('1/1');
-        await page.goto(`${path}/monitor`);
+        expect(await remainingSeconds()).toBeLessThanOrEqual(300);
         await expect(page.getByRole('row', { name: new RegExp(student.email) })).toContainText(
           'En curso',
         );

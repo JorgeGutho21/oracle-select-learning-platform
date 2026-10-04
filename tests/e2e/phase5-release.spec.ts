@@ -14,7 +14,7 @@ const PAGES = [
   ['lab', '/lab'],
   ['challenge', '/challenge'],
 ] as const;
-const WIDTHS = [320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1600, 1920, 2560];
+const WIDTHS = [320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1536, 1600, 1920, 2560];
 
 for (const width of WIDTHS) {
   test(`Fase 5: páginas públicas y tablas a ${width}px`, async ({ page }) => {
@@ -31,6 +31,7 @@ for (const width of WIDTHS) {
     for (const [name, path] of PAGES) {
       await page.goto(path);
       await expect(page.locator('main h1').first()).toBeVisible();
+      await expect(page.locator('img[src*="universidad-popular-del-cesar"]')).toHaveCount(0);
       await expectNoHorizontalScroll(page, `${path} @${width}`);
       if ([390, 1440].includes(width)) {
         mkdirSync('output/playwright/phase5/screens', { recursive: true });

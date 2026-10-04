@@ -54,8 +54,12 @@ export async function mouseDrag(page: Page, source: Locator, target: Locator) {
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
   await page.mouse.move(from.x + from.width / 2 + 12, from.y + from.height / 2 + 12, { steps: 4 });
+  await expect(source).toHaveClass(/ch-piece--ghost/);
   await page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 12 });
   await page.mouse.move(to.x + to.width / 2 + 2, to.y + to.height / 2 + 2, { steps: 2 });
+  // Let the sensor commit its collision before releasing the pointer. Fast WebKit
+  // mouse events can otherwise finish the drag before React records the drop zone.
+  await expect(target).toHaveClass(/ch-zone--over/);
   await page.mouse.up();
 }
 

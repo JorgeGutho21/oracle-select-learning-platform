@@ -15,7 +15,7 @@ for (const file of [
   for (const [key, value] of Object.entries(parseEnv(readFileSync(file, 'utf8')))) {
     if (
       !key.startsWith('NEXT_PUBLIC_') &&
-      /SECRET|PASSWORD|PWD|TOKEN|ACCESS_CODE|WALLET_CONTENT/.test(key) &&
+      /SECRET|PASSWORD|PWD|TOKEN|ACCESS_CODE|WALLET_(?:CONTENT|PEM_BASE64)/.test(key) &&
       value.length >= 8
     ) {
       values.push({ key, value });
@@ -23,9 +23,12 @@ for (const file of [
   }
 }
 if (existsSync('.vercel/cli/auth.json')) {
-  const { token } = JSON.parse(readFileSync('.vercel/cli/auth.json', 'utf8'));
-  if (typeof token === 'string' && token.length >= 8)
-    values.push({ key: 'VERCEL_CLI_TOKEN', value: token });
+  const credentials = JSON.parse(readFileSync('.vercel/cli/auth.json', 'utf8'));
+  for (const key of ['token', 'refreshToken']) {
+    const value = credentials[key];
+    if (typeof value === 'string' && value.length >= 8)
+      values.push({ key: `VERCEL_CLI_${key}`, value });
+  }
 }
 if (values.length === 0) throw new Error('No private values available for a meaningful scan.');
 function files(directory) {

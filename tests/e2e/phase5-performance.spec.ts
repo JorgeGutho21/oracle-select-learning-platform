@@ -36,7 +36,15 @@ test('Fase 5: medición reproducible de carga y presupuesto de efectos', async (
         }
       });
       await page.goto(path);
-      await page.waitForLoadState('networkidle');
+      // Realtime and prefetch are not a page-readiness contract. Wait for rendered
+      // content/fonts and two painted frames, rather than global network silence.
+      await expect(page.locator('main h1').first()).toBeVisible();
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+      });
       const metrics = await page.evaluate(() => {
         const resources = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
         const scripts = resources.filter((entry) =>
@@ -72,6 +80,9 @@ test('Fase 5: medición reproducible de carga y presupuesto de efectos', async (
       expect(metrics.activeAnimations, 'Reduced motion must stop decorative animation').toBe(0);
       measurements.push({ path, ...metrics });
     } finally {
+      // WebKit/Windows can stall context teardown while its native media session
+      // owns the home video. Unload the document after recording the measurements.
+      for (const page of context.pages()) await page.goto('about:blank');
       await context.close();
     }
   }
