@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import {
@@ -18,6 +18,14 @@ let student: TestUser;
 const ownedAssessments: string[] = [];
 const preview = process.env.PHASE5_REMOTE_QA === 'preview';
 const state = preview ? 'output/playwright/phase5/remote-state.json' : undefined;
+
+async function expectAccessible(page: Page, screen: string) {
+  const result = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(result.violations, screen).toEqual([]);
+  test.info().annotations.push({ type: 'axe WCAG 2.2 AA', description: screen });
+}
 
 async function admin(path: string, method: string) {
   return fetch(`${SUPABASE_URL}${path}`, {
@@ -79,6 +87,7 @@ async function capture(page: Page, name: string) {
       }
     }
     if ([1440, 390].includes(width)) {
+      if (width === 390) await expectAccessible(page, `${name} @390`);
       mkdirSync('output/playwright/phase5/screens', { recursive: true });
       await page.evaluate(() => {
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
@@ -103,6 +112,8 @@ async function capture(page: Page, name: string) {
           `output/playwright/phase5/screens/${name}-${width}.capture.json`,
           JSON.stringify({ ...dimensions, width, fullPage, reason: 'WebKit image limit' }),
         );
+      else
+        rmSync(`output/playwright/phase5/screens/${name}-${width}.capture.json`, { force: true });
     }
   }
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -205,6 +216,8 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
     await expect(page.locator('.home-progress h2')).toHaveText('3 de 78 lecciones');
     await page.goto('/dashboard');
     await capture(page, 'student-dashboard');
+    await page.goto('/profile');
+    await capture(page, 'profile');
     const context = await browser.newContext(state ? { storageState: state } : {});
     try {
       const other = await context.newPage();
@@ -242,8 +255,53 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
       await page.getByLabel('Solo los estudiantes que elija', { exact: true }).check();
       await page.getByRole('checkbox', { name: new RegExp(student.email) }).check();
       if (section === sections[0]) await capture(page, 'teacher-create-assessment');
-      await page.getByRole('button', { name: 'Guardar borrador' }).click();
-      await expect(page).toHaveURL(/\/teacher\/assessments\/[0-9a-f-]{36}/);
+      const saveStarted = Date.now();
+      const saveRequests: { status: number; elapsedMs: number }[] = [];
+      const saveResponse = (response: import('@playwright/test').Response) => {
+        if (
+          response.request().method() === 'POST' &&
+          new URL(response.url()).pathname === '/teacher/assessments/new'
+        )
+          saveRequests.push({ status: response.status(), elapsedMs: Date.now() - saveStarted });
+      };
+      page.on('response', saveResponse);
+      try {
+        await page.getByRole('button', { name: 'Guardar borrador' }).click();
+        await expect(page).toHaveURL(/\/teacher\/assessments\/[0-9a-f-]{36}/);
+      } catch (error) {
+        // Preserve the failed five-second assertion. This extra observation is
+        // diagnostic only and also lets teardown identify a late committed draft.
+        await page
+          .waitForURL(/\/teacher\/assessments\/[0-9a-f-]{36}/, { timeout: 15_000 })
+          .catch(() => undefined);
+        const observedPath = new URL(page.url()).pathname;
+        const lateId = observedPath.match(/\/teacher\/assessments\/([0-9a-f-]{36})/)?.[1];
+        if (lateId) ownedAssessments.push(lateId);
+        mkdirSync('output/playwright/phase5', { recursive: true });
+        writeFileSync(
+          `output/playwright/phase5/create-assessment-${section}-${test.info().repeatEachIndex}-${test.info().project.name}.json`,
+          JSON.stringify(
+            {
+              saveRequests,
+              observedPath,
+              elapsedMs: Date.now() - saveStarted,
+              teacherId: teacher.id,
+              studentId: student.id,
+            },
+            null,
+            2,
+          ),
+        );
+        throw error;
+      } finally {
+        page.off('response', saveResponse);
+        test
+          .info()
+          .annotations.push({
+            type: 'save response timing',
+            description: JSON.stringify(saveRequests),
+          });
+      }
       const path = new URL(page.url()).pathname;
       ownedAssessments.push(path.split('/').at(-1)!);
       await page.locator('summary', { hasText: 'Publicar…' }).click();
@@ -257,6 +315,10 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
         await signIn(exam, student);
         if (section === 'consultas-relacionales')
           await exam.clock.setSystemTime(Date.now() - 6 * 60 * 60 * 1000);
+        if (section === sections[0]) {
+          await exam.goto('/evaluations');
+          await capture(exam, 'student-evaluations');
+        }
         await exam.goto(path.replace('/teacher/assessments/', '/evaluations/'));
         await page.goto(`${path}/monitor`);
         await expect(page.locator('.monitor-status')).toContainText('En vivo', {
@@ -310,15 +372,13 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
         await expect(
           exam.getByRole('heading', { name: 'Retroalimentación por pregunta' }),
         ).toBeVisible();
+        if (section === sections[0]) await capture(exam, 'student-result');
         await page.goto(`${path}/results`);
         if (section === sections[0]) {
           await capture(page, 'teacher-results');
           await page.goto('/teacher');
           await capture(page, 'teacher-dashboard');
-          const results = await new AxeBuilder({ page })
-            .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
-            .analyze();
-          expect(results.violations).toEqual([]);
+          await expectAccessible(page, 'teacher-dashboard @1440');
         }
       } finally {
         await context.close();

@@ -62,11 +62,24 @@ for (const scale of [1.25, 1.5, 2]) {
 
 test('Fase 5: acceso y secciones cumplen axe WCAG 2.2 AA', async ({ page }) => {
   test.setTimeout(90_000);
-  for (const path of ['/login', '/register', '/forgot-password', '/sections']) {
+  for (const path of [
+    '/',
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/sections',
+    '/sections/fundamentos-sql',
+    '/sections/consultas-relacionales',
+    '/sections/plsql',
+    '/lab',
+    '/challenge',
+    '/resources',
+  ]) {
     await page.goto(path);
     const result = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(result.violations, path).toEqual([]);
+    test.info().annotations.push({ type: 'axe WCAG 2.2 AA', description: path });
   }
 });
