@@ -57,14 +57,14 @@ Unidad completa de **Oracle SQL fundamental (Nivel 1, SELECT)** sobre un único 
 - **Modo Estudio** (`/learn`): 22 lecciones en 8 bloques, desde qué es una base de datos hasta una consulta completa con WHERE y ORDER BY.
   - **Plantilla:** la misma en todas, con la definición canónica, la ubicación en el recorrido, un índice fijo, «Predice», la consulta, qué hace, la tabla original, el resultado, el error frecuente y una mini comprobación con pistas graduales.
   - **Pliegues:** lo secundario se abre al pedirlo.
-- **Modo Exposición** (`/presentation`): 29 escenas 16:9 en cinco bloques.
+- **Modo Exposición** (`/presentation`): 30 escenas 16:9 en cinco bloques.
   - **Contenido:** cada escena tiene su definición o propósito, una visualización del concepto y una idea clave.
   - **Controles:** navegador de escenas agrupado, «Paso a paso», notas del expositor (N), vista del presentador (`/presentation/presentador`) y pantalla completa con controles que se atenúan.
 - **Laboratorio** (`/lab`): editor y resultado primero.
   - **Análisis:** el motor educativo ofrece vista previa rotulada, traducción, anatomía y diagnóstico en cinco grupos (SINTAXIS, SEMÁNTICA, ALCANCE EDUCATIVO, ORACLE, ADVERTENCIA). Cada diagnóstico dice qué ocurrió, dónde y por qué; la corrección se abre al pedirla.
   - **Esquema:** agrupado; los 20 registros se abren solo si se piden.
   - **Ejecución:** «Ejecutar en Oracle» usa Oracle real. Tiene 24 ejemplos (LAB01–LAB24).
-- **Vista de datos adaptable:** tabla cuando cabe y fichas por registro cuando no. Ninguna tabla, consulta ni resultado educativo necesita barra horizontal, ni siquiera a 320 px.
+- **Vista de datos adaptable:** tablas con encabezados y filas; en contenedores estrechos, grupos accesibles de columnas con la identidad del registro. Ninguna tabla, consulta ni resultado educativo necesita barra horizontal, ni siquiera a 320 px.
 - **SQL Oracle Challenge** (`/challenge`, `select-challenge-v4`, GAME_SPEC 4): diez misiones que razonan sobre una muestra de trabajo (como mucho 8 registros y 3–4 columnas, siempre en tabla) con puntuación, intentos, pistas y feedback por tipo de error. M10 se califica en Oracle real.
   - **Densidad propia:** cada misión muestra el pedido, el concepto clave y solo los «Datos necesarios» (4–7 columnas y pocas filas); la tabla completa es un desplegable secundario y nunca hay barra horizontal.
   - **Feedback:** tipo de error, qué está bien, qué ajustar y una orientación progresiva; el acierto explica por qué.

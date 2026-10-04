@@ -12,9 +12,9 @@ Windows, Node 24.20.0, Playwright 1.63.0, build Next de producción. Supabase lo
 
 | Verificación                    | Resultado y evidencia local                                                                                                                                 |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vitest completo                 | 1976 PASS, 0 FAIL, 7 omitidas: 1357 unitarias y 619 integraciones; `release-vitest.json`. Dos omisiones deliberadas; cinco smoke remotas pasaron aparte.    |
+| Vitest completo                 | 1977 PASS, 0 FAIL, 7 omitidas: 1358 unitarias y 619 integraciones; `closure-vitest.json`. Dos omisiones deliberadas; cinco smoke remotas pasaron aparte.    |
 | Oracle Free / PGlite            | 599 PASS; `oracle-integration.log`. Incluye 222 ejemplos curriculares, 102 comprobaciones S1 y 79 del banco S1.                                             |
-| Oracle Cloud 19c                | 102 PASS de S1; `oracle19c.log`. No se atribuye a 19c la ejecución completa de S2/S3.                                                                       |
+| Oracle Cloud 19c                | 102 PASS de S1; `release-oracle19c.log`. No se atribuye a 19c la ejecución completa de S2/S3.                                                               |
 | Supabase remoto                 | 7 PASS de cuentas/RLS y 5 PASS de release; `remote-accounts-rls.log`, `remote-release-db.log`.                                                              |
 | Banco                           | 50 + 50 + 50 = 150 oficiales, sincronizadas idempotentemente, sin preguntas inválidas.                                                                      |
 | Chromium completo               | 346 casos: 344 PASS y dos expectativas antiguas de identidad corregidas. `full-chromium.json`.                                                              |
@@ -23,13 +23,13 @@ Windows, Node 24.20.0, Playwright 1.63.0, build Next de producción. Supabase lo
 | Edge completo                   | 348 PASS, 0 FAIL, 0 omitidas, 0 flaky; `full-edge.json`.                                                                                                    |
 | Comandos finales locales        | lint, typecheck, format:check, Vitest y build QA: código de salida 0. Build con variables de producción pendiente tras WebKit.                              |
 | 22 fallos históricos            | Todos pasan 2/2 de forma aislada: 44 PASS, sin retries ni omisiones. `historical-isolated.json`.                                                            |
-| Concurrencia progreso/presencia | 40 clientes, 120 registros, 368 ms total; p50 317 ms, p95 353 ms. `concurrency-progress.json`.                                                              |
+| Concurrencia progreso/presencia | 40 clientes, 120 registros, 635 ms total; p50 571 ms, p95 616 ms. `concurrency-progress.json`.                                                              |
 | Escala real de notas            | 0/20/50/60/80/100% producen 0.0/1.0/2.5/3.0/4.0/5.0 en PostgreSQL.                                                                                          |
 | Dependencias de producción      | `npm audit --omit=dev`: 0 vulnerabilidades. `npm-audit.json`.                                                                                               |
-| Secretos                        | 0 coincidencias de 14 entradas privadas en repositorio, estáticos y últimos 15 commits; `secret-scan.json`.                                                 |
+| Secretos                        | 0 coincidencias de 17 entradas privadas en repositorio, estáticos y últimos 15 commits; `secret-scan.json`.                                                 |
 | Upload Vercel en seco           | 671 archivos; 0 archivos privados seleccionados, sin desplegar. `vercel-upload-safety.json`.                                                                |
 
-Los 40 logins simultáneos repetidos pasan: 3067 ms total, p50 2939 ms y p95 3052 ms (`concurrency-auth.json`); la medición anterior fue 2312/2231/2299 ms. Progreso/presencia repetidos: 538 ms total, p50 480 y p95 530 ms; anteriormente 368/317/353 ms. No son mejoras ni garantías de SLA: son variaciones locales observadas, con cero errores. El listado HTTP local de secciones pasa con 40 peticiones: 605 ms total, p50 525 ms y p95 528 ms (`concurrency-sections.json`). WebKit completo y el cierre remoto se registrarán al terminar. Las cuentas remotas confirmadas por API administrativa no acreditan entrega de correo.
+Los 40 logins simultáneos repetidos pasan: 2590 ms total, p50 2487 ms y p95 2572 ms (`concurrency-auth.json`); la medición anterior fue 2312/2231/2299 ms. Progreso/presencia repetidos: 635 ms total, p50 571 y p95 616 ms; anteriormente 368/317/353 ms. No son mejoras ni garantías de SLA: son variaciones locales observadas, con cero errores. El listado HTTP local de secciones pasa con 40 peticiones: 605 ms total, p50 525 ms y p95 528 ms (`concurrency-sections.json`). WebKit completo y el cierre remoto se registrarán al terminar. Las cuentas remotas confirmadas por API administrativa no acreditan entrega de correo.
 
 ## Fallos encontrados y tratamiento
 
@@ -92,11 +92,11 @@ El tooltip tenía 4/10 fallos en Fase 4 y 3/10 en Fase 3, según el registro her
 
 Los recorridos de cuenta locales verifican registro, confirmación Mailpit, inicio y cierre de sesión, recuperación, enlace inválido, perfil, fusión de invitado y otra sesión, roles y paneles. La QA de Fase 5 completa una lección de cada sección y comprueba sincronización de las tres y el resumen 3/78 de la portada.
 
-En S1/S2/S3: profesor sincroniza banco, crea selección automática, publica para estudiante propio; estudiante inicia, responde offline, recupera Guardado, recarga, entrega; profesor libera feedback y estudiante lo ve. La suite heredada comprueba selección manual, monitor Realtime, exportación, aislamiento de otro estudiante y autoentrega por vencimiento. La base verifica revisiones antiguas, entrega doble, respuestas congeladas y notas. Los eventos se presentan como señales, nunca como pruebas de fraude.
+En S1/S2/S3: profesor sincroniza banco, crea selección manual múltiple en S1 y automática en S2/S3, publica para estudiante propio; estudiante inicia, responde offline, recupera Guardado, recarga, entrega; profesor libera feedback y estudiante lo ve. La suite heredada comprueba selección manual, monitor Realtime, exportación, aislamiento de otro estudiante y autoentrega por vencimiento. La base verifica revisiones antiguas, entrega doble, respuestas congeladas y notas. Los eventos se presentan como señales, nunca como pruebas de fraude.
 
 ## Responsive, accesibilidad y efectos
 
-Matriz pública: 320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1600, 1920 y 2560 px. Paneles autenticados: los trece anchos hasta 1920, con filas visibles, pestañas de 44 px y navegación Inicio/Fin en tablas compactas. Capturas reales de las quince pantallas exigidas, incluido el examen del estudiante, más Exposición: 32 imágenes a 1440 y 390. Se revisan las imágenes, no solo su existencia. Las imágenes anteriores que revelaron el grupo oculto se reemplazan tras la corrección.
+Matriz pública: 320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1536, 1600, 1920 y 2560 px. Paneles autenticados: los catorce anchos hasta 1920, con filas visibles, pestañas de 44 px y navegación Inicio/Fin en tablas compactas. Capturas reales de las quince pantallas exigidas, incluido el examen del estudiante, más Exposición: 32 imágenes a 1440 y 390. Se revisan las imágenes, no solo su existencia. Las imágenes anteriores que revelaron el grupo oculto se reemplazan tras la corrección.
 
 Reflujo equivalente a 125/150/200% comprobado. No se presenta como zoom nativo: el intento de automatizarlo no pudo arrancar el Chromium completo. axe WCAG 2.2 AA y teclado se ejecutan en currículo, acceso, paneles e interacciones. Lectura con lector de pantalla, teléfono físico y proyector: NOT_TESTED.
 
