@@ -1,5 +1,7 @@
 # PRODUCTION_SETUP — Servicios, variables y alojamiento
 
+**Referencia de configuración con resultados históricos.** Estado, migraciones y gates de Fase 5: [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md).
+
 Versión 1.1 · Fase 11 · 25 de septiembre de 2026. Relacionado con [DEPLOYMENT.md](DEPLOYMENT.md), [ORACLE_SETUP.md](ORACLE_SETUP.md), [SUPABASE_SETUP.md](SUPABASE_SETUP.md) y [FINAL_AUDIT.md](FINAL_AUDIT.md).
 
 Este documento no contiene secretos. Los valores reales viven en archivos locales ignorados por Git y por Vercel, y en el panel de Vercel:

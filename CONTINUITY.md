@@ -1,6 +1,21 @@
 # Continuidad del proyecto
 
-Actualizado: 4 de octubre de 2026 (DB LAB, Fase 4: currículo de las secciones 2 y 3, auditoría de la Sección 1 y bancos completos, en la rama `claude-phase4-curriculum-20261003`, sin desplegar; parte del tag `phase3-checkpoint-20261003`). Punto de entrada para Codex u otra IA.
+Actualizado: 4 de octubre de 2026 (Colombia). Fase 5 en curso en `codex-phase5-production-final-20261004`, creada desde la Fase 4 verificada `6fda02b`. El encargo actual de integración, QA y producción prevalece sobre las instrucciones históricas de alcance que aparecen más abajo.
+
+## Fase 5: estado de trabajo
+
+- Se preservaron los cuatro archivos de QA locales anteriores en el checkpoint `01e83ac`, en la rama anterior. El documento personal `docs/Guia_herramientas_SQL_SELECT_LAB.docx` se conserva sin incorporarlo.
+- Base: lint, typecheck y build pasan. Se corrigieron el formato de finales de línea en Windows y una comparación de SQL generado; las primeras pruebas dieron 1351 unitarias correctas, un fallo de finales de línea y dos omisiones deliberadas; 298 integraciones pasaron con 313 omitidas por servicios no configurados.
+- Oracle Free existente está iniciado. Se creó únicamente el esquema local nuevo `DBLAB_CURRICULO`; se preservaron las cuentas y tablas del laboratorio. La integración Oracle/PGlite pasó 599 pruebas; Oracle Cloud 19c pasó 102 pruebas de S1. El currículo completo de S2/S3 se comprobó en Free, no en 19c.
+- Supabase remoto: migraciones `20261002120000` y `20261003120000` aplicadas el 3 de octubre por conexión TLS con CA oficial y verificación de nombre. Las 18 tablas públicas tienen RLS. Recuentos de salas, participantes, intentos, pistas y resultados preservados. Microsoft desactivado.
+- Los 140 E2E históricos seleccionados pasan. La suite completa Chromium dio 344 PASS y dos fallos de expectativas antiguas de identidad; ambas pruebas se actualizaron. Los 11 recorridos de evaluación y progreso por sección pasaron antes del ajuste visual final. La revisión de capturas encontró `.dv__groups` oculta en las tablas móviles: corregido y añadido control de visibilidad. La portada ahora suma las 78 lecciones. Validación final de esos cambios en curso.
+- Vitest completo con Oracle y Supabase locales: 1974 PASS, cero fallos, siete omisiones (dos deliberadas y cinco smoke remotas que ya pasaron aparte). Los 40 logins simultáneos pasan; p95 2299 ms en la última ejecución local. Progreso/presencia: 40 clientes, 120 registros, 368 ms total y p95 353 ms; no es medición de producción.
+- Edge completo pasa 348/348 sin omisiones ni retries. Chromium dirigido final pasa 68/68, incluida metadata S1 y el examen del estudiante; WebKit completo sigue en curso. Firefox oficial reinstalado no arranca: `spawn UNKNOWN`, dos repeticiones aisladas y evento SideBySide 33 por ensamblado `mozglue` ausente. No se parchearon binarios ni el sistema. El informe debe marcarlo BLOCKED.
+- CSV: la nota del resumen ahora respeta la coma decimal en el formato para Excel y neutraliza fórmulas precedidas por espacios o caracteres de control.
+- Producción comprobada: `dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2`, commit `874f7748acf030f62dbb02bbaea0b204bdd36441`; DB LAB aún no se ha desplegado. No hay integración Git conectada en el proyecto Vercel. No promover hasta validar el Preview y cumplir los criterios críticos del encargo.
+- Evidencia local en `output/playwright/phase5/` (ignorada). Supabase local ya funciona en Podman/WSL, separado del remoto. `scripts/run-local-qa.mjs` fija todas las claves locales y la sala en memoria. El servidor QA propio usa 127.0.0.1:3200.
+- SMTP y buzón autorizado pendientes de respuesta del responsable (preguntas asíncronas enviadas). La confirmación y recuperación Mailpit locales pasan; no atribuirles entrega remota. Un sondeo con dirección QA reservada devolvió correo inválido y no demuestra configuración SMTP. Microsoft remoto está desactivado. No promover producción hasta cerrar los criterios críticos.
+- Código y QA guardados en commits `cb9bfd1` (CSV), `21ac3c2` (identidad/progreso/tablas) y `33f5f91` (QA local/remota protegida). Aún no subidos. QA remota preparada con bypass solo para el Preview READY del proyecto verificado, sin trazas; las cuentas/exámenes/sala temporales se limpian por IDs propios. Documentación de release y despliegue Preview pendientes.
 
 ## Leer al retomar
 
@@ -18,7 +33,7 @@ En otro equipo, usar el clon de ese mismo repositorio. No crear repositorios dif
 
 **DB LAB (desde el 3 de octubre de 2026):**
 
-- La plataforma se llama **DB LAB, Plataforma interactiva de Bases de Datos con Oracle**. Créditos: desarrollado por Jorge Gutiérrez Thomas; docente Amílcar Sierra Romano; contexto, Bases de Datos.
+- La plataforma se llama **DB LAB, Plataforma interactiva de Bases de Datos con Oracle**. Créditos: desarrollado por Jorge Gutiérrez Thomas; docente Amilkar Sierra Romano; contexto, Bases de Datos.
 - Se organiza en tres secciones (`/sections`):
   1. **Fundamentos SQL:** disponible; es todo lo que se describe abajo.
   2. **Consultas relacionales y análisis:** disponible desde la Fase 4 (`docs/SECTION_2_CURRICULUM.md`).

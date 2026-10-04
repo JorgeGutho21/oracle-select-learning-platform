@@ -1,5 +1,7 @@
 # Estado del proyecto — Auditoría
 
+**Registro histórico.** Para la Fase 5 consultar [FINAL_QA_REPORT.md](FINAL_QA_REPORT.md), [FINAL_ARCHITECTURE.md](FINAL_ARCHITECTURE.md) y [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md). Los resultados de septiembre que siguen no acreditan el release actual.
+
 Fecha: 23 de septiembre de 2026. Rama auditada: `claude-finish`, commit `fe6b8ea` («checkpoint: plataforma antes de continuar con Claude»), sincronizada con `origin/claude-finish`. `main` local apunta al mismo commit y está un commit por delante de `origin/main`. Árbol de trabajo limpio antes de esta auditoría.
 
 Esta auditoría no modifica código. Solo añade este archivo y [CHALLENGE_STATUS.md](CHALLENGE_STATUS.md).

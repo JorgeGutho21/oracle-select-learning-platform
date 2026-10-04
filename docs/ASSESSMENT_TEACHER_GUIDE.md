@@ -11,8 +11,8 @@ Panel docente → **Evaluaciones** (`/teacher/assessments`) y **Banco de pregunt
 ## 2. Preparar el banco (una vez)
 
 1. Abre **Banco de preguntas**.
-2. Pulsa **Sincronizar banco oficial de DB LAB**. Se añaden las 50 preguntas de Fundamentos
-   SQL. Puedes repetirlo cuando DB LAB publique cambios: solo actualiza lo que cambió.
+2. Pulsa **Sincronizar banco oficial de DB LAB**. Se añaden 150 preguntas: 50 de Fundamentos
+   SQL, 50 de Consultas relacionales y 50 de PL/SQL. Puedes repetirlo cuando DB LAB publique cambios: solo actualiza lo que cambió.
 3. Opcional: **Nueva pregunta** para crear las tuyas (cualquier sección) o **Duplicar como
    borrador propio** sobre una oficial para adaptarla. Solo las publicadas se pueden usar.
 4. **Retirar** quita una pregunta de las evaluaciones nuevas sin borrarla.

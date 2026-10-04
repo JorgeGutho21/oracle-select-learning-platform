@@ -4,7 +4,7 @@ Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico: no es 
 
 **Desarrollado por:** Jorge Gutiérrez Thomas
 
-**Docente:** Amílcar Sierra Romano
+**Docente:** Amilkar Sierra Romano
 
 **Contexto:** Bases de Datos
 
@@ -12,7 +12,7 @@ Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico: no es 
 
 **Institución:** Universidad Popular del Cesar
 
-**En línea:** <https://sql-select-lab.vercel.app> (Vercel, con Oracle Autonomous Database v2 y Supabase reales; v2 activa desde el 26 de septiembre de 2026). Detalle en [DEPLOYMENT.md](docs/DEPLOYMENT.md).
+**Producción existente:** <https://sql-select-lab.vercel.app>. La versión pública inspeccionada corresponde a `874f774`, anterior a DB LAB de las fases 1–4. El release de Fase 5 se prepara en `codex-phase5-production-final-20261004`; su estado verificable y los gates están en [PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md) y [FINAL_QA_REPORT.md](docs/FINAL_QA_REPORT.md).
 
 ## Estado del proyecto
 

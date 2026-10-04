@@ -16,7 +16,7 @@ Bootstrap se usará como base de retícula y utilidades, personalizado con Sass 
 
 ## Identidad institucional
 
-Nombre público: **DB LAB** («Plataforma interactiva de Bases de Datos con Oracle»), desde la versión 3.0; antes, SQL SELECT LAB. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutiérrez Thomas» y docente «Amílcar Sierra Romano» en pie, portada y modo Exposición. DB LAB es un proyecto académico: no se presenta como producto oficial de Oracle ni de la universidad. Institución: Universidad Popular del Cesar. Usar el logotipo oficial en navegación o portada sobre fondo compatible, sin deformarlo, recolorearlo ni imponerlo como marca de agua sobre tablas. Identidad confirmada por el responsable (PROJECT_SPEC). Logotipo obtenido del sitio institucional; procedencia registrada en `public/identity/README.md`.
+Nombre público: **DB LAB** («Plataforma interactiva de Bases de Datos con Oracle»), desde la versión 3.0; antes, SQL SELECT LAB. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutiérrez Thomas» y docente «Amilkar Sierra Romano» en pie, portada y modo Exposición. DB LAB es un proyecto académico: no se presenta como producto oficial de Oracle ni de la universidad. Institución: Universidad Popular del Cesar. Usar el logotipo oficial en navegación o portada sobre fondo compatible, sin deformarlo, recolorearlo ni imponerlo como marca de agua sobre tablas. Identidad confirmada por el responsable (PROJECT_SPEC). Logotipo obtenido del sitio institucional; procedencia registrada en `public/identity/README.md`.
 
 ## Tokens propuestos
 
@@ -350,7 +350,7 @@ No se añadió ningún componente nuevo: los gratuitos que quedaban (Count Up, A
 
 **Colores de estado:** éxito verde moderado (`success`), aviso ámbar (`warning`), error rojo (`danger`), información azul o cian (`info`, `cyan`). El monitor no usa rojo para los eventos: muestra números y texto neutro.
 
-**Profesor:** navegación propia del panel; tarjetas por estado (Activas, Programadas, Borradores, Finalizadas, Archivadas plegadas); confirmación en dos pasos (`<details>`) para publicar, cerrar accesos, finalizar y eliminar; tablas de monitor y resultados que desde 991 px pasan a tarjetas con etiquetas; distribución de notas como barras con su número.
+**Profesor:** navegación propia del panel; tarjetas por estado (Activas, Programadas, Borradores, Finalizadas, Archivadas plegadas); confirmación en dos pasos (`<details>`) para publicar, cerrar accesos, finalizar y eliminar; tablas reales de monitor, resultados y estudiantes, con columnas agrupadas mediante pestañas accesibles cuando el contenedor mide menos de 66rem. Cada grupo repite la identidad, conserva `caption`, encabezados y filas; nunca convierte veinte registros en tarjetas verticales. Distribución de notas como barras con su número.
 
 **Nota:** «Nota final 4.2 / 5.0» en una tarjeta nocturna con el número grande en monoespaciado; nunca puntos.
 

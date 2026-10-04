@@ -91,3 +91,17 @@ No se declara completado R2 completo ni D01–D08 para flujos aún inexistentes.
 - **Diagnósticos pedagógicos.** Tienen códigos propios y nunca imitan códigos ORA. Se muestran en cinco grupos (SINTAXIS, SEMÁNTICA, ALCANCE EDUCATIVO, ORACLE y ADVERTENCIA), indican línea y columna y, cuando existe, una corrección aplicable (LAB_SPEC 2.0). Aplican los límites de LAB_SPEC: 4000 caracteres, 500 tokens, 12 elementos y 8 niveles de paréntesis. `SELECT nombre salario` es válido y se señala con el aviso de posible coma ausente (LAB19).
 - **Oracle.** El puerto `src/application/oracle-executor.ts` recibe solo la sentencia canónica construida desde el árbol validado. El adaptador vigente, `UnconfiguredOracleExecutor`, declara que no hay conexión y no devuelve filas. El caso de uso `executeOnOracle` rechaza antes del motor cualquier consulta inválida o no permitida.
 - **Editor.** CodeMirror 6 con `@codemirror/state` 6.7.6, `view` 6.43.13, `commands` 6.11.1, `lang-sql` 6.10.0, `language` 6.12.4, `lint` 6.9.7 y `@lezer/highlight` 1.2.3 (versiones exactas y paquetes oficiales). Resalta la sintaxis, marca los diagnósticos, Ctrl/Cmd+Enter ejecuta la acción principal y Tab sale del editor. En `/challenge` se carga bajo demanda solo al abrir M10.
+
+## Fase 5 — Integración y QA real
+
+Se preserva la arquitectura de módulos y la raíz de composición. Los cambios de producto se limitan a los defectos comprobados: identidad académica exacta, resumen de las 78 lecciones en la portada, tablas docentes realmente tabulares en móvil y dialecto CSV para Excel español.
+
+`RecordTable` reutiliza `ColumnTabs` y consulta el tamaño de su contenedor. La representación compacta debe activar explícitamente `.dv__groups`, que DataView oculta por defecto: la revisión visual encontró este defecto aunque la página no desbordaba. Las E2E comprueban ahora que filas, tabla y pestañas estén visibles, y recorren Inicio/Fin en todos los anchos exigidos.
+
+Las pruebas locales usan variables explícitas y exigen loopback. Se impide heredar las credenciales remotas de `.env.local`; la sala local usa memoria y clave de QA. La prueba de 40 clientes solo acepta local o una habilitación explícita de staging. El bypass de Preview se envía únicamente a una petición del host verificado, sin redirecciones automáticas; las trazas remotas quedan desactivadas.
+
+Las migraciones remotas se aplicaron sin recrear tablas ni borrar datos existentes, por TLS verificado, con versiones y huellas registradas. La sincronización de las 150 preguntas oficiales es una operación de contenido legítima; las cuentas y evaluaciones temporales se limpian por sus UUID propios. El registro detallado final vive en FINAL_QA_REPORT y PRODUCTION_DEPLOYMENT; los informes anteriores conservan su valor histórico.
+
+La imagen social se genera desde código HTML mediante `scripts/generate-og.mjs`; no depende de fuentes externas ni reproduce una página de referencia. Mantiene 1200 × 630 y la identidad del proyecto.
+
+La revisión visual detectó que S1 aún enumeraba las funciones de texto, número y fecha como futuras pese a sus tres lecciones publicadas. Se corrigió solo esa metadata para enumerar conversión, NVL2/NULLIF/COALESCE y DECODE, que SECTION_1_AUDIT ya identifica como ampliación futura; no se reescribieron lecciones ni preguntas.

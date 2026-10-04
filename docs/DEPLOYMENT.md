@@ -1,5 +1,7 @@
 # DEPLOYMENT — Estado del despliegue, procedimiento y reversión
 
+**Registro histórico de septiembre.** El estado inspeccionado y el procedimiento de Fase 5 están en [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md); sus identificadores prevalecen sobre los de este documento.
+
 Versión 2.0 · Producción v2 · 26 de septiembre de 2026. Requisitos y variables en [PRODUCTION_SETUP.md](PRODUCTION_SETUP.md).
 
 ## Estado actual
