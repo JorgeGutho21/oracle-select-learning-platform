@@ -29,7 +29,7 @@ Windows, Node 24.20.0, Playwright 1.63.0, build Next de producción. Supabase lo
 | Secretos                        | 0 coincidencias de 14 entradas privadas en repositorio, estáticos y últimos 15 commits; `secret-scan.json`.                                                 |
 | Upload Vercel en seco           | 671 archivos; 0 archivos privados seleccionados, sin desplegar. `vercel-upload-safety.json`.                                                                |
 
-Los 40 logins simultáneos pasan: 2312 ms total, p50 2231 ms y p95 2299 ms (`concurrency-auth.json`). El listado HTTP local de secciones pasa con 40 peticiones: 605 ms total, p50 525 ms y p95 528 ms (`concurrency-sections.json`). WebKit completo y el cierre remoto se registrarán al terminar. Las cuentas remotas confirmadas por API administrativa no acreditan entrega de correo.
+Los 40 logins simultáneos repetidos pasan: 3067 ms total, p50 2939 ms y p95 3052 ms (`concurrency-auth.json`); la medición anterior fue 2312/2231/2299 ms. Progreso/presencia repetidos: 538 ms total, p50 480 y p95 530 ms; anteriormente 368/317/353 ms. No son mejoras ni garantías de SLA: son variaciones locales observadas, con cero errores. El listado HTTP local de secciones pasa con 40 peticiones: 605 ms total, p50 525 ms y p95 528 ms (`concurrency-sections.json`). WebKit completo y el cierre remoto se registrarán al terminar. Las cuentas remotas confirmadas por API administrativa no acreditan entrega de correo.
 
 ## Fallos encontrados y tratamiento
 
@@ -50,6 +50,12 @@ Los 40 logins simultáneos pasan: 2312 ms total, p50 2231 ms y p95 2299 ms (`con
 | Buffer de red Chromium                            | ENVIRONMENT          | 3/3 repeticiones aisladas pasan. La causa concreta del agotamiento de buffer no se atribuye al producto.                            |
 | Firefox no arranca                                | ENVIRONMENT          | Reinstalación oficial y dos lanzamientos aislados fallan antes de abrir la web; SideBySide 33: ensamblado mozglue ausente. BLOCKED. |
 | Zoom nativo del Chromium completo                 | ENVIRONMENT          | Dos intentos no completan el arranque. El reflujo equivalente sí se comprueba; zoom nativo queda NOT_TESTED.                        |
+
+## WebKit: investigación y correcciones
+
+El primer WebKit completo dio 342 PASS, cuatro fallos y dos omisiones encadenadas. El arrastre era TEST_BUG: soltar antes de que dnd-kit confirmara la colisión; 5/5 repeticiones tras esperar estado activo y destino. El formulario era REAL_PRODUCT_BUG: leyendas con ancho persistente después de estrechar viewport; se limita su ancho automático al contenedor. El cierre de medición quedó bloqueado por el subsistema multimedia WebKit/Windows: descargar `about:blank` antes de cerrar evita ese bloqueo, con 2/2 PASS. La cancelación RSC no se ocultó con un filtro genérico: el caso de 1440 px pasó aislado y se mantuvo el filtro específico existente. Un dirigido adicional reprodujo el reloj de dispositivo seis horas atrasado; el contador monotónico pasó después 9/9 junto con formularios, Broadcast y performance.
+
+La siguiente suite completa detectó una expectativa obsoleta del emblema (se exige ahora ausencia sin retirar los créditos) y un defecto de redondeo del contador, que mostraba 301 segundos al truncar la referencia `.750Z`. Se conserva esa precisión del servidor y se redondea únicamente el tiempo transcurrido. La nueva referencia, sus pruebas y el Preview sustituto están en validación. No se da por PASS esa ejecución con fallos.
 
 ## Los 22 casos históricos, individualmente
 

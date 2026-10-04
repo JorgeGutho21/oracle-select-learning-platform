@@ -14,7 +14,7 @@ Evidencia detallada: [FINAL_QA_REPORT](FINAL_QA_REPORT.md). Arquitectura: [FINAL
 
 Correo remoto: configuración y entrega sin verificar; requiere un buzón autorizado y las pruebas de confirmación/recuperación. Microsoft está desactivado en el proyecto. Firefox oficial no arranca en este Windows por un ensamblado `mozglue` ausente; no se atribuye a la aplicación. Zoom nativo, lector de pantalla, móvil físico y proyector: NOT_TESTED. El reflujo equivalente a zoom se valida por separado.
 
-No se promueve a producción mientras el recorrido crítico de correo no esté verificado. El candidato Preview debe pasar la QA remota con datos temporales propios y limpieza por UUID; los 40 clientes se prueban solo en local.
+El encargo final admite correo remoto BLOCKED_EXTERNAL_CONFIGURATION únicamente si se confirma que falta SMTP externo y la implementación está validada por otros medios. Su configuración sigue desconocida, por lo que todavía no se cumple esa excepción. Microsoft sin credenciales y Firefox con limitación demostrada del runtime son excepciones admitidas. El candidato Preview debe pasar la QA remota con datos temporales propios y limpieza por UUID; los 40 clientes se prueban solo en local. Ningún P0/P1 real permite promover.
 
 ## Indicadores de cierre
 
