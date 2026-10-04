@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import {
@@ -152,14 +151,6 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
         aria-label="Identidad académica"
       >
         <div className="site-container home-identity__inner">
-          <Image
-            src={identity.logo}
-            width={805}
-            height={417}
-            alt={identity.institution}
-            className="home-identity__logo"
-            priority
-          />
           <dl className="home-identity__facts">
             <div>
               <dt>Proyecto académico</dt>

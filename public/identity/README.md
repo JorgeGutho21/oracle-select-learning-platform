@@ -6,4 +6,4 @@ Se verificó su uso como «Logo Unicesar» en la navegación del sitio instituci
 
 Identidad académica confirmada por el responsable: Universidad Popular del Cesar, Ingeniería de Sistemas, asignatura Base de Datos, autor Jorge Gutierrez Thomas, profesor Amilkar Sierra. El recurso se usa para identificar este material académico; no se presenta la plataforma como un servicio oficial de la universidad.
 
-Pendiente: el uso público del emblema institucional (por ejemplo, al publicar la plataforma fuera del aula) debe validarlo el responsable académico. Mientras tanto se conserva el archivo original sin cambios; esta validación no bloquea el uso educativo de la aplicación.
+Pendiente: el uso público del emblema institucional debe validarlo el responsable académico. En el cierre de Fase 5 se retiró de Home, Exposición y el pie conforme al encargo del 4 de octubre. Se conserva este archivo original como referencia; la interfaz muestra los créditos institucionales en texto.

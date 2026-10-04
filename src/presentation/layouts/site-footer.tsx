@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   ACADEMIC_IDENTITY as identity,
@@ -25,10 +24,6 @@ export function SiteFooter() {
           <p className="footer-brand__eyebrow">Proyecto académico</p>
           <strong className="footer-brand__name">{product.name}</strong>
           <p>{product.subtitle}</p>
-          {/* Lugar de la identidad institucional: el emblema registrado en public/identity. */}
-          <span className="footer-logo">
-            <Image src={identity.logo} width={805} height={417} alt={identity.institution} />
-          </span>
         </div>
         <dl className="footer-identity" aria-label="Créditos académicos">
           <div>

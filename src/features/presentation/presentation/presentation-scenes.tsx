@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Route } from 'next';
 import { useState, type ReactNode } from 'react';
@@ -558,9 +557,6 @@ const RENDER: Readonly<Record<string, () => ReactNode>> = {
               <dd>{identity.teacher}</dd>
             </div>
           </dl>
-        </div>
-        <div className="scene-cover__logo">
-          <Image src={identity.logo} alt={identity.institution} width={805} height={417} priority />
         </div>
       </div>
     </Scene>

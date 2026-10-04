@@ -16,7 +16,7 @@ Bootstrap se usará como base de retícula y utilidades, personalizado con Sass 
 
 ## Identidad institucional
 
-Nombre público: **DB LAB** («Plataforma interactiva de Bases de Datos con Oracle»), desde la versión 3.0; antes, SQL SELECT LAB. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutiérrez Thomas» y docente «Amilkar Sierra Romano» en pie, portada y modo Exposición. DB LAB es un proyecto académico: no se presenta como producto oficial de Oracle ni de la universidad. Institución: Universidad Popular del Cesar. Usar el logotipo oficial en navegación o portada sobre fondo compatible, sin deformarlo, recolorearlo ni imponerlo como marca de agua sobre tablas. Identidad confirmada por el responsable (PROJECT_SPEC). Logotipo obtenido del sitio institucional; procedencia registrada en `public/identity/README.md`.
+Nombre público: **DB LAB** («Plataforma interactiva de Bases de Datos con Oracle»), desde la versión 3.0; antes, SQL SELECT LAB. Sección lúdica: **SQL Oracle Challenge**. Firma discreta «Jorge Gutiérrez Thomas» y docente «Amilkar Sierra Romano» en pie, portada y modo Exposición. DB LAB es un proyecto académico: no se presenta como producto oficial de Oracle ni de la universidad. Institución: Universidad Popular del Cesar. La identidad académica está confirmada (PROJECT_SPEC), pero la autorización pública del emblema sigue pendiente: el encargo de cierre del 4 de octubre exige mostrar los créditos en texto y retirar el emblema de la interfaz. Se conserva el original y su procedencia en `public/identity/README.md`.
 
 ## Tokens propuestos
 
@@ -194,7 +194,7 @@ Fase 1 de DB LAB (3 de octubre de 2026): la plataforma deja de ser una página d
 - **Nombre y subtítulo:** salen de `PRODUCT_IDENTITY` (`src/application/academic-identity.ts`), junto con la promesa y el aviso académico. Ningún componente escribe la marca a mano.
 - **Símbolo:** se conserva `>_` (terminal) en la cabecera, los iconos y la imagen social.
 - **Logotipo:** «DB» en tinta y «LAB» en azul (cian sobre fondo oscuro).
-- **Emblema institucional:** el registrado en `public/identity` ocupa su lugar en el pie y en la banda de identidad. No se añadieron logotipos nuevos.
+- **Identidad institucional:** créditos en texto. El emblema original de `public/identity` no se muestra mientras su autorización pública esté pendiente.
 - **Imagen social:** `src/app/opengraph-image.png`, 1200 × 630, se generó desde HTML con los tokens.
 
 ### Tokens añadidos
