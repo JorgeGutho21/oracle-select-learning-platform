@@ -18,7 +18,7 @@ Estado actual: release en preparación; producción no promovida. Este registro 
 
 Las variables públicas Supabase deben existir durante el build para que la CSP permita su HTTPS/WebSocket. Oracle Cloud, cartera, claves de servicio y claves del facilitador son exclusivamente de servidor. `.vercelignore` excluye secretos, archivos locales, compilaciones, capturas, logs y DOCX. Las variables existentes de Preview/Production fueron inspeccionadas por nombre, sin imprimir valores.
 
-Preview posterior READY verificado: `dpl_3xfdiyJqhsSrDqGAgeGdgG4TtoGt`, https://sql-select-qq87r0e6v-jorge-gutierrez1.vercel.app, commit `53fcf0efd7efbf8fd651f1cf0eeb390a95028125`. La regresión completa WebKit detectó después un redondeo de un segundo en el contador; este Preview debe reemplazarse por el candidato corregido antes de la QA remota y cualquier promoción. Producción permanece en el deployment anterior.
+Preview vigente READY verificado: `dpl_BhoZNUkR5Az9aLKZVNzaHsUJ8J7i`, https://sql-select-adwohw4tk-jorge-gutierrez1.vercel.app, commit `81a10fc1d4448c2d53c07f1d0ba6e895425e611d`, rama `codex-phase5-production-final-20261004`. La API confirma el proyecto propio y target distinto de producción. Incluye precisión del contador y corrección de la leyenda nativa del examen. Sustituye los previews de `53fcf0e` y `dd988c8`, que no deben promoverse. WebKit completo del candidato pasa 349/349; la QA remota aún debe terminar antes de cualquier promoción. Producción permanece en el deployment anterior.
 
 ## Migraciones reales
 

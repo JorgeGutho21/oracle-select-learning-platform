@@ -12,7 +12,7 @@ Windows, Node 24.20.0, Playwright 1.63.0, build Next de producción. Supabase lo
 
 | Verificación                    | Resultado y evidencia local                                                                                                                                 |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vitest completo                 | 1977 PASS, 0 FAIL, 7 omitidas: 1358 unitarias y 619 integraciones; `closure-vitest.json`. Dos omisiones deliberadas; cinco smoke remotas pasaron aparte.    |
+| Vitest completo                 | 1980 PASS, 0 FAIL, 7 omitidas: 1361 unitarias y 619 integraciones; `final-vitest.json`. Dos omisiones deliberadas; cinco smoke remotas pasaron aparte.      |
 | Oracle Free / PGlite            | 599 PASS; `oracle-integration.log`. Incluye 222 ejemplos curriculares, 102 comprobaciones S1 y 79 del banco S1.                                             |
 | Oracle Cloud 19c                | 102 PASS de S1; `release-oracle19c.log`. No se atribuye a 19c la ejecución completa de S2/S3.                                                               |
 | Supabase remoto                 | 7 PASS de cuentas/RLS y 5 PASS de release; `remote-accounts-rls.log`, `remote-release-db.log`.                                                              |
@@ -23,13 +23,13 @@ Windows, Node 24.20.0, Playwright 1.63.0, build Next de producción. Supabase lo
 | Edge completo                   | 348 PASS, 0 FAIL, 0 omitidas, 0 flaky; `full-edge.json`.                                                                                                    |
 | Comandos finales locales        | lint, typecheck, format:check, Vitest y build QA: código de salida 0. Build con variables de producción pendiente tras WebKit.                              |
 | 22 fallos históricos            | Todos pasan 2/2 de forma aislada: 44 PASS, sin retries ni omisiones. `historical-isolated.json`.                                                            |
-| Concurrencia progreso/presencia | 40 clientes, 120 registros, 635 ms total; p50 571 ms, p95 616 ms. `concurrency-progress.json`.                                                              |
+| Concurrencia progreso/presencia | 40 clientes, 120 registros, 464 ms total; p50 397 ms, p95 448 ms. `concurrency-progress.json`.                                                              |
 | Escala real de notas            | 0/20/50/60/80/100% producen 0.0/1.0/2.5/3.0/4.0/5.0 en PostgreSQL.                                                                                          |
 | Dependencias de producción      | `npm audit --omit=dev`: 0 vulnerabilidades. `npm-audit.json`.                                                                                               |
 | Secretos                        | 0 coincidencias de 17 entradas privadas en repositorio, estáticos y últimos 15 commits; `secret-scan.json`.                                                 |
 | Upload Vercel en seco           | 671 archivos; 0 archivos privados seleccionados, sin desplegar. `vercel-upload-safety.json`.                                                                |
 
-Los 40 logins simultáneos repetidos pasan: 2590 ms total, p50 2487 ms y p95 2572 ms (`concurrency-auth.json`); la medición anterior fue 2312/2231/2299 ms. Progreso/presencia repetidos: 635 ms total, p50 571 y p95 616 ms; anteriormente 368/317/353 ms. No son mejoras ni garantías de SLA: son variaciones locales observadas, con cero errores. El listado HTTP local de secciones pasa con 40 peticiones: 605 ms total, p50 525 ms y p95 528 ms (`concurrency-sections.json`). WebKit completo y el cierre remoto se registrarán al terminar. Las cuentas remotas confirmadas por API administrativa no acreditan entrega de correo.
+Los 40 logins simultáneos repetidos pasan: 3505 ms total, p50 3287 ms y p95 3487 ms (`concurrency-auth.json`); la medición anterior fue 2312/2231/2299 ms. Progreso/presencia repetidos: 464 ms total, p50 397 y p95 448 ms; anteriormente 368/317/353 ms. No son mejoras ni garantías de SLA: son variaciones locales observadas, con cero errores. El listado HTTP local de secciones pasa con 40 peticiones: 605 ms total, p50 525 ms y p95 528 ms (`concurrency-sections.json`). WebKit completo y el cierre remoto se registrarán al terminar. Las cuentas remotas confirmadas por API administrativa no acreditan entrega de correo.
 
 ## Fallos encontrados y tratamiento
 
@@ -57,34 +57,36 @@ El primer WebKit completo dio 342 PASS, cuatro fallos y dos omisiones encadenada
 
 La siguiente suite completa detectó una expectativa obsoleta del emblema (se exige ahora ausencia sin retirar los créditos) y un defecto de redondeo del contador, que mostraba 301 segundos al truncar la referencia `.750Z`. Se conserva esa precisión del servidor y se redondea únicamente el tiempo transcurrido. La nueva referencia, sus pruebas y el Preview sustituto están en validación. No se da por PASS esa ejecución con fallos.
 
+Tras corregir la leyenda múltiple, WebKit completo pasa 349/349 sin retries, fallos ni omisiones: `final-full-webkit.json`. Chromium completo posterior da 348 PASS y un fallo del tooltip, no aprobado como PASS. El diagnóstico observa apertura, scroll pendiente y retirada pese a foco visible: caso original 3/5 FAIL y Tab real 4/5 FAIL. Se corrige únicamente el tooltip del showcase; tres unitarias pasan tras reproducir el fallo previo y sus cinco interacciones pasan 15/15 en Chromium y 15/15 en WebKit, tres repeticiones sin retries. La nueva regresión de Tab eleva la batería completa a 350; su ejecución final y Edge están pendientes. La regresión WebKit posterior se limita al único consumidor modificado, preservando la cobertura completa anterior y registrando ambas ejecuciones por separado.
+
 ## Los 22 casos históricos, individualmente
 
 La evidencia heredada de `PHASE4_QA.md`, sección 5, registra que los 21 casos de entorno fallaron también contra la base de Fase 3 en el mismo Chromium 1194/Linux. En este Windows se ejecutaron los títulos exactos sin alterar sus aserciones, dos veces cada uno, sin retries: 44 PASS. Eso confirma que hoy no son regresiones reproducibles del producto; **no demuestra que una fuente concreta causara cada fallo Linux**. La clasificación ENVIRONMENT se limita a esa diferencia reproducida entre entornos/versiones. La causa interna del entorno antiguo permanece sin atribución.
 
-| Test (archivo y caso)                                   | Ruta                      | Clasificación / tratamiento                        | Resultado aislado                 |
-| ------------------------------------------------------- | ------------------------- | -------------------------------------------------- | --------------------------------- |
-| audit-regressions: 180 px, resources                    | /resources                | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| audit-regressions: 180 px, modules                      | /modules                  | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| interactions: ayuda con foco, descarte y posición móvil | /dev/design-system        | FLAKY histórico; no reproduce intermitencia actual | 2/2 PASS + 10/10 PASS adicionales |
-| lab-result-table: 12 columnas, 5 grupos, 390×844        | /lab                      | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| lab-result-table: 12 columnas, 5 grupos, 360×800        | /lab                      | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| lab-result-table: 12 columnas, 5 grupos, 320×568        | /lab                      | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| media: resumen al final y escena 26                     | /presentation, /resources | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| presentation: 30 escenas, 1920×1080                     | /presentation             | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| presentation: 30 escenas, 1366×768                      | /presentation             | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| presentation: 30 escenas, 1280×720                      | /presentation             | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| presentation: tabla completa, escena 4, 1920×1080       | /presentation             | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| presentation: tabla completa, escena 4, 1366×768        | /presentation             | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| reflow: todas las rutas, 180×400                        | rutas públicas del spec   | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| reflow: laboratorio usable a 200% equivalente           | /lab                      | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-challenge: 10 misiones, 1920 px                  | /challenge                | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-challenge: 10 misiones, 1366 px                  | /challenge                | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-challenge: 10 misiones, 390 px                   | /challenge                | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-challenge: 10 misiones, 320 px                   | /challenge                | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-challenge: dataset móvil, máximo 4 columnas      | /challenge                | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-pages: páginas sin desborde, 320×568             | rutas públicas del spec   | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-presentation: escenas clave, 1920×1080           | /presentation             | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
-| visual-presentation: escenas clave, 1366×768            | /presentation             | ENVIRONMENT; aserciones conservadas                | 2/2 PASS                          |
+| Test (archivo y caso)                                   | Ruta                      | Clasificación / tratamiento                           | Resultado aislado                 |
+| ------------------------------------------------------- | ------------------------- | ----------------------------------------------------- | --------------------------------- |
+| audit-regressions: 180 px, resources                    | /resources                | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| audit-regressions: 180 px, modules                      | /modules                  | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| interactions: ayuda con foco, descarte y posición móvil | /dev/design-system        | REAL_PRODUCT_BUG; scroll posterior al foco confirmado | 2/2 PASS + 10/10 PASS adicionales |
+| lab-result-table: 12 columnas, 5 grupos, 390×844        | /lab                      | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| lab-result-table: 12 columnas, 5 grupos, 360×800        | /lab                      | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| lab-result-table: 12 columnas, 5 grupos, 320×568        | /lab                      | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| media: resumen al final y escena 26                     | /presentation, /resources | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| presentation: 30 escenas, 1920×1080                     | /presentation             | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| presentation: 30 escenas, 1366×768                      | /presentation             | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| presentation: 30 escenas, 1280×720                      | /presentation             | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| presentation: tabla completa, escena 4, 1920×1080       | /presentation             | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| presentation: tabla completa, escena 4, 1366×768        | /presentation             | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| reflow: todas las rutas, 180×400                        | rutas públicas del spec   | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| reflow: laboratorio usable a 200% equivalente           | /lab                      | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-challenge: 10 misiones, 1920 px                  | /challenge                | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-challenge: 10 misiones, 1366 px                  | /challenge                | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-challenge: 10 misiones, 390 px                   | /challenge                | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-challenge: 10 misiones, 320 px                   | /challenge                | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-challenge: dataset móvil, máximo 4 columnas      | /challenge                | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-pages: páginas sin desborde, 320×568             | rutas públicas del spec   | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-presentation: escenas clave, 1920×1080           | /presentation             | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
+| visual-presentation: escenas clave, 1366×768            | /presentation             | ENVIRONMENT; aserciones conservadas                   | 2/2 PASS                          |
 
 El tooltip tenía 4/10 fallos en Fase 4 y 3/10 en Fase 3, según el registro heredado. Sus diez repeticiones nuevas pasan sin cambios en la aplicación ni aumento de timeout. No se afirma que una intermitencia histórica haya sido eliminada mediante un fix inexistente. Títulos exactos: `historical-cases.json`; ejecuciones: `historical-isolated.json` y `tooltip-isolated.json`.
 
