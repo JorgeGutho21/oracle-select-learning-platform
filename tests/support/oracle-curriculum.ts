@@ -75,7 +75,12 @@ export class OracleCurriculumRunner {
     private readonly reader: Connection,
   ) {}
 
-  static async open(): Promise<OracleCurriculumRunner> {
+  /**
+   * `resetDataset: false` deja intacto el esquema de verificación: para quien solo consulta
+   * `empleados-select-v2` con la cuenta lectora (el banco de la Sección 1). Así puede correr
+   * en paralelo con `curriculum-oracle.test.ts`, que borra y recrea ese esquema.
+   */
+  static async open({ resetDataset = true } = {}): Promise<OracleCurriculumRunner> {
     const db = await driver();
     const connectString = env.ORACLE_CONNECT_STRING;
     const sandbox = await db.getConnection({
@@ -94,7 +99,7 @@ export class OracleCurriculumRunner {
       await reader.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${env.ORACLE_SCHEMA}`);
     }
     const runner = new OracleCurriculumRunner(db, sandbox, reader);
-    await runner.resetDataset();
+    if (resetDataset) await runner.resetDataset();
     return runner;
   }
 

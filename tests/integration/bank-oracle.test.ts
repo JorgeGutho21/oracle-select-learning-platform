@@ -40,7 +40,8 @@ const S1_CHECKS = FUNDAMENTOS_SQL_BANK.flatMap((question) =>
 
 describe.skipIf(!ORACLE_CURRICULUM_CONFIGURED)('Oracle real · banco oficial', () => {
   beforeAll(async () => {
-    runner = await OracleCurriculumRunner.open();
+    // Solo la cuenta lectora: no toca el esquema que recrea curriculum-oracle.test.ts.
+    runner = await OracleCurriculumRunner.open({ resetDataset: false });
   }, 120_000);
 
   afterAll(async () => {
