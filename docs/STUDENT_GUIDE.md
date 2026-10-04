@@ -12,4 +12,4 @@ La nota está entre 0.0 y 5.0. El profesor decide cuándo mostrarla y cuándo pu
 
 Los controles se pueden usar con teclado y las tablas móviles ofrecen grupos de columnas. En evaluación se registran únicamente eventos informados por la pantalla; no se activa cámara, micrófono ni seguimiento del dispositivo.
 
-Estado de esta entrega: la Fase 5 continúa en Preview. La configuración y entrega de correo remotas aún no están verificadas y Microsoft está desactivado; el flujo de registro y recuperación descrito requiere que el responsable complete esas comprobaciones. El acceso como invitado conserva las actividades públicas y el progreso de este navegador.
+Estado de esta entrega: Fase 5 publicada. SMTP personalizado está desactivado; registro/recuperación por correo requieren configurar y probar esa entrega externa. Microsoft sigue desactivado. Invitado conserva las actividades públicas y el progreso de este navegador. No se presenta entrega remota como verificada.

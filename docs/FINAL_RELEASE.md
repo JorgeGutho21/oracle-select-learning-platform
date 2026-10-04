@@ -1,6 +1,6 @@
 # Release de DB LAB — Fase 5
 
-**BLOCKED: candidato técnico verificado; producción no promovida.** SMTP remoto sigue UNKNOWN y la entrega real no está verificada. No se cumple todavía la excepción de SMTP externo ausente que permite el encargo de cierre. Conclusión C: DB LAB todavía NO debe publicarse.
+**RELEASED — Fase 5 publicada y smoke de Production aprobado.** La implementación de autenticación pasa; la entrega remota queda BLOCKED_EXTERNAL_CONFIGURATION porque el dashboard confirma SMTP personalizado desactivado. Se aplica la excepción explícita del último encargo; no se afirma entrega real.
 
 Rama: `codex-phase5-production-final-20261004`. Base: `6fda02bec66f4ef5f0837ef0efda5cdd7587b787`; `889716c` es ancestro verificado. Checkpoint anterior conservado: `01e83ac`. `main` y el DOCX personal permanecen intactos.
 
@@ -12,29 +12,34 @@ Evidencia detallada: [FINAL_QA_REPORT](FINAL_QA_REPORT.md). Arquitectura: [FINAL
 
 ## Gates y pendientes
 
-Correo remoto: configuración y entrega sin verificar; requiere un buzón autorizado y las pruebas de confirmación/recuperación. Microsoft está desactivado en el proyecto. Firefox oficial no arranca en este Windows por un ensamblado `mozglue` ausente; no se atribuye a la aplicación. Zoom nativo, lector de pantalla, móvil físico y proyector: NOT_TESTED. El reflujo equivalente a zoom se valida por separado.
+Correo remoto: dashboard autenticado del proyecto byjkkxrrkodyduskdimg, Toggle SMTP = 0; no hay SMTP personalizado habilitado. El servicio integrado solo admite direcciones del equipo y actualmente dos mensajes por hora, sin aptitud para la clase de 40 alumnos. Registro/confirmación/reset están implementados y probados con Mailpit; la entrega remota necesita SMTP autorizado y buzón. Microsoft sigue desactivado. Firefox, zoom nativo, lector manual, teléfono físico y proyector conservan sus límites documentados.
 
-El encargo final admite correo remoto BLOCKED_EXTERNAL_CONFIGURATION únicamente si se confirma que falta SMTP externo y la implementación está validada por otros medios. Su configuración sigue desconocida, por lo que todavía no se cumple esa excepción. Microsoft desactivado (credenciales privadas no expuestas) y Firefox con limitación demostrada del runtime son excepciones admitidas. El candidato Preview debe pasar la QA remota con datos temporales propios y limpieza por UUID; los 40 clientes se prueban solo en local. Ningún P0/P1 real permite promover.
+El último encargo autoriza publicar con una dependencia SMTP externa documentada cuando su ausencia esté confirmada y la implementación funcione. Esa condición ahora se verifica en el dashboard, sin asumirlo por la API pública: al inicio faltaba acceso administrativo; la sesión quedó disponible y permitió leer el interruptor desactivado. No se habilitó SMTP ni Microsoft, no se contrataron servicios y no se enviaron correos sin buzón autorizado. No hay P0/P1 reproducible en el candidato; Production pasa el smoke crítico.
 
 ## Indicadores de cierre
 
-Lint, typecheck, formato y build de producción pasan. Vitest: 1992 PASS, 0 FAIL, 7 omisiones documentadas (1373 unitarias y 619 integraciones). Preview f067058: 104/104 y 5/5 adicionales de pantallas críticas, con 22 análisis axe WCAG 2.2 A/AA sin infracciones. Chromium completo anterior al último aviso REST: 350/350; Edge dirigido: 105/105; WebKit completo anterior al tooltip: 349/349 y tooltip 15/15. El último cambio de aplicación pasa 5/5 adicionales en cada uno de esos tres navegadores. No se suman estas coberturas como si fueran una sola ejecución completa del último HEAD.
+Esta intervención: lint, typecheck, formato y build modo producción PASS; 39 unitarias dirigidas PASS y 12 integraciones auth/RLS remotas PASS después de corregir la configuración. Preview del HEAD esperado 6be89ed: cuatro flujos académicos PASS y tres públicos/auth PASS en ejecuciones separadas. Production: 7/7 críticos y 1/1 adicional de tablas/cabeceras PASS, con cinco comprobaciones de redirects PASS. No se repitieron las suites completas: se conserva la evidencia anterior de Vitest 1992 PASS/0 FAIL/7 omisiones, Chromium 350/350, Edge 105/105 dirigido y WebKit 349/349 completo más tooltip 15/15, con sus alcances originales.
 
-Preview validado: https://sql-select-e2uxkgvcr-jorge-gutierrez1.vercel.app, deployment dpl_JCzxJMZDNY6hKh5hrKZi3tNKtenE, código de aplicación f067058f8d886f1498d7a9bdd821d0503ef18e64. Los commits posteriores contienen únicamente QA y documentación; el HEAD final de Git se obtiene con git rev-parse HEAD. Producción conserva dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2, commit 874f7748acf030f62dbb02bbaea0b204bdd36441. No se declara smoke de producción.
+Preview del HEAD esperado 6be89ed2b47d3653ee30b94ded2640d0f59753d7: https://sql-select-2m8hefwkm-jorge-gutierrez1.vercel.app, dpl_BB59LhMa8vD514CXWFSJp1KQojrU. Promoción mediante vercel promote, sin cambiar código: Production READY dpl_BSVxTo5ZtyAj2ETmSvcPiiTHVEtb, mismo commit 6be89ed, alias https://sql-select-lab.vercel.app. Vercel crea un deployment de producción con ese código y su configuración Production. El HEAD posterior únicamente documenta el resultado; no se confunde con el commit público. Rollback conservado: dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2 / 874f774.
 
-Oracle 19c cubre S1; las secciones completas se comprobaron en Free. RESPONSIVE_PASS cubre viewport y reflujo equivalente; zoom nativo queda NOT_TESTED. ACCESSIBILITY_PASS describe verificación automática y teclado, no certificación ni lector de pantalla manual. El build local usa configuración pública real de Production y credenciales privadas locales; ocho variables sensibles devueltas como [SENSITIVE] por Vercel no se utilizan como credenciales. No sustituye una prueba de runtime de Production. Una navegación WebKit S2 excedió cinco segundos; tres repeticiones y la secuencia posterior pasan sin cambiar esa aserción. Su causa puntual queda sin determinar y su fallo histórico permanece registrado.
+Oracle 19c cubre S1; las tres secciones completas se comprobaron en Free. El smoke público volvió a ejecutar la consulta real del Lab en Oracle a 390 y 1440. RESPONSIVE_PASS y ACCESSIBILITY_PASS conservan el alcance automatizado y de teclado, no certificación manual. El build local usa variables públicas reales de Production y credenciales privadas locales; los marcadores [SENSITIVE] no se usaron como secretos válidos. Ahora el deployment cloud de Production y su smoke verifican el runtime real. El timeout histórico WebKit S2 permanece documentado, sin atribuirle una corrección inexistente.
 
-La fase técnica termina verificada y sincronizada; el gate operativo permanece bloqueado. La implementación de fases 1–4 está conservada; AUTH_COMPLETE incluye entrega remota y por ello es false.
+Fase 5 completa bajo la excepción externa autorizada. AUTH_COMPLETE se refiere a implementación de invitado/email/password; AUTH_STATUS conserva PASS_WITH_EXTERNAL_PROVIDER_PENDING. EMAIL_REMOTE_PASS permanece false. Se corrigió una configuración real: Site URL localhost:3000 y allowlist vacía; ahora apuntan al dominio público y a cuatro callbacks exactos de Production/Preview, incluyendo recuperación. Cinco comprobaciones administrativas de links verifican destinos y rechazo de origen externo; no envían correo ni acreditan entrega.
 
 ```text
 PHASE_1_COMPLETE = true
 PHASE_2_COMPLETE = true
 PHASE_3_COMPLETE = true
 PHASE_4_COMPLETE = true
-PHASE_5_COMPLETE = false
+PHASE_5_COMPLETE = true
 CURRICULUM_COMPLETE = true
 QUESTION_BANK_150_COMPLETE = true
-AUTH_COMPLETE = false
+AUTH_COMPLETE = true
+AUTH_STATUS = PASS_WITH_EXTERNAL_PROVIDER_PENDING
+AUTH_EMAIL_PASSWORD_IMPLEMENTATION = true
+EMAIL_IMPLEMENTATION_PASS = true
+EMAIL_REMOTE_PASS = false
+EMAIL_REMOTE_DELIVERY = BLOCKED_EXTERNAL_CONFIGURATION
 ASSESSMENTS_COMPLETE = true
 TEACHER_PANEL_COMPLETE = true
 SUPERVISION_COMPLETE = true
@@ -50,20 +55,20 @@ CHROMIUM_PASS = true
 EDGE_PASS = true
 WEBKIT_PASS = true
 FIREFOX_STATUS = NOT_TESTED_RUNTIME
-EMAIL_REMOTE_STATUS = BLOCKED_SMTP_UNKNOWN
+EMAIL_REMOTE_STATUS = BLOCKED_EXTERNAL_CONFIGURATION
 MICROSOFT_STATUS = BLOCKED_EXTERNAL_CONFIGURATION
 PREVIEW_PASS = true
-PRODUCTION_SMOKE_PASS = NOT_TESTED
+PRODUCTION_SMOKE_PASS = true
 FINAL_UX_READY = true
-FINAL_RELEASE_READY = false
+FINAL_RELEASE_READY = true
 ```
 
 Indicadores operativos conservados:
 
 ```text
-PHASE_5_COMPLETE = false
-PRODUCTION_READY = BLOCKED
-PRODUCTION_DEPLOYED = false
+PHASE_5_COMPLETE = true
+PRODUCTION_READY = true
+PRODUCTION_DEPLOYED = true
 SECTION_1_PASS = true
 SECTION_2_PASS = true
 SECTION_3_PASS = true
@@ -72,7 +77,7 @@ QUESTION_BANK_S2 = 50
 QUESTION_BANK_S3 = 50
 QUESTION_BANK_TOTAL = 150
 GUEST_AUTH_PASS = true
-EMAIL_AUTH_PASS = BLOCKED
+EMAIL_AUTH_PASS = PASS_WITH_EXTERNAL_PROVIDER_PENDING
 MICROSOFT_AUTH = BLOCKED
 PROFILE_PASS = true
 ROLES_PASS = true
@@ -109,6 +114,10 @@ FIREFOX_E2E = BLOCKED
 WEBKIT_E2E = true
 EDGE_E2E = true
 PREVIEW_SMOKE = true
-PRODUCTION_SMOKE = NOT_TESTED
-FINAL_DB_LAB_READY = false
+PRODUCTION_SMOKE = true
+FINAL_DB_LAB_READY = true
 ```
+
+## Resultado operativo
+
+DB LAB está publicado en el alias público y la Fase 5 queda cerrada. Permanece una acción externa para entregar correo a estudiantes: configurar un SMTP autorizado con capacidad adecuada y autorizar un buzón para confirmación/recuperación reales. Microsoft es opcional. No se promete entrega de correo, OAuth Microsoft ni pruebas manuales no ejecutadas. Informe de esta ejecución en FINAL_QA_REPORT; rollback exacto en PRODUCTION_DEPLOYMENT.

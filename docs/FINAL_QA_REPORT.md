@@ -1,8 +1,32 @@
 # QA final de DB LAB — Fase 5
 
-Estado técnico: verificado. Estado operativo: BLOCKED por SMTP remoto UNKNOWN y entrega sin comprobar. Este informe distingue verificaciones ejecutadas de configuración externa pendiente; producción no fue promovida.
+Estado actual: RELEASED. Última intervención dirigida del 4 de octubre: Production publicada y smoke aprobado; SMTP personalizado desactivado confirmado en dashboard. Los números de las suites completas más abajo corresponden al cierre anterior y no se presentan como reejecutados.
 
-## Entorno y alcance
+## Última intervención: release público
+
+HEAD esperado al congelar y probar: 6be89ed2b47d3653ee30b94ded2640d0f59753d7. Preview dpl_BB59LhMa8vD514CXWFSJp1KQojrU y Production dpl_BSVxTo5ZtyAj2ETmSvcPiiTHVEtb comparten ese commit. El cierre documental posterior no cambia código.
+
+| Verificación de esta intervención            | Resultado                                                                          | Evidencia privada                                                              |
+| -------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Lint / typecheck / formato / build           | PASS, salida 0                                                                     | intervention-lint/typecheck/format/build.log                                   |
+| Unitarias auth y monitor                     | 39 PASS, 0 FAIL                                                                    | intervention-auth-unit.json                                                    |
+| Auth / RLS remoto después de configurar URLs | 12 PASS, 0 FAIL                                                                    | intervention-remote-auth-rls.json                                              |
+| Preview académico                            | 4 PASS: progreso y evaluación S1/S2/S3                                             | intervention-preview-smoke-initial.json; fallos públicos iniciales conservados |
+| Preview público / sesión                     | 3 PASS, 0 FAIL                                                                     | intervention-preview-public-auth.json                                          |
+| Production crítico                           | 7 PASS, 0 FAIL, 0 skip, 0 flaky; 176237 ms                                         | intervention-production-smoke.json                                             |
+| Production tablas / headers                  | 1 PASS; 390 y 1440                                                                 | intervention-production-tables.json                                            |
+| Redirects Auth                               | 5 PASS, fixture propio eliminado; sin envío de correo                              | intervention-auth-redirect-checks.json                                         |
+| Production HTML / JS / secretos              | 12 respuestas, 27 JS, 17 valores privados conocidos, 0 coincidencias / source maps | intervention-production-client-security.json                                   |
+
+No cambios de lógica, currículo, bancos ni componentes. Se creó Preview para el HEAD real; promote generó Production del mismo código. La primera inspección API tuvo un timeout de conexión antes de arrancar Playwright; se repitió solo esa lectura. El helper de auditoría HTTP original terminó con un fallo nativo Windows después de producir resultados; la comprobación se completó con fetch y salida 0. No se presentan esos intentos como PASS.
+
+El smoke nuevo inicialmente rechazó el 404 deliberado y los 401 de solicitudes pendientes de presencia/progreso al cerrar sesión. Diagnóstico con ruta, método y fase: esos dos 401 ocurren durante logout. La QA únicamente admite el 404 de su ruta propia y el 401 de esas dos rutas/métodos durante logout/guest, respaldados por las respuestas HTTP. Todo otro error, excepción o advertencia de hidratación/CSP falla. No hubo filtro general ni cambio del producto. Los cuatro flujos académicos pasan con consola comprobada.
+
+Dashboard: Enable custom SMTP desactivado; proveedor integrado no apto para 40 alumnos (equipo y 2 mensajes/h según documentación oficial). Se aplica la excepción externa autorizada, sin marcar entrega remota PASS. Se corrigió Site URL localhost:3000 y cero redirects: dominio público y cuatro callbacks exactos con/sin next=/reset-password. Evidencia AX y auth-url-configuration-final.png; links administrativos verifican cuatro destinos y rechazo de un origen ajeno. No se enviaron correos.
+
+Limpieza posterior: 28 salas, 39 participantes, 22 intentos, 2 pistas, 22 resultados, cero perfiles/evaluaciones QA y banco 150. No se borraron datos anteriores. Performance, concurrencia, Edge/WebKit y límites Firefox/manuales conservan la evidencia heredada del mismo código, sin nuevas mediciones atribuidas.
+
+## Entorno y alcance del cierre anterior
 
 Repositorio único y rama `codex-phase5-production-final-20261004`, base `6fda02bec66f4ef5f0837ef0efda5cdd7587b787`. El commit histórico `889716c` es ancestro verificado. Se preservó el trabajo anterior en `01e83ac`, sin tocar `main` ni el documento personal DOCX.
 
@@ -147,4 +171,4 @@ El build local final pasa en modo producción con NEXT_PUBLIC_SITE_URL y configu
 
 Código de aplicación validado: f067058f8d886f1498d7a9bdd821d0503ef18e64. Los commits posteriores son únicamente QA/documentación; se verifica la ausencia de diferencias en src, public, dependencias y configuración de build. No se afirma que el hash del HEAD documental sea el hash del deployment.
 
-La última inspección remota conserva 28 salas, 39 participantes, 22 intentos de sala, 2 pistas, 22 resultados, cero perfiles/evaluaciones temporales y banco 50/50/50. Producción continúa en 874f774; no hubo promoción ni prueba de su nueva versión.
+La última inspección remota conserva 28 salas, 39 participantes, 22 intentos de sala, 2 pistas, 22 resultados, cero perfiles/evaluaciones temporales y banco 50/50/50. Ese cierre anterior conservó 874f774; la última intervención descrita al principio promueve 6be89ed y verifica la URL pública.
