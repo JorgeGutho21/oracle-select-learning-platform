@@ -13,6 +13,21 @@ for (const file of [
 ]) {
   if (!existsSync(file)) continue;
   for (const [key, value] of Object.entries(parseEnv(readFileSync(file, 'utf8')))) {
+    if (!key.startsWith('NEXT_PUBLIC_') && key.includes('URL')) {
+      // Database connection URIs can contain a password despite their variable
+      // names not containing SECRET/PASSWORD. Compare encoded and decoded forms.
+      try {
+        const encoded = new URL(value).password;
+        if (encoded) {
+          const decoded = decodeURIComponent(encoded);
+          if (decoded.length >= 8) values.push({ key: `${key}_PASSWORD`, value: decoded });
+          if (encoded !== decoded && encoded.length >= 8)
+            values.push({ key: `${key}_ENCODED_PASSWORD`, value: encoded });
+        }
+      } catch {
+        // Non-URL values are still handled by the explicit private-name scan.
+      }
+    }
     if (
       !key.startsWith('NEXT_PUBLIC_') &&
       /SECRET|PASSWORD|PWD|TOKEN|ACCESS_CODE|WALLET_(?:CONTENT|PEM_BASE64)/.test(key) &&
