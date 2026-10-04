@@ -1105,7 +1105,10 @@ body:has(.exam-shell) {
 
   > legend {
     float: left;
-    inline-size: 100%;
+    // WebKit retains the old percentage width after a fieldset viewport resize.
+    // Shrink the legend to its text and bound it to the current available width.
+    inline-size: auto;
+    max-inline-size: 100%;
     margin-block-end: var(--space-2);
     font-size: 1.25rem;
     font-weight: 750;
