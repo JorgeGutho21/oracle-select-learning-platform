@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { evaluate } from '@/features/assessments/domain/bank/bank-builders';
-import { BANK_TARGET_PER_SECTION, OFFICIAL_BANK } from '@/features/assessments/domain/bank';
+import {
+  BANK_TARGET_PER_SECTION,
+  OFFICIAL_BANK,
+} from '@/features/assessments/application/official-bank';
 import {
   QUESTION_TYPES,
   questionProblems,

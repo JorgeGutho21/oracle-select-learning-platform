@@ -12,7 +12,7 @@ import {
   questionRpcPayload,
 } from '@/features/assessments/application/assessment-forms';
 import type { TeacherFormState } from '@/features/assessments/application/teacher-notices';
-import { OFFICIAL_BANK } from '@/features/assessments/domain/bank';
+import { OFFICIAL_BANK } from '@/features/assessments/application/official-bank';
 import { FEEDBACK_MODES } from '@/features/assessments/domain/assessment';
 import {
   callRpc,

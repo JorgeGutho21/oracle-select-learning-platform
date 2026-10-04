@@ -1,7 +1,10 @@
 import 'server-only';
 import { notFound } from 'next/navigation';
 import type { AccountProfile } from '@/features/accounts/domain/account';
-import { BANK_TARGET_PER_SECTION, OFFICIAL_BANK } from '@/features/assessments/domain/bank';
+import {
+  BANK_TARGET_PER_SECTION,
+  OFFICIAL_BANK,
+} from '@/features/assessments/application/official-bank';
 import { assessmentPhase, type AssessmentPhase } from '@/features/assessments/domain/assessment';
 import {
   eligibleStudents,

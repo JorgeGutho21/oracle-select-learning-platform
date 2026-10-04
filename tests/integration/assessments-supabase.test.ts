@@ -2,7 +2,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { questionRpcPayload } from '@/features/assessments/application/assessment-forms';
-import { OFFICIAL_BANK } from '@/features/assessments/domain/bank';
+import { OFFICIAL_BANK } from '@/features/assessments/application/official-bank';
 
 /**
  * Evaluaciones en Supabase real (API REST + RLS + funciones), con concurrencia ligera: 40
@@ -91,9 +91,11 @@ describe.skipIf(!enabled)('Supabase real · evaluaciones, RLS y concurrencia', (
   }, 120_000);
 
   it('el profesor sincroniza el banco oficial y publica; los estudiantes no ven el banco', async () => {
-    const payload = OFFICIAL_BANK['fundamentos-sql'].map((question) =>
-      questionRpcPayload(question),
-    );
+    // Las tres secciones (Fase 4): 150 preguntas que la base acepta sin ninguna inválida.
+    const payload = Object.values(OFFICIAL_BANK)
+      .flat()
+      .map((question) => questionRpcPayload(question));
+    expect(payload).toHaveLength(150);
     const synced = await rpc(teacher.client, 'sync_official_questions', { p_questions: payload });
     expect(synced).toMatchObject({ status: 'synced', invalid: 0 });
     const saved = await rpc<{ status: string; id: string; available: number }>(

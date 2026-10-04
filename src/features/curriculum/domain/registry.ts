@@ -11,6 +11,8 @@ import type {
 } from './types';
 import { S1_FUNCTIONS } from './sections/s1';
 import { S2_CURRICULUM } from './sections/s2';
+import { S2_ASSESSMENT_EXAMPLES } from './sections/s2/assessment';
+import { S3_ASSESSMENT_EXAMPLES } from './sections/s3/assessment';
 import { S3_CURRICULUM } from './sections/s3';
 
 /**
@@ -26,7 +28,19 @@ export const EXTENSIONS: readonly CurriculumExtension[] = [S1_FUNCTIONS];
 /** Secciones completas y ampliaciones: todo lo que tiene lecciones de la fuente curricular. */
 export const UNITS: readonly CurriculumUnit[] = [...CURRICULA, ...EXTENSIONS];
 
-export const ALL_EXAMPLES: readonly CurriculumExample[] = UNITS.flatMap((unit) => unit.examples);
+/**
+ * Consultas y bloques propios del banco de evaluación (S2-B-*, S3-B-*): no se estudian, pero
+ * se verifican en Oracle igual que el resto y el banco toma de ellos sus resultados.
+ */
+export const ASSESSMENT_EXAMPLES: readonly CurriculumExample[] = [
+  ...S2_ASSESSMENT_EXAMPLES,
+  ...S3_ASSESSMENT_EXAMPLES,
+];
+
+export const ALL_EXAMPLES: readonly CurriculumExample[] = [
+  ...UNITS.flatMap((unit) => unit.examples),
+  ...ASSESSMENT_EXAMPLES,
+];
 
 /** Sección completa o ampliación con lecciones de la fuente curricular. */
 export function unitOf(section: string): CurriculumUnit | undefined {

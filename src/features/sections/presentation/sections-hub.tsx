@@ -38,7 +38,10 @@ export function SectionsHub({ sections, overview, progressFor }: SectionsHubProp
         <section className="section-block" aria-labelledby="route-title">
           <div className="section-block__head">
             <h2 id="route-title">La ruta</h2>
-            <p>Empieza por Fundamentos SQL. Las secciones 2 y 3 ya tienen su plan publicado.</p>
+            <p>
+              Empieza por Fundamentos SQL y sigue en orden: las tres secciones tienen lecciones,
+              clase, práctica, Challenge, recursos y evaluación.
+            </p>
           </div>
           <ol className="section-grid">
             {sections.map((section) => (
