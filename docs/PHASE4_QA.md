@@ -26,7 +26,7 @@ Las claves locales están en `.env.local` y `.env.oracle.local`, que no se versi
 | Cruce con PostgreSQL (PGlite)        | PASS: currículo 133/133; RLS de evaluaciones 25/25, de cuentas 16/16 y sala 22/22                                           |
 | Banco de 150 preguntas en Supabase   | PASS: cuentas 7/7 y evaluaciones 5/5 contra Supabase local                                                                  |
 | Build                                | PASS (`next build`, con las variables públicas de Supabase local)                                                           |
-| E2E de la Fase 4                     | PASS: `curriculum.spec.ts` 34/34                                                                                            |
+| E2E de la Fase 4                     | PASS: `curriculum.spec.ts` 35/35 (incluye teclado y el barrido de 66 rutas a 320 px)                                        |
 | E2E completa (regresión)             | 302 pasan, 22 fallan y 0 se omiten. Las 22 fallan igual en la base de la Fase 3 (punto 5)                                   |
 | Barrido de diseño                    | 396 comprobaciones (66 rutas × 6 anchos), 0 problemas tras corregir 19; clase: 71 escenas × 3 anchos, 0 barras horizontales |
 | Contenido en el navegador            | 0 resultados de Oracle, preguntas, claves de respuesta o secretos en `.next/static`                                         |
@@ -140,6 +140,7 @@ No queda ningún fallo propio de la Fase 4.
 - axe con las etiquetas `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa` y `wcag22aa` sin infracciones en 17 páginas (secciones 2 y 3, lecciones con JOIN, GROUP BY, :OLD/:NEW y cursores, práctica, Challenge, recursos, ampliación de la Sección 1, `/learn` y `/modules`) y en la clase de cada sección.
 - Defecto encontrado y corregido: los enlaces de «Siguientes pasos» tenían contraste 2,19:1; ahora usan el cian del sistema.
 - Las interacciones de la E2E se hacen con roles y nombres accesibles: comprobar una lección, responder una práctica, cumplir una misión, avanzar en la clase y en un recorrido paso a paso.
+- **Teclado (prueba nueva):** la clase avanza con flecha derecha, Fin e Inicio; en la práctica, Espacio marca la opción y Enter comprueba; en el recorrido paso a paso, Enter avanza y el foco se queda en el botón. Se añadió después de la corrida completa: pasa en `curriculum.spec.ts` (35/35) y en 3 repeticiones aisladas.
 - Los efectos de React Bits se quedan quietos con movimiento reducido, puntero táctil o ahorro de datos (`motion.ts`). Las flechas decorativas de los diagramas tienen texto alternativo vacío.
 
 ## 8. Rendimiento

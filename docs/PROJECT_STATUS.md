@@ -116,7 +116,7 @@ Doce MINOR documentados. QA visual en ocho tamaños más zoom alto: 0 desbordes,
 | Build                     | PASS                                                                                                                                                   |
 | E2E                       | 302 pasan, 22 fallan, 0 se omiten. Las 22 fallan igual en la base de la Fase 3 (21 de entorno y 1 intermitente); ningún fallo propio de la Fase 4      |
 | Responsive                | 66 rutas × 6 anchos sin problemas (se corrigieron 19); 71 escenas de clase × 3 anchos sin barras horizontales                                          |
-| Accesibilidad             | axe WCAG 2.2 AA sin infracciones en 17 páginas y en la clase de cada sección                                                                           |
+| Accesibilidad             | axe WCAG 2.2 AA sin infracciones en 17 páginas y en la clase de cada sección; clase, práctica y recorrido manejables con el teclado                    |
 | Edge, WebKit, Oracle 19c  | NOT TESTED                                                                                                                                             |
 | Vista previa              | BLOCKED: no hay sesión de Vercel ni red hacia `vercel.com`                                                                                             |
 

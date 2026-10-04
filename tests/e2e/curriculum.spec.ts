@@ -192,6 +192,47 @@ test.describe('Fase 4 · interacciones', () => {
     await expect(stepper).toContainText('Paso 2 de');
   });
 
+  test('la clase, la práctica y el recorrido paso a paso se manejan solo con el teclado', async ({
+    page,
+  }) => {
+    // Clase: flechas, Inicio y Fin, como en la exposición de la Sección 1.
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/sections/plsql/class');
+    const scene = page.locator('.scene').first();
+    await expect(scene).toHaveAttribute('data-scene', '1');
+    // Una pulsación anterior a la hidratación se pierde: se repite hasta que la clase responde.
+    await expect(async () => {
+      await page.locator('body').press('ArrowRight');
+      await expect(scene).toHaveAttribute('data-scene', '2', { timeout: 1_000 });
+    }).toPass();
+    await page.keyboard.press('End');
+    await expect(scene).toHaveAttribute('data-scene', '37');
+    await page.keyboard.press('Home');
+    await expect(scene).toHaveAttribute('data-scene', '1');
+
+    // Práctica: Espacio marca la opción y Enter comprueba.
+    await page.goto('/sections/plsql/practice');
+    const activity = page.locator('.mini-check', {
+      hasText: '¿Qué tarea necesita PL/SQL y no se resuelve con una sola consulta SQL?',
+    });
+    const option = activity.getByRole('radio', { name: /Recorrer a las personas de un área/ });
+    await option.focus();
+    await page.keyboard.press('Space');
+    await expect(option).toBeChecked();
+    await activity.getByRole('button', { name: 'Comprobar' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(activity.locator('.mini-check__message--correct')).toBeVisible();
+
+    // Recorrido paso a paso: el botón responde a Enter y conserva el foco.
+    await page.goto('/sections/plsql/study/variables-y-constantes');
+    const stepper = page.locator('.stepper').first();
+    const next = stepper.getByRole('button', { name: 'Paso siguiente →' });
+    await next.focus();
+    await page.keyboard.press('Enter');
+    await expect(stepper).toContainText('Paso 2 de');
+    await expect(next).toBeFocused();
+  });
+
   test('la ampliación de funciones aparece en el temario de la Sección 1', async ({ page }) => {
     await page.goto('/learn');
     const block = page.getByRole('region', { name: 'Funciones de una fila' });
