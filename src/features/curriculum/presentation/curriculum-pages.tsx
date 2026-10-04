@@ -180,14 +180,20 @@ export function DatasetDictionary({
         Un solo dataset pequeño y coherente para toda la sección: las mismas 20 personas de la
         Sección 1, ahora con su departamento como clave foránea, más proyectos y asignaciones.
       </p>
-      <pre className="cu-dataset__map" aria-label="Relaciones entre las tablas">
-        {[
-          'DEPARTAMENTOS ◄── EMPLEADOS.ID_DEPARTAMENTO',
-          'EMPLEADOS     ◄── EMPLEADOS.ID_JEFE (la misma tabla)',
-          'DEPARTAMENTOS ◄── PROYECTOS.ID_DEPARTAMENTO',
-          'EMPLEADOS     ◄── ASIGNACIONES ──► PROYECTOS',
-        ].join('\n')}
-      </pre>
+      <ul className="cu-dataset__map" aria-label="Relaciones entre las tablas">
+        {tables.flatMap((table) =>
+          table.foreignKeys.map((key) => (
+            <li key={`${table.name}.${key.columns}`}>
+              <code>
+                {table.name}.{key.columns}
+              </code>{' '}
+              <span aria-hidden="true">→</span>
+              <span className="visually-hidden">apunta a</span> <code>{key.references}</code>
+              {key.references.startsWith(`${table.name} `) && ' (la misma tabla)'}
+            </li>
+          )),
+        )}
+      </ul>
       <div className="cu-dataset__tables">
         {tables.map((table) => (
           <details key={table.name} className="study-fold cu-dataset__table">
@@ -212,9 +218,7 @@ export function DatasetDictionary({
               <caption className="visually-hidden">Columnas de {table.name}</caption>
               <thead>
                 <tr>
-                  <th scope="col">Columna</th>
-                  <th scope="col">Tipo Oracle</th>
-                  <th scope="col">¿NULL?</th>
+                  <th scope="col">Columna y tipo Oracle</th>
                   <th scope="col">Descripción</th>
                 </tr>
               </thead>
@@ -223,11 +227,10 @@ export function DatasetDictionary({
                   <tr key={column.name}>
                     <th scope="row">
                       <code>{column.name}</code>
+                      <span className="cu-dictionary__type">
+                        <code>{column.type}</code> · {column.nullable ? 'admite NULL' : 'NOT NULL'}
+                      </span>
                     </th>
-                    <td>
-                      <code>{column.type}</code>
-                    </td>
-                    <td>{column.nullable ? 'Sí' : 'No'}</td>
                     <td>{column.description}</td>
                   </tr>
                 ))}

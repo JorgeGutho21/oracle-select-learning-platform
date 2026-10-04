@@ -224,7 +224,7 @@ export function ActivityPlayer({
                 <span className="study-part">Tablas originales</span>{' '}
                 {context.example.sources.map((table) => table.title).join(', ')}
               </summary>
-              <SourceTables tables={context.example.sources} />
+              <SourceTables tables={context.example.sources} size="compact" />
             </details>
           )}
           {context.example.kind === 'plsql' && <SetupFold setup={context.example.setup} />}

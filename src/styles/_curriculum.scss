@@ -165,17 +165,32 @@
 .cu-dataset h2 {
   margin: 0;
 }
-.cu-dataset__map,
+.cu-dataset__map {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-control);
+  background: var(--color-editor);
+  color: var(--color-inverse);
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+.cu-dataset__map code {
+  color: inherit;
+  background: none;
+}
 .cu-idea__diagram {
   margin: 0;
   padding: var(--space-4);
-  overflow-x: auto;
   border-radius: var(--radius-control);
   background: var(--color-editor);
   color: var(--color-inverse);
   font-size: 0.9375rem;
   line-height: 1.6;
-  white-space: pre;
+  // Un esquema de una línea (OPEN ──▶ FETCH ──▶ … ──▶ CLOSE) baja de línea en sus espacios
+  // en lugar de crear una barra horizontal en el escenario 16:9.
+  white-space: pre-wrap;
 }
 .cu-dataset__tables {
   display: grid;
@@ -195,6 +210,27 @@
 }
 .cu-dictionary code {
   overflow-wrap: anywhere;
+}
+.cu-dictionary th[scope='row'] {
+  width: 45%;
+}
+.cu-dictionary__type {
+  display: block;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+// Identificadores largos (RAISE_APPLICATION_ERROR, NO_DATA_FOUND, COUNT(columna)) se parten
+// antes que desbordar en pantallas de 320 px. Solo texto corrido: las tablas y el código
+// tienen sus propias reglas.
+.cu-page :is(h1, h2, h3, h4, p, li, dt, dd, summary, figcaption, label, legend) {
+  overflow-wrap: anywhere;
+}
+// Las tablas eligen su disposición (completa, partes o grupos) según el ancho: no heredan
+// el corte de palabras.
+.cu-page .dv {
+  overflow-wrap: normal;
 }
 
 // Lección.
@@ -234,6 +270,14 @@
   display: grid;
   gap: var(--space-2);
   padding-left: var(--space-5);
+}
+// Sobre el fondo nocturno del bloque, los enlaces usan el cian del tema (contraste AA).
+.cu-next-steps a {
+  color: var(--color-cyan);
+  text-underline-offset: 0.2em;
+}
+.cu-next-steps a:hover {
+  color: var(--color-inverse);
 }
 .cu-lesson-done {
   margin: var(--space-3) 0 0;
@@ -622,6 +666,8 @@
   gap: var(--space-2);
   margin: 0;
   font-weight: 750;
+  // En la clase, cuatro etapas comparten la columna: «subconsulta» no debe ensancharla.
+  overflow-wrap: anywhere;
 }
 .pipeline-visual__number {
   display: inline-grid;
@@ -1111,6 +1157,17 @@
   }
   .cu-dataset {
     padding: var(--space-4);
+  }
+}
+
+// Teléfonos: las actividades anidan tarjeta y pliegue; con menos relleno, las tablas del
+// material conservan el ancho que necesitan (320 px sin barra horizontal).
+@media (max-width: 480px) {
+  .cu-activity.mini-check {
+    padding-inline: var(--space-3);
+  }
+  .cu-activity .study-fold {
+    padding-inline: var(--space-2);
   }
 }
 

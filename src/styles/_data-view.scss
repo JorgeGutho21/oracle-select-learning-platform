@@ -207,6 +207,14 @@ $dv-buckets:
       display: inline;
     }
   }
+  // Contenedores muy estrechos (una actividad dentro de una tarjeta a 320 px): un encabezado
+  // largo como DEPARTAMENTO puede partirse dentro de la palabra antes que desbordar. El em es
+  // el de la tabla: en las compactas, 21em son unos 270 px.
+  @container dv (width < 21em) {
+    .dv thead th {
+      overflow-wrap: anywhere;
+    }
+  }
   // Letra grande del Estudio (18 px): en un teléfono la tabla baja a 14 px.
   @container dv (width < 24em) {
     .dv--regular table {

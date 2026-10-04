@@ -5,7 +5,7 @@ import type {
   TableView,
   VerificationView,
 } from '../application/curriculum-api';
-import { DataView } from '@/presentation/components/data/data-view';
+import { DataView, anchorIndexes } from '@/presentation/components/data/data-view';
 import { SqlCode, SqlLines } from '@/presentation/components/data/sql-code';
 
 /**
@@ -72,6 +72,7 @@ export function CurriculumTable({
   caption,
   size = 'regular',
   highlightedRow,
+  groupColumns,
 }: {
   readonly table: TableView;
   readonly label?: string;
@@ -79,7 +80,14 @@ export function CurriculumTable({
   readonly size?: 'regular' | 'compact' | 'large';
   /** Fila señalada (por ejemplo, la que procesa un cursor). */
   readonly highlightedRow?: number;
+  /** Columnas simultáneas (identidad incluida) en pantallas estrechas; el resto, en pestañas. */
+  readonly groupColumns?: number;
 }) {
+  // Una tabla compacta vive en una tarjeta o un pliegue estrecho: en un teléfono pasa a
+  // identidad + una columna por pestaña, aunque tenga pocas columnas.
+  const columnsPerGroup =
+    groupColumns ??
+    (size === 'compact' ? anchorIndexes(table.columns, table.schema).length + 1 : undefined);
   if (table.rows.length === 0) {
     return (
       <div className="cu-empty" role="status">
@@ -103,6 +111,7 @@ export function CurriculumTable({
       {...(table.schema ? { schema: table.schema } : {})}
       size={size}
       {...(highlightedRow !== undefined ? { highlightedRow } : {})}
+      {...(columnsPerGroup !== undefined ? { groupColumns: columnsPerGroup } : {})}
       summary={tableSummary(table)}
       fallback={table.rows.length <= 6 ? 'bands' : 'groups'}
     />

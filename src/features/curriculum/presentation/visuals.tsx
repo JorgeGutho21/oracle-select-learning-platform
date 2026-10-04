@@ -231,7 +231,11 @@ export function SourceTables({
           table={table}
           label={tables.length > 1 ? `Tabla original: ${table.title}` : 'Tabla original'}
           caption={table.title}
-          size={size}
+          // Dos tablas lado a lado comparten el ancho: el tamaño compacto parte los
+          // encabezados largos (ID_DEPARTAMENTO) en lugar de desbordar.
+          size={tables.length > 1 ? 'compact' : size}
+          // En un teléfono, identidad + una columna por pestaña: sin barra horizontal.
+          groupColumns={3}
         />
       ))}
     </div>
