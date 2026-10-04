@@ -13,6 +13,7 @@ import {
 } from '@/features/assessments/application/exam-wire';
 import { isSameOrigin, json, readJson } from '../accounts/http';
 import { currentSession } from '../accounts/auth-server';
+import { notifyAssessmentMonitor } from './monitor-server';
 
 /**
  * API del examen. Cada petición usa la sesión de la persona (cookie httpOnly) y una función
@@ -105,6 +106,7 @@ async function guardedWrite<T>(
   if (typeof client === 'string') return denied(client);
   const result = await run(client, parsed.data);
   if (!result.ok || !result.data) return json({ status: 'unavailable' }, 503);
+  await notifyAssessmentMonitor({ kind: 'attempt', id }, result.data.status);
   return json(result.data);
 }
 

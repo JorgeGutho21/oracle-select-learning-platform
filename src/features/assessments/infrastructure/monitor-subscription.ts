@@ -5,7 +5,7 @@ export interface MonitorSubscription {
 }
 
 /**
- * Avisos del monitor por Supabase Realtime («broadcast from database»). El aviso no trae
+ * Avisos del monitor por Supabase Realtime (REST del servidor o Broadcast de la base). El aviso no trae
  * datos: el panel vuelve a pedir su vista autorizada al servidor. Solo el profesor conoce
  * el canal (lleva una clave aleatoria por evaluación). La biblioteca se descarga solo en
  * esta pantalla.

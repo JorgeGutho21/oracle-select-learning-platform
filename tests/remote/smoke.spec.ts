@@ -50,7 +50,7 @@ test('Preview: sala real con QR, respuesta, ranking y cierre', async ({ page, br
     await student.close();
     if (code) {
       const response = await fetch(
-        `${process.env.E2E_SUPABASE_URL}/rest/v1/rooms?code=eq.${code}`,
+        `${process.env.E2E_SUPABASE_URL}/rest/v1/rooms?join_code=eq.${code}`,
         {
           method: 'DELETE',
           headers: { apikey: process.env.E2E_SUPABASE_SECRET_KEY ?? '' },

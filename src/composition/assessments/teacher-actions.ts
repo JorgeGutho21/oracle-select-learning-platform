@@ -19,6 +19,7 @@ import {
   readQuestion,
 } from '@/features/assessments/infrastructure/supabase-assessment-repository';
 import { currentAccount } from '../accounts/auth-server';
+import { notifyAssessmentMonitor } from './monitor-server';
 
 /**
  * Server Functions del profesor. Cada una comprueba sesión y rol aquí y la base lo vuelve a
@@ -113,6 +114,7 @@ async function lifecycle(
   if (status !== 'published' && status !== 'updated' && status !== 'saved') {
     go(`/teacher/assessments/${id}?aviso=no-aplica`);
   }
+  await notifyAssessmentMonitor({ kind: 'assessment', id }, status);
   go(`/teacher/assessments/${id}?aviso=${notice}`);
 }
 
