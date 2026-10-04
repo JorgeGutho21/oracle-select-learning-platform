@@ -63,6 +63,47 @@ test('la ayuda se abre aunque el foco llegue antes de que la página termine de 
   await expect(page.getByRole('tooltip')).toBeVisible({ timeout: 15_000 });
 });
 
+test('Tab conserva la ayuda cuando el navegador desplaza automáticamente su activador', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto('/dev/design-system');
+  const trigger = page.getByRole('button', { name: 'Ayuda del componente' });
+  await trigger.click();
+  await expect(page.getByRole('tooltip')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Abrir diálogo', exact: true }).evaluate((button) => {
+    button.focus({ preventScroll: true });
+  });
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await page.keyboard.press('Tab');
+  // The native scroll event is dispatched on the next rendering frame.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(trigger).toBeFocused();
+  const tooltip = page.getByRole('tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect(trigger).toHaveAccessibleDescription(
+    'Ayuda contextual disponible con teclado y toque.',
+  );
+  const box = await tooltip.boundingBox();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(360);
+  await page.keyboard.press('Escape');
+  await expect(tooltip).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+});
+
 test('la búsqueda de muestra conserva texto y muestra un estado vacío explícito', async ({
   page,
 }) => {

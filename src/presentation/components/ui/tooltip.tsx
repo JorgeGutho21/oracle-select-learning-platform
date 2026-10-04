@@ -59,16 +59,29 @@ export function Tooltip({ label, children }: TooltipProps) {
       }
     }
     const hide = () => setOpen(false);
+    function scroll() {
+      const trigger = triggerRef.current;
+      if (trigger && document.activeElement === trigger) {
+        const box = trigger.getBoundingClientRect();
+        // Focusing an offscreen button queues a scroll after onFocus. Keep the
+        // focused help available and anchored while its trigger remains visible.
+        if (box.bottom > 0 && box.top < window.innerHeight) {
+          showRef.current();
+          return;
+        }
+      }
+      hide();
+    }
     document.addEventListener('pointerdown', dismiss);
     document.addEventListener('keydown', escape, true);
     window.addEventListener('resize', hide);
-    window.addEventListener('scroll', hide, true);
+    window.addEventListener('scroll', scroll, true);
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
       document.removeEventListener('pointerdown', dismiss);
       document.removeEventListener('keydown', escape, true);
       window.removeEventListener('resize', hide);
-      window.removeEventListener('scroll', hide, true);
+      window.removeEventListener('scroll', scroll, true);
     };
   }, [open]);
 
