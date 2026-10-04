@@ -118,7 +118,9 @@ export function watchConsole(page: Page): string[] {
   page.on('pageerror', (error) => {
     // WebKit informa como «access control checks» las precargas RSC que cancela al navegar
     // a otra página; no es un error de la aplicación.
-    if (/\?_rsc=\S+ due to access control checks/.test(error.message)) return;
+    // A redirect can add `next` before `_rsc`; both query positions identify the
+    // same cancelled prefetch. Other exceptions and CSP errors stay observable.
+    if (/[?&]_rsc=\S+ due to access control checks/.test(error.message)) return;
     problems.push(`excepción: ${error.message.slice(0, 200)}`);
   });
   return problems;

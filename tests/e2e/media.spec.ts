@@ -121,7 +121,11 @@ test.describe('Videos de la unidad', () => {
     ).toHaveCount(0);
 
     await page.goto('/presentation?scene=27');
-    await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true');
+    // The Windows/WebKit diagnostic observed a 5.18 s readiness wait after video
+    // playback. Use an explicit hydration budget, preserving every media assertion.
+    await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true', {
+      timeout: 15_000,
+    });
     const scene = page.locator('[data-scene="27"] .video-player');
     await expect(scene.locator('video, [role="alert"]')).toHaveCount(1);
     const frame = await scene.locator('.video-player__frame').boundingBox();

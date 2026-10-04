@@ -1,4 +1,4 @@
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import {
@@ -30,7 +30,35 @@ async function capture(page: Page, name: string) {
     320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1536, 1600, 1920,
   ]) {
     await page.setViewportSize({ width, height: 900 });
-    await expectNoHorizontalScroll(page, `${name} @${width}`);
+    try {
+      await expectNoHorizontalScroll(page, `${name} @${width}`);
+    } catch (error) {
+      const overflow = await page.evaluate(() =>
+        [...document.querySelectorAll<HTMLElement>('main *')]
+          .map((element) => {
+            const box = element.getBoundingClientRect();
+            const style = getComputedStyle(element);
+            return {
+              tag: element.tagName,
+              className: element.className,
+              right: box.right,
+              width: box.width,
+              parentWidth: element.parentElement?.getBoundingClientRect().width,
+              float: style.cssFloat,
+              inlineSize: style.inlineSize,
+              maxInlineSize: style.maxInlineSize,
+              whiteSpace: style.whiteSpace,
+            };
+          })
+          .filter((item) => item.right > innerWidth + 1),
+      );
+      mkdirSync('output/playwright/phase5', { recursive: true });
+      writeFileSync(
+        `output/playwright/phase5/${name}-${width}-overflow.json`,
+        JSON.stringify(overflow, null, 2),
+      );
+      throw error;
+    }
     const records = page.locator('.record-table');
     for (const record of await records.all()) {
       await expect(record.getByRole('table')).toBeVisible();
@@ -56,11 +84,25 @@ async function capture(page: Page, name: string) {
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         window.scrollTo({ top: 0, behavior: 'instant' });
       });
+      const dimensions = await page.evaluate(() => ({
+        height: Math.max(document.documentElement.scrollHeight, document.body.scrollHeight),
+        pixelRatio: window.devicePixelRatio,
+      }));
+      // WebKit's image API has a 32767-pixel limit. A long, valid roster must not
+      // fail an academic workflow merely because the QA image exceeds that limit.
+      const fullPage =
+        test.info().project.name !== 'webkit' ||
+        dimensions.height * dimensions.pixelRatio <= 32_767;
       await page.screenshot({
         path: `output/playwright/phase5/screens/${name}-${width}.png`,
-        fullPage: true,
+        fullPage,
         animations: 'disabled',
       });
+      if (!fullPage)
+        writeFileSync(
+          `output/playwright/phase5/screens/${name}-${width}.capture.json`,
+          JSON.stringify({ ...dimensions, width, fullPage, reason: 'WebKit image limit' }),
+        );
     }
   }
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -68,7 +110,13 @@ async function capture(page: Page, name: string) {
 async function answer(page: Page) {
   const order = page.getByRole('button', { name: 'Guardar este orden' });
   if (await order.count()) await order.click();
-  else await page.locator('.exam-options input').first().check();
+  else {
+    const multiple = page.locator('.exam-options input[type="checkbox"]');
+    if (await multiple.count()) {
+      await multiple.nth(0).check();
+      await multiple.nth(1).check();
+    } else await page.locator('.exam-options input').first().check();
+  }
 }
 
 test.describe('Fase 5: cuentas y evaluación por sección', () => {
@@ -119,6 +167,30 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
     await page.locator('.mini-check').getByRole('button', { name: 'Comprobar' }).click();
     await expect(page.locator('.mini-check__message--correct')).toBeVisible();
     await signIn(page, student);
+    if (preview) {
+      // Inspect only cookie attributes. Never put session values in an assertion/report.
+      const cookies = (await page.context().cookies())
+        .filter(({ name }) => /^sb-.*-auth-token(?:\.\d+)?$/.test(name))
+        .map(({ name, httpOnly, secure, sameSite, path }) => ({
+          name,
+          httpOnly,
+          secure,
+          sameSite,
+          path,
+        }));
+      expect(cookies.length).toBeGreaterThan(0);
+      for (const cookie of cookies) {
+        expect(cookie.httpOnly, cookie.name).toBe(true);
+        expect(cookie.secure, cookie.name).toBe(true);
+        expect(cookie.sameSite, cookie.name).toBe('Lax');
+        expect(cookie.path, cookie.name).toBe('/');
+      }
+      mkdirSync('output/playwright/phase5', { recursive: true });
+      writeFileSync(
+        'output/playwright/phase5/preview-auth-cookie-attributes.json',
+        JSON.stringify(cookies, null, 2),
+      );
+    }
     const cloud = async (target: Page) => {
       const response = await target.request.get('/api/progress');
       const body = (await response.json()) as { records: { section: string; status: string }[] };
@@ -157,7 +229,14 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
       await page.goto('/teacher/assessments/new');
       await page.getByLabel('Nombre de la evaluación').fill(`QA Fase 5 ${section} ${run}`);
       await page.getByLabel('Sección', { exact: true }).selectOption(section);
-      await page.getByLabel('Selección automática').check();
+      if (section === 'fundamentos-sql') {
+        // Exercise the real multiple-answer question deterministically, including
+        // its longer fieldset legend when resizing an already hydrated exam.
+        await page.getByLabel('Selección manual').check();
+        await page
+          .getByRole('checkbox', { name: /¿Cuáles de estos alias son válidos en Oracle/ })
+          .check();
+      } else await page.getByLabel('Selección automática').check();
       await page.getByLabel('Cantidad de preguntas por estudiante').fill('1');
       await page.getByLabel('Duración (minutos)').fill('5');
       await page.getByLabel('Solo los estudiantes que elija', { exact: true }).check();
@@ -210,6 +289,8 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
         await expect(exam.locator('.exam-save')).toHaveText('Guardado', { timeout: 15_000 });
         await exam.reload();
         await expect(exam.locator('.exam-header__progress')).toContainText('1/1');
+        if (section === 'fundamentos-sql')
+          await expect(exam.locator('.exam-options input:checked')).toHaveCount(2);
         expect(await remainingSeconds()).toBeLessThanOrEqual(300);
         await expect(page.getByRole('row', { name: new RegExp(student.email) })).toContainText(
           'En curso',
