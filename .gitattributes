@@ -1,0 +1,2 @@
+# Keep generated-source comparisons and Prettier consistent on Windows and CI.
+* text=auto eol=lf

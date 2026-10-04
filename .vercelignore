@@ -17,6 +17,9 @@ PASSWORD.txt
 *.sso
 Wallet_*.zip
 .vercel/
+supabase-ca.crt
+supabase/.temp/
+supabase/.branches/
 
 # Dependencias y compilaciones: Vercel instala y compila en su propio entorno.
 node_modules/

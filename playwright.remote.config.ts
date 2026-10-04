@@ -1,42 +1,27 @@
-// Configuración temporal (no se versiona): ejecuta las pruebas contra un despliegue remoto.
-// REMOTE_BASE_URL indica el despliegue; en vistas previas protegidas se envía el secreto de
-// «Protection Bypass for Automation» leído de .env.vercel-preview.local, sin imprimirlo.
-import { readFileSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
 
-function bypassSecret(): string | null {
-  try {
-    const line = readFileSync('.env.vercel-preview.local', 'utf8')
-      .split(/\r?\n/)
-      .find((entry) => entry.startsWith('VERCEL_AUTOMATION_BYPASS_SECRET='));
-    return line ? line.slice(line.indexOf('=') + 1).trim() : null;
-  } catch {
-    return null;
-  }
+const baseURL = process.env.REMOTE_BASE_URL;
+if (
+  !baseURL ||
+  !/^https:\/\/sql-select(?:-lab|-[a-z0-9]+-jorge-gutierrez1)\.vercel\.app\/?$/.test(baseURL)
+) {
+  throw new Error('REMOTE_BASE_URL must identify this project on Vercel.');
 }
-
-const baseURL = process.env.REMOTE_BASE_URL ?? 'https://sql-select-lab.vercel.app';
-const secret = baseURL.includes('sql-select-lab.vercel.app') ? null : bypassSecret();
-
 export default defineConfig({
-  testDir: './tests/e2e',
-  fullyParallel: true,
-  workers: 3,
-  retries: 1,
-  reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report-remote' }]],
-  outputDir: 'test-results-remote',
+  testDir: './tests',
+  testMatch: ['e2e/**/*.spec.ts', 'remote/**/*.spec.ts'],
+  globalSetup: './tests/support/remote-setup.ts',
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  reporter: [['list']],
+  outputDir: 'output/playwright/phase5/remote-results',
   use: {
     baseURL,
-    trace: 'retain-on-failure',
+    storageState: 'output/playwright/phase5/remote-state.json',
+    // The bypass cookie is private. Do not put it in traces or reports.
+    trace: 'off',
     screenshot: 'only-on-failure',
-    ...(secret
-      ? {
-          extraHTTPHeaders: {
-            'x-vercel-protection-bypass': secret,
-            'x-vercel-set-bypass-cookie': 'true',
-          },
-        }
-      : {}),
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
 });

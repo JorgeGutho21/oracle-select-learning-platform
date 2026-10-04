@@ -15,7 +15,9 @@ const table = (name: string) => empresaTable(name)!;
 
 describe('Dataset empresa-relacional-v1', () => {
   it('el script versionado coincide con el generado desde la fuente TypeScript', () => {
-    expect(readFileSync('oracle/dblab-empresa-v1.sql', 'utf8')).toBe(empresaOracleScript());
+    expect(readFileSync('oracle/dblab-empresa-v1.sql', 'utf8').replace(/\r\n/g, '\n')).toBe(
+      empresaOracleScript(),
+    );
   });
 
   it('tamaños educativos y visualizables', () => {

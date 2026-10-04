@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { questionRpcPayload } from '@/features/assessments/application/assessment-forms';
 import { OFFICIAL_BANK } from '@/features/assessments/application/official-bank';
@@ -15,6 +16,13 @@ const URL = process.env.SUPABASE_TEST_URL ?? '';
 const PUBLISHABLE = process.env.SUPABASE_TEST_PUBLISHABLE_KEY ?? '';
 const SECRET = process.env.SUPABASE_TEST_SECRET_KEY ?? '';
 const enabled = Boolean(URL && PUBLISHABLE && SECRET);
+if (
+  enabled &&
+  !['127.0.0.1', 'localhost'].includes(new globalThis.URL(URL).hostname) &&
+  process.env.SUPABASE_TEST_ALLOW_REMOTE !== 'staging'
+) {
+  throw new Error('The 40-student suite requires local Supabase or explicitly confirmed staging.');
+}
 const PASSWORD = 'Prueba2026x';
 const run = `${Date.now()}-${process.pid}`;
 const STUDENTS = 40;
@@ -30,6 +38,8 @@ let admin: SupabaseClient;
 let teacher: Account;
 let students: Account[] = [];
 let assessment = '';
+const gradingAssessments: string[] = [];
+const gradingQuestions: string[] = [];
 
 async function account(prefix: string): Promise<Account> {
   const email = `${prefix}-${run}@example.com`;
@@ -84,11 +94,47 @@ describe.skipIf(!enabled)('Supabase real · evaluaciones, RLS y concurrencia', (
 
   afterAll(async () => {
     if (!enabled) return;
-    if (assessment) await admin.from('assessments').delete().eq('id', assessment);
+    for (const id of [assessment, ...gradingAssessments].filter(Boolean)) {
+      await admin.from('assessments').delete().eq('id', id);
+    }
+    for (const id of gradingQuestions) await admin.from('question_bank').delete().eq('id', id);
     for (const user of [teacher, ...students]) {
       if (user) await admin.auth.admin.deleteUser(user.id);
     }
   }, 120_000);
+
+  it('40 sesiones se autentican simultáneamente sin errores', async () => {
+    const timings: number[] = [];
+    const start = performance.now();
+    await Promise.all(
+      students.map(async (student) => {
+        const began = performance.now();
+        const signed = await student.client.auth.signInWithPassword({
+          email: student.email,
+          password: PASSWORD,
+        });
+        expect(signed.error).toBeNull();
+        expect(signed.data.user?.id).toBe(student.id);
+        timings.push(performance.now() - began);
+      }),
+    );
+    timings.sort((a, b) => a - b);
+    mkdirSync('output/playwright/phase5', { recursive: true });
+    writeFileSync(
+      'output/playwright/phase5/concurrency-auth.json',
+      JSON.stringify(
+        {
+          clients: STUDENTS,
+          elapsedMs: Math.round(performance.now() - start),
+          p50Ms: Math.round(timings[19]!),
+          p95Ms: Math.round(timings[37]!),
+          isolatedLocal: true,
+        },
+        null,
+        2,
+      ),
+    );
+  }, 60_000);
 
   it('el profesor sincroniza el banco oficial y publica; los estudiantes no ven el banco', async () => {
     // Las tres secciones (Fase 4): 150 preguntas que la base acepta sin ninguna inválida.
@@ -294,4 +340,127 @@ describe.skipIf(!enabled)('Supabase real · evaluaciones, RLS y concurrencia', (
       status: 'forbidden',
     });
   });
+
+  it('40 cuentas sincronizan progreso de las tres secciones y presencia sin mezclar datos', async () => {
+    const start = performance.now();
+    const timings = await Promise.all(
+      students.map(async (student) => {
+        const began = performance.now();
+        const records = [
+          { section_key: 'fundamentos-sql', item_key: 'L10' },
+          { section_key: 'consultas-relacionales', item_key: 'S2-L08' },
+          { section_key: 'plsql', item_key: 'S3-L01' },
+        ].map((record) => ({
+          ...record,
+          user_id: student.id,
+          mode_key: 'study',
+          status: 'completed',
+          progress_percent: 100,
+        }));
+        expect((await student.client.from('learning_progress').upsert(records)).error).toBeNull();
+        expect(
+          (
+            await student.client
+              .from('learner_presence')
+              .upsert({ user_id: student.id, area: 'plsql/study' })
+          ).error,
+        ).toBeNull();
+        const own = await student.client.from('learning_progress').select('user_id,section_key');
+        expect(own.error).toBeNull();
+        expect(own.data).toHaveLength(3);
+        expect(own.data?.every((row) => row.user_id === student.id)).toBe(true);
+        return performance.now() - began;
+      }),
+    );
+    timings.sort((a, b) => a - b);
+    mkdirSync('output/playwright/phase5', { recursive: true });
+    writeFileSync(
+      'output/playwright/phase5/concurrency-progress.json',
+      JSON.stringify(
+        {
+          clients: STUDENTS,
+          records: STUDENTS * 3,
+          elapsedMs: Math.round(performance.now() - start),
+          p50Ms: Math.round(timings[19]!),
+          p95Ms: Math.round(timings[37]!),
+          isolatedLocal: new globalThis.URL(URL).hostname === '127.0.0.1',
+        },
+        null,
+        2,
+      ),
+    );
+  }, 60_000);
+
+  it.each([0, 20, 50, 60, 80, 100])(
+    'califica %i %% en la base, con escala 0.0–5.0',
+    async (percent) => {
+      // Disposable local fixtures with equal weights isolate the grading scale from difficulty.
+      if (gradingQuestions.length === 0) {
+        for (let index = 0; index < 10; index += 1) {
+          const saved = await rpc<{ id: string }>(teacher.client, 'save_question', {
+            p: {
+              section: 'fundamentos-sql',
+              topic: 'null',
+              type: 'single_choice',
+              response: 'single',
+              prompt: `QA de calificación ${run} ${index}`,
+              difficulty: 1,
+              weight: 1,
+              status: 'published',
+              options: [{ body: 'Correcta', correct: true }, { body: 'Distractor' }],
+            },
+          });
+          expect(saved.id).toBeTruthy();
+          gradingQuestions.push(saved.id);
+        }
+      }
+      const saved = await rpc<{ id: string; status: string }>(teacher.client, 'save_assessment', {
+        p: {
+          title: `QA escala ${percent} ${run}`,
+          section_key: 'fundamentos-sql',
+          selection_mode: 'manual',
+          question_ids: gradingQuestions,
+          question_count: 10,
+          duration_minutes: 5,
+          audience: 'selected',
+          student_ids: [students[0]!.id],
+          feedback_mode: 'score_only',
+        },
+      });
+      expect(saved.status).toBe('saved');
+      gradingAssessments.push(saved.id);
+      expect(await rpc(teacher.client, 'publish_assessment', { p_assessment: saved.id })).toEqual({
+        status: 'published',
+      });
+      const started = await rpc<{ attempt_id: string }>(students[0]!.client, 'start_attempt', {
+        p_assessment: saved.id,
+      });
+      const view = await rpc<{
+        items: (Omit<ViewItem, 'options'> & { options: { id: string; body: string }[] })[];
+      }>(students[0]!.client, 'attempt_view', { p_attempt: started.attempt_id });
+      expect(view.items).toHaveLength(10);
+      await rpc(students[0]!.client, 'save_answers', {
+        p_attempt: started.attempt_id,
+        p_position: 1,
+        p_answers: view.items.map((item, index) => ({
+          position: item.position,
+          revision: 1,
+          flagged: false,
+          answer: {
+            choice: item.options.find(
+              (option) => option.body === (index < percent / 10 ? 'Correcta' : 'Distractor'),
+            )!.id,
+          },
+        })),
+      });
+      await rpc(students[0]!.client, 'submit_attempt', {
+        p_attempt: started.attempt_id,
+        p_reason: 'student',
+      });
+      const result = await rpc<{ grade: number }>(students[0]!.client, 'attempt_view', {
+        p_attempt: started.attempt_id,
+      });
+      expect(result.grade).toBe(percent / 20);
+    },
+  );
 });

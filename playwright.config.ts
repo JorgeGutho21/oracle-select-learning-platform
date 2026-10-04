@@ -15,6 +15,7 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'edge', use: { ...devices['Desktop Edge'], channel: 'msedge' } },
     {
       name: 'webkit',
@@ -47,7 +48,12 @@ export default defineConfig({
             NEXT_PUBLIC_SUPABASE_URL: process.env.E2E_SUPABASE_URL,
             NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.E2E_SUPABASE_PUBLISHABLE_KEY ?? '',
           }
-        : {}),
+        : {
+            // Never inherit production credentials from .env.local in a guest E2E run.
+            NEXT_PUBLIC_SUPABASE_URL: '',
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: '',
+            NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+          }),
     },
   },
 });
