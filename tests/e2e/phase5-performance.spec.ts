@@ -39,6 +39,12 @@ test('Fase 5: medición reproducible de carga y presupuesto de efectos', async (
       // Realtime and prefetch are not a page-readiness contract. Wait for rendered
       // content/fonts and two painted frames, rather than global network silence.
       await expect(page.locator('main h1').first()).toBeVisible();
+      // Include the dynamically loaded editor in the Lab's measured resources.
+      if (path === '/lab')
+        await expect(page.getByRole('textbox', { name: 'Consulta SQL' })).toHaveAttribute(
+          'contenteditable',
+          'true',
+        );
       await page.evaluate(async () => {
         await document.fonts.ready;
         await new Promise<void>((resolve) =>

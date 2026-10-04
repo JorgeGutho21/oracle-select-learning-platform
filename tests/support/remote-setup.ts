@@ -11,12 +11,22 @@ export default async function setup(config: FullConfig) {
     : parseEnv(readFileSync('.env.vercel-preview.local', 'utf8')).VERCEL_AUTOMATION_BYPASS_SECRET;
   const client = await request.newContext();
   try {
-    const response = await client.get(baseURL, {
+    let response = await client.get(baseURL, {
       maxRedirects: 0,
       headers: secret
         ? { 'x-vercel-protection-bypass': secret, 'x-vercel-set-bypass-cookie': 'true' }
         : {},
     });
+    // Vercel sets the bypass cookie and redirects to the same page. Follow once
+    // using that cookie, without forwarding the protection header to any URL.
+    if (secret && response.status() === 307) {
+      const location = response.headers().location;
+      if (!location) throw new Error('Remote gate redirect has no location.');
+      const redirect = new URL(location, baseURL);
+      if (redirect.origin !== new URL(baseURL).origin)
+        throw new Error('Remote gate redirect must remain on the verified deployment.');
+      response = await client.get(redirect.toString(), { maxRedirects: 0 });
+    }
     if (!response.ok()) throw new Error(`Remote gate returned HTTP ${response.status()}.`);
     mkdirSync('output/playwright/phase5', { recursive: true });
     await client.storageState({ path: 'output/playwright/phase5/remote-state.json' });

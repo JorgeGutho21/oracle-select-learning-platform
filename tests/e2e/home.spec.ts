@@ -22,9 +22,10 @@ test.describe('Home', () => {
     ]) {
       await expect(identity.getByText(text, { exact: true })).toBeVisible();
     }
-    await expect(
-      identity.getByRole('img', { name: 'Universidad Popular del Cesar' }),
-    ).toBeVisible();
+    // The institutional emblem remains unpublished pending explicit authorization.
+    await expect(identity.getByRole('img', { name: 'Universidad Popular del Cesar' })).toHaveCount(
+      0,
+    );
     const actions = page.getByRole('navigation', { name: 'Accesos principales' });
     await expect(actions.getByRole('link', { name: /Explorar plataforma/ })).toHaveAttribute(
       'href',
