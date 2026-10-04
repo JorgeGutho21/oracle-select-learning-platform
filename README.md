@@ -12,7 +12,7 @@ Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico: no es 
 
 **Institución:** Universidad Popular del Cesar
 
-**Producción existente:** <https://sql-select-lab.vercel.app>. La versión pública inspeccionada corresponde a `874f774`, anterior a DB LAB de las fases 1–4. El release de Fase 5 se prepara en `codex-phase5-production-final-20261004`; su estado verificable y los gates están en [PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md) y [FINAL_QA_REPORT.md](docs/FINAL_QA_REPORT.md).
+**Producción existente:** <https://sql-select-lab.vercel.app>. La versión pública inspeccionada corresponde a `874f774`, anterior a DB LAB de las fases 1–4. El candidato de Fase 5 está validado en Preview, rama `codex-phase5-production-final-20261004`; publicación BLOCKED por SMTP remoto UNKNOWN y entrega sin verificar. El cierre operativo consta en [FINAL_RELEASE.md](docs/FINAL_RELEASE.md); la evidencia y los gates están en [PRODUCTION_DEPLOYMENT.md](docs/PRODUCTION_DEPLOYMENT.md) y [FINAL_QA_REPORT.md](docs/FINAL_QA_REPORT.md).
 
 ## Estado del proyecto
 

@@ -12,3 +12,5 @@
 Para una clase sin evaluación formal, usa **Iniciar clase**, **Laboratorio**, los Challenges por sección o **En vivo** con QR. El laboratorio distingue referencia didáctica de ejecución Oracle real. La sala tiene su propia clave de facilitación y no sustituye al rol docente de cuentas.
 
 Detalles de campos, supervisión y calificación: [ASSESSMENT_TEACHER_GUIDE](ASSESSMENT_TEACHER_GUIDE.md). No compartas claves privilegiadas, wallets ni credenciales de Supabase.
+
+Estado de esta entrega: el acceso por correo está implementado y probado con un buzón local, pero la configuración SMTP y la entrega en el proyecto remoto siguen sin verificar. Microsoft está desactivado en el proveedor remoto. La versión Fase 5 permanece en Preview y aún no sustituye la producción anterior; consultar FINAL_RELEASE antes de usarla en una evaluación oficial. El responsable debe habilitar y comprobar el correo y asignar el primer rol docente a una cuenta autorizada.

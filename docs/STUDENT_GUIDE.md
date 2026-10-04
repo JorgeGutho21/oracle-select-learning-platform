@@ -11,3 +11,5 @@ En **Mis evaluaciones**, revisa duración y disponibilidad antes de comenzar. El
 La nota está entre 0.0 y 5.0. El profesor decide cuándo mostrarla y cuándo publicar respuestas y explicaciones. Antes de esa autorización verás el estado pendiente. Cierra sesión si compartes el dispositivo; cada cuenta conserva su propio progreso.
 
 Los controles se pueden usar con teclado y las tablas móviles ofrecen grupos de columnas. En evaluación se registran únicamente eventos informados por la pantalla; no se activa cámara, micrófono ni seguimiento del dispositivo.
+
+Estado de esta entrega: la Fase 5 continúa en Preview. La configuración y entrega de correo remotas aún no están verificadas y Microsoft está desactivado; el flujo de registro y recuperación descrito requiere que el responsable complete esas comprobaciones. El acceso como invitado conserva las actividades públicas y el progreso de este navegador.

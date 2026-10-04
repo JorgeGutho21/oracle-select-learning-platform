@@ -1,6 +1,6 @@
 # Release de DB LAB — Fase 5
 
-**Candidato en verificación; producción no promovida.** Este documento se actualiza con la evidencia de cierre, sin convertir una configuración externa pendiente en un PASS.
+**BLOCKED: candidato técnico verificado; producción no promovida.** SMTP remoto sigue UNKNOWN y la entrega real no está verificada. No se cumple todavía la excepción de SMTP externo ausente que permite el encargo de cierre. Conclusión C: DB LAB todavía NO debe publicarse.
 
 Rama: `codex-phase5-production-final-20261004`. Base: `6fda02bec66f4ef5f0837ef0efda5cdd7587b787`; `889716c` es ancestro verificado. Checkpoint anterior conservado: `01e83ac`. `main` y el DOCX personal permanecen intactos.
 
@@ -14,11 +14,51 @@ Evidencia detallada: [FINAL_QA_REPORT](FINAL_QA_REPORT.md). Arquitectura: [FINAL
 
 Correo remoto: configuración y entrega sin verificar; requiere un buzón autorizado y las pruebas de confirmación/recuperación. Microsoft está desactivado en el proyecto. Firefox oficial no arranca en este Windows por un ensamblado `mozglue` ausente; no se atribuye a la aplicación. Zoom nativo, lector de pantalla, móvil físico y proyector: NOT_TESTED. El reflujo equivalente a zoom se valida por separado.
 
-El encargo final admite correo remoto BLOCKED_EXTERNAL_CONFIGURATION únicamente si se confirma que falta SMTP externo y la implementación está validada por otros medios. Su configuración sigue desconocida, por lo que todavía no se cumple esa excepción. Microsoft sin credenciales y Firefox con limitación demostrada del runtime son excepciones admitidas. El candidato Preview debe pasar la QA remota con datos temporales propios y limpieza por UUID; los 40 clientes se prueban solo en local. Ningún P0/P1 real permite promover.
+El encargo final admite correo remoto BLOCKED_EXTERNAL_CONFIGURATION únicamente si se confirma que falta SMTP externo y la implementación está validada por otros medios. Su configuración sigue desconocida, por lo que todavía no se cumple esa excepción. Microsoft desactivado (credenciales privadas no expuestas) y Firefox con limitación demostrada del runtime son excepciones admitidas. El candidato Preview debe pasar la QA remota con datos temporales propios y limpieza por UUID; los 40 clientes se prueban solo en local. Ningún P0/P1 real permite promover.
 
 ## Indicadores de cierre
 
-Resultados locales y de base remota ejecutados, con el alcance de FINAL_QA_REPORT. WebKit y Preview siguen en verificación; las banderas se actualizarán con sus resultados. Oracle 19c cubre S1; las secciones completas se comprobaron en Free. RESPONSIVE_PASS cubre la matriz de viewport y reflujo equivalente; el zoom nativo queda NOT_TESTED. No se considera completada la Fase 5.
+Lint, typecheck, formato y build de producción pasan. Vitest: 1992 PASS, 0 FAIL, 7 omisiones documentadas (1373 unitarias y 619 integraciones). Preview f067058: 104/104 y 5/5 adicionales de pantallas críticas, con 22 análisis axe WCAG 2.2 A/AA sin infracciones. Chromium completo anterior al último aviso REST: 350/350; Edge dirigido: 105/105; WebKit completo anterior al tooltip: 349/349 y tooltip 15/15. El último cambio de aplicación pasa 5/5 adicionales en cada uno de esos tres navegadores. No se suman estas coberturas como si fueran una sola ejecución completa del último HEAD.
+
+Preview validado: https://sql-select-e2uxkgvcr-jorge-gutierrez1.vercel.app, deployment dpl_JCzxJMZDNY6hKh5hrKZi3tNKtenE, código de aplicación f067058f8d886f1498d7a9bdd821d0503ef18e64. Los commits posteriores contienen únicamente QA y documentación; el HEAD final de Git se obtiene con git rev-parse HEAD. Producción conserva dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2, commit 874f7748acf030f62dbb02bbaea0b204bdd36441. No se declara smoke de producción.
+
+Oracle 19c cubre S1; las secciones completas se comprobaron en Free. RESPONSIVE_PASS cubre viewport y reflujo equivalente; zoom nativo queda NOT_TESTED. ACCESSIBILITY_PASS describe verificación automática y teclado, no certificación ni lector de pantalla manual. El build local usa configuración pública real de Production y credenciales privadas locales; ocho variables sensibles devueltas como [SENSITIVE] por Vercel no se utilizan como credenciales. No sustituye una prueba de runtime de Production. Una navegación WebKit S2 excedió cinco segundos; tres repeticiones y la secuencia posterior pasan sin cambiar esa aserción. Su causa puntual queda sin determinar y su fallo histórico permanece registrado.
+
+La fase técnica termina verificada y sincronizada; el gate operativo permanece bloqueado. La implementación de fases 1–4 está conservada; AUTH_COMPLETE incluye entrega remota y por ello es false.
+
+```text
+PHASE_1_COMPLETE = true
+PHASE_2_COMPLETE = true
+PHASE_3_COMPLETE = true
+PHASE_4_COMPLETE = true
+PHASE_5_COMPLETE = false
+CURRICULUM_COMPLETE = true
+QUESTION_BANK_150_COMPLETE = true
+AUTH_COMPLETE = false
+ASSESSMENTS_COMPLETE = true
+TEACHER_PANEL_COMPLETE = true
+SUPERVISION_COMPLETE = true
+ORACLE_VALIDATED = true
+SUPABASE_VALIDATED = true
+REACT_BITS_INTEGRATION_COMPLETE = true
+RESPONSIVE_PASS = true
+ACCESSIBILITY_PASS = true
+SECURITY_PASS = true
+PERFORMANCE_PASS = true
+CONCURRENCY_PASS = true
+CHROMIUM_PASS = true
+EDGE_PASS = true
+WEBKIT_PASS = true
+FIREFOX_STATUS = NOT_TESTED_RUNTIME
+EMAIL_REMOTE_STATUS = BLOCKED_SMTP_UNKNOWN
+MICROSOFT_STATUS = BLOCKED_EXTERNAL_CONFIGURATION
+PREVIEW_PASS = true
+PRODUCTION_SMOKE_PASS = NOT_TESTED
+FINAL_UX_READY = true
+FINAL_RELEASE_READY = false
+```
+
+Indicadores operativos conservados:
 
 ```text
 PHASE_5_COMPLETE = false
@@ -66,9 +106,9 @@ PERFORMANCE_PASS = true
 CONCURRENCY_40_PASS = true
 CHROMIUM_E2E = true
 FIREFOX_E2E = BLOCKED
-WEBKIT_E2E = NOT_TESTED
+WEBKIT_E2E = true
 EDGE_E2E = true
-PREVIEW_SMOKE = NOT_TESTED
+PREVIEW_SMOKE = true
 PRODUCTION_SMOKE = NOT_TESTED
 FINAL_DB_LAB_READY = false
 ```

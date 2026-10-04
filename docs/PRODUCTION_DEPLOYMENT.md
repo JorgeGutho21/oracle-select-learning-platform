@@ -1,6 +1,6 @@
 # Despliegue de producción — DB LAB Fase 5
 
-Estado actual: release en preparación; producción no promovida. Este registro prevalece sobre los identificadores históricos de DEPLOYMENT.md.
+Estado actual: candidato técnico validado; release operativo BLOCKED por SMTP UNKNOWN; producción no promovida. Este registro prevalece sobre los identificadores históricos de DEPLOYMENT.md.
 
 ## Estado inspeccionado
 
@@ -18,7 +18,7 @@ Estado actual: release en preparación; producción no promovida. Este registro 
 
 Las variables públicas Supabase deben existir durante el build para que la CSP permita su HTTPS/WebSocket. Oracle Cloud, cartera, claves de servicio y claves del facilitador son exclusivamente de servidor. `.vercelignore` excluye secretos, archivos locales, compilaciones, capturas, logs y DOCX. Las variables existentes de Preview/Production fueron inspeccionadas por nombre, sin imprimir valores.
 
-Preview vigente READY verificado: `dpl_BhoZNUkR5Az9aLKZVNzaHsUJ8J7i`, https://sql-select-adwohw4tk-jorge-gutierrez1.vercel.app, commit `81a10fc1d4448c2d53c07f1d0ba6e895425e611d`, rama `codex-phase5-production-final-20261004`. La API confirma el proyecto propio y target distinto de producción. Incluye precisión del contador y corrección de la leyenda nativa del examen. Sustituye los previews de `53fcf0e` y `dd988c8`, que no deben promoverse. WebKit completo del candidato pasa 349/349; la QA remota aún debe terminar antes de cualquier promoción. Producción permanece en el deployment anterior.
+Preview vigente READY verificado: `dpl_JCzxJMZDNY6hKh5hrKZi3tNKtenE`, https://sql-select-e2uxkgvcr-jorge-gutierrez1.vercel.app, commit `f067058f8d886f1498d7a9bdd821d0503ef18e64`, rama `codex-phase5-production-final-20261004`. La API confirma el proyecto propio y target distinto de producción. Incluye la corrección de Tooltip y el aviso REST del monitor docente. Sustituye el Preview 5126e05 (100 PASS, 2 FAIL, 2 sin ejecutar de 104), que no debe promoverse. QA del sustituto: 104/104 PASS y 5/5 adicionales de pantallas críticas, con 22 análisis axe WCAG 2.2 A/AA sin infracciones. Producción sigue en dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2, commit 874f7748acf030f62dbb02bbaea0b204bdd36441; alias público y Preview reinspeccionados al cerrar. Los commits posteriores a f067058 solo añaden QA y documentación; no se confunde el HEAD final con el hash del deployment.
 
 ## Migraciones reales
 
@@ -35,11 +35,11 @@ Primero commit verificable y Preview. Después smoke público, cuentas/progreso,
 
 El envío y recuperación de correo remotos necesitan un SMTP y un buzón autorizado. La configuración y entrega no se dan por hechas a partir de Mailpit local o de cuentas confirmadas por API administrativa. Microsoft permanece BLOCKED mientras Azure esté desactivado; eso no altera el acceso de invitado/correo. Las acciones manuales de Microsoft están en AUTH_ARCHITECTURE.
 
-El encargo de cierre del 4 de octubre permite publicar con Microsoft sin credenciales y con SMTP externo ausente si la implementación está validada por otros medios. Esa excepción no equivale a afirmar que SMTP esté ausente: la API pública no expone el ajuste, no hay PAT de Management ni sesión de dashboard disponible, y la confirmación del responsable está pendiente. Deben pasar los gates técnicos y el Preview; cualquier P0/P1 real impide la promoción. Firefox puede quedar NOT_TESTED por el runtime documentado.
+El encargo de cierre del 4 de octubre permite publicar con Microsoft desactivado y con SMTP externo ausente si la implementación está validada por otros medios. Esa excepción no equivale a afirmar que SMTP esté ausente: la API pública no expone el ajuste, no hay PAT de Management ni sesión de dashboard disponible, y la confirmación del responsable está pendiente. Deben pasar los gates técnicos y el Preview; cualquier P0/P1 real impide la promoción. Firefox puede quedar NOT_TESTED por el runtime documentado.
 
 Preview y Production apuntan actualmente al mismo proyecto Supabase. Por ello, la QA remota no hace carga de 40 usuarios, publica únicamente para UUID propios y elimina sus cuentas/exámenes/sala al terminar. La inspección posterior debe comprobar que permanecen las 28 salas, 39 participantes, 22 intentos, 2 pistas y 22 resultados previos, y el banco oficial de 150.
 
-La ausencia de tablas en `supabase_realtime` es esperada: los adaptadores usan Broadcast (`realtime.send` en evaluaciones y avisos REST en sala), sin retransmitir datos privados. La QA debe observar el cambio en un monitor ya abierto antes de los 60 s de sondeo de seguridad; no se añade replicación de tablas privadas.
+La ausencia de tablas en `supabase_realtime` es esperada: los adaptadores usan Broadcast: avisos REST desde servidor en sala y evaluaciones; se conserva además `realtime.send` en la base, sin retransmitir datos privados. La QA debe observar el cambio en un monitor ya abierto antes de los 60 s de sondeo de seguridad; no se añade replicación de tablas privadas.
 
 ## Configuración externa pendiente
 
@@ -51,7 +51,7 @@ La ausencia de tablas en `supabase_realtime` es esperada: los adaptadores usan B
 | Microsoft Entra → App registrations; Supabase → Azure | Client ID y secreto privados; callback `https://byjkkxrrkodyduskdimg.supabase.co/auth/v1/callback`; tenant aprobado por la institución       | Acceso, consentimiento cancelado, logout y perfil; el botón sigue desactivado mientras Azure no esté habilitado                                    |
 | Supabase → SQL Editor → institutional_domains         | Solo dominio institucional confirmado por el responsable; no se inventa un dominio                                                           | Cuenta confirmada del dominio autorizado: perfil verificado; un dominio ajeno no lo está                                                           |
 
-Estado SMTP: BLOCKED_EXTERNAL para verificar configuración y entrega, no una afirmación de que esté ausente. Azure: NOT_CONFIGURED (`azure: false` observado). Dominio institucional: requiere validación del responsable. No se solicitan secretos en el chat ni se abre un proveedor de pago.
+Estado SMTP: UNKNOWN; correo remoto BLOCKED para verificar configuración y entrega. No se clasifica como BLOCKED_EXTERNAL_CONFIGURATION mientras no se confirme la ausencia de SMTP. Azure: NOT_CONFIGURED (`azure: false` observado). Dominio institucional: requiere validación del responsable. No se solicitan secretos en el chat ni se abre un proveedor de pago.
 
 Supabase indica que su SMTP inicial está destinado a pruebas y restringe destinatarios; una cuenta creada por la API administrativa no acredita el envío de correo. Fuentes oficiales: [SMTP](https://supabase.com/docs/guides/auth/auth-smtp), [Azure](https://supabase.com/docs/guides/auth/social-login/auth-azure). La autorización del buzón y sus enlaces sigue pendiente de respuesta humana.
 
@@ -68,3 +68,7 @@ npx vercel@60.0.1 rollback dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2 --yes --global-confi
 Después inspeccionar `sql-select-lab.vercel.app`, comprobar el commit `874f7748acf030f62dbb02bbaea0b204bdd36441` y repetir el smoke público. El comando se documentó y su ayuda se verificó; no se ejecutó una reversión innecesaria. Referencia oficial: [Vercel rollback](https://vercel.com/docs/cli/rollback).
 
 Las migraciones son aditivas y permanecen al revertir código. No ejecutar DROP ni una reversión destructiva de datos de cuentas/evaluaciones. Los esquemas y lectores Oracle anteriores se conservan. La selección de rollback se basa en el deployment inspeccionado, no en los IDs obsoletos de informes de septiembre.
+
+## Build local final
+
+Build optimizado de producción: PASS con configuración pública real de Production y credenciales privadas locales. Ocho valores de servidor en env pull se devolvieron como [SENSITIVE], permanecen en archivo ignorado y nunca se usaron como secretos válidos. No se declara equivalencia con el runtime privado de Production ni smoke de la versión nueva. El Preview cloud READY y sus pruebas remotas acreditan su propia configuración.

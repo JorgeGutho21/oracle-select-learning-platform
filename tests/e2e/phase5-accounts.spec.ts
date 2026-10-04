@@ -295,12 +295,10 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
         throw error;
       } finally {
         page.off('response', saveResponse);
-        test
-          .info()
-          .annotations.push({
-            type: 'save response timing',
-            description: JSON.stringify(saveRequests),
-          });
+        test.info().annotations.push({
+          type: 'save response timing',
+          description: JSON.stringify(saveRequests),
+        });
       }
       const path = new URL(page.url()).pathname;
       ownedAssessments.push(path.split('/').at(-1)!);
