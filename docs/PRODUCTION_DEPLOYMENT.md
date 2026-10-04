@@ -4,17 +4,17 @@ Estado actual: release en preparación; producción no promovida. Este registro 
 
 ## Estado inspeccionado
 
-| Dato                          | Verificado                                                          |
-| ----------------------------- | ------------------------------------------------------------------- |
-| Proyecto Vercel               | sql-select-lab, prj_Q5z6OKMwZjDFDqxARioo20utGBnR                    |
-| Producción pública            | https://sql-select-lab.vercel.app                                   |
-| Deployment activo anterior    | dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2                                    |
-| URL inmutable anterior        | https://sql-select-6enpnesm3-jorge-gutierrez1.vercel.app            |
-| Commit de producción anterior | 874f7748acf030f62dbb02bbaea0b204bdd36441                            |
-| Rama anterior                 | claude-final-ui-polish-20260926                                     |
-| Integración Git               | No conectada según API; no se asume despliegue automático por push. |
-| Rama de release               | codex-phase5-production-final-20261004                              |
-| Preview Fase 5                | Pendiente de despliegue y smoke                                     |
+| Dato                          | Verificado                                                                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Proyecto Vercel               | sql-select-lab, prj_Q5z6OKMwZjDFDqxARioo20utGBnR                                                                                                |
+| Producción pública            | https://sql-select-lab.vercel.app                                                                                                               |
+| Deployment activo anterior    | dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2                                                                                                                |
+| URL inmutable anterior        | https://sql-select-6enpnesm3-jorge-gutierrez1.vercel.app                                                                                        |
+| Commit de producción anterior | 874f7748acf030f62dbb02bbaea0b204bdd36441                                                                                                        |
+| Rama anterior                 | claude-final-ui-polish-20260926                                                                                                                 |
+| Integración Git               | No conectada según API; no se asume despliegue automático por push.                                                                             |
+| Rama de release               | codex-phase5-production-final-20261004                                                                                                          |
+| Preview inicial Fase 5        | https://sql-select-6e4j0ezed-jorge-gutierrez1.vercel.app (READY, commit 0bef19dd03cee515083f6f99985f8d2d573be462); aún no es el candidato final |
 
 Las variables públicas Supabase deben existir durante el build para que la CSP permita su HTTPS/WebSocket. Oracle Cloud, cartera, claves de servicio y claves del facilitador son exclusivamente de servidor. `.vercelignore` excluye secretos, archivos locales, compilaciones, capturas, logs y DOCX. Las variables existentes de Preview/Production fueron inspeccionadas por nombre, sin imprimir valores.
 
@@ -33,7 +33,11 @@ Primero commit verificable y Preview. Después smoke público, cuentas/progreso,
 
 El envío y recuperación de correo remotos necesitan un SMTP y un buzón autorizado. La configuración y entrega no se dan por hechas a partir de Mailpit local o de cuentas confirmadas por API administrativa. Microsoft permanece BLOCKED mientras Azure esté desactivado; eso no altera el acceso de invitado/correo. Las acciones manuales de Microsoft están en AUTH_ARCHITECTURE.
 
-El usuario autorizó el release, pero la promoción exige los criterios críticos de su encargo cerrados. Mientras no se verifique el correo remoto, PRODUCTION_READY y PRODUCTION_DEPLOYED no pueden declararse true.
+El encargo de cierre del 4 de octubre permite publicar con Microsoft sin credenciales y con SMTP externo ausente si la implementación está validada por otros medios. Esa excepción no equivale a afirmar que SMTP esté ausente: la API pública no expone el ajuste, no hay PAT de Management ni sesión de dashboard disponible, y la confirmación del responsable está pendiente. Deben pasar los gates técnicos y el Preview; cualquier P0/P1 real impide la promoción. Firefox puede quedar NOT_TESTED por el runtime documentado.
+
+Preview y Production apuntan actualmente al mismo proyecto Supabase. Por ello, la QA remota no hace carga de 40 usuarios, publica únicamente para UUID propios y elimina sus cuentas/exámenes/sala al terminar. La inspección posterior debe comprobar que permanecen las 28 salas, 39 participantes, 22 intentos, 2 pistas y 22 resultados previos, y el banco oficial de 150.
+
+La ausencia de tablas en `supabase_realtime` es esperada: los adaptadores usan Broadcast (`realtime.send` en evaluaciones y avisos REST en sala), sin retransmitir datos privados. La QA debe observar el cambio en un monitor ya abierto antes de los 60 s de sondeo de seguridad; no se añade replicación de tablas privadas.
 
 ## Configuración externa pendiente
 
@@ -52,5 +56,13 @@ Supabase indica que su SMTP inicial está destinado a pruebas y restringe destin
 ## Reversión
 
 Conservar el deployment anterior indicado arriba. Si se llega a promover Fase 5, verificar el alias y el commit mediante inspect/API y ejecutar smoke de producción. Ante fallo crítico, volver al deployment anterior con la CLI de Vercel o el dashboard y verificar otra vez el alias.
+
+Desde la raíz de este repositorio, con la autenticación existente, el rollback al deployment anterior es:
+
+```powershell
+npx vercel@60.0.1 rollback dpl_8EjVpuRWJfYvuqocHZR6nWA17ou2 --yes --global-config .vercel/cli
+```
+
+Después inspeccionar `sql-select-lab.vercel.app`, comprobar el commit `874f7748acf030f62dbb02bbaea0b204bdd36441` y repetir el smoke público. El comando se documentó y su ayuda se verificó; no se ejecutó una reversión innecesaria. Referencia oficial: [Vercel rollback](https://vercel.com/docs/cli/rollback).
 
 Las migraciones son aditivas y permanecen al revertir código. No ejecutar DROP ni una reversión destructiva de datos de cuentas/evaluaciones. Los esquemas y lectores Oracle anteriores se conservan. La selección de rollback se basa en el deployment inspeccionado, no en los IDs obsoletos de informes de septiembre.

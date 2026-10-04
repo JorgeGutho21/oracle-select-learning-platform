@@ -12,7 +12,7 @@ Windows, Node 24.20.0, Playwright 1.63.0, build Next de producción. Supabase lo
 
 | Verificación                    | Resultado y evidencia local                                                                                                                                 |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vitest completo                 | 1974 PASS, 0 FAIL, 7 omitidas; `final-vitest.json`. Dos omisiones deliberadas; cinco smoke remotas pasaron aparte.                                          |
+| Vitest completo                 | 1976 PASS, 0 FAIL, 7 omitidas: 1357 unitarias y 619 integraciones; `release-vitest.json`. Dos omisiones deliberadas; cinco smoke remotas pasaron aparte.    |
 | Oracle Free / PGlite            | 599 PASS; `oracle-integration.log`. Incluye 222 ejemplos curriculares, 102 comprobaciones S1 y 79 del banco S1.                                             |
 | Oracle Cloud 19c                | 102 PASS de S1; `oracle19c.log`. No se atribuye a 19c la ejecución completa de S2/S3.                                                                       |
 | Supabase remoto                 | 7 PASS de cuentas/RLS y 5 PASS de release; `remote-accounts-rls.log`, `remote-release-db.log`.                                                              |
