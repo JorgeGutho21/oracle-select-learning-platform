@@ -2,7 +2,7 @@ import { useMemo, useSyncExternalStore } from 'react';
 
 /** Reloj con tic de un segundo alineado con la última hora que envió el servidor. */
 class ServerClock {
-  private offset = 0;
+  private monotonicReference: number | undefined;
   private readonly reference: number;
 
   constructor(serverNow: string) {
@@ -11,21 +11,28 @@ class ServerClock {
   }
 
   readonly subscribe = (callback: () => void): (() => void) => {
-    // La diferencia con el reloj del dispositivo se mide al suscribirse, no en el render.
-    this.offset = this.reference ? this.reference - Date.now() : 0;
+    // El tiempo transcurrido no cambia cuando se ajusta la fecha del dispositivo.
+    // Cada nueva hora recibida del servidor crea una nueva referencia.
+    this.monotonicReference ??= performance.now();
     callback();
     const timer = window.setInterval(callback, 1000);
     return () => window.clearInterval(timer);
   };
 
-  readonly snapshot = (): number => Math.floor((Date.now() + this.offset) / 1000) * 1000;
+  readonly snapshot = (): number => {
+    const elapsed =
+      this.monotonicReference === undefined
+        ? 0
+        : Math.max(0, performance.now() - this.monotonicReference);
+    return Math.floor((this.reference + elapsed) / 1000) * 1000;
+  };
 
   readonly server = (): number => this.reference;
 }
 
 /**
- * Hora del servidor en el navegador. El render solo lee el valor; nunca llama a Date.now()
- * en el cuerpo del componente.
+ * Hora del servidor más tiempo monotónico transcurrido. El render solo lee el valor;
+ * cambiar el reloj de calendario del dispositivo no amplía ni acorta el examen.
  */
 export function useServerClock(serverNow: string): number {
   const clock = useMemo(() => new ServerClock(serverNow), [serverNow]);
