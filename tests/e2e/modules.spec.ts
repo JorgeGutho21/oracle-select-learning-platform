@@ -16,7 +16,7 @@ test.describe('Ruta de aprendizaje', () => {
     await page.evaluate(() => window.localStorage.clear());
   });
 
-  test('el nivel 1 es el actual y los niveles 2 a 7 son Próximamente con 46 fichas', async ({
+  test('el nivel 1 es el actual y los niveles 2 a 7 tienen 46 fichas, 34 ya enseñadas', async ({
     page,
   }) => {
     await page.reload();
@@ -47,14 +47,22 @@ test.describe('Ruta de aprendizaje', () => {
         `Nivel ${number}: ${title}`,
       );
       await expect(level).toContainText(stage);
-      await expect(level).toContainText('Próximamente');
-      // Un tema futuro no ofrece lecciones ni progreso que aparenten contenido disponible.
+      // Un tema no ofrece lecciones del Modo Estudio ni progreso propio; si ya lo enseña una
+      // sección (Fase 4), enlaza a esa lección.
       await expect(level.locator('a[href^="/learn/"]')).toHaveCount(0);
       await expect(level.getByRole('progressbar')).toHaveCount(0);
     }
     const topics = page.locator('.topic-card');
     await expect(topics).toHaveCount(46);
-    await expect(page.locator('.topic-card', { hasNotText: 'Próximamente' })).toHaveCount(0);
+    const taught = page.locator('.topic-card', { has: page.locator('.topic-card__lesson') });
+    await expect(taught).toHaveCount(34);
+    for (const link of await taught.locator('.topic-card__lesson a').all()) {
+      await expect(link).toHaveAttribute('href', /^\/sections\/[a-z-]+\/study\/[a-z0-9-]+$/);
+    }
+    await expect(
+      page.locator('.topic-card', { hasNot: page.locator('.topic-card__lesson') }),
+    ).toHaveCount(12);
+    await expect(page.locator('#tema-to-char')).toContainText('Próximamente');
   });
 
   test('cada ficha tiene definición, utilidad, sintaxis, ejemplo, nivel y requisito', async ({

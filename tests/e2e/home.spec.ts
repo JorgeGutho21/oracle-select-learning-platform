@@ -47,7 +47,8 @@ test.describe('Home', () => {
     await expect(route.nth(0)).toContainText('Disponible');
     await expect(route.nth(1)).toContainText('Consultas relacionales y análisis');
     await expect(route.nth(2)).toContainText('PL/SQL y automatización');
-    for (const index of [1, 2]) await expect(route.nth(index)).toContainText('Próximamente');
+    // Desde la Fase 4, las tres secciones están disponibles.
+    for (const index of [1, 2]) await expect(route.nth(index)).toContainText('Disponible');
     await expect(
       route.nth(0).getByRole('link', { name: /Entrar a Fundamentos SQL/ }),
     ).toHaveAttribute('href', '/sections/fundamentos-sql');

@@ -42,17 +42,22 @@ test.describe('Modo Estudio', () => {
       expect(await list.getByRole('link').count(), `bloque ${index + 1}`).toBeGreaterThan(0);
     }
     const cards = page.locator('.study-path').getByRole('link');
-    await expect(cards).toHaveCount(LESSON_COUNT);
+    // 22 lecciones del Modo Estudio más el bloque I «Funciones de una fila» (Fase 4).
+    await expect(cards).toHaveCount(LESSON_COUNT + 3);
     await expect(cards.first()).toHaveAttribute('href', '/learn/introduccion');
-    await expect(cards.last()).toHaveAttribute('href', '/learn/errores-frecuentes');
+    await expect(cards.nth(LESSON_COUNT - 1)).toHaveAttribute('href', '/learn/errores-frecuentes');
+    await expect(cards.last()).toHaveAttribute(
+      'href',
+      '/sections/fundamentos-sql/study/fechas-y-nvl',
+    );
     await expect(page.locator('.study-template li')).toHaveCount(12);
     await expect(page.getByRole('link', { name: /¿Vas a explicarlo en clase\?/ })).toHaveAttribute(
       'href',
       '/presentation',
     );
-    await expect(page.getByRole('link', { name: /Ver la ruta completa/ })).toHaveAttribute(
+    await expect(page.getByRole('link', { name: /Ver las secciones/ })).toHaveAttribute(
       'href',
-      '/modules',
+      '/sections',
     );
   });
 

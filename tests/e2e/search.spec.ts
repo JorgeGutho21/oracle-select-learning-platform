@@ -28,14 +28,20 @@ const CURRENT = [
   ['null', 'NULL, IS NULL e IS NOT NULL'],
   ['order by', 'ORDER BY: ordenar el resultado'],
 ] as const;
+// Temas de la ruta que todavía no enseña ninguna lección (Fase 4: UPPER, ROUND, GROUP BY,
+// JOIN, INSERT, UPDATE y DELETE ya tienen lección y dejaron de ser «Próximamente»).
 const FUTURE = [
-  ['upper', 'UPPER', 'tema-upper'],
-  ['round', 'ROUND', 'tema-round'],
-  ['group by', 'GROUP BY', 'tema-group-by'],
-  ['join', 'INNER JOIN', 'tema-inner-join'],
-  ['insert', 'INSERT INTO', 'tema-insert'],
-  ['update', 'UPDATE', 'tema-update'],
-  ['delete', 'DELETE', 'tema-delete'],
+  ['add_months', 'ADD_MONTHS', 'tema-add-months'],
+  ['to_date', 'TO_DATE', 'tema-to-date'],
+  ['create table', 'CREATE TABLE', 'tema-create-table'],
+  ['alter table', 'ALTER TABLE', 'tema-alter-table'],
+  ['unique', 'UNIQUE', 'tema-unique'],
+] as const;
+
+// Temas de la ruta que ya enseña una lección: abren la lección, no la ficha futura.
+const TAUGHT = [
+  ['upper', 'UPPER', '/sections/fundamentos-sql/study/funciones-de-texto'],
+  ['group by', 'GROUP BY', '/sections/consultas-relacionales/study/group-by'],
 ] as const;
 
 test.describe('Buscador global', () => {
@@ -119,6 +125,22 @@ test.describe('Buscador global', () => {
       await expect(page.locator(`#${anchor}`)).toBeVisible();
       await expect(page.locator(`#${anchor} h4`)).toBeFocused();
       await expect(page.locator(`#${anchor}`)).toContainText('Próximamente');
+    }
+  });
+
+  test('un tema de la ruta que ya tiene lección abre la lección', async ({ page }) => {
+    await page.goto('/');
+    for (const [query, title, href] of TAUGHT) {
+      await openWithShortcut(page);
+      await field(page).fill(query);
+      const option = palette(page)
+        .getByRole('group', { name: 'Conceptos' })
+        .getByRole('option', { name: new RegExp(`^${title}\\b`) })
+        .first();
+      await expect(option, query).toContainText('Abrir');
+      await option.click();
+      await expect(page).toHaveURL(href);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     }
   });
 

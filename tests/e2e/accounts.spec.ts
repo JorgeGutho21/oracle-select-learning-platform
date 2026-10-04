@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { LESSON_COUNT } from '../../src/features/study/application/lesson-index';
@@ -19,6 +20,22 @@ import {
  * un Supabase de pruebas real (Auth, API y RLS). Microsoft no se automatiza: necesita una
  * cuenta real (lista de comprobación manual en docs/AUTH_ARCHITECTURE.md).
  */
+
+/**
+ * Lecciones publicadas en todas las secciones, como las cuenta «Mi progreso»: las 22 del Modo
+ * Estudio y las ampliaciones de la Sección 1 más las secciones de la fuente curricular (Fase 4).
+ * El índice se lee como archivo: el cargador de Playwright no importa JSON sin atributo.
+ */
+const OUTLINE = JSON.parse(
+  readFileSync(
+    new URL('../../src/features/curriculum/application/outline.json', import.meta.url),
+    'utf8',
+  ),
+) as { sections: { lessons: unknown[] }[]; extensions: { lessons: unknown[] }[] };
+const PUBLISHED_LESSONS = [...OUTLINE.sections, ...OUTLINE.extensions].reduce(
+  (sum, unit) => sum + unit.lessons.length,
+  LESSON_COUNT,
+);
 
 async function cloudLessons(page: Page): Promise<string[]> {
   const response = await page.request.get('/api/progress');
@@ -225,7 +242,7 @@ test.describe('Cuentas', () => {
     await signIn(phone, user);
     await expect(phone.getByRole('heading', { level: 1, name: 'Hola, Sara' })).toBeVisible();
     await expect(phone.getByText('Completaste la lección «DISTINCT»')).toBeVisible();
-    await expect(phone.getByText(`1 de ${LESSON_COUNT} lecciones publicadas`)).toBeVisible();
+    await expect(phone.getByText(`1 de ${PUBLISHED_LESSONS} lecciones publicadas`)).toBeVisible();
     await phone.goto('/learn');
     await expect(
       phone.getByRole('heading', { name: `1 de ${LESSON_COUNT} lecciones` }),
@@ -255,7 +272,7 @@ test.describe('Cuentas', () => {
     await signIn(page, user);
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect.poll(() => cloudLessons(page), { timeout: 15_000 }).toEqual(['L08', 'L10']);
-    await expect(page.getByText(`2 de ${LESSON_COUNT} lecciones publicadas`)).toBeVisible();
+    await expect(page.getByText(`2 de ${PUBLISHED_LESSONS} lecciones publicadas`)).toBeVisible();
     // Una sincronización antigua no devuelve una lección completada a «en curso».
     const stale = await page.request.post('/api/progress', {
       headers: { Origin: new URL(page.url()).origin },
@@ -337,7 +354,9 @@ test.describe('Cuentas', () => {
     await page.locator('.teacher-search').getByRole('button', { name: 'Buscar' }).click();
     const row = page.getByRole('row', { name: /Valentina Zuleta/ });
     await expect(row).toBeVisible();
-    await expect(row).toContainText(`5 %`);
+    await expect(row).toContainText(
+      `${Math.round(100 / PUBLISHED_LESSONS)} % (1/${PUBLISHED_LESSONS} lecciones)`,
+    );
     await expect(row).toContainText('Conectado');
     await expect(page.getByRole('status').filter({ hasText: 'coinciden' })).toContainText('1 de');
 
