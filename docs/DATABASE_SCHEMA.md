@@ -75,6 +75,44 @@ La migración a v2 es **aditiva**: se crean esquemas nuevos y los de v1 quedan i
 
 No se permite editar el dataset desde la plataforma. Un cambio produce una versión nueva (v3) con esquemas nuevos y no altera las salas activas.
 
+## Dataset relacional `empresa-relacional-v1` (versión 3.0, Fase 4)
+
+Lo usan las secciones 2 y 3. Fuente única: `src/domain/dataset/empresa.ts`. El script
+`oracle/dblab-empresa-v1.sql` se genera desde ella (una prueba exige que coincidan) y se descarga
+en `/datasets/dblab-empresa-v1.sql`. Reutiliza a las mismas 20 personas de `empleados-select-v2`:
+la columna de texto DEPARTAMENTO se reemplaza por la clave foránea ID_DEPARTAMENTO. El dataset de
+la Sección 1 no cambia.
+
+| Tabla | Filas | Clave primaria | Claves foráneas y restricciones |
+| --- | --- | --- | --- |
+| DEPARTAMENTOS | 6 | `DEPARTAMENTOS_PK` (ID_DEPARTAMENTO) | `DEPARTAMENTOS_NOMBRE_UNICO` |
+| EMPLEADOS | 20 | `EMPLEADOS_PK` (ID_EMPLEADO) | `EMPLEADOS_DEPARTAMENTO_FK` → DEPARTAMENTOS; `EMPLEADOS_JEFE_FK` → EMPLEADOS; CHECK de salario > 0, bono ≥ 0 y estado ACTIVO/INACTIVO |
+| PROYECTOS | 7 | `PROYECTOS_PK` (ID_PROYECTO) | `PROYECTOS_DEPARTAMENTO_FK` → DEPARTAMENTOS; CHECK de presupuesto > 0 |
+| ASIGNACIONES | 17 | `ASIGNACIONES_PK` (ID_EMPLEADO, ID_PROYECTO) | `ASIGNACIONES_EMPLEADO_FK`, `ASIGNACIONES_PROYECTO_FK`; CHECK de horas entre 1 y 40 |
+| AUDITORIA_SALARIOS | 0 | `AUDITORIA_SALARIOS_PK` (ID_AUDITORIA, identidad) | Sin FK (la auditoría se conserva); FECHA_CAMBIO DEFAULT SYSDATE; la llenan los triggers de la Sección 3 |
+
+Casos diseñados:
+
+- Esteban (20) sin departamento: el INNER JOIN lo pierde y el LEFT JOIN lo conserva.
+- Investigación (60) sin personas ni proyectos.
+- Proyecto 106 sin asignaciones; seis personas sin proyecto.
+- Camila (Finanzas) en un proyecto de TI.
+- ID_JEFE autorreferenciado; Ana y Esteban sin jefe.
+
+Cifras de control:
+
+| Cifra | Valor |
+| --- | --- |
+| Promedio salarial por departamento | 10 = 5.300.000; 20 = 4.925.000; 30 = 3.780.000; 40 = 5.650.000; 50 = 4.000.000 |
+| Promedio general | 4.580.000 |
+| Suma de salarios | 91.600.000 |
+| Personas activas | 17 |
+| Bonos registrados | 14, que suman 5.000.000 |
+| Horas semanales totales | 295 |
+
+En Oracle, los ejemplos se ejecutan en el esquema `DBLAB_CURRICULO`, que se recrea antes de cada
+bloque PL/SQL (ver [ORACLE_VALIDATION.md](ORACLE_VALIDATION.md)).
+
 ## Entidades de la plataforma
 
 El modelo lógico de esta sección corresponde a la sala 1.0 con rondas y cuenta docente. La migración implementada en la Fase 7 cubre la sala 1.1 a ritmo propio: ver [Implementación de la sala 1.1](#implementación-de-la-sala-11-fase-7).

@@ -16,7 +16,7 @@ Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico: no es 
 
 ## Estado del proyecto
 
-DB LAB se organiza en tres secciones (`/sections`): **Fundamentos SQL** (disponible, todo lo que se describe abajo), **Consultas relacionales y análisis** y **PL/SQL y automatización** (planes publicados, «Próximamente»). Cada sección reúne los mismos modos: iniciar clase, estudiar, practicar, Challenge, recursos y evaluación. Decisiones de la Fase 1 en [ARCHITECTURE.md](docs/ARCHITECTURE.md#db-lab-fase-1-arquitectura-de-secciones) y [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md#db-lab-30).
+DB LAB se organiza en tres secciones disponibles (`/sections`): **Fundamentos SQL**, **Consultas relacionales y análisis** y **PL/SQL y automatización**. Cada sección reúne los mismos modos: iniciar clase, estudiar, practicar, Challenge, recursos y evaluación. Decisiones de la Fase 1 en [ARCHITECTURE.md](docs/ARCHITECTURE.md#db-lab-fase-1-arquitectura-de-secciones) y [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md#db-lab-30).
 
 **Fase 2:**
 
@@ -36,6 +36,17 @@ Supabase da la identidad y Oracle sigue ejecutando las prácticas. Detalle en [A
 - supervisión de eventos del navegador con monitor en vivo, resultados con análisis por pregunta y exportación CSV.
 
 Detalle en [ASSESSMENT_ARCHITECTURE.md](docs/ASSESSMENT_ARCHITECTURE.md) y guía de uso en [ASSESSMENT_TEACHER_GUIDE.md](docs/ASSESSMENT_TEACHER_GUIDE.md).
+
+**Fase 4 (rama `claude-phase4-curriculum-20261003`, sin desplegar):**
+
+- **fuente curricular única** (`src/features/curriculum/`): de ella salen las lecciones, los ejemplos, la clase, la práctica, el Challenge, los recursos y el banco;
+- **Sección 2**: 25 lecciones, 102 ejemplos, 22 prácticas, 10 misiones y 34 escenas sobre el dataset relacional `empresa-relacional-v1`;
+- **Sección 3**: 28 lecciones, 77 ejemplos, 26 prácticas, 10 misiones y 37 escenas, con los triggers como tema central;
+- **auditoría de la Sección 1**: 42 ajustes del banco y las lecciones 23–25, «Funciones de una fila»;
+- **banco oficial completo**: 150 preguntas, 50 por sección;
+- **resultados verificados en Oracle**: todas las tablas, salidas de DBMS_OUTPUT y errores se obtuvieron al ejecutar el código en Oracle Database 23 (222 resultados verificados). La interfaz nunca los presenta como ejecución en vivo.
+
+Detalle en [CURRICULUM_ARCHITECTURE.md](docs/CURRICULUM_ARCHITECTURE.md), [SECTION_1_AUDIT.md](docs/SECTION_1_AUDIT.md), [SECTION_2_CURRICULUM.md](docs/SECTION_2_CURRICULUM.md), [SECTION_3_CURRICULUM.md](docs/SECTION_3_CURRICULUM.md), [QUESTION_BANK_SPEC.md](docs/QUESTION_BANK_SPEC.md), [ORACLE_VALIDATION.md](docs/ORACLE_VALIDATION.md) y [PHASE4_QA.md](docs/PHASE4_QA.md).
 
 La Sección 1 es la unidad completa de **Oracle SQL fundamental (SELECT)**:
 

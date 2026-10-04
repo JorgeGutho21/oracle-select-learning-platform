@@ -5,17 +5,18 @@ Fecha: 3 de octubre de 2026. Modelo de datos en
 
 ## 1. Objetivo
 
-50 preguntas por sección (150 en total). Esta fase deja la infraestructura completa para las
-tres secciones y el banco oficial de la **Sección 1, Fundamentos SQL: 50 de 50**. Las
-secciones 2 y 3 aún no tienen contenido académico publicado (su plan está en
-`features/sections`); escribir preguntas sobre JOIN o PL/SQL sin ese contenido y sin su dataset
-sería inventar. El profesor puede crear preguntas propias para ellas desde el panel.
+50 preguntas por sección: **150 de 150** desde la Fase 4 (4 de octubre de 2026). El profesor
+puede además crear preguntas propias desde el panel.
 
-| Sección                               | Oficiales                                | Meta |
-| ------------------------------------- | ---------------------------------------- | ---- |
-| 1 · Fundamentos SQL                   | 50                                       | 50   |
-| 2 · Consultas relacionales y análisis | 0 (llega con el contenido de la sección) | 50   |
-| 3 · PL/SQL y automatización           | 0 (llega con el contenido de la sección) | 50   |
+| Sección                               | Oficiales | Dónde vive                                                        |
+| ------------------------------------- | --------- | ----------------------------------------------------------------- |
+| 1 · Fundamentos SQL                   | 50        | `features/assessments/domain/bank/fundamentos-sql.ts`             |
+| 2 · Consultas relacionales y análisis | 50        | `features/assessments/application/bank/consultas-relacionales.ts` |
+| 3 · PL/SQL y automatización           | 50        | `features/assessments/application/bank/plsql.ts`                  |
+
+`OFFICIAL_BANK` se arma en `features/assessments/application/official-bank.ts`. Las secciones
+2 y 3 viven en la capa de aplicación porque toman sus resultados de la fuente curricular
+verificada en Oracle (`curriculum/application/oracle-results.json`).
 
 ## 2. Clasificación
 
@@ -25,9 +26,14 @@ tipo, forma de respuesta, dificultad interna 1–5 (no se muestra al estudiante)
 
 Temas de la Sección 1: fundamentos, SELECT y FROM, expresiones y precedencia, alias y
 concatenación, DISTINCT, WHERE y comparaciones, AND/OR/NOT, BETWEEN/IN/LIKE, NULL, ORDER BY,
-consulta completa y errores frecuentes. Las secciones 2 y 3 tienen sus temas definidos
-(relaciones, JOIN, agregación, grupos, subconsultas, conjuntos; bloques, control, cursores,
-excepciones, subprogramas, triggers).
+consulta completa y errores frecuentes, y funciones de una fila (tema nuevo de la ampliación,
+sin preguntas oficiales todavía). Sección 2: relaciones, JOIN, otros JOIN, agregación, grupos,
+subconsultas, conjuntos. Sección 3: bloques, variables, control, bucles y cursores, excepciones,
+subprogramas, paquetes, triggers. Cada tema coincide con el `topic` de sus lecciones.
+
+**Nivel cognitivo** (secciones 2 y 3): etiqueta `nivel:recordar`, `nivel:aplicar` o
+`nivel:analizar`. Meta: 15 % / 40 % / 45 % con una pregunta de margen. La dificultad 1–5 sigue
+siendo interna.
 
 ## 3. Tipos y formas de respuesta
 
@@ -100,17 +106,78 @@ Distribución de la Sección 1:
 | Caso corto                 | 2   | Expresiones           | 3   |            |     |
 |                            |     | DISTINCT              | 3   |            |     |
 
+### Secciones 2 y 3 (Fase 4)
+
+Ningún resultado se escribe a mano. Cada tabla de opción, recuento, salida de DBMS_OUTPUT o
+código de error que cita una pregunta se lee del resultado que Oracle devolvió para un ejemplo
+de la fuente curricular (`verified-bank.ts`: `tableOf`, `rowCount`, `outputOf`, `errorOf`,
+`afterOf`). Las consultas de elección marcan como correcta la opción cuyo resultado en Oracle es
+idéntico al de la consulta objetivo. Las consultas y bloques que solo usa el banco (20 S2-B-* y
+14 S3-B-*) se verifican como el resto (`ORACLE_VALIDATION.md`).
+
+Pruebas (`tests/unit/assessments/curriculum-bank.test.ts`):
+
+- 50 preguntas por sección con claves únicas, 150 en total sin repetir claves;
+- distribución por tema exacta y mezcla cognitiva 15/40/45 (±1);
+- al menos 7 tipos y 4 dificultades;
+- forma válida para la base y retroalimentación en cada opción;
+- repaso que apunta a una lección publicada de su sección;
+- distractores de resultado distintos entre sí y con las columnas de la correcta;
+- **ninguna opción correcta se delata por ser mucho más larga** (más del 25 % sobre el distractor
+  más largo, en las opciones de texto);
+- ningún código de cliente importa el banco: las respuestas correctas no llegan al navegador;
+- cada consulta o bloque propio del banco se usa en alguna pregunta.
+
+La sincronización real con Supabase local acepta las 150 preguntas sin ninguna inválida
+(`tests/integration/assessments-supabase.test.ts`).
+
+Distribución de la Sección 2:
+
+| Tema                    | n   | Nivel    | n   | Dificultad | n   |
+| ----------------------- | --- | -------- | --- | ---------- | --- |
+| Relaciones              | 5   | Recordar | 7   | 1          | 7   |
+| JOIN / otros JOIN       | 15  | Aplicar  | 20  | 2          | 12  |
+| Agregación / grupos     | 15  | Analizar | 23  | 3          | 15  |
+| Subconsultas            | 8   |          |     | 4          | 12  |
+| Conjuntos e integración | 7   |          |     | 5          | 4   |
+
+Tipos: los diez (identificación de error 9, selección única 8, concepto 7, predicción 7,
+comparación 5, caso corto 4, elección de consulta 4, interpretación 3, ordenamiento 2, selección
+múltiple 1).
+
+Distribución de la Sección 3:
+
+| Tema              | n   | Nivel    | n   | Dificultad | n   |
+| ----------------- | --- | -------- | --- | ---------- | --- |
+| Bloques           | 6   | Recordar | 8   | 1          | 8   |
+| Variables         | 7   | Aplicar  | 20  | 2          | 8   |
+| Control           | 7   | Analizar | 22  | 3          | 22  |
+| Bucles y cursores | 7   |          |     | 4          | 12  |
+| Excepciones       | 5   |          |     |            |     |
+| Subprogramas      | 7   |          |     |            |     |
+| Paquetes          | 4   |          |     |            |     |
+| Triggers          | 7   |          |     |            |     |
+
+Tipos: predicción de salida 15, identificación de error 10, interpretación 10, concepto 8,
+caso corto 4, selección única 2, ordenamiento 1.
+
 ## 6. Fuentes académicas por grupo
 
-| Grupo                                         | Fuente                                                                                                   |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Fundamentos, SELECT y FROM, consulta completa | Oracle Database SQL Language Reference 19c, «SELECT»; lecciones L00–L05, L20 y L21                       |
-| Expresiones, alias y concatenación            | Oracle Database SQL Language Reference 19c, «Operators» (aritméticos y concatenación); lecciones L06–L09 |
-| DISTINCT                                      | «SELECT» (DISTINCT); lección L10                                                                         |
-| WHERE, AND/OR/NOT, BETWEEN, IN, LIKE          | «Conditions» (comparación, lógicas, BETWEEN, IN, LIKE); lecciones L11–L17                                |
-| NULL                                          | «Nulls» y «Null Conditions»; lección L18                                                                 |
-| ORDER BY                                      | «SELECT», order_by_clause; lección L19                                                                   |
-| Datos de todas las preguntas                  | Dataset EMPLEADOS v2 de DB LAB ([DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)), verificado en Oracle 23ai     |
+| Grupo                                         | Fuente                                                                                                                                                                                                     |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fundamentos, SELECT y FROM, consulta completa | Oracle Database SQL Language Reference 19c, «SELECT»; lecciones L00–L05, L20 y L21                                                                                                                         |
+| Expresiones, alias y concatenación            | Oracle Database SQL Language Reference 19c, «Operators» (aritméticos y concatenación); lecciones L06–L09                                                                                                   |
+| DISTINCT                                      | «SELECT» (DISTINCT); lección L10                                                                                                                                                                           |
+| WHERE, AND/OR/NOT, BETWEEN, IN, LIKE          | «Conditions» (comparación, lógicas, BETWEEN, IN, LIKE); lecciones L11–L17                                                                                                                                  |
+| NULL                                          | «Nulls» y «Null Conditions»; lección L18                                                                                                                                                                   |
+| ORDER BY                                      | «SELECT», order_by_clause; lección L19                                                                                                                                                                     |
+| Datos de todas las preguntas                  | Dataset EMPLEADOS v2 de DB LAB ([DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)), verificado en Oracle 23ai                                                                                                       |
+| Sección 2                                     | SQL Language Reference 19c: «Constraints», «Joins», «Aggregate Functions», «Using Subqueries», «The UNION [ALL], INTERSECT, MINUS Operators»; lecciones S2-L01–L25                                         |
+| Sección 3                                     | PL/SQL Language Reference 19c: «Blocks», «Declarations», «IF/CASE Statement», «LOOP Statements», «PL/SQL Error Handling», «PL/SQL Subprograms», «PL/SQL Packages», «PL/SQL Triggers»; lecciones S3-L01–L28 |
+| Datos de las secciones 2 y 3                  | Dataset `empresa-relacional-v1`; resultados obtenidos en Oracle Database 23.26                                                                                                                             |
+
+Todas las preguntas son originales de DB LAB sobre su propio dataset: no reproducen preguntas
+de certificación ni de bancos propietarios.
 
 ## 7. Versionado y sincronización
 
@@ -126,7 +193,7 @@ Distribución de la Sección 1:
 
 ## 8. Siguiente contenido
 
-Para las secciones 2 y 3: primero el contenido y el dataset de la sección (plan en
-[SECTION_2_MIGRATION_PLAN.md](SECTION_2_MIGRATION_PLAN.md)); después su banco oficial con el
-mismo método (resultados del motor o de Oracle, distractores documentados, pruebas que
-comprueban cada afirmación).
+- Preguntas oficiales para el tema «Funciones de una fila» de la Sección 1 (sus ejemplos ya
+  están verificados en Oracle), sin superar la meta de 50 o reemplazando preguntas existentes.
+- Revisión humana de los bancos 2 y 3 por el profesor antes de usarlos en evaluaciones
+  calificadas.

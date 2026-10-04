@@ -91,6 +91,35 @@ Doce MINOR documentados. QA visual en ocho tamaños más zoom alto: 0 desbordes,
 
 **Actualización (Fase 4, motor SQL educativo y laboratorio):** un único léxico, parser y analizador del subconjunto SELECT en `src/domain/sql` (con AST, diagnósticos pedagógicos, evaluación educativa, traducción, anatomía y sentencia canónica), reutilizado por el laboratorio y por M05, M08, M09 y M10. `/lab` tiene seis paneles y editor CodeMirror 6. La ejecución Oracle es una operación separada tras el puerto `OracleQueryExecutor`, cuyo adaptador vigente declara «no conectado»; nunca se simula. Verificaciones en [Verificaciones tras la Fase 4](#verificaciones-tras-la-fase-4).
 
+## DB LAB, Fase 4: currículo de las secciones 2 y 3 (4 de octubre de 2026)
+
+**Rama:** `claude-phase4-curriculum-20261003`, derivada de la etiqueta `phase3-checkpoint-20261003`. `main` no se tocó. No está desplegada.
+
+**Documentos:** [CURRICULUM_ARCHITECTURE.md](CURRICULUM_ARCHITECTURE.md), [SECTION_1_AUDIT.md](SECTION_1_AUDIT.md), [SECTION_2_CURRICULUM.md](SECTION_2_CURRICULUM.md), [SECTION_3_CURRICULUM.md](SECTION_3_CURRICULUM.md), [QUESTION_BANK_SPEC.md](QUESTION_BANK_SPEC.md), [ORACLE_VALIDATION.md](ORACLE_VALIDATION.md), [PHASE4_QA.md](PHASE4_QA.md) y [CONTENT_MAP.md](CONTENT_MAP.md).
+
+**Qué hay:**
+
+- **Fuente curricular única** (`src/features/curriculum`): lecciones, ejemplos, clase, práctica, Challenge, recursos y evaluación salen de la misma definición. Los resultados se obtienen en Oracle real (222) y nunca se escriben a mano.
+- **Sección 2, Consultas relacionales y análisis:** 11 bloques, 25 lecciones, 34 escenas, 22 prácticas, 10 misiones y 32 fichas, sobre el dataset `empresa-relacional-v1`.
+- **Sección 3, PL/SQL y automatización:** 13 bloques (triggers como tema central), 28 lecciones, 37 escenas, 26 prácticas, 10 misiones y 33 fichas.
+- **Sección 1:** auditada frente a Oracle Academy; se añadió el bloque I «Funciones de una fila» (3 lecciones) y se corrigieron 20 defectos del banco en 16 preguntas.
+- **Bancos:** 150 preguntas oficiales (50 por sección), con mezcla cognitiva 15/40/45, en la tabla `question_bank` de la Fase 3, sin tablas nuevas ni cambios de RLS.
+- **Progreso:** el catálogo cuenta las lecciones de las tres secciones (25 + 25 + 28); `/sections`, «Mi progreso» y el panel docente usan los mismos totales.
+
+**Verificación (Chromium 1194, Oracle 23.26 y Supabase locales):** detalle en [PHASE4_QA.md](PHASE4_QA.md).
+
+| Comprobación              | Resultado                                                                                                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Lint, typecheck y formato | PASS                                                                                                                                                   |
+| Unitarias                 | PASS: 1352 pasan; 2 omitidas a propósito                                                                                                               |
+| Integración               | PASS: 611/611. Oracle real: currículo 222, Sección 1 102, banco de la Sección 1 79. PGlite: currículo 133, RLS 25 + 16, sala 22. Supabase local: 7 + 5 |
+| Build                     | PASS                                                                                                                                                   |
+| E2E                       | 302 pasan, 22 fallan, 0 se omiten. Las 22 fallan igual en la base de la Fase 3 (21 de entorno y 1 intermitente); ningún fallo propio de la Fase 4      |
+| Responsive                | 66 rutas × 6 anchos sin problemas (se corrigieron 19); 71 escenas de clase × 3 anchos sin barras horizontales                                          |
+| Accesibilidad             | axe WCAG 2.2 AA sin infracciones en 17 páginas y en la clase de cada sección                                                                           |
+| Edge, WebKit, Oracle 19c  | NOT TESTED                                                                                                                                             |
+| Vista previa              | BLOCKED: no hay sesión de Vercel ni red hacia `vercel.com`                                                                                             |
+
 ## DB LAB, Fase 3: evaluaciones calificadas (3 de octubre de 2026)
 
 **Rama:** `claude-phase3-assessments-20261003`, derivada de la Fase 2 (etiqueta local `phase2-checkpoint-20261003` en `3e1bcfd`). `main` no se tocó. No está desplegada.

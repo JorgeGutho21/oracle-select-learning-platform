@@ -8,14 +8,16 @@ DB LAB incluye código adaptado de proyectos de terceros. Este archivo conserva 
 - **Versión revisada:** commit `4d6a46d` del 2 de octubre de 2026.
 - **Alcance:** solo componentes del repositorio público gratuito, sin dependencias externas. No se usó código de React Bits Pro.
 
-| Componente original                       | Archivo en DB LAB                                        | Uso                                                         |
-| ----------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
-| `Components/SpotlightCard`                | `src/presentation/components/effects/spotlight-card.tsx` | Luz que sigue al ratón en las tarjetas de sección y de modo |
-| `Animations/StarBorder`                   | `src/presentation/components/effects/star-border.tsx`    | Borde con destellos de la sección disponible                |
-| `Components/PixelCard`                    | `src/presentation/components/effects/pixel-card.tsx`     | Píxeles de las secciones «Próximamente»                     |
-| `Backgrounds/ShapeGrid` (antes «Squares») | `src/presentation/components/effects/shape-grid.tsx`     | Fondo de celdas de la portada                               |
+| Componente original                       | Archivo en DB LAB                                        | Uso                                                                                                                                    |
+| ----------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `Components/SpotlightCard`                | `src/presentation/components/effects/spotlight-card.tsx` | Luz que sigue al ratón en las tarjetas de sección, de modo, de evaluación y en las fichas de conceptos de Recursos (secciones 2 y 3)   |
+| `Animations/StarBorder`                   | `src/presentation/components/effects/star-border.tsx`    | Borde con destellos de las secciones disponibles, de la evaluación pendiente y de la misión superada en el Challenge (secciones 2 y 3) |
+| `Components/PixelCard`                    | `src/presentation/components/effects/pixel-card.tsx`     | Píxeles de las secciones «Próximamente» y de las tarjetas del banco por sección del panel docente                                      |
+| `Backgrounds/ShapeGrid` (antes «Squares») | `src/presentation/components/effects/shape-grid.tsx`     | Fondo de celdas de la portada y de las páginas de acceso                                                                               |
 
-Los estilos de esos componentes están en `src/styles/_effects.scss`. Cada archivo indica en su encabezado los cambios hechos sobre el original.
+Los estilos de esos componentes están en `src/styles/_effects.scss`. Cada archivo indica en su encabezado los cambios hechos sobre el original. Todos se quedan quietos con movimiento reducido, puntero táctil o ahorro de datos (`motion.ts`).
+
+Las visualizaciones pedagógicas de la Fase 4 (JOIN, GROUP BY, recorrido paso a paso de PL/SQL, cursor y trigger) son componentes propios de DB LAB (`src/features/curriculum/presentation/`), no código de React Bits.
 
 Las condiciones de la licencia permiten usar los componentes como parte de una aplicación o un sitio. Prohíben venderlos, sublicenciarlos o redistribuirlos como componentes en sí.
 

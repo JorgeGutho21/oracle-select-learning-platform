@@ -297,25 +297,25 @@ Al imprimir quedan solo la chuleta y la referencia.
 
 La interfaz no muestra rótulos de duración (el reproductor nativo ya la indica). Los videos cubren la primera parte de la unidad (SELECT, FROM, *, cálculos, AS y DISTINCT) y usan tablas de ejemplo que no son EMPLEADOS; sus descripciones lo advierten. Detalle en `public/media/README.md`.
 
-## Secciones de DB LAB (3 de octubre de 2026)
+## Secciones de DB LAB (Fase 4, 4 de octubre de 2026)
 
-La fuente es el registro `src/features/sections/domain/sections.ts`. La portada pública de la ruta es `/sections`.
+La fuente es el registro `src/features/sections/domain/sections.ts`; el contenido de las secciones 2 y 3 y de la ampliación de la Sección 1 vive en la fuente curricular (`src/features/curriculum/`, ver [CURRICULUM_ARCHITECTURE.md](CURRICULUM_ARCHITECTURE.md)). La portada pública de la ruta es `/sections`.
 
 | Sección | Estado | Contenido | Modos con destino |
 | --- | --- | --- | --- |
-| 1 · Fundamentos SQL | Disponible | Todo lo descrito en este mapa: 22 lecciones en 8 bloques, 30 escenas, LAB01–LAB24, M01–M10, chuleta y videos. Ampliaciones previstas: funciones de texto, numéricas y de fecha; INSERT, UPDATE y DELETE. | Iniciar clase (`/presentation`), Estudiar (`/learn`), Practicar SQL (`/lab`), Challenge (`/challenge`), Recursos (`/resources`) |
-| 2 · Consultas relacionales y análisis | Próximamente | PK y FK, alias de tablas y ON; INNER, LEFT, RIGHT, FULL, CROSS y SELF JOIN; COUNT, SUM, AVG, MIN y MAX; GROUP BY, HAVING y WHERE frente a HAVING; subconsultas; UNION, UNION ALL, INTERSECT y MINUS. Plan en [SECTION_2_MIGRATION_PLAN.md](SECTION_2_MIGRATION_PLAN.md). | Ninguno todavía |
-| 3 · PL/SQL y automatización | Próximamente | Bloques (DECLARE, BEGIN, EXCEPTION y END), variables, constantes, tipos, %TYPE y %ROWTYPE, SELECT INTO y DBMS_OUTPUT; IF, CASE y bucles; cursores y excepciones; procedimientos, funciones, parámetros y paquetes; triggers (BEFORE y AFTER, FOR EACH ROW, :OLD y :NEW). | Ninguno todavía |
+| 1 · Fundamentos SQL | Disponible | 22 lecciones en 8 bloques + bloque I «Funciones de una fila» (lecciones 23–25: UPPER, LOWER, INITCAP, LENGTH, SUBSTR, ROUND, TRUNC, MOD, fechas, SYSDATE, NVL; ejemplos verificados en Oracle), 30 escenas, LAB01–LAB24, M01–M10, chuleta y videos. Auditoría en [SECTION_1_AUDIT.md](SECTION_1_AUDIT.md). | Iniciar clase (`/presentation`), Estudiar (`/learn`), Practicar SQL (`/lab`), Challenge (`/challenge`), Recursos (`/resources`), Evaluación |
+| 2 · Consultas relacionales y análisis | Disponible | 11 bloques, 25 lecciones, 32 conceptos, 102 ejemplos verificados en Oracle, 22 prácticas, 10 misiones, 34 escenas. Detalle en [SECTION_2_CURRICULUM.md](SECTION_2_CURRICULUM.md). | Los seis, bajo `/sections/consultas-relacionales/…` |
+| 3 · PL/SQL y automatización | Disponible | 13 bloques (triggers como tema central), 28 lecciones, 33 conceptos, 77 ejemplos ejecutados en Oracle, 26 prácticas, 10 misiones, 37 escenas. Detalle en [SECTION_3_CURRICULUM.md](SECTION_3_CURRICULUM.md). | Los seis, bajo `/sections/plsql/…` |
 
-Las fichas de `/modules` (niveles 2–7) siguen siendo el mapa detallado de temas futuros. Las secciones 2 y 3 enlazan con ellas cuando existe la ficha.
+Dataset de las secciones 2 y 3: `empresa-relacional-v1` (DEPARTAMENTOS, EMPLEADOS, PROYECTOS, ASIGNACIONES, AUDITORIA_SALARIOS), descargable en `/datasets/dblab-empresa-v1.sql`.
 
-La Evaluación es un modo previsto en las tres secciones: no tiene ruta ni contenido.
+La Evaluación usa el motor de la Fase 3 en las tres secciones.
 
-## Banco de preguntas de evaluación (3 de octubre de 2026)
+## Banco de preguntas de evaluación (Fase 4)
 
-50 preguntas oficiales de la Sección 1 (`features/assessments/domain/bank/fundamentos-sql.ts`), sobre el dataset `empleados-select-v2` y el temario L00–L21. Cada una cita la lección que se debe revisar y su fuente en la documentación oficial de Oracle; los resultados correctos los calcula el motor educativo y las pruebas comprueban cada afirmación. Tipos, temas, dificultades y fuentes por grupo en [QUESTION_BANK_SPEC.md](QUESTION_BANK_SPEC.md). Las secciones 2 y 3 recibirán su banco con su contenido.
+150 preguntas oficiales, 50 por sección. Cada una cita la lección que se debe revisar y su fuente en la documentación oficial de Oracle. En la Sección 1, los resultados los calcula el motor educativo y se comprueban también en Oracle. En las secciones 2 y 3, cada resultado sale de un ejemplo ejecutado en Oracle. Tipos, temas, niveles cognitivos, dificultades y fuentes en [QUESTION_BANK_SPEC.md](QUESTION_BANK_SPEC.md).
 
-| Tema | Preguntas | Lecciones |
+| Tema (Sección 1) | Preguntas | Lecciones |
 | --- | --- | --- |
 | Fundamentos | 3 | L00–L03 |
 | SELECT y FROM | 4 | L02–L05, L21 |
@@ -328,6 +328,25 @@ La Evaluación es un modo previsto en las tres secciones: no tiene ruta ni conte
 | NULL | 6 | L18 |
 | ORDER BY | 5 | L19 |
 | Consulta completa y errores frecuentes | 7 | L10, L20–L21 |
+
+Sección 2:
+
+- relaciones 5;
+- JOIN 15;
+- agregación y grupos 15;
+- subconsultas 8;
+- conjuntos e integración 7.
+
+Sección 3:
+
+- bloques 6;
+- variables 7;
+- control 7;
+- bucles y cursores 7;
+- excepciones 5;
+- subprogramas 7;
+- paquetes 4;
+- triggers 7.
 
 ## Próximos niveles (roadmap)
 
@@ -350,7 +369,7 @@ Cada ficha tiene lo siguiente:
 - Prerrequisitos, errores frecuentes, nivel y estado «Próximamente».
 - En Modificar datos (DML), además: antes, después y advertencia (UPDATE y DELETE sin WHERE; DDL y COMMIT implícito).
 
-Ningún tema futuro tiene lección, escena, misión ni progreso. El buscador los marca «Próximamente» y lleva a `/modules#tema-<slug>`, que siempre existe (prueba unitaria y E2E).
+Desde la Fase 4, 34 fichas ya tienen una lección que las enseña (ampliación de la Sección 1, Sección 2 y DML dentro de PL/SQL de la Sección 3). La ficha las marca «Disponible», enlaza a la lección y el buscador lleva directamente a ella (`modules-api.ts`, `TAUGHT_IN`). Las 12 fichas restantes (ADD_MONTHS, TO_CHAR, TO_DATE, TO_NUMBER, COALESCE y DDL) siguen «Próximamente» y llevan a `/modules#tema-<slug>`.
 
 ## Correcciones editoriales de las fuentes
 

@@ -1,6 +1,6 @@
 # Continuidad del proyecto
 
-Actualizado: 3 de octubre de 2026 (DB LAB, Fase 3: evaluaciones calificadas en la rama `claude-phase3-assessments-20261003`, sin desplegar; la Fase 2 sigue en `claude-phase2-auth-progress-20261002` y la Fase 1 en `claude/gallant-cori-4rp11r`). Punto de entrada para Codex u otra IA.
+Actualizado: 4 de octubre de 2026 (DB LAB, Fase 4: currículo de las secciones 2 y 3, auditoría de la Sección 1 y bancos completos, en la rama `claude-phase4-curriculum-20261003`, sin desplegar; parte del tag `phase3-checkpoint-20261003`). Punto de entrada para Codex u otra IA.
 
 ## Leer al retomar
 
@@ -21,8 +21,8 @@ En otro equipo, usar el clon de ese mismo repositorio. No crear repositorios dif
 - La plataforma se llama **DB LAB, Plataforma interactiva de Bases de Datos con Oracle**. Créditos: desarrollado por Jorge Gutiérrez Thomas; docente Amílcar Sierra Romano; contexto, Bases de Datos.
 - Se organiza en tres secciones (`/sections`):
   1. **Fundamentos SQL:** disponible; es todo lo que se describe abajo.
-  2. **Consultas relacionales y análisis:** «Próximamente», con su plan publicado.
-  3. **PL/SQL y automatización:** «Próximamente», con su plan publicado.
+  2. **Consultas relacionales y análisis:** disponible desde la Fase 4 (`docs/SECTION_2_CURRICULUM.md`).
+  3. **PL/SQL y automatización:** disponible desde la Fase 4 (`docs/SECTION_3_CURRICULUM.md`).
 - Fase 2 (rama `claude-phase2-auth-progress-20261002`):
   - cuentas con Supabase Auth (invitado, correo y contraseña, Microsoft cuando se configure);
   - roles `student` y `teacher`, este último asignado solo con `scripts/assign-role.mjs` o `admin_set_role`;
@@ -36,6 +36,13 @@ En otro equipo, usar el clon de ese mismo repositorio. No crear repositorios dif
   - supervisión de eventos del navegador con monitor en vivo, resultados, análisis por pregunta y exportación CSV;
   - detalle en `docs/ASSESSMENT_ARCHITECTURE.md`.
 - Fuera de la Fase 3: contenido y banco de las secciones 2 y 3, preguntas de SQL ejecutado en Oracle, grupos o cursos.
+- Fase 4 (rama `claude-phase4-curriculum-20261003`):
+  - fuente curricular única en `src/features/curriculum/` (`docs/CURRICULUM_ARCHITECTURE.md`);
+  - secciones 2 y 3 completas con sus seis modos;
+  - auditoría de la Sección 1 con el bloque I «Funciones de una fila» (`docs/SECTION_1_AUDIT.md`);
+  - bancos oficiales de 50 + 50 preguntas;
+  - 222 resultados verificados en Oracle Database 23.26 (`docs/ORACLE_VALIDATION.md`);
+  - QA en `docs/PHASE4_QA.md`.
 - Decisiones en `docs/ARCHITECTURE.md` (sección DB LAB) y `docs/DESIGN_SYSTEM.md` 3.0.
 
 SQL SELECT LAB es una plataforma universitaria en español de Jorge Gutierrez Thomas para la asignatura Base de Datos (profesor Amilkar Sierra), programa de Ingeniería de Sistemas de la Universidad Popular del Cesar. Desde la reingeniería del 25 de septiembre de 2026 enseña el **Nivel 1, SELECT fundamental** completo: base de datos, tabla, fila, columna y SQL; SELECT, FROM, `*`, columnas, expresiones, precedencia, alias con AS, concatenación, DISTINCT, WHERE, comparaciones, AND/OR/NOT, paréntesis, BETWEEN, IN, LIKE, NULL, ORDER BY, la consulta completa y los errores frecuentes (22 lecciones, 29 escenas).
@@ -101,7 +108,12 @@ La última captura muestra una carpeta `Presentacion_SELECT_JorgeGutierrez/Juego
   - su revisión;
   - después, decidir la producción.
 - **Fase 2:** cuentas, progreso en servidor y evaluaciones. Seguir los contratos descritos en ARCHITECTURE.md.
-- **Contenido de la Sección 2:** seguir `docs/SECTION_2_MIGRATION_PLAN.md`.
+- **Fase 4:** implementada en `claude-phase4-curriculum-20261003`. Pendientes:
+  - revisión humana del profesor sobre los bancos 2 y 3;
+  - vista previa (bloqueada en este entorno);
+  - pruebas en Edge y WebKit, y con Oracle 19c o Autonomous (no probadas);
+  - decidir la Fase 5.
+- No editar `oracle-results.json` a mano: se regenera con `CURRICULUM_UPDATE=1 npx vitest run tests/integration/curriculum-oracle.test.ts` contra Oracle real.
 
 **Histórico de fases anteriores:**
 
@@ -340,3 +352,45 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
 4. Los pendientes de la Fase 2 (Auth, SMTP, rol de profesor, dominio institucional, Microsoft).
 
 **Siguiente: Fase 4.** Contenido y banco de las secciones 2 y 3; contratos en `docs/ARCHITECTURE.md` (Fase 3).
+
+## Sesión del 3–4 de octubre de 2026: DB LAB, Fase 4
+
+- Rama `claude-phase4-curriculum-20261003`, creada desde el tag `phase3-checkpoint-20261003`. Todo está subido al remoto salvo lo que indique `git status`.
+- **Commits:**
+  - dataset relacional;
+  - fuente curricular con verificación en Oracle;
+  - Sección 2 (contenido y modos);
+  - escenario 16:9 para ejemplos largos;
+  - Sección 3;
+  - auditoría de la Sección 1 con «Funciones de una fila»;
+  - bancos 2 y 3;
+  - QA y documentación.
+- **Entorno de verificación:**
+  - Oracle Database Free 23.26 en Docker (`dblab-oracle`, puerto 1522; si el entorno se reinicia: `dockerd`, `docker start dblab-oracle` y esperar «DATABASE IS READY»);
+  - Supabase local;
+  - servidor de producción en 3200.
+  - Las claves locales solo están en `.env.local` y `.env.oracle.local`, que no se versionan.
+- **Decisiones:**
+  - Las tablas, salidas y errores nunca se escriben a mano; salen de Oracle.
+  - La Sección 1 conserva su motor y sus modos; la ampliación de funciones es una «extensión curricular».
+  - El banco 2/3 vive en la capa de aplicación de evaluaciones.
+  - Los enlaces a docs.oracle.com apuntan a la raíz del libro (el proxy bloquea la verificación de enlaces profundos).
+- **Verificaciones (4 de octubre, build final):**
+  - lint, tipos y formato: PASS;
+  - unitarias: 1352 pasan (2 omitidas a propósito);
+  - integración 611/611 con Oracle real (currículo 222, Sección 1 102, banco de la Sección 1 79), PGlite y Supabase local;
+  - build: PASS;
+  - E2E completa en Chromium con Supabase y Oracle: 302 pasan, 22 fallan, 0 omitidas. Las 22 fallan igual en el build de la etiqueta de la Fase 3 (21 de entorno y 1 intermitente del tooltip de `/dev/design-system`);
+  - barrido de 66 rutas × 6 anchos y 71 escenas × 3 anchos sin problemas;
+  - axe WCAG 2.2 AA sin infracciones.
+  - Detalle en `docs/PHASE4_QA.md`.
+- **Hallazgos de la QA final, corregidos:**
+  - 19 desbordes en el móvil (identificadores largos, mapa y diccionario del dataset, tablas compactas);
+  - 2 barras horizontales en la clase;
+  - `/sections` contaba 22 lecciones en la Sección 1 y no mostraba avance en las secciones 2 y 3;
+  - `bank-oracle.test.ts` recreaba el esquema que usa `curriculum-oracle.test.ts`: en paralelo se pisaban.
+- **Aviso de entorno:** compilar con `NEXT_PUBLIC_SUPABASE_URL`. La CSP se fija en el build; sin la variable, el monitor en vivo no conecta con Realtime (`PRODUCTION_SETUP.md`).
+- **No probado:**
+  - Edge, WebKit, Oracle 19c y Autonomous Database;
+  - vista previa;
+  - producción, que no se tocó.
