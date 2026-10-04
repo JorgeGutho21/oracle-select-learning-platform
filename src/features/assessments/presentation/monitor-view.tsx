@@ -1,5 +1,6 @@
 'use client';
 
+import { RecordTable } from '@/presentation/components/data/record-table';
 import { useHydrated } from '@/presentation/hooks/use-hydrated';
 import { useServerClock } from '@/presentation/hooks/use-server-clock';
 import {
@@ -73,75 +74,65 @@ export function MonitorTable({
     return <p className="assessment-empty">Nadie ha comenzado todavía.</p>;
   }
   return (
-    <div
+    <RecordTable
       className="monitor-table"
-      role="region"
-      aria-label="Intentos en la evaluación"
-      tabIndex={0}
-    >
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Estudiante</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Pregunta</th>
-            <th scope="col">Progreso</th>
-            <th scope="col">Tiempo</th>
-            <th scope="col">Conexión</th>
-            <th scope="col">Último evento</th>
-            <th scope="col">Eventos relevantes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const open = row.status === 'in_progress';
-            const remaining = Date.parse(row.expiresAt) - current;
-            const online = open && current - Date.parse(row.lastSeenAt) <= EXAM_ONLINE_WINDOW_MS;
-            const relevant = relevantEventCount(row.counts);
-            return (
-              <tr key={row.attemptId} className={open ? 'is-open' : 'is-done'}>
-                <th scope="row" data-label="Estudiante">
-                  <span className="monitor-table__name">{row.name}</span>
-                  <span className="monitor-table__email">{row.email}</span>
-                </th>
-                <td data-label="Estado">{PARTICIPANT_LABEL[row.status]}</td>
-                <td data-label="Pregunta">
-                  {open ? `${row.currentPosition}/${row.questionTotal}` : '—'}
-                </td>
-                <td data-label="Progreso">
-                  {row.answered}/{row.questionTotal} respondidas
-                  {row.flagged > 0 ? ` · ${row.flagged} marcadas` : ''}
-                </td>
-                <td data-label="Tiempo">
-                  {open
-                    ? hydrated
-                      ? `${clock(remaining)} restantes`
-                      : '—'
-                    : `Entregó ${formatTime(row.submittedAt)}`}
-                </td>
-                <td data-label="Conexión">
-                  {open ? (
-                    <span className={`monitor-dot monitor-dot--${online ? 'on' : 'off'}`}>
-                      {online ? 'Conectado' : `Sin señal desde ${formatTime(row.lastSeenAt)}`}
-                    </span>
-                  ) : (
-                    '—'
-                  )}
-                </td>
-                <td data-label="Último evento">
-                  {row.lastEvent
-                    ? `${EVENT_LABEL[row.lastEvent.type as EventType] ?? row.lastEvent.type} · ${formatTime(row.lastEvent.at)}`
-                    : '—'}
-                </td>
-                <td data-label="Eventos relevantes">
-                  <span className="monitor-table__count">{relevant}</span>
-                  <span className="monitor-table__detail">{eventSummary(row.counts)}</span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+      caption="Intentos en la evaluación"
+      columns={[
+        'Estudiante',
+        'Estado',
+        'Pregunta',
+        'Progreso',
+        'Tiempo',
+        'Conexión',
+        'Último evento',
+        'Eventos relevantes',
+      ]}
+      rows={rows.map((row) => {
+        const open = row.status === 'in_progress';
+        const remaining = Date.parse(row.expiresAt) - current;
+        const online = open && current - Date.parse(row.lastSeenAt) <= EXAM_ONLINE_WINDOW_MS;
+        return {
+          key: row.attemptId,
+          className: open ? 'is-open' : 'is-done',
+          cells: [
+            <span key="identity">
+              <span className="monitor-table__name">{row.name}</span>
+              <span className="monitor-table__email">{row.email}</span>
+            </span>,
+            PARTICIPANT_LABEL[row.status],
+            open ? row.currentPosition + '/' + row.questionTotal : '—',
+            row.answered +
+              '/' +
+              row.questionTotal +
+              ' respondidas' +
+              (row.flagged > 0 ? ' · ' + row.flagged + ' marcadas' : ''),
+            open
+              ? hydrated
+                ? clock(remaining) + ' restantes'
+                : '—'
+              : 'Entregó ' + formatTime(row.submittedAt),
+            open ? (
+              <span
+                key="connection"
+                className={'monitor-dot monitor-dot--' + (online ? 'on' : 'off')}
+              >
+                {online ? 'Conectado' : 'Sin señal desde ' + formatTime(row.lastSeenAt)}
+              </span>
+            ) : (
+              '—'
+            ),
+            row.lastEvent
+              ? (EVENT_LABEL[row.lastEvent.type as EventType] ?? row.lastEvent.type) +
+                ' · ' +
+                formatTime(row.lastEvent.at)
+              : '—',
+            <span key="events">
+              <span className="monitor-table__count">{relevantEventCount(row.counts)}</span>
+              <span className="monitor-table__detail">{eventSummary(row.counts)}</span>
+            </span>,
+          ],
+        };
+      })}
+    />
   );
 }

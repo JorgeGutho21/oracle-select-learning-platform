@@ -1,3 +1,4 @@
+import { RecordTable } from '@/presentation/components/data/record-table';
 import type { Route } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -121,55 +122,38 @@ export function TeacherDashboard({
               : `${roster.registered} estudiantes registrados.`}
           </p>
           {students.length > 0 ? (
-            <div
-              className="teacher-table-wrap"
-              role="region"
-              aria-labelledby="teacher-students-title"
-              tabIndex={0}
-            >
-              <table className="teacher-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Estudiante</th>
-                    <th scope="col">Correo</th>
-                    <th scope="col">Progreso</th>
-                    <th scope="col">Última actividad</th>
-                    <th scope="col">Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.map((student) => (
-                    <tr key={student.id}>
-                      <th scope="row" className="teacher-table__name">
-                        {student.name}
-                        {student.institutional && (
-                          <span className="teacher-table__tag">Institucional</span>
-                        )}
-                      </th>
-                      <td className="teacher-table__email">{student.email}</td>
-                      <td className="teacher-table__progress">
-                        <span className="teacher-meter" aria-hidden="true">
-                          <span style={{ inlineSize: `${student.overall.percent}%` }} />
-                        </span>
-                        <span>
-                          {student.overall.percent} %
-                          <span className="teacher-table__detail">
-                            {' '}
-                            ({student.overall.done}/{student.overall.total} lecciones)
-                          </span>
-                        </span>
-                      </td>
-                      <td className="teacher-table__activity">{lastActivity(student)}</td>
-                      <td className="teacher-table__status">
-                        <StatusBadge tone={student.online ? 'available' : 'planned'}>
-                          {student.online ? 'Conectado' : 'Desconectado'}
-                        </StatusBadge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <RecordTable
+              caption="Estudiantes registrados"
+              columns={['Nombre', 'Correo', 'Progreso general', 'Última actividad', 'Estado']}
+              rows={students.map((student) => ({
+                key: student.id,
+                cells: [
+                  <span key="name">
+                    {student.name}
+                    {student.institutional && (
+                      <span className="teacher-table__tag">Institucional</span>
+                    )}
+                  </span>,
+                  <span key="email" className="teacher-table__email">
+                    {student.email}
+                  </span>,
+                  <span key="progress">
+                    <span className="teacher-meter" aria-hidden="true">
+                      <span style={{ width: student.overall.percent + '%' }} />
+                    </span>
+                    {student.overall.percent} %
+                    <span className="teacher-table__detail">
+                      {' '}
+                      ({student.overall.done}/{student.overall.total} lecciones)
+                    </span>
+                  </span>,
+                  lastActivity(student),
+                  <StatusBadge key="status" tone={student.online ? 'available' : 'planned'}>
+                    {student.online ? 'Conectado' : 'Desconectado'}
+                  </StatusBadge>,
+                ],
+              }))}
+            />
           ) : (
             <div className="teacher-empty">
               <p>
@@ -182,10 +166,10 @@ export function TeacherDashboard({
         </section>
 
         <section aria-labelledby="teacher-next-title" className="teacher-block teacher-next">
-          <h2 id="teacher-next-title">Próximas fases</h2>
+          <h2 id="teacher-next-title">Evaluaciones y banco de preguntas</h2>
           <p>
-            Las evaluaciones con banco de preguntas y su supervisión se añadirán sobre estas mismas
-            cuentas y roles. Hoy este panel solo muestra avance de aprendizaje.
+            Crea y publica evaluaciones, supervisa los intentos y consulta resultados desde la
+            navegación del panel docente.
           </p>
         </section>
       </div>

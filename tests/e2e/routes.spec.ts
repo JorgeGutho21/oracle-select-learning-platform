@@ -149,7 +149,7 @@ test('los iconos, el título y la vista previa social identifican DB LAB', async
   );
   await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
     'content',
-    /Jorge Gutiérrez Thomas.*Amílcar Sierra Romano/,
+    /Jorge Gutiérrez Thomas.*Amilkar Sierra Romano/,
   );
   // Un ICO puede servirse como image/x-icon (next start) o image/vnd.microsoft.icon (Vercel).
   for (const [path, type] of [

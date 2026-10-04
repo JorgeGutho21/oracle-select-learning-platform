@@ -1,3 +1,4 @@
+import { RecordTable } from '@/presentation/components/data/record-table';
 import type { Route } from 'next';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
@@ -102,70 +103,53 @@ export function ResultsTable({
   if (rows.length === 0)
     return <p className="assessment-empty">No hay estudiantes en la audiencia.</p>;
   return (
-    <div
+    <RecordTable
       className="results-table"
-      role="region"
-      aria-label="Resultados por estudiante"
-      tabIndex={0}
-    >
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Nombre</th>
-            <th scope="col">Apellido</th>
-            <th scope="col">Correo</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Inicio</th>
-            <th scope="col">Entrega</th>
-            <th scope="col">Tiempo</th>
-            <th scope="col">Correctas</th>
-            <th scope="col">Nota</th>
-            <th scope="col">
-              <span className="visually-hidden">Acciones</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(({ student, status, attempt }) => {
-            const finished = attempt && attempt.status !== 'in_progress';
-            return (
-              <tr key={student.id}>
-                <td data-label="Nombre">{student.firstName || '—'}</td>
-                <td data-label="Apellido">{student.lastName || '—'}</td>
-                <td data-label="Correo" className="results-table__email">
-                  {student.email}
-                </td>
-                <td data-label="Estado">{PARTICIPANT_LABEL[status]}</td>
-                <td data-label="Inicio">{attempt ? formatDateTime(attempt.startedAt) : '—'}</td>
-                <td data-label="Entrega">{finished ? formatDateTime(attempt.submittedAt) : '—'}</td>
-                <td data-label="Tiempo">
-                  {finished ? formatDuration(attempt.durationSeconds) : '—'}
-                </td>
-                <td data-label="Correctas">
-                  {finished ? `${attempt.correctCount ?? 0}/${attempt.questionTotal}` : '—'}
-                </td>
-                <td data-label="Nota" className="results-table__grade">
-                  {finished ? formatGrade(attempt.grade) : status === 'absent' ? 'Ausente' : '—'}
-                </td>
-                <td data-label="Acciones">
-                  {attempt ? (
-                    <Link
-                      href={`/teacher/assessments/${assessmentId}/results/${attempt.id}` as Route}
-                    >
-                      Ver intento
-                      <span className="visually-hidden">
-                        {' '}
-                        de {student.firstName} {student.lastName}
-                      </span>
-                    </Link>
-                  ) : null}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+      caption="Resultados por estudiante"
+      columns={[
+        'Estudiante',
+        'Correo',
+        'Estado',
+        'Inicio',
+        'Entrega',
+        'Tiempo',
+        'Correctas',
+        'Nota',
+        'Acciones',
+      ]}
+      rows={rows.map(({ student, status, attempt }) => {
+        const finished = attempt && attempt.status !== 'in_progress';
+        return {
+          key: student.id,
+          cells: [
+            student.firstName + ' ' + student.lastName,
+            <span key="email" className="results-table__email">
+              {student.email}
+            </span>,
+            PARTICIPANT_LABEL[status],
+            attempt ? formatDateTime(attempt.startedAt) : '—',
+            finished ? formatDateTime(attempt.submittedAt) : '—',
+            finished ? formatDuration(attempt.durationSeconds) : '—',
+            finished ? (attempt.correctCount ?? 0) + '/' + attempt.questionTotal : '—',
+            <span key="grade" className="results-table__grade">
+              {finished ? formatGrade(attempt.grade) : status === 'absent' ? 'Ausente' : '—'}
+            </span>,
+            attempt ? (
+              <Link
+                key="review"
+                href={('/teacher/assessments/' + assessmentId + '/results/' + attempt.id) as Route}
+              >
+                Ver intento
+                <span className="visually-hidden">
+                  {' '}
+                  de {student.firstName} {student.lastName}
+                </span>
+              </Link>
+            ) : null,
+          ],
+        };
+      })}
+    />
   );
 }
 

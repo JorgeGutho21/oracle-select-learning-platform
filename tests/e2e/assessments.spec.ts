@@ -118,7 +118,7 @@ test.describe('Evaluaciones', () => {
     await page.getByRole('button', { name: 'Comenzar evaluación' }).click();
     await expect(page).toHaveURL(/\/attempt$/);
     // Sin recargar: el aviso de la base hace que el panel pida su vista de nuevo.
-    await expect(watcher.locator('.monitor-table tbody tr', { hasText: live.email })).toContainText(
+    await expect(watcher.getByRole('row', { name: new RegExp(live.email) })).toContainText(
       'En curso',
       { timeout: 15_000 },
     );
@@ -189,7 +189,7 @@ test.describe('Evaluaciones', () => {
   }) => {
     const page = await as(browser, teacher);
     await page.goto(`${assessmentUrl}/monitor`);
-    const row = page.locator('.monitor-table tbody tr', { hasText: student.email });
+    const row = page.getByRole('row', { name: new RegExp(student.email) });
     await expect(row).toContainText('Entregada');
     await expect(row).toContainText('3/3 respondidas');
     await expect(
@@ -197,10 +197,10 @@ test.describe('Evaluaciones', () => {
     ).toBeVisible();
 
     await page.goto(`${assessmentUrl}/results`);
-    const result = page.locator('.results-table tbody tr', { hasText: student.email });
+    const result = page.getByRole('row', { name: new RegExp(student.email) });
     await expect(result).toContainText('Entregada');
     await expect(result.locator('.results-table__grade')).toHaveText(/^[0-5]\.\d$/);
-    await expect(page.locator('.results-table tbody tr', { hasText: other.email })).toContainText(
+    await expect(page.getByRole('row', { name: new RegExp(other.email) })).toContainText(
       'Sin iniciar',
     );
     const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();

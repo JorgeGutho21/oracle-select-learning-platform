@@ -1,12 +1,15 @@
-import { ContinueLearningLink } from '@/composition/sections/learning-progress-root';
-import { sectionProgress } from '@/composition/sections/progress-slots';
-import { StudyProgressRoot } from '@/composition/study/study-progress-root';
+import {
+  ContinueLearningLink,
+  HomeProgressRoot,
+} from '@/composition/sections/learning-progress-root';
+import { sectionProgress, sectionSummary } from '@/composition/sections/progress-slots';
+import { SECTION_LIST } from '@/features/sections/application/sections-api';
 import { HomePage } from '@/presentation/pages/home-page';
 
 export default function Page() {
   return (
     <HomePage
-      progress={<StudyProgressRoot />}
+      progress={<HomeProgressRoot sections={SECTION_LIST.map(sectionSummary)} />}
       continueAction={
         <ContinueLearningLink className="hero-action">
           Continuar aprendiendo <span aria-hidden="true">→</span>

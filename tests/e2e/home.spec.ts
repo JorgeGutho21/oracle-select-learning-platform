@@ -18,7 +18,7 @@ test.describe('Home', () => {
       'Ingeniería de Sistemas',
       'Bases de Datos',
       'Jorge Gutiérrez Thomas',
-      'Amílcar Sierra Romano',
+      'Amilkar Sierra Romano',
     ]) {
       await expect(identity.getByText(text, { exact: true })).toBeVisible();
     }
@@ -69,6 +69,7 @@ test.describe('Home', () => {
     await expect(intro).not.toContainText('Video en preparación');
     await expect(intro.locator('video, [role="alert"]')).toHaveCount(1);
     await expect(page.locator('main')).not.toContainText('Duración');
+    await expect(page.locator('.home-progress h2')).toHaveText('0 de 78 lecciones');
   });
 
   test('la demostración escribe la consulta y muestra 8 de las 20 filas', async ({ page }) => {

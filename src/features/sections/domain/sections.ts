@@ -127,9 +127,9 @@ export const SECTIONS: readonly SectionDefinition[] = [
         title: 'Próximas ampliaciones',
         status: 'planned',
         topics: [
-          'Funciones de texto',
-          'Funciones numéricas',
-          'Funciones de fecha',
+          'Conversión: TO_CHAR, TO_DATE y TO_NUMBER',
+          'NVL2, NULLIF y COALESCE',
+          'DECODE',
           'INSERT',
           'UPDATE',
           'DELETE',

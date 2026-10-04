@@ -26,5 +26,6 @@
 @use 'accounts';
 @use 'assessments';
 @use 'curriculum';
+@use 'record-table';
 
 @include tokens.emit;

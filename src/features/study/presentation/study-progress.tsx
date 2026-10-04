@@ -172,7 +172,7 @@ export function StudyProgress({
       aria-labelledby="study-progress-title"
     >
       <div className="study-progress__head">
-        <p className="study-eyebrow">Tu progreso</p>
+        <p className="study-eyebrow">Tu progreso · SELECT inicial</p>
         <h2 id="study-progress-title">
           {done} de {LESSON_COUNT} lecciones
         </h2>
@@ -201,7 +201,10 @@ export function StudyProgress({
         )}
       </div>
       <p className="study-progress__note">
-        {storageNote} Cada lección se completa al resolver su mini comprobación.
+        {storageNote} Cada lección se completa al resolver su mini comprobación. Las funciones de
+        una fila también cuentan en el avance completo de{' '}
+        <Link href="/sections/fundamentos-sql">Fundamentos SQL</Link> y en{' '}
+        <Link href="/dashboard">Mi progreso</Link>.
       </p>
     </section>
   );

@@ -26,6 +26,40 @@ export interface ContinueItem {
   readonly detail: string;
 }
 
+export function LearningProgressCard({
+  items,
+  storageNote,
+}: {
+  readonly items: readonly SectionProgressItem[];
+  readonly storageNote: ReactNode;
+}) {
+  const done = items.reduce((sum, item) => sum + (item.done ?? 0), 0);
+  const total = items.reduce((sum, item) => sum + (item.total ?? 0), 0);
+  return (
+    <section
+      className="study-progress study-progress--compact"
+      aria-labelledby="home-progress-title"
+    >
+      <div className="study-progress__head">
+        <p className="study-eyebrow">Tu progreso · las tres secciones</p>
+        <h2 id="home-progress-title">
+          {done} de {total} lecciones
+        </h2>
+      </div>
+      <Progress label="Progreso de las tres secciones" value={done} max={total} />
+      <div className="study-progress__actions">
+        <Link className="ds-button ds-button--primary" href="/dashboard">
+          Ver mi progreso
+        </Link>
+        <Link className="ds-button ds-button--secondary" href="/sections">
+          Ver secciones
+        </Link>
+      </div>
+      <p className="study-progress__note">{storageNote}</p>
+    </section>
+  );
+}
+
 export function SectionProgressMeter({ item }: { readonly item: SectionProgressItem }) {
   if (item.done === null || item.total === null) {
     return (

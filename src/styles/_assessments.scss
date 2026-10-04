@@ -1658,68 +1658,6 @@ body:has(.exam-shell) {
   .review-columns {
     grid-template-columns: minmax(0, 1fr);
   }
-
-  // Tablas docentes compactas: cada fila es una tarjeta con etiquetas.
-  .monitor-table,
-  .results-table {
-    background: transparent;
-    border: 0;
-
-    table,
-    tbody,
-    tr,
-    th,
-    td {
-      display: block;
-    }
-    thead {
-      position: absolute;
-      inline-size: 1px;
-      block-size: 1px;
-      overflow: hidden;
-      clip-path: inset(50%);
-    }
-    tbody tr {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: var(--space-1) var(--space-4);
-      margin-block-end: var(--space-3);
-      padding: var(--space-4);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border-subtle);
-      border-radius: var(--radius-lg);
-    }
-    tbody tr + tr {
-      border-top: 1px solid var(--color-border-subtle);
-    }
-    tbody th,
-    tbody td {
-      min-width: 0;
-      padding: 0;
-    }
-    tbody th {
-      grid-column: 1 / -1;
-      margin-block-end: var(--space-2);
-    }
-    tbody td::before {
-      content: attr(data-label);
-      display: block;
-      color: var(--color-muted);
-      font-size: var(--type-label);
-      font-weight: 650;
-    }
-  }
-  .results-table tbody td[data-label='Nombre'],
-  .results-table tbody td[data-label='Apellido'] {
-    font-weight: 650;
-  }
-  .results-table tbody td[data-label='Correo'],
-  .results-table tbody td[data-label='Acciones'] {
-    grid-column: 1 / -1;
-  }
-  .results-table tbody td[data-label='Acciones']::before {
-    content: none;
-  }
 }
 @media (max-width: 575px) {
   .exam-header {
@@ -1768,10 +1706,6 @@ body:has(.exam-shell) {
     gap: 0;
   }
   .question-picker__head {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .monitor-table tbody tr,
-  .results-table tbody tr {
     grid-template-columns: minmax(0, 1fr);
   }
   .analysis-item > details > summary {

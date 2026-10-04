@@ -1,1 +1,1 @@
-DB LAB: Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico de Jorge Gutiérrez Thomas, docente Amílcar Sierra Romano. Bases de Datos, Ingeniería de Sistemas, Universidad Popular del Cesar.
+DB LAB: Plataforma interactiva de Bases de Datos con Oracle. Proyecto académico de Jorge Gutiérrez Thomas, docente Amilkar Sierra Romano. Bases de Datos, Ingeniería de Sistemas, Universidad Popular del Cesar.

@@ -24,7 +24,7 @@ export const ACADEMIC_IDENTITY = {
   /** Tema de la Sección 1 en el Modo Exposición; no es el nombre de la plataforma. */
   unitTitle: 'SELECT en Oracle SQL',
   author: 'Jorge Gutiérrez Thomas',
-  teacher: 'Amílcar Sierra Romano',
+  teacher: 'Amilkar Sierra Romano',
   logo: '/identity/universidad-popular-del-cesar.png',
 } as const;
 

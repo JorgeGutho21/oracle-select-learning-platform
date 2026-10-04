@@ -6,6 +6,7 @@ import { useState, type ReactNode } from 'react';
 import type { SectionId, SectionStatus } from '@/features/sections/application/sections-api';
 import {
   LearningOverview,
+  LearningProgressCard,
   SectionProgressMeter,
   type ContinueItem,
   type SectionProgressItem,
@@ -120,6 +121,17 @@ export function SectionProgressRoot({ section }: { readonly section: SectionSumm
   const { done } = useLocalStudy();
   const records = useCurriculumRecords();
   return <SectionProgressMeter item={progressItem(section, done, records)} />;
+}
+
+export function HomeProgressRoot({ sections }: { readonly sections: readonly SectionSummary[] }) {
+  const { done } = useLocalStudy();
+  const records = useCurriculumRecords();
+  return (
+    <LearningProgressCard
+      items={sections.map((section) => progressItem(section, done, records))}
+      storageNote={<ProgressStorageNote />}
+    />
+  );
 }
 
 /** Lleva a la última lección abierta o, sin progreso, al temario. El texto no cambia. */

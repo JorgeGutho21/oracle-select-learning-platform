@@ -97,6 +97,11 @@ test.describe('Secciones', () => {
     }
     // El temario enlaza las 22 lecciones del Modo Estudio y las 3 de «Funciones de una fila».
     await expect(page.locator('.topic-group--available a')).toHaveCount(25);
+    const planned = page.locator('.topic-group--planned');
+    await expect(planned).toContainText('TO_CHAR, TO_DATE y TO_NUMBER');
+    await expect(planned).not.toContainText('Funciones de texto');
+    await expect(planned).not.toContainText('Funciones numéricas');
+    await expect(planned).not.toContainText('Funciones de fecha');
     await modes.getByRole('link', { name: /Practicar SQL/ }).click();
     await expect(page).toHaveURL('/lab');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
