@@ -32,7 +32,7 @@ export async function exportResponse(id: string, url: URL): Promise<Response> {
   };
   const rows = detail
     ? detailRows(data.rows, data.frozen, data.answers)
-    : summaryRows(context, data.rows);
+    : summaryRows(context, data.rows, format);
   return new Response(toCsv(rows, format), {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',

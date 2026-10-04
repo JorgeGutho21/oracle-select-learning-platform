@@ -25,7 +25,7 @@ type Cell = string | number | null;
 function cell(value: Cell, dialect: Dialect): string {
   if (value === null) return '';
   let text = typeof value === 'number' ? String(value).replace('.', dialect.decimal) : value;
-  if (typeof value === 'string' && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
+  if (typeof value === 'string' && /^(?:[\s\p{Cc}]*[=+\-@]|\p{Cc})/u.test(text)) text = `'${text}`;
   return /["\n\r]/.test(text) || text.includes(dialect.separator)
     ? `"${text.replaceAll('"', '""')}"`
     : text;
@@ -80,7 +80,11 @@ export const SUMMARY_HEADER = [
   'Nota',
 ] as const;
 
-export function summaryRows(context: ExportContext, rows: readonly ParticipantRow[]): Cell[][] {
+export function summaryRows(
+  context: ExportContext,
+  rows: readonly ParticipantRow[],
+  format: CsvFormat = 'csv',
+): Cell[][] {
   return [
     [...SUMMARY_HEADER],
     ...rows.map(({ student, status, attempt }) => {
@@ -99,7 +103,7 @@ export function summaryRows(context: ExportContext, rows: readonly ParticipantRo
         finished ? (attempt.correctCount ?? 0) : null,
         attempt ? attempt.questionTotal : null,
         finished ? (attempt.scorePercent ?? 0) : null,
-        finished ? formatGrade(attempt.grade) : null,
+        finished ? formatGrade(attempt.grade).replace('.', DIALECTS[format].decimal) : null,
       ];
     }),
   ];

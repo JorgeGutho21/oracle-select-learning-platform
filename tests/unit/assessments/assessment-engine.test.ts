@@ -544,6 +544,23 @@ describe('Exportación CSV', () => {
       'parcial-null-grupo-a-resultados-excel.csv',
     );
   });
+
+  it('la nota real del resumen respeta el separador decimal y conserva un decimal', () => {
+    const rows = participantRows(roster, roster, [attempt('a1', 's1', 4.2)], 'closed');
+    const context = { title: 'Parcial', section: 'Sección 1', date: null };
+    expect(toCsv(summaryRows(context, rows, 'excel'), 'excel')).toContain(';8;10;84;4,2\r\n');
+    const perfect = participantRows(roster, roster, [attempt('a1', 's1', 5)], 'closed');
+    expect(toCsv(summaryRows(context, perfect, 'excel'), 'excel')).toContain(';5,0\r\n');
+  });
+
+  it('neutraliza fórmulas precedidas de espacios o caracteres de control', () => {
+    expect(toCsv([['  =SUM(1)', '\t+1', '\n@SUM(1)', 'texto normal']], 'excel')).toBe(
+      "\uFEFF'  =SUM(1);'\t+1;\"'\n@SUM(1)\";texto normal\r\n",
+    );
+    expect(toCsv([['\u0000=2+2', ' \u0001@SUM(1)']], 'excel')).toBe(
+      "\uFEFF'\u0000=2+2;' \u0001@SUM(1)\r\n",
+    );
+  });
 });
 
 // ---------------------------------------------------------------------------
