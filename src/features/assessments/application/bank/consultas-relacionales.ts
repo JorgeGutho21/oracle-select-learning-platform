@@ -182,7 +182,7 @@ const relaciones: BankQuestion[] = [
     explanation:
       'Cuando una columna se llama igual en las dos tablas, se escribe con el alias de su tabla: e.id_departamento o d.id_departamento.',
     concept: 'Alias de tabla',
-    review: review('S2-L02'),
+    review: review('S2-L05'),
     reference: REF.joins,
   },
   {

@@ -55,7 +55,7 @@ export class AnswerQueue {
   private status: SaveStatus = 'saved';
   private position = 1;
   private timer: unknown = null;
-  private inFlight = false;
+  private inFlight: Promise<void> | null = null;
   private failures = 0;
   private disposed = false;
   private started = false;
@@ -154,6 +154,13 @@ export class AnswerQueue {
     if (this.timer !== null) this.deps.scheduler.clearTimeout(this.timer);
     this.timer = null;
     await this.flush();
+    // Un envío ya iniciado puede confirmar una revisión anterior o solo un lote.
+    // Antes de entregar esperamos esa petición y drenamos lo que todavía es nuevo.
+    while (!this.disposed && this.status === 'pending' && this.hasPending()) {
+      if (this.timer !== null) this.deps.scheduler.clearTimeout(this.timer);
+      this.timer = null;
+      await this.flush();
+    }
   }
 
   hasPending(): boolean {
@@ -210,15 +217,27 @@ export class AnswerQueue {
     }, ms);
   }
 
-  private async flush(): Promise<void> {
-    if (this.inFlight || this.disposed || this.status === 'finished') return;
+  private flush(): Promise<void> {
+    if (this.inFlight) return this.inFlight;
+    if (this.disposed || this.status === 'finished') return Promise.resolve();
+    // Registrar la promesa antes de emitir el estado también serializa llamadas
+    // concurrentes de reconexión, temporizador y entrega.
+    this.inFlight = Promise.resolve()
+      .then(() => this.sendPending())
+      .finally(() => {
+        this.inFlight = null;
+      });
+    return this.inFlight;
+  }
+
+  private async sendPending(): Promise<void> {
+    if (this.disposed || this.status === 'finished') return;
     const entries = this.pendingEntries().slice(0, MAX_ANSWERS_PER_BATCH);
     if (entries.length === 0) {
       this.status = 'saved';
       this.emit();
       return;
     }
-    this.inFlight = true;
     this.status = 'saving';
     this.emit();
     let outcome: SaveOutcome | 'network';
@@ -227,7 +246,6 @@ export class AnswerQueue {
     } catch {
       outcome = 'network';
     }
-    this.inFlight = false;
     if (this.disposed) return;
     if (outcome === 'network' || outcome.status === 'invalid' || outcome.status === 'not-found') {
       this.status = 'offline';

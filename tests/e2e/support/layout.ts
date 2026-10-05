@@ -37,6 +37,23 @@ export async function expectFlowRegionsDoNotOverlap(page: Page, label: string, s
       );
     };
     const findings: string[] = [];
+    // La barra de Clase debe dejar el contenido libre en la lectura normal, incluso si
+    // alguien vuelve a introducir sticky/fixed. En fullscreen los controles son un overlay
+    // intencional que se oculta por inactividad y se valida por separado.
+    if (!document.fullscreenElement) {
+      const decks = root.matches('.deck') ? [root] : [...root.querySelectorAll('.deck')];
+      for (const deck of decks) {
+        const viewport = deck.querySelector('.deck__viewport');
+        const controls = deck.querySelector('.deck-controls');
+        if (!viewport || !controls?.checkVisibility()) continue;
+        const content = viewport.getBoundingClientRect();
+        const bar = controls.getBoundingClientRect();
+        const width = Math.min(content.right, bar.right) - Math.max(content.left, bar.left);
+        const height = Math.min(content.bottom, bar.bottom) - Math.max(content.top, bar.top);
+        if (width > 1 && height > 1)
+          findings.push(`deck content / controls: ${width.toFixed(1)}×${height.toFixed(1)}`);
+      }
+    }
     for (const parent of [root, ...root.querySelectorAll('*')]) {
       const siblings = [...parent.children].filter(eligible);
       for (let index = 0; index < siblings.length; index++) {

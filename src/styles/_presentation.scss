@@ -685,9 +685,9 @@
     border-left: 0;
   }
   #{$deck} .deck-controls {
-    position: sticky;
-    bottom: 0;
-    z-index: var(--z-sticky);
+    // En lectura vertical, los controles siguen al contenido: nunca tapan SQL o resultados.
+    position: relative;
+    bottom: auto;
     flex-wrap: wrap;
   }
   #{$deck} .deck-status {

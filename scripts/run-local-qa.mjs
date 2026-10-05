@@ -27,6 +27,24 @@ const env = {
   E2E_MAILPIT_URL: qa.E2E_MAILPIT_URL ?? 'http://127.0.0.1:54324',
 };
 const [mode, ...args] = process.argv.slice(2);
+if (mode === 'start') {
+  // Next compila las cabeceras con el entorno de build. Cambiar solo el entorno al
+  // arrancar no cambia connect-src: Realtime quedaría bloqueado por una CSP ajena al QA.
+  const manifest = JSON.parse(readFileSync('.next/routes-manifest.json', 'utf8'));
+  const policy = manifest.headers
+    .flatMap((route) => route.headers)
+    .find((header) => header.key.toLowerCase() === 'content-security-policy')?.value;
+  const connect = policy
+    ?.split(';')
+    .find((directive) => directive.trim().startsWith('connect-src '))
+    ?.trim()
+    .split(/\s+/);
+  if (!connect?.includes(url.origin) || !connect.includes(`ws://${url.host}`)) {
+    throw new Error(
+      'El build no tiene la CSP del Supabase aislado. Ejecuta node scripts/run-local-qa.mjs build antes de start.',
+    );
+  }
+}
 const commands = {
   vitest: ['node_modules/vitest/vitest.mjs', 'run', '--maxWorkers=1'],
   playwright: ['node_modules/playwright/cli.js', 'test', '--workers=1'],

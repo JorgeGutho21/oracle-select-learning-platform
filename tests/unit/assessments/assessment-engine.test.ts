@@ -15,6 +15,7 @@ import {
   readAttemptView,
   type AnswerEntry,
   type ExamItem,
+  type SaveOutcome,
 } from '@/features/assessments/application/exam-wire';
 import {
   clockTone,
@@ -107,6 +108,92 @@ function manualScheduler() {
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('AnswerQueue (autoguardado)', () => {
+  it('antes de entregar espera el autoguardado en vuelo y confirma la revisión más nueva', async () => {
+    let confirm!: (outcome: SaveOutcome) => void;
+    const acknowledged = (entries: readonly AnswerEntry[]): SaveOutcome => ({
+      status: 'saved',
+      saved: entries.map(({ position, revision }) => ({ position, revision })),
+      rejected: [],
+      serverNow: null,
+      expiresAt: null,
+    });
+    const gateway: ExamGateway = {
+      saveAnswers: vi
+        .fn()
+        .mockImplementationOnce(
+          () =>
+            new Promise<SaveOutcome>((resolve) => {
+              confirm = resolve;
+            }),
+        )
+        .mockImplementation(
+          async (_id: string, _position: number, entries: readonly AnswerEntry[]) =>
+            acknowledged(entries),
+        ),
+    };
+    const scheduler = manualScheduler();
+    const store = memoryStore();
+    const queue = new AnswerQueue('submit-race', [item(1)], { gateway, store, scheduler });
+    queue.start();
+    queue.answer(1, { choice: 'a' });
+    scheduler.run();
+    await flushPromises();
+    queue.answer(1, { choice: 'b' });
+    let completed = false;
+    const beforeSubmit = queue.flushNow().then(() => {
+      completed = true;
+    });
+    await flushPromises();
+    expect(completed).toBe(false);
+    expect(gateway.saveAnswers).toHaveBeenCalledTimes(1);
+    confirm(acknowledged([{ position: 1, revision: 1, answer: { choice: 'a' }, flagged: false }]));
+    await beforeSubmit;
+    expect(gateway.saveAnswers).toHaveBeenCalledTimes(2);
+    expect(queue.snapshot().items.get(1)).toMatchObject({
+      answer: { choice: 'b' },
+      savedRevision: 2,
+    });
+    expect(queue.hasPending()).toBe(false);
+    expect(store.value).toBeNull();
+    expect(scheduler.size()).toBe(0);
+  });
+
+  it('antes de entregar vacía todos los lotes y conserva lo local si la red falla', async () => {
+    let online = false;
+    const gateway: ExamGateway = {
+      saveAnswers: vi.fn(async (_id: string, _position: number, entries: readonly AnswerEntry[]) =>
+        online
+          ? {
+              status: 'saved' as const,
+              saved: entries.map(({ position, revision }) => ({ position, revision })),
+              rejected: [],
+              serverNow: null,
+              expiresAt: null,
+            }
+          : ('network' as const),
+      ),
+    };
+    const scheduler = manualScheduler();
+    const store = memoryStore();
+    const queue = new AnswerQueue(
+      'submit-batches',
+      Array.from({ length: 101 }, (_, n) => item(n + 1)),
+      { gateway, store, scheduler },
+    );
+    queue.start();
+    for (let position = 1; position <= 101; position++) queue.answer(position, { choice: 'a' });
+    await queue.flushNow();
+    expect(queue.snapshot().status).toBe('offline');
+    expect(store.value?.entries).toHaveLength(101);
+    online = true;
+    await queue.flushNow();
+    expect(queue.hasPending()).toBe(false);
+    expect(queue.snapshot().status).toBe('saved');
+    expect(store.value).toBeNull();
+    expect(gateway.saveAnswers).toHaveBeenCalledTimes(3);
+    expect(scheduler.size()).toBe(0);
+  });
+
   it('agrupa los cambios, sube la revisión y borra la copia local solo al confirmar', async () => {
     const saved: unknown[] = [];
     const gateway: ExamGateway = {

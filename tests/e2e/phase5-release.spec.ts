@@ -1,7 +1,11 @@
 import { mkdirSync } from 'node:fs';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { expectNoHorizontalScroll, watchConsole } from './support/layout';
+import {
+  expectFlowRegionsDoNotOverlap,
+  expectNoHorizontalScroll,
+  watchConsole,
+} from './support/layout';
 
 const PAGES = [
   ['home', '/'],
@@ -53,9 +57,19 @@ for (const scale of [1.25, 1.5, 2]) {
       width: Math.floor(1280 / scale),
       height: Math.floor(900 / scale),
     });
-    for (const path of ['/sections', '/login', '/sections/plsql/study/old-y-new', '/lab']) {
+    for (const path of [
+      '/sections',
+      '/login',
+      '/sections/plsql/study/old-y-new',
+      '/lab',
+      '/sections/consultas-relacionales/class?scene=95',
+      '/sections/plsql/class?scene=1',
+    ]) {
       await page.goto(path);
+      if (path.includes('/class'))
+        await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true');
       await expectNoHorizontalScroll(page, `${path}: reflujo ${scale}`);
+      await expectFlowRegionsDoNotOverlap(page, `${path}: reflujo ${scale}`);
     }
   });
 }

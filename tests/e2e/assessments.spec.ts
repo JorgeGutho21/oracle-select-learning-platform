@@ -82,8 +82,8 @@ test.describe('Evaluaciones', () => {
     await page.getByRole('button', { name: 'Sincronizar banco oficial de DB LAB' }).click();
     await expect(page.getByText(/Banco oficial sincronizado/)).toBeVisible();
     await expect(
-      page.getByRole('region', { name: 'Preguntas', exact: true }).getByText(/^\d+ preguntas?$/),
-    ).toBeVisible();
+      page.getByRole('region', { name: 'Preguntas', exact: true }).getByRole('status'),
+    ).toContainText(/^\d+ preguntas?\b/);
 
     await page.goto('/teacher/assessments/new');
     await page.getByLabel('Nombre de la evaluación').fill(TITLE);

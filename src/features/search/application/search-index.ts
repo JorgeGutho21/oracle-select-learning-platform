@@ -52,7 +52,7 @@ const catalog: readonly PublicCatalogEntry[] = [
         id: `class-${lesson.id}`,
         title: `${lesson.shortTitle} · Clase`,
         description: `Definición y explicación: ${lesson.summary}`,
-        group: 'Conceptos',
+        group: 'Lecciones',
         href: `/sections/${outline.section}/class?scene=${outline.classLessonScenes[lesson.id] ?? 1}`,
         aliases: [lesson.shortTitle, 'clase', 'definición'],
         available: true,

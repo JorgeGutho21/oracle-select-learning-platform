@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { attachShot, expectNoHorizontalScroll, watchConsole } from './support/layout';
+import {
+  attachShot,
+  expectFlowRegionsDoNotOverlap,
+  expectNoHorizontalScroll,
+  watchConsole,
+} from './support/layout';
 
 /**
  * Regresión visual de la Exposición: las escenas clave en tres tamaños de aula y en móvil.
@@ -31,6 +36,7 @@ for (const [width, height] of [
       // 14 px en pantalla completa).
       const minFont = scene === 4 && width === 1366 ? 11 : 12;
       await expectNoHorizontalScroll(page, `escena ${scene} a ${width}`, '.deck', minFont);
+      await expectFlowRegionsDoNotOverlap(page, `S1 scene ${scene} @${width}`, '.deck');
       if (width >= 768) {
         // En el lienzo 16:9 ningún bloque invade el título ni la idea clave.
         const spill = await page.evaluate(() => {

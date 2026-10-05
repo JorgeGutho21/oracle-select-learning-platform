@@ -203,6 +203,23 @@ test('Pedagogy/UI: JOIN and cursor search connect study, class, practice, Challe
   await expect(page.locator('.scene__title')).toContainText(/cursor/i);
 });
 
+test('Pedagogy/UI: mobile class controls leave the lesson clear and return to its beginning', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/sections/consultas-relacionales/class?scene=95');
+  await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true');
+  await expectFlowRegionsDoNotOverlap(page, 'Long mobile comparison and class controls', '.deck');
+  const next = page.getByRole('button', { name: 'Escena siguiente', exact: true });
+  await next.scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+  await next.click();
+  await expect(page.locator('.scene[data-scene="96"] .scene__title')).toBeInViewport();
+  await expect(page.locator('.scene[data-scene="96"] .scene__title')).toBeFocused();
+  await expectFlowRegionsDoNotOverlap(page, 'Next mobile class scene and controls', '.deck');
+});
+
 test('Pedagogy/UI: the decorative canvas rests after interaction and with reduced motion', async ({
   page,
 }) => {

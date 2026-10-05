@@ -16,6 +16,18 @@ La nueva clase tiene 193/203 escenas frente a 34/37. El índice ligero registra 
 
 Los enlaces entre modos y las referencias de recursos no precargan otros recorridos completos. Esto evita cargar escenas, actividades o clientes de evaluación antes de elegirlos. La tabla de una escena conserva datos de al menos 14 px, código de 17 px en teléfono/26 px a 1920, y las preguntas se apilan en anchos pequeños. Los mínimos nunca se resuelven encogiendo datos. El vocabulario de ampliaciones está abierto en Estudio y desplegable en Clase, después de escenas de definición.
 
+La medición final volvió a detectar una precarga pendiente: el enlace compartido Continuar aprendiendo descargaba Estudio S1 desde Inicio sin que se eligiera ese modo. El registro por chunk identifica los scripts adicionales y conserva el crecimiento observado de 15.79 %. También se desactiva esa precarga; el destino y la reanudación por progreso permanecen iguales. La medición posterior y los flujos de Inicio/secciones se vuelven a ejecutar sobre el nuevo build.
+
+Next compila las cabeceras CSP con el entorno de build. El QA local debe compilar con `node scripts/run-local-qa.mjs build` y arrancar con el mismo wrapper: cambiar únicamente las variables al arrancar deja la CSP cloud y bloquea Realtime local. El wrapper comprueba `connect-src` antes de servir. Esta corrección de reproducibilidad mantiene la política de Production sin ampliar sus destinos.
+
+Las clases pertenecen al grupo Lecciones del buscador, no a Conceptos; así las definiciones y fichas S1 mantienen su orden de teclado. El banco S2 conserva sus identificadores y respuestas; la referencia de repaso de columna ambigua apunta a la lección que ahora contiene ese error, después de introducir ON. Las primeras ampliaciones de variables explican IF y SELECT INTO antes de presentar sus bloques compuestos.
+
+QA completo detectó áreas Grid implícitas superpuestas en la comparación de funciones de una fila/grupo; la variante declara ahora las áreas `code` y `visual` en filas distintas. No se excluye la escena de las comprobaciones geométricas.
+
+La revisión a resolución completa detectó que la barra sticky de Clase cubría 144 px de la escena móvil. En el modo de lectura vertical los controles pasan a flujo normal, después del contenido; al cambiar de escena se vuelve al inicio y se enfoca su título. Se conserva el overlay previsto para pantalla completa. La geometría comprueba ahora explícitamente contenido/barra aunque alguien reintroduzca sticky, y la regresión de lectura/navegación pasa en los tres navegadores. La Exposición S1 comparte esa superficie y se incluye en la revalidación.
+
+La entrega de examen debe esperar también un autoguardado ya iniciado. `AnswerQueue` comparte la promesa de la petición en curso y `flushNow` drena las revisiones/lotes restantes antes de resolver; ante fallo de red vuelve al estado offline y conserva el borrador. Así pulsar Entregar durante una petición válida no genera un falso aviso de desconexión. La regresión reproduce una confirmación demorada con una revisión nueva y una cola superior al límite de 100 respuestas por petición.
+
 Fecha: 23 de septiembre de 2026. Alcance: base técnica y visual de R2.
 
 ## Alcance de esta entrega

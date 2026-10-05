@@ -144,7 +144,11 @@ export function ContinueLearningLink({
 }) {
   const { last } = useLocalStudy();
   return (
-    <Link href={(last ? `/learn/${last.slug}` : '/learn') as Route} className={className}>
+    <Link
+      href={(last ? `/learn/${last.slug}` : '/learn') as Route}
+      className={className}
+      prefetch={false}
+    >
       {children}
     </Link>
   );

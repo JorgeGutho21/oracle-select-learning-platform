@@ -12,7 +12,11 @@ import {
 } from '@/features/assessments/domain/question';
 import { isTopicOf } from '@/features/assessments/domain/topics';
 import { outlineOf } from '@/features/curriculum/application/outline';
-import { ASSESSMENT_EXAMPLES } from '@/features/curriculum/domain/registry';
+import {
+  ASSESSMENT_EXAMPLES,
+  lessonById,
+  lessonExamples,
+} from '@/features/curriculum/domain/registry';
 
 /**
  * Bancos oficiales de las secciones 2 y 3 (QUESTION_BANK_SPEC): 50 preguntas cada uno con la
@@ -146,6 +150,16 @@ describe.each(Object.entries(SPEC))('Banco oficial · %s', (section, spec) => {
 });
 
 describe('Banco oficial · todas las secciones', () => {
+  it('la columna ambigua repasa la lección que muestra el error después de ON', () => {
+    const question = OFFICIAL_BANK['consultas-relacionales'].find(
+      (entry) => entry.key === 'S2-REL-04',
+    )!;
+    const lessonId = /^Lección (S2-L\d+) /.exec(question.review)?.[1];
+    const lesson = lessonById(lessonId ?? '');
+    expect(lesson).toBeDefined();
+    expect(lessonExamples(lesson!).some((entry) => entry.example === 'S2-E-AMBIGUA')).toBe(true);
+  });
+
   it('cada consulta o bloque propio del banco (S2-B, S3-B) se usa en alguna pregunta', () => {
     const sources = ['consultas-relacionales', 'plsql']
       .map((file) => readFileSync(`src/features/assessments/application/bank/${file}.ts`, 'utf8'))

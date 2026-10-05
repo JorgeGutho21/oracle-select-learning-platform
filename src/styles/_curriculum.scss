@@ -1204,6 +1204,15 @@
 .cu-stage--transform {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
+// La comparación contiene la pregunta y dos paneles completos. Las áreas deben
+// declararse también aquí: nombres sin plantilla crean una celda implícita compartida.
+.cu-stage--compare {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'code'
+    'visual';
+  align-items: start;
+}
 // PL/SQL: pregunta, preparación y código a la izquierda; salida, error y tablas a la derecha.
 .cu-stage--plsql {
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);

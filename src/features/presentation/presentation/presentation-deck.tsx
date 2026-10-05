@@ -106,6 +106,7 @@ export function PresentationDeck({ requestedScene, memory, deck }: PresentationD
     [deck],
   );
   const [scene, setScene] = useState(() => clampScene(requestedScene ?? 1));
+  const previousScene = useRef(scene);
   const [step, setStep] = useState(Number.POSITIVE_INFINITY);
   const [stepMode, setStepMode] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -145,6 +146,26 @@ export function PresentationDeck({ requestedScene, memory, deck }: PresentationD
     },
     [clampScene, deck.path, memory, scene],
   );
+
+  useEffect(() => {
+    if (previousScene.current === scene) return;
+    previousScene.current = scene;
+    const currentDeck = deckRef.current;
+    if (
+      !currentDeck ||
+      document.fullscreenElement ||
+      getComputedStyle(currentDeck).display !== 'block'
+    )
+      return;
+    const rootStyle = getComputedStyle(document.documentElement);
+    const headerHeight =
+      Number.parseFloat(rootStyle.getPropertyValue('--site-header-height')) || 73;
+    window.scrollTo({
+      top: Math.max(0, currentDeck.getBoundingClientRect().top + window.scrollY - headerHeight),
+      behavior: 'instant',
+    });
+    currentDeck.querySelector<HTMLElement>('.scene__title')?.focus({ preventScroll: true });
+  }, [scene]);
 
   const forward = useCallback(() => {
     if (stepMode && visibleStep < steps) setStep(visibleStep + 1);

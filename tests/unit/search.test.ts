@@ -4,11 +4,23 @@ import {
   getPlatformNavigation,
   isNavigationItemActive,
   searchPublicCatalog,
+  searchResultGroups,
 } from '@/features/search/application/search-index';
 import { LESSONS } from '@/features/study/application/study-api';
 import { LESSON_OUTLINE } from '@/features/study/domain/lesson-outline';
 
 describe('Índice público de búsqueda', () => {
+  it('los nuevos modos conservan el recorrido de teclado del alias de S1', () => {
+    const found = searchPublicCatalog('alias');
+    const visibleOrder = searchResultGroups.flatMap((group) =>
+      found.filter((result) => result.group === group),
+    );
+    expect(visibleOrder[0]?.title).toBe('Alias con AS');
+    expect(visibleOrder[0]?.group).toBe('Conceptos');
+    expect(visibleOrder[1]?.href).toBe('/learn/alias');
+    expect(found.find((result) => result.id === 'class-S2-L02')?.group).toBe('Lecciones');
+  });
+
   it.each([
     ['AS', '/learn/alias'],
     ['alias', '/learn/alias'],

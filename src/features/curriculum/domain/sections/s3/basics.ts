@@ -897,7 +897,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       question: '¿Cuánto ganaría Andrés con un aumento del 10 %?',
       example: 'S3-E-VARIABLES',
       reading:
-        'Declara una constante y cinco variables de cuatro tipos, calcula el salario nuevo y escribe tres líneas.',
+        'Declara una constante y cinco variables, calcula el salario nuevo y escribe tres líneas. IF prueba una condición: THEN ejecuta su acción solo si es TRUE; END IF cierra esa decisión. Aquí v_activo es TRUE, por eso se muestra la fecha. Las decisiones se desarrollan en el bloque de Condicionales.',
       visual: { kind: 'flow' },
     },
     more: [
@@ -985,7 +985,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       question: '¿Cómo leer toda la fila de Paula Castro de una vez?',
       example: 'S3-E-ROWTYPE',
       reading:
-        'Declara un registro con la forma de una fila de EMPLEADOS, lo llena con SELECT * INTO y escribe sus campos. NVL muestra «sin bono» cuando el bono es NULL.',
+        'Declara un registro con la forma de una fila de EMPLEADOS. SELECT INTO copia exactamente una fila de la consulta a una variable o registro; aquí SELECT * INTO llena todos los campos. Después se escriben esos campos. NVL sustituye un NULL por el texto «sin bono». SELECT INTO se desarrolla en el siguiente bloque.',
     },
     more: [
       {
