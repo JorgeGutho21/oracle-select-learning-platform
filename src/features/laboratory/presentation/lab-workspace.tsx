@@ -97,13 +97,41 @@ export function LaboratoryWorkspace({
 
   useEffect(() => {
     let active = true;
-    const controller = new AbortController();
-    loadStatus(controller.signal)
-      .then((status) => active && setOracleStatus(status))
-      .catch(() => active && setStatusError(true));
-    return () => {
+    let revision = 0;
+    let controller: AbortController;
+    const checkStatus = () => {
+      controller = new AbortController();
+      const current = ++revision;
+      loadStatus(controller.signal)
+        .then((status) => {
+          if (!active || current !== revision) return;
+          setOracleStatus(status);
+          setStatusError(false);
+        })
+        .catch(() => {
+          if (active && current === revision) setStatusError(true);
+        });
+    };
+    const suspend = () => {
       active = false;
+      revision++;
       controller.abort();
+    };
+    const resume = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      active = true;
+      setOracleStatus(null);
+      setStatusError(false);
+      checkStatus();
+    };
+    checkStatus();
+    // La navegación de documento puede salir sin desmontar React; la caché puede restaurarlo.
+    window.addEventListener('pagehide', suspend);
+    window.addEventListener('pageshow', resume);
+    return () => {
+      suspend();
+      window.removeEventListener('pagehide', suspend);
+      window.removeEventListener('pageshow', resume);
     };
   }, [loadStatus]);
 
