@@ -27,7 +27,7 @@ import {
 export interface LaboratoryWorkspaceProps {
   /** Ejecución real: se compone en el servidor con el adaptador Oracle vigente. */
   execute: (sql: string) => Promise<LabExecution>;
-  loadStatus: () => Promise<OracleServiceStatus>;
+  loadStatus: (signal?: AbortSignal) => Promise<OracleServiceStatus>;
   repository: LabDraftRepository;
   incomingSql: string | null;
   returnTo: string | null;
@@ -97,11 +97,13 @@ export function LaboratoryWorkspace({
 
   useEffect(() => {
     let active = true;
-    loadStatus()
+    const controller = new AbortController();
+    loadStatus(controller.signal)
       .then((status) => active && setOracleStatus(status))
       .catch(() => active && setStatusError(true));
     return () => {
       active = false;
+      controller.abort();
     };
   }, [loadStatus]);
 

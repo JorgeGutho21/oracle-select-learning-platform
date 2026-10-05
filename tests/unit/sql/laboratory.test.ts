@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
 import type { OracleQueryExecutor } from '@/application/oracle-executor';
-import { executeLabQuery, getLabOracleStatus } from '@/composition/lab/actions';
+import { executeLabQuery } from '@/composition/lab/actions';
+import { oracleStatusResponse } from '@/composition/lab/oracle-status-api';
 import { executeOnOracle } from '@/features/laboratory/application/execute-on-oracle';
 import {
   analyzeLabQuery,
@@ -137,7 +138,9 @@ describe('Ejecución en Oracle: separada del análisis y nunca simulada', () => 
   });
 
   it('las Server Functions del laboratorio validan la entrada y no simulan Oracle', async () => {
-    await expect(getLabOracleStatus()).resolves.toMatchObject({ available: false });
+    const status = await oracleStatusResponse();
+    expect(status.headers.get('Cache-Control')).toBe('no-store');
+    await expect(status.json()).resolves.toMatchObject({ available: false });
     await expect(executeLabQuery('SELECT nombre FROM empleados')).resolves.toMatchObject({
       status: 'unavailable',
     });

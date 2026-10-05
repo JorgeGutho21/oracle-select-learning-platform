@@ -19,6 +19,11 @@ export default defineConfig({
   use: {
     baseURL,
     storageState: 'output/playwright/phase5/remote-state.json',
+    // Vercel's injected feedback tool is excluded only in Preview automation.
+    // https://vercel.com/docs/vercel-toolbar/managing-toolbar#disable-toolbar-for-automation
+    ...(new URL(baseURL).hostname !== 'sql-select-lab.vercel.app'
+      ? { extraHTTPHeaders: { 'x-vercel-skip-toolbar': '1' } }
+      : {}),
     // The bypass cookie is private. Do not put it in traces or reports.
     trace: 'off',
     screenshot: 'only-on-failure',

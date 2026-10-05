@@ -19,6 +19,21 @@ const REFRESH_AFTER_MS = 2 * 60 * 1000;
 
 type SyncModule = typeof import('../progress/progress-sync-client');
 type PresenceModule = typeof import('@/features/progress/infrastructure/http-progress-gateway');
+type SyncService = Pick<
+  ReturnType<SyncModule['progressSync']>,
+  'start' | 'stop' | 'cancelExpectation' | 'refresh' | 'flush' | 'retryNow' | 'signOut'
+>;
+type SyncServices = { readonly progressSync: () => SyncService };
+type PresenceServices = Pick<PresenceModule, 'sendPresence'>;
+
+const loadSyncServices = () => import('../progress/progress-sync-client');
+const loadPresenceServices = () =>
+  import('@/features/progress/infrastructure/http-progress-gateway');
+
+export interface AccountRootProps {
+  readonly loadSync?: () => Promise<SyncServices>;
+  readonly loadPresence?: () => Promise<PresenceServices>;
+}
 
 function hinted(): boolean {
   return cookieHasSessionHint(document.cookie);
@@ -33,13 +48,26 @@ async function fetchSession(): Promise<SessionDto> {
   }
 }
 
-export function AccountRoot() {
+export function AccountRoot({
+  loadSync = loadSyncServices,
+  loadPresence = loadPresenceServices,
+}: AccountRootProps = {}) {
   const pathname = usePathname();
   const [state, setState] = useState<AccountMenuState>({ status: 'loading' });
-  const sync = useRef<SyncModule | null>(null);
-  const presence = useRef<{ module: PresenceModule; lastSent: number } | null>(null);
+  const sync = useRef<SyncServices | null>(null);
+  const presence = useRef<{ module: PresenceServices; lastSent: number } | null>(null);
   const checkedHint = useRef<boolean | null>(null);
   const pathRef = useRef(pathname);
+  const mounted = useRef(false);
+  const resolution = useRef(0);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      resolution.current += 1;
+    };
+  }, []);
 
   useEffect(() => {
     pathRef.current = pathname;
@@ -51,12 +79,26 @@ export function AccountRoot() {
     const now = Date.now();
     if (!force && now - current.lastSent < PRESENCE_MIN_GAP_MS) return;
     current.lastSent = now;
-    void import('@/features/progress/application/progress-wire').then(({ presenceArea }) =>
-      current.module.sendPresence(presenceArea(pathRef.current)),
-    );
+    void import('@/features/progress/application/progress-wire')
+      .then(({ presenceArea }) => {
+        if (mounted.current && presence.current === current)
+          return current.module.sendPresence(presenceArea(pathRef.current));
+      })
+      .catch(() => {
+        // La carga puede cancelarse al salir. La próxima señal visible podrá reintentar.
+        if (presence.current === current) current.lastSent = 0;
+      });
   }, []);
 
   const resolve = useCallback(async () => {
+    const currentResolution = ++resolution.current;
+    const isCurrent = () => mounted.current && resolution.current === currentResolution;
+    const failedDependency = () => {
+      if (!isCurrent()) return;
+      presence.current = null;
+      setState({ status: 'offline' });
+      sync.current?.progressSync().cancelExpectation();
+    };
     const hasHint = hinted();
     checkedHint.current = hasHint;
     if (!hasHint) {
@@ -66,27 +108,41 @@ export function AccountRoot() {
       return;
     }
     const session = await fetchSession();
+    if (!isCurrent()) return;
     if (session.status === 'authenticated') {
-      setState({ status: 'authenticated', account: session.account });
-      sync.current ??= await import('../progress/progress-sync-client');
-      void sync.current.progressSync().start(session.account.id);
-      presence.current ??= {
-        module: await import('@/features/progress/infrastructure/http-progress-gateway'),
-        lastSent: 0,
-      };
-      reportPresence(true);
+      try {
+        const loadedSync = sync.current ?? (await loadSync());
+        if (!isCurrent()) return;
+        sync.current = loadedSync;
+        const loadedPresence = presence.current?.module ?? (await loadPresence());
+        if (!isCurrent()) return;
+        presence.current ??= { module: loadedPresence, lastSent: 0 };
+        setState({ status: 'authenticated', account: session.account });
+        void loadedSync.progressSync().start(session.account.id).catch(failedDependency);
+        reportPresence(true);
+      } catch {
+        failedDependency();
+      }
       return;
     }
     if (session.status === 'guest' || session.status === 'unavailable') {
       setState({ status: 'guest' });
-      const loaded = sync.current ?? (await import('../progress/progress-sync-client'));
-      loaded.progressSync().cancelExpectation();
+      try {
+        const loaded = sync.current ?? (await loadSync());
+        if (isCurrent()) loaded.progressSync().cancelExpectation();
+      } catch {
+        // La sesión ya es de invitado; un chunk no disponible no debe rechazar la tarea.
+      }
       return;
     }
     setState({ status: 'offline' });
-    const loaded = sync.current ?? (await import('../progress/progress-sync-client'));
-    loaded.progressSync().cancelExpectation();
-  }, [reportPresence]);
+    try {
+      const loaded = sync.current ?? (await loadSync());
+      if (isCurrent()) loaded.progressSync().cancelExpectation();
+    } catch {
+      // Se mantiene el aviso de sesión sin conexión y el progreso local intacto.
+    }
+  }, [reportPresence, loadSync, loadPresence]);
 
   // Primera comprobación y cada vez que cambia la marca (entrar o salir sin recargar).
   useEffect(() => {
@@ -117,6 +173,8 @@ export function AccountRoot() {
   }, [reportPresence]);
 
   const signOut = useCallback(async () => {
+    // Una respuesta o carga anterior no puede reactivar esta cuenta durante la salida.
+    resolution.current += 1;
     // Sube lo pendiente y deja el dispositivo limpio para la siguiente persona.
     await sync.current?.progressSync().signOut();
     presence.current = null;

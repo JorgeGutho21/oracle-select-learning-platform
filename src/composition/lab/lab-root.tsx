@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { BrowserLabDraftRepository } from '@/features/laboratory/infrastructure/browser-lab-draft';
+import { loadOracleStatus } from '@/features/laboratory/infrastructure/http-oracle-status';
 import { LaboratoryWorkspace } from '@/features/laboratory/presentation/lab-workspace';
-import { executeLabQuery, getLabOracleStatus } from './actions';
+import { executeLabQuery } from './actions';
 
 export function LabRoot({
   incomingSql,
@@ -16,7 +17,7 @@ export function LabRoot({
   return (
     <LaboratoryWorkspace
       execute={executeLabQuery}
-      loadStatus={getLabOracleStatus}
+      loadStatus={loadOracleStatus}
       repository={repository}
       incomingSql={incomingSql}
       returnTo={returnTo}

@@ -1,6 +1,5 @@
 'use server';
 
-import type { OracleServiceStatus } from '@/application/oracle-executor';
 import {
   executeOnOracle,
   type LabExecution,
@@ -17,8 +16,4 @@ export async function executeLabQuery(sql: string): Promise<LabExecution> {
   if (typeof sql !== 'string')
     return { status: 'rejected', message: 'La consulta no tiene un formato válido.' };
   return executeOnOracle(sql, oracleExecutor());
-}
-
-export async function getLabOracleStatus(): Promise<OracleServiceStatus> {
-  return oracleExecutor().status();
 }

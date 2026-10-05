@@ -10,6 +10,7 @@ import {
   type TestUser,
 } from './support/accounts';
 import { expectFlowRegionsDoNotOverlap, expectNoHorizontalScroll } from './support/layout';
+import { watchAuthCookieAttributes } from './support/auth-cookies';
 
 const run = `${Date.now()}-${process.pid}`;
 const sections = ['fundamentos-sql', 'consultas-relacionales', 'plsql'] as const;
@@ -168,6 +169,7 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
   test('el avance de invitado de las tres secciones se sincroniza y llega a otra sesión', async ({
     page,
     browser,
+    browserName,
   }) => {
     test.setTimeout(90_000);
     await page.goto('/learn/alias');
@@ -187,25 +189,11 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
     await page.locator('.mini-check').getByRole('radio', { name: 'NULL', exact: true }).check();
     await page.locator('.mini-check').getByRole('button', { name: 'Comprobar' }).click();
     await expect(page.locator('.mini-check__message--correct')).toBeVisible();
+    const verifyCookies = preview ? watchAuthCookieAttributes(page) : undefined;
     await signIn(page, student);
     if (preview) {
       // Inspect only cookie attributes. Never put session values in an assertion/report.
-      const cookies = (await page.context().cookies())
-        .filter(({ name }) => /^sb-.*-auth-token(?:\.\d+)?$/.test(name))
-        .map(({ name, httpOnly, secure, sameSite, path }) => ({
-          name,
-          httpOnly,
-          secure,
-          sameSite,
-          path,
-        }));
-      expect(cookies.length).toBeGreaterThan(0);
-      for (const cookie of cookies) {
-        expect(cookie.httpOnly, cookie.name).toBe(true);
-        expect(cookie.secure, cookie.name).toBe(true);
-        expect(cookie.sameSite, cookie.name).toBe('Lax');
-        expect(cookie.path, cookie.name).toBe('/');
-      }
+      const cookies = await verifyCookies!(browserName);
       mkdirSync('output/playwright/phase5', { recursive: true });
       writeFileSync(
         'output/playwright/phase5/preview-auth-cookie-attributes.json',
@@ -228,7 +216,10 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
     await capture(page, 'student-dashboard');
     await page.goto('/profile');
     await capture(page, 'profile');
-    const context = await browser.newContext(state ? { storageState: state } : {});
+    const context = await browser.newContext({
+      ...(state ? { storageState: state } : {}),
+      ...(preview ? { extraHTTPHeaders: { 'x-vercel-skip-toolbar': '1' } } : {}),
+    });
     try {
       const other = await context.newPage();
       await signIn(other, student);
@@ -317,6 +308,7 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
       await page.getByRole('button', { name: 'Publicar evaluación', exact: true }).click();
       const context = await browser.newContext({
         ...(state ? { storageState: state } : {}),
+        ...(preview ? { extraHTTPHeaders: { 'x-vercel-skip-toolbar': '1' } } : {}),
         timezoneId: section === 'plsql' ? 'Asia/Tokyo' : 'Pacific/Honolulu',
       });
       try {

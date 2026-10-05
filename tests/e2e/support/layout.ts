@@ -1,4 +1,4 @@
-import { expect, type Page, type TestInfo } from '@playwright/test';
+import { expect, test, type Page, type TestInfo } from '@playwright/test';
 
 /**
  * Comprobaciones de diseño compartidas por las pruebas visuales: desbordes horizontales,
@@ -172,13 +172,67 @@ export async function attachShot(page: Page, testInfo: TestInfo, name: string, f
  */
 export function watchConsole(page: Page): string[] {
   const problems: string[] = [];
+  const info = process.env.PHASE5_REMOTE_QA === 'preview' ? test.info() : undefined;
+  // Diagnose platform/framework failures without saving token-bearing query strings.
+  const sources = (stack: string | undefined) => [
+    ...new Set(
+      (stack?.match(/https?:\/\/[^\s)]+/g) ?? []).map((value) => {
+        try {
+          const url = new URL(value);
+          return `${url.origin}${url.pathname}`;
+        } catch {
+          return 'unknown';
+        }
+      }),
+    ),
+  ];
+  if (info)
+    page.on('requestfailed', (request) => {
+      const url = new URL(request.url());
+      info.annotations.push({
+        type: 'failed request metadata',
+        description: JSON.stringify({
+          origin: url.origin,
+          path: url.pathname,
+          method: request.method(),
+          rsc: request.headers().rsc === '1',
+          error: request.failure()?.errorText,
+        }),
+      });
+    });
   page.on('console', (message) => {
     const text = message.text();
-    if (message.type() === 'error') problems.push(`console.error: ${text.slice(0, 200)}`);
-    else if (/hydrat|Content Security Policy/i.test(text))
+    if (message.type() === 'error') {
+      problems.push(`console.error: ${text.slice(0, 200)}`);
+      if (info)
+        void Promise.all(
+          message
+            .args()
+            .map((arg) =>
+              arg
+                .evaluate((value) => (value instanceof Error ? value.stack : undefined))
+                .catch(() => undefined),
+            ),
+        ).then((stacks) => {
+          info.annotations.push({
+            type: 'console exception sources',
+            description: JSON.stringify({
+              path: new URL(page.url()).pathname,
+              sources: stacks.flatMap(sources),
+            }),
+          });
+        });
+    } else if (/hydrat|Content Security Policy/i.test(text))
       problems.push(`aviso: ${text.slice(0, 200)}`);
   });
   page.on('pageerror', (error) => {
+    info?.annotations.push({
+      type: 'page exception sources',
+      description: JSON.stringify({
+        path: new URL(page.url()).pathname,
+        sources: sources(error.stack),
+      }),
+    });
     // WebKit informa como «access control checks» las precargas RSC que cancela al navegar
     // a otra página; no es un error de la aplicación.
     // A redirect can add `next` before `_rsc`; both query positions identify the

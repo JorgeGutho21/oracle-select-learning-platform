@@ -79,7 +79,11 @@ export async function signIn(
   await page.getByLabel('Correo', { exact: true }).fill(user.email);
   await page.getByLabel('Contraseña', { exact: true }).fill(user.password);
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
-  if (options.expectSuccess ?? true) await expect(page).toHaveURL(/\/dashboard$/);
+  if (options.expectSuccess ?? true) {
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page.locator('main h1').first()).toBeVisible();
+    await expect(accountMenu(page)).toHaveAttribute('data-state', 'authenticated');
+  }
 }
 
 /** Enlace del último correo recibido por `email` en el buzón local. */
