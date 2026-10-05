@@ -66,6 +66,8 @@ export function AccountRoot({
     return () => {
       mounted.current = false;
       resolution.current += 1;
+      // StrictMode/Activity pueden reactivar estos efectos con los mismos refs.
+      checkedHint.current = null;
     };
   }, []);
 

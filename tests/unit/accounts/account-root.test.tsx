@@ -1,4 +1,5 @@
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AccountRoot } from '@/composition/accounts/account-root';
 
@@ -38,6 +39,30 @@ afterEach(() => {
 });
 
 describe('ciclo de sesión y cargas diferidas de la cabecera', () => {
+  it('StrictMode vuelve a resolver la sesión tras repetir los efectos sin iniciar sync dos veces', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(async () => sessionResponse()),
+    );
+    const sync = engine();
+    const loadSync = vi.fn().mockResolvedValue({ progressSync: () => sync });
+    const loadPresence = vi
+      .fn()
+      .mockResolvedValue({ sendPresence: vi.fn().mockResolvedValue(undefined) });
+    const { container } = render(
+      <StrictMode>
+        <AccountRoot loadSync={loadSync} loadPresence={loadPresence} />
+      </StrictMode>,
+    );
+    await waitFor(() =>
+      expect(container.querySelector('.account-menu')).toHaveAttribute(
+        'data-state',
+        'authenticated',
+      ),
+    );
+    expect(sync.start).toHaveBeenCalledOnce();
+  });
+
   it('no anuncia la cuenta lista mientras la carga de presencia sigue pendiente', async () => {
     const sync = engine();
     const loadSync = vi.fn().mockResolvedValue({ progressSync: () => sync });

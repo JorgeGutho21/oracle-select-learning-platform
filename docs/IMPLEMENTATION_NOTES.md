@@ -36,6 +36,8 @@ La revalidación de 120 terminó 115 PASS/5 fallos y descubrió dos problemas ad
 
 La lectura de salud de Lab era una Server Function POST; su transporte Next emitía una excepción WebKit al navegar con la lectura pendiente. Se usa un Route Handler GET `/api/oracle/status`, compuesto con el mismo adaptador real y `Cache-Control: no-store`. El gateway HTTP pertenece a infraestructura, la presentación recibe el puerto por props y aborta la lectura al desmontar. El SSR no espera las consultas de salud, evitando bloquear el HTML del laboratorio. La ejecución SQL conserva validación, Server Function y cuenta lectora. El nuevo endpoint no expone configuración ni devuelve filas simuladas; fallos privados producen indisponibilidad genérica. Esta corrección requiere nuevo commit/build/Preview y QA sobre ese SHA, no convierte el primer Preview en PASS.
 
+La comprobación adicional en StrictMode reprodujo una regresión de la protección contra respuestas tardías: al repetir los efectos se descartaba la petición anterior, pero el ref de «marca ya comprobada» impedía iniciar la nueva. La limpieza restablece ese ref a null además de invalidar la revisión. Así una reactivación vuelve a consultar al servidor y solo la revisión vigente inicia sync. La regresión pasó de estado loading permanente a authenticated con un único start. No se desactiva StrictMode, habilitado por defecto en App Router. Este ajuste exige otro build/Preview; la suite del candidato anterior queda vinculada a 654d2e1 y no se atribuye al nuevo código.
+
 Fecha: 23 de septiembre de 2026. Alcance: base técnica y visual de R2.
 
 ## Alcance de esta entrega

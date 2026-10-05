@@ -51,7 +51,7 @@ for (const width of WIDTHS)
       if (SHOTS.includes(width) && info.project.name === 'chromium') {
         mkdirSync('output/playwright/pedagogy-ui/screens', { recursive: true });
         await page.screenshot({
-          path: `output/playwright/pedagogy-ui/screens/${name}-${width}.png`,
+          path: `output/playwright/pedagogy-ui/screens/${name}-${width}-${info.project.name}.png`,
           fullPage: true,
           animations: 'disabled',
         });
@@ -123,7 +123,7 @@ for (const width of SHOTS)
         if (number === 1 && info.project.name === 'chromium') {
           mkdirSync('output/playwright/pedagogy-ui/screens', { recursive: true });
           await page.screenshot({
-            path: `output/playwright/pedagogy-ui/screens/${section.section}-class-${width}.png`,
+            path: `output/playwright/pedagogy-ui/screens/${section.section}-class-${width}-${info.project.name}.png`,
             fullPage: true,
             animations: 'disabled',
           });
