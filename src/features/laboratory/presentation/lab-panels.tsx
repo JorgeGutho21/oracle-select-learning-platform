@@ -21,7 +21,6 @@ import {
   type EmpleadoRow,
   type LabAnalysis,
   type LabDiagnostic,
-  type OracleServiceStatus,
 } from '../application/lab-api';
 import type { LabExecution } from '../application/execute-on-oracle';
 import { explainOracleError } from '@/features/curriculum/application/learning-feedback';
@@ -307,7 +306,7 @@ export function ResultPanel({
 }: {
   analysis: LabAnalysis | null;
   stale: boolean;
-  oracleStatus: OracleServiceStatus | null;
+  oracleStatus: ReactNode;
   execution: { sql: string; result: LabExecution } | null;
   executing: boolean;
 }) {
@@ -338,23 +337,12 @@ export function ResultPanel({
         )}
       </div>
       <div className="lab-result__block lab-result__block--oracle" aria-live="polite">
-        <div className="lab-result__heading">
-          <h3>Ejecución en Oracle</h3>
-          <Chip tone={oracleStatus?.available ? 'success' : 'neutral'}>
-            {oracleStatus === null
-              ? 'Comprobando…'
-              : oracleStatus.available
-                ? 'Conectado'
-                : 'No conectado'}
-          </Chip>
-        </div>
+        {oracleStatus}
         {executing ? (
           <p className="lab-muted">Enviando la consulta al servicio Oracle…</p>
         ) : !execution ? (
           <p className="lab-muted">
-            {oracleStatus && !oracleStatus.available
-              ? oracleStatus.message
-              : 'Pulsa «Ejecutar en Oracle» para ejecutar la consulta en el motor real.'}
+            Pulsa «Ejecutar en Oracle» para ejecutar la consulta en el motor real.
           </p>
         ) : (
           <OracleOutcome

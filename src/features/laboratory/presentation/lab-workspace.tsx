@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import type { Route } from 'next';
 import { SqlEditor, type EditorDiagnostic } from '@/presentation/components/editor/sql-editor';
@@ -12,7 +12,6 @@ import {
   LAB_EXAMPLE_GROUPS,
   LAB_EXAMPLES,
   type LabAnalysis,
-  type OracleServiceStatus,
 } from '../application/lab-api';
 import type { LabExecution } from '../application/execute-on-oracle';
 import {
@@ -27,7 +26,8 @@ import {
 export interface LaboratoryWorkspaceProps {
   /** Ejecución real: se compone en el servidor con el adaptador Oracle vigente. */
   execute: (sql: string) => Promise<LabExecution>;
-  loadStatus: (signal?: AbortSignal) => Promise<OracleServiceStatus>;
+  /** Estado real compuesto en el servidor, con su propio límite Suspense. */
+  oracleStatus: ReactNode;
   repository: LabDraftRepository;
   incomingSql: string | null;
   returnTo: string | null;
@@ -39,7 +39,7 @@ export interface LaboratoryWorkspaceProps {
  */
 export function LaboratoryWorkspace({
   execute,
-  loadStatus,
+  oracleStatus,
   repository,
   incomingSql,
   returnTo,
@@ -47,10 +47,8 @@ export function LaboratoryWorkspace({
   const helpId = useId();
   const [sql, setSql] = useState(DEFAULT_LAB_SQL);
   const [analysis, setAnalysis] = useState<LabAnalysis | null>(null);
-  const [oracleStatus, setOracleStatus] = useState<OracleServiceStatus | null>(null);
   const [execution, setExecution] = useState<{ sql: string; result: LabExecution } | null>(null);
   const [executing, setExecuting] = useState(false);
-  const [statusError, setStatusError] = useState(false);
   const [draftReady, setDraftReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const [replacement, setReplacement] = useState<{ sql: string; title: string } | null>(null);
@@ -94,46 +92,6 @@ export function LaboratoryWorkspace({
     if (sql !== DEFAULT_LAB_SQL && sql !== nextSql) setReplacement({ sql: nextSql, title });
     else replaceSql(nextSql);
   };
-
-  useEffect(() => {
-    let active = true;
-    let revision = 0;
-    let controller: AbortController;
-    const checkStatus = () => {
-      controller = new AbortController();
-      const current = ++revision;
-      loadStatus(controller.signal)
-        .then((status) => {
-          if (!active || current !== revision) return;
-          setOracleStatus(status);
-          setStatusError(false);
-        })
-        .catch(() => {
-          if (active && current === revision) setStatusError(true);
-        });
-    };
-    const suspend = () => {
-      active = false;
-      revision++;
-      controller.abort();
-    };
-    const resume = (event: PageTransitionEvent) => {
-      if (!event.persisted) return;
-      active = true;
-      setOracleStatus(null);
-      setStatusError(false);
-      checkStatus();
-    };
-    checkStatus();
-    // La navegación de documento puede salir sin desmontar React; la caché puede restaurarlo.
-    window.addEventListener('pagehide', suspend);
-    window.addEventListener('pageshow', resume);
-    return () => {
-      suspend();
-      window.removeEventListener('pagehide', suspend);
-      window.removeEventListener('pageshow', resume);
-    };
-  }, [loadStatus]);
 
   const stale = analysis !== null && analysis.source !== sql;
   const editorDiagnostics = useMemo<EditorDiagnostic[]>(
@@ -196,12 +154,6 @@ export function LaboratoryWorkspace({
       {storageError && (
         <Alert tone="warning" title="El borrador no se guardará al cerrar">
           Puedes seguir trabajando en el editor. Copia tu consulta antes de salir.
-        </Alert>
-      )}
-
-      {statusError && (
-        <Alert tone="warning" title="Estado de Oracle desconocido">
-          No se pudo consultar el estado del servicio de ejecución.
         </Alert>
       )}
 

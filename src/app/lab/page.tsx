@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { LabRoot } from '@/composition/lab/lab-root';
+import { OracleStatusView } from '@/composition/lab/oracle-status-view';
 import { incomingLabSql, safeLabReturn } from '@/features/laboratory/application/lab-draft';
 
 export const metadata: Metadata = { title: 'Laboratorio SQL' };
@@ -11,6 +12,10 @@ export default async function Page({
 }) {
   const params = await searchParams;
   return (
-    <LabRoot incomingSql={incomingLabSql(params.sql)} returnTo={safeLabReturn(params.returnTo)} />
+    <LabRoot
+      incomingSql={incomingLabSql(params.sql)}
+      returnTo={safeLabReturn(params.returnTo)}
+      oracleStatus={<OracleStatusView />}
+    />
   );
 }

@@ -1,9 +1,6 @@
 // @vitest-environment node
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { oracleStatusResponse } from '@/composition/lab/oracle-status-api';
-import { loadOracleStatus } from '@/features/laboratory/infrastructure/http-oracle-status';
-
-afterEach(() => vi.unstubAllGlobals());
+import { describe, expect, it, vi } from 'vitest';
+import { oracleStatusResponse, publicOracleStatus } from '@/composition/lab/oracle-status-api';
 
 describe('estado real de Oracle por HTTP', () => {
   it('un fallo del adaptador no revela el error privado ni afirma disponibilidad', async () => {
@@ -18,29 +15,34 @@ describe('estado real de Oracle por HTTP', () => {
     expect(JSON.stringify(body)).not.toContain('private connection configuration');
   });
 
-  it('un HTTP fallido o un DTO incompleto nunca se transforma en Conectado', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}', { status: 503 })));
-    await expect(loadOracleStatus()).rejects.toThrow('No se pudo comprobar');
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ available: true })));
-    await expect(loadOracleStatus()).rejects.toThrow('estado de Oracle válido');
+  it('SSR y HTTP solo reciben los campos públicos aunque el adaptador añada información interna', async () => {
+    const executor = {
+      status: vi.fn().mockResolvedValue({
+        available: true,
+        reason: null,
+        message: 'Conectado',
+        internalConfiguration: 'private adapter metadata',
+      }),
+      execute: vi.fn(),
+    };
+    const expected = { available: true, reason: null, message: 'Conectado' };
+    await expect(publicOracleStatus(executor)).resolves.toEqual({
+      status: expected,
+      httpStatus: 200,
+    });
+    const response = await oracleStatusResponse(executor);
+    await expect(response.json()).resolves.toEqual(expected);
   });
 
-  it('propaga la cancelación de la lectura sin modificar el estado real del servicio', async () => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(
-        (_url: string, init: RequestInit) =>
-          new Promise((_, reject) => {
-            init.signal?.addEventListener('abort', () =>
-              reject(new DOMException('Aborted', 'AbortError')),
-            );
-          }),
-      ),
-    );
-    const controller = new AbortController();
-    const read = loadOracleStatus(controller.signal);
-    controller.abort();
-    await expect(read).rejects.toMatchObject({ name: 'AbortError' });
-    expect(fetch).toHaveBeenCalledOnce();
+  it('el estado no disponible del motor se conserva tanto en el fragmento SSR como en la API', async () => {
+    const status = {
+      available: false,
+      reason: 'unreachable',
+      message: 'No se pudo comprobar la conexión con Oracle.',
+    } as const;
+    const executor = { status: vi.fn().mockResolvedValue(status), execute: vi.fn() };
+    await expect(publicOracleStatus(executor)).resolves.toEqual({ status, httpStatus: 200 });
+    const response = await oracleStatusResponse(executor);
+    await expect(response.json()).resolves.toEqual(status);
   });
 });

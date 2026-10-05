@@ -2,6 +2,7 @@ import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { analyzeLabQuery, EMPLEADOS } from '@/features/laboratory/application/lab-api';
 import { ResultPanel } from '@/features/laboratory/presentation/lab-panels';
+import { OracleConnectionStatus } from '@/features/laboratory/presentation/oracle-connection-status';
 import { formatCell } from '@/presentation/components/data/cell-format';
 
 /**
@@ -19,7 +20,9 @@ function renderPanel() {
     <ResultPanel
       analysis={analysis}
       stale={false}
-      oracleStatus={{ available: true, message: 'Conectado' } as never}
+      oracleStatus={
+        <OracleConnectionStatus status={{ available: true, reason: null, message: 'Conectado' }} />
+      }
       executing={false}
       execution={{
         sql: SQL,

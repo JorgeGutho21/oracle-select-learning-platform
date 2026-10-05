@@ -3,22 +3,28 @@ import type { OracleQueryExecutor, OracleServiceStatus } from '@/application/ora
 import { oracleExecutor } from '../oracle/oracle-server';
 
 /** Lectura pública del estado real: no ejecuta SQL del usuario ni revela configuración. */
-export async function oracleStatusResponse(
+export async function publicOracleStatus(
   executor: OracleQueryExecutor = oracleExecutor(),
-): Promise<Response> {
+): Promise<{ status: OracleServiceStatus; httpStatus: 200 | 503 }> {
   try {
-    return Response.json(await executor.status(), {
-      headers: { 'Cache-Control': 'no-store' },
-    });
+    const { available, reason, message } = await executor.status();
+    return { status: { available, reason, message }, httpStatus: 200 };
   } catch {
     const status: OracleServiceStatus = {
       available: false,
       reason: 'unreachable',
       message: 'No se pudo comprobar la conexión con Oracle.',
     };
-    return Response.json(status, {
-      status: 503,
-      headers: { 'Cache-Control': 'no-store' },
-    });
+    return { status, httpStatus: 503 };
   }
+}
+
+export async function oracleStatusResponse(
+  executor: OracleQueryExecutor = oracleExecutor(),
+): Promise<Response> {
+  const snapshot = await publicOracleStatus(executor);
+  return Response.json(snapshot.status, {
+    status: snapshot.httpStatus,
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }
