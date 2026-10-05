@@ -17,6 +17,47 @@ export interface LayoutReport {
   readonly minFont: number;
 }
 
+/** Bounding boxes of adjacent flow regions, excluding intentional overlays and inline text. */
+export async function expectFlowRegionsDoNotOverlap(page: Page, label: string, scope = 'main') {
+  const collisions = await page.evaluate((selector) => {
+    const root = document.querySelector(selector);
+    if (!root) throw new Error(`Missing layout scope: ${selector}`);
+    const describe = (element: Element) =>
+      `${element.tagName.toLowerCase()}.${String(element.className).split(' ').slice(0, 2).join('.')}`;
+    const eligible = (element: Element) => {
+      if (!element.checkVisibility() || element.closest('[aria-hidden="true"], .visually-hidden'))
+        return false;
+      const style = getComputedStyle(element);
+      return (
+        !['absolute', 'fixed', 'sticky'].includes(style.position) &&
+        !['inline', 'contents', 'none'].includes(style.display) &&
+        (!style.display.startsWith('inline-') || element.matches('button, input, select')) &&
+        element.getBoundingClientRect().width > 2 &&
+        element.getBoundingClientRect().height > 2
+      );
+    };
+    const findings: string[] = [];
+    for (const parent of [root, ...root.querySelectorAll('*')]) {
+      const siblings = [...parent.children].filter(eligible);
+      for (let index = 0; index < siblings.length; index++) {
+        const a = siblings[index]!;
+        const boxA = a.getBoundingClientRect();
+        for (const b of siblings.slice(index + 1)) {
+          const boxB = b.getBoundingClientRect();
+          const width = Math.min(boxA.right, boxB.right) - Math.max(boxA.left, boxB.left);
+          const height = Math.min(boxA.bottom, boxB.bottom) - Math.max(boxA.top, boxB.top);
+          if (width > 1 && height > 1)
+            findings.push(
+              `${describe(a)} / ${describe(b)}: ${width.toFixed(1)}×${height.toFixed(1)}`,
+            );
+        }
+      }
+    }
+    return findings;
+  }, scope);
+  expect(collisions, `${label}: regiones de contenido superpuestas`).toEqual([]);
+}
+
 export async function layoutReport(page: Page, scope = 'main'): Promise<LayoutReport> {
   return page.evaluate((selector) => {
     const root = document.querySelector(selector) ?? document.body;
@@ -26,7 +67,12 @@ export async function layoutReport(page: Page, scope = 'main'): Promise<LayoutRe
     const visible = (element: Element) => {
       const box = element.getBoundingClientRect();
       const style = getComputedStyle(element);
-      return box.width > 2 && box.height > 2 && style.visibility !== 'hidden';
+      return (
+        element.checkVisibility() &&
+        box.width > 2 &&
+        box.height > 2 &&
+        style.visibility !== 'hidden'
+      );
     };
     const scrollers: string[] = [];
     const clipped: string[] = [];

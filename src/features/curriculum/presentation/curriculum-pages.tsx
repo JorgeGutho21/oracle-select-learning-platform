@@ -11,7 +11,8 @@ import type {
   VerificationView,
 } from '../application/curriculum-api';
 import { ExampleBlock } from './example-block';
-import { CodeView, ExampleOutcome, VerifiedNote } from './example-parts';
+import { ResourceExplorer } from './resource-explorer';
+import { CodeView, CurriculumTable, ExampleOutcome, VerifiedNote } from './example-parts';
 import { SpotlightCard } from '@/presentation/components/effects/spotlight-card';
 import { Breadcrumb, PageHeader } from '@/presentation/components/ui';
 
@@ -68,6 +69,7 @@ export function ModeTabs({
             <li key={mode}>
               <Link
                 href={href as Route}
+                prefetch={false}
                 className="cu-mode-tabs__link"
                 {...(mode === current ? { 'aria-current': 'page' as const } : {})}
               >
@@ -236,6 +238,13 @@ export function DatasetDictionary({
                 ))}
               </tbody>
             </table>
+            <p>Primeras filas del dataset versionado · {table.rowCount} filas en total.</p>
+            <CurriculumTable
+              table={table.sample}
+              label={`Datos: ${table.name}`}
+              caption={`Filas de ${table.name} antes de consultar`}
+              size="compact"
+            />
           </details>
         ))}
       </div>
@@ -311,6 +320,14 @@ export function LessonArticle({
       </header>
 
       <div className="study-intro">
+        {view.orientation && (
+          <section className="study-card-block cu-orientation" aria-label="Antes de empezar">
+            <p className="study-part">Antes de empezar</p>
+            <p>{view.orientation.prerequisite}</p>
+            <h2>Modelo mental</h2>
+            <p className="cu-orientation__model">{view.orientation.mentalModel}</p>
+          </section>
+        )}
         <section className="study-card-block" aria-labelledby="purpose-title">
           <p className="study-part">¿Para qué sirve?</p>
           <h2 id="purpose-title" className="visually-hidden">
@@ -356,7 +373,14 @@ export function LessonArticle({
             key={entry.example.id}
             className={index === 0 ? 'cu-lesson__main' : 'cu-lesson__more'}
           >
-            <ExampleBlock entry={entry} />
+            {index === 0 || (index === 1 && view.examples[0]?.example.id.endsWith('-MICRO')) ? (
+              <ExampleBlock entry={entry} />
+            ) : (
+              <details className="study-fold cu-additional-example">
+                <summary>{entry.question}</summary>
+                <ExampleBlock entry={entry} />
+              </details>
+            )}
           </div>
         ))}
       </section>
@@ -464,7 +488,7 @@ function ConceptCard({ concept }: { readonly concept: ConceptView }) {
         <h3 id={`concept-${concept.id}`} className="cu-resource__term">
           {concept.term}
         </h3>
-        <dl className="cu-resource__facts">
+        <dl className="cu-resource__facts" data-resource-kind="concept">
           <div>
             <dt>Qué es</dt>
             <dd>{concept.definition}</dd>
@@ -474,27 +498,38 @@ function ConceptCard({ concept }: { readonly concept: ConceptView }) {
             <dd>{concept.purpose}</dd>
           </div>
         </dl>
-        <CodeView code={concept.syntax} label="Sintaxis" />
-        <details className="study-fold cu-resource__example">
+        <div data-resource-kind="syntax">
+          <CodeView code={concept.syntax} label="Sintaxis" />
+        </div>
+        <details className="study-fold cu-resource__example" data-resource-kind="example">
           <summary>
             <span className="study-part">Mini ejemplo</span> verificado en Oracle
           </summary>
           <CodeView code={concept.example.code} label="Ejemplo" />
           <ExampleOutcome example={concept.example} size="compact" />
         </details>
-        <div className="cu-resource__mistake">
+        <div className="cu-resource__mistake" data-resource-kind="error">
           <p>
             <strong>Error frecuente:</strong> {concept.mistake.title}. {concept.mistake.why}
           </p>
         </div>
-        <p className="cu-resource__key">
+        <p className="cu-resource__key" data-resource-kind="guide">
           <strong>Idea clave:</strong> {concept.keyIdea}
         </p>
         <p className="cu-resource__links">
           {concept.lesson && (
-            <Link href={concept.lesson.href as Route}>Lección: {concept.lesson.title}</Link>
+            <span data-resource-kind="guide">
+              <Link href={concept.lesson.href as Route} prefetch={false}>
+                Lección: {concept.lesson.title}
+              </Link>
+            </span>
           )}
-          <a href={concept.reference.url} rel="noopener noreferrer" target="_blank">
+          <a
+            data-resource-kind="reference"
+            href={concept.reference.url}
+            rel="noopener noreferrer"
+            target="_blank"
+          >
             {concept.reference.document} · «{concept.reference.topic}»
             <span className="visually-hidden"> (abre en otra pestaña)</span>
           </a>
@@ -506,36 +541,43 @@ function ConceptCard({ concept }: { readonly concept: ConceptView }) {
 
 export function ResourceBlocks({ blocks }: { readonly blocks: readonly ResourceBlockView[] }) {
   return (
-    <div className="cu-resources">
-      <nav className="cu-resources__index" aria-label="Bloques de la referencia">
-        <ol>
-          {blocks.map((block) => (
-            <li key={block.id}>
-              <a href={`#recursos-${block.id}`}>
-                {block.number}. {block.title}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
-      {blocks.map((block) => (
-        <section
-          key={block.id}
-          id={`recursos-${block.id}`}
-          className="cu-resources__block"
-          aria-labelledby={`recursos-${block.id}-title`}
-        >
-          <h2 id={`recursos-${block.id}-title`}>
-            {block.number}. {block.title}
-          </h2>
-          <div className="cu-resources__grid">
-            {block.concepts.map((concept) => (
-              <ConceptCard key={concept.id} concept={concept} />
+    <ResourceExplorer>
+      <div className="cu-resources">
+        <nav className="cu-resources__index" aria-label="Bloques de la referencia">
+          <ol>
+            {blocks.map((block) => (
+              <li key={block.id}>
+                <a href={`#recursos-${block.id}`}>
+                  {block.number}. {block.title}
+                </a>
+              </li>
             ))}
-          </div>
-        </section>
-      ))}
-    </div>
+          </ol>
+        </nav>
+        {blocks.map((block) => (
+          <section
+            key={block.id}
+            id={`recursos-${block.id}`}
+            className="cu-resources__block"
+            aria-labelledby={`recursos-${block.id}-title`}
+          >
+            <h2 id={`recursos-${block.id}-title`}>
+              {block.number}. {block.title}
+            </h2>
+            <details className="db-resource-block" open={block.number === 1}>
+              <summary>
+                Consultar {block.concepts.length} fichas · {block.title}
+              </summary>
+              <div className="cu-resources__grid">
+                {block.concepts.map((concept) => (
+                  <ConceptCard key={concept.id} concept={concept} />
+                ))}
+              </div>
+            </details>
+          </section>
+        ))}
+      </div>
+    </ResourceExplorer>
   );
 }
 

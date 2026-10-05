@@ -4,6 +4,7 @@ import { Breadcrumb, PageHeader } from '@/presentation/components/ui';
 import type { SectionDto, SectionModeId } from '../application/sections-api';
 import { ModeIcon } from './mode-icon';
 import { SectionCard } from './section-card';
+import { InView } from '@/presentation/components/effects/in-view';
 
 export interface SectionsHubProps {
   readonly sections: readonly SectionDto[];
@@ -46,7 +47,9 @@ export function SectionsHub({ sections, overview, progressFor }: SectionsHubProp
           <ol className="section-grid">
             {sections.map((section) => (
               <li key={section.id}>
-                <SectionCard section={section} progress={progressFor(section)} />
+                <InView>
+                  <SectionCard section={section} progress={progressFor(section)} />
+                </InView>
               </li>
             ))}
           </ol>

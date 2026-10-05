@@ -13,7 +13,8 @@ import { prefersStaticEffects } from './motion';
  * columna y fila (no un rectángulo por celda), nitidez en pantallas de alta densidad, el
  * ratón se sigue en la banda que lo contiene, viñeta con máscara CSS en lugar de un
  * degradado pintado, y dibujo estático con movimiento reducido, en pantallas táctiles o con
- * ahorro de datos. Como el original, se detiene fuera de la vista y con la pestaña oculta.
+ * ahorro de datos. Las entradas e interacciones duran como máximo 300 ms; se detiene
+ * fuera de la vista, con la pestaña oculta y cuando termina esa respuesta visual.
  */
 
 export interface ShapeGridProps {
@@ -48,6 +49,7 @@ export function ShapeGrid({
     let hovered: { col: number; row: number } | null = null;
     const opacities = new Map<string, number>();
     let frame: number | null = null;
+    let deadline = 0;
     let inView = false;
     let pageVisible = !document.hidden;
 
@@ -98,7 +100,12 @@ export function ShapeGrid({
       }
     };
 
-    const tick = () => {
+    const tick = (timestamp: number) => {
+      if (timestamp >= deadline) {
+        frame = null;
+        canvas.dataset.effectActive = 'false';
+        return;
+      }
       offset.x -= speed;
       offset.y -= speed;
       fade();
@@ -106,11 +113,16 @@ export function ShapeGrid({
       frame = requestAnimationFrame(tick);
     };
     const start = () => {
-      if (!still && inView && pageVisible && frame === null) frame = requestAnimationFrame(tick);
+      if (!still && inView && pageVisible && frame === null) {
+        deadline = performance.now() + 300;
+        canvas.dataset.effectActive = 'true';
+        frame = requestAnimationFrame(tick);
+      }
     };
     const stop = () => {
       if (frame !== null) cancelAnimationFrame(frame);
       frame = null;
+      canvas.dataset.effectActive = 'false';
     };
 
     const follow = (event: PointerEvent) => {
@@ -122,9 +134,11 @@ export function ShapeGrid({
         col: Math.floor((event.clientX - rect.left - shiftX) / cellSize),
         row: Math.floor((event.clientY - rect.top - shiftY) / cellSize),
       };
+      start();
     };
     const leave = () => {
       hovered = null;
+      start();
     };
     const onVisibility = () => {
       pageVisible = !document.hidden;
@@ -146,6 +160,7 @@ export function ShapeGrid({
       band.addEventListener('pointerleave', leave);
     }
     resize();
+    canvas.dataset.effectActive = 'false';
     canvas.dataset.ready = 'true';
 
     return () => {

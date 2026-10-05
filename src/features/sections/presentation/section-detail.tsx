@@ -6,6 +6,7 @@ import { Breadcrumb, PageHeader, StatusBadge } from '@/presentation/components/u
 import type { SectionDto } from '../application/sections-api';
 import { ModeGrid } from './mode-grid';
 import { SectionRoute } from './section-route';
+import { LearningJourney } from './learning-journey';
 
 export interface SectionDetailProps {
   readonly section: SectionDto;
@@ -210,11 +211,12 @@ export function SectionDetail({
     <div className={`section-page section-page--${section.status}`}>
       {header}
       <div className="site-container section-page__body">
+        {available && <LearningJourney section={section} />}
         {available ? (
           <>
+            {goals}
             {modes}
             {content}
-            {goals}
           </>
         ) : (
           <>

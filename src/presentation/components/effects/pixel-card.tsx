@@ -102,7 +102,8 @@ export function PixelCard({
   const enabledRef = useRef(false);
 
   useEffect(() => {
-    enabledRef.current = !prefersStaticEffects();
+    enabledRef.current =
+      !prefersStaticEffects() && !containerRef.current?.closest('[data-motion-budget="0"]');
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
@@ -141,7 +142,17 @@ export function PixelCard({
       if (!context || !canvas) return;
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       let previous = performance.now();
+      const started = previous;
       const step = (now: number) => {
+        if (
+          now - started >= 300 ||
+          prefersStaticEffects() ||
+          containerRef.current?.closest('[data-motion-budget="0"]')
+        ) {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          frameRef.current = null;
+          return;
+        }
         frameRef.current = requestAnimationFrame(step);
         // A unos 60 fotogramas por segundo, también en pantallas de 120 Hz.
         if (now - previous < 1000 / 60) return;

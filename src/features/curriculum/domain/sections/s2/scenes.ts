@@ -144,11 +144,11 @@ export const S2_SCENES: readonly CurriculumScene[] = [
   },
   {
     id: 'alias',
-    block: 'relaciones',
+    block: 'inner-join',
     kind: 'lesson',
     title: 'Alias de tabla',
     shortTitle: 'Alias',
-    lesson: 'S2-L02',
+    lesson: 'S2-L05',
     example: 'S2-E-AMBIGUA',
     notes: {
       explain:

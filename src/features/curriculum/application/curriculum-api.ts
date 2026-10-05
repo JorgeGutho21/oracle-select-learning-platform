@@ -31,6 +31,7 @@ import type {
   TraceStep,
 } from '../domain/types';
 import { curriculumLessonHref } from './outline';
+import { pedagogicalTopic } from '../domain/pedagogy';
 import {
   VERIFIED,
   verifiedResult,
@@ -280,6 +281,8 @@ export function datasetTables(dataset: 'empresa-v1'): readonly TableView[] {
 }
 
 export interface TableDictionaryView {
+  readonly sample: TableView;
+  readonly rowCount: number;
   readonly name: string;
   readonly purpose: string;
   readonly primaryKey: readonly string[];
@@ -294,6 +297,14 @@ export interface TableDictionaryView {
 
 export function datasetDictionary(): readonly TableDictionaryView[] {
   return EMPRESA_TABLES.map((table) => ({
+    sample: {
+      ...sourceTable('empresa-v1', {
+        table: table.name,
+        columns: table.columns.map(({ name }) => name),
+      }),
+      rows: table.rows.slice(0, 3),
+    },
+    rowCount: table.rows.length,
     name: table.name,
     purpose: table.purpose,
     primaryKey: table.primaryKey.columns,
@@ -726,6 +737,7 @@ export function lessonSummaries(section: SectionId): readonly LessonSummaryView[
 }
 
 export interface LessonPageView {
+  readonly orientation: { readonly prerequisite: string; readonly mentalModel: string } | null;
   readonly section: SectionId;
   readonly lesson: LessonSummaryView;
   readonly block: { readonly number: number; readonly title: string };
@@ -755,9 +767,16 @@ export function lessonPage(section: SectionId, slug: string): LessonPageView | n
   const block = curriculum.blocks.find((entry) => entry.id === lesson.block)!;
   const previous = curriculum.lessons[index - 1];
   const next = curriculum.lessons[index + 1];
+  const orientation =
+    section === 'consultas-relacionales' || section === 'plsql'
+      ? pedagogicalTopic(lesson, curriculum.lessons, curriculum.concepts)
+      : null;
   return {
     section,
     lesson: lessonSummary(curriculum, lesson),
+    orientation: orientation
+      ? { prerequisite: orientation.prerequisite, mentalModel: orientation.mentalModel }
+      : null,
     block: { number: block.number, title: block.title },
     total: lessonOffset(curriculum) + curriculum.lessons.length,
     concepts: lesson.concepts.map((id) => conceptView(curriculum, conceptById(curriculum, id)!)),
@@ -842,6 +861,8 @@ export function practiceBlocks(section: SectionId): readonly PracticeBlockView[]
 }
 
 export interface MissionView {
+  readonly block: { readonly id: string; readonly title: string };
+  readonly topics: readonly string[];
   readonly id: string;
   readonly number: number;
   readonly title: string;
@@ -859,6 +880,18 @@ export function missionViews(section: SectionId): readonly MissionView[] {
     title: mission.title,
     skill: mission.skill,
     scenario: mission.scenario,
+    block: (() => {
+      const lesson = curriculum.lessons.find((entry) => entry.id === mission.steps[0]?.lesson)!;
+      const block = curriculum.blocks.find((entry) => entry.id === lesson.block)!;
+      return { id: block.id, title: block.title };
+    })(),
+    topics: [
+      ...new Set(
+        mission.steps.map(
+          (step) => curriculum.lessons.find((entry) => entry.id === step.lesson)!.shortTitle,
+        ),
+      ),
+    ],
     steps: mission.steps.map((step) => activityView(section, step)),
   }));
 }
@@ -880,6 +913,8 @@ export function trackedActivities(section: SectionId): {
 /* ---------- Clase ---------- */
 
 export interface SceneView {
+  readonly intent: SectionCurriculum['scenes'][number]['intent'] | null;
+  readonly tables: readonly TableDictionaryView[];
   readonly number: number;
   readonly id: string;
   readonly kind: SectionCurriculum['scenes'][number]['kind'];
@@ -926,6 +961,8 @@ export function deckView(section: SectionId): DeckView | null {
     const steps = scene.kind === 'lesson' ? 3 : 1;
     return {
       number: index + 1,
+      intent: scene.intent ?? null,
+      tables: scene.kind === 'dataset' ? datasetDictionary() : [],
       id: scene.id,
       kind: scene.kind,
       block: { id: block.id, number: block.number, title: block.title },

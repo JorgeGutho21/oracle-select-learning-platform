@@ -75,7 +75,10 @@ export function conceptById(curriculum: CurriculumUnit, id: string): CurriculumC
 
 /** Ejemplo principal y adicionales de una lección, en orden. */
 export function lessonExamples(lesson: CurriculumLesson): readonly LessonExample[] {
-  return [lesson.example, ...(lesson.more ?? [])];
+  const entries = [...(lesson.micro ? [lesson.micro] : []), lesson.example, ...(lesson.more ?? [])];
+  return entries.filter(
+    (entry, index) => entries.findIndex((item) => item.example === entry.example) === index,
+  );
 }
 
 /** Todas las actividades de una sección: comprobaciones, práctica, misiones y escenas. */

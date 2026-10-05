@@ -33,10 +33,10 @@ for (const width of WIDTHS) {
       await expect(page.locator('main h1').first()).toBeVisible();
       await expect(page.locator('img[src*="universidad-popular-del-cesar"]')).toHaveCount(0);
       await expectNoHorizontalScroll(page, `${path} @${width}`);
-      if ([390, 1440].includes(width)) {
-        mkdirSync('output/playwright/phase5/screens', { recursive: true });
+      if ([390, 768, 1366, 1440, 1920].includes(width)) {
+        mkdirSync('output/playwright/pedagogy-ui/screens', { recursive: true });
         await page.screenshot({
-          path: `output/playwright/phase5/screens/${name}-${width}.png`,
+          path: `output/playwright/pedagogy-ui/screens/${name}-${width}-${test.info().project.name}.png`,
           fullPage: true,
           animations: 'disabled',
         });

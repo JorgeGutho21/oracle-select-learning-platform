@@ -219,6 +219,8 @@ export interface CurriculumLesson {
   /** Cómo funciona, en dos o tres párrafos breves. */
   readonly explanation: readonly string[];
   readonly example: LessonExample;
+  /** Small, separately executed example before the full dataset application. */
+  readonly micro?: LessonExample;
   /** Ejemplos o comparaciones adicionales. */
   readonly more?: readonly LessonExample[];
   /** Qué cambió del origen al resultado. */
@@ -255,6 +257,8 @@ export type CurriculumSceneKind =
   | 'cover'
   /** Mapa de bloques. */
   | 'agenda'
+  /** Relational dictionary introduced before the first JOIN. */
+  | 'dataset'
   /** Idea o modelo mental en pocas líneas, opcionalmente con un ejemplo. */
   | 'idea'
   /** El ejemplo principal de una lección con su visualización. */
@@ -268,6 +272,7 @@ export interface CurriculumScene {
   readonly id: string;
   readonly block: string;
   readonly kind: CurriculumSceneKind;
+  readonly intent?: 'definition' | 'model' | 'syntax' | 'explanation';
   readonly title: string;
   readonly shortTitle: string;
   /** Lección que la escena proyecta o amplía. */

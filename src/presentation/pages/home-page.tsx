@@ -14,6 +14,7 @@ import { highlightSql } from '@/presentation/components/data/sql-code';
 import { ShapeGrid } from '@/presentation/components/effects/shape-grid';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { HomeDemonstration } from './home-demonstration';
+import { AcademicPathVisual } from './academic-path-visual';
 
 /** Consulta de la portada; su resultado sale del motor educativo y del dataset único. */
 const HERO_SQL = `SELECT nombre,
@@ -142,7 +143,10 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
               {continueAction}
             </nav>
           </div>
-          <HeroTerminal />
+          <div className="home-hero__visual">
+            <HeroTerminal />
+            <AcademicPathVisual />
+          </div>
         </div>
       </section>
 

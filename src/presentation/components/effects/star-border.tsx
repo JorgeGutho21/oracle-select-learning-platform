@@ -13,7 +13,7 @@ import type { CSSProperties, ReactNode } from 'react';
 export interface StarBorderProps {
   readonly children: ReactNode;
   readonly className?: string;
-  /** Duración de un recorrido del destello. */
+  /** Compatibilidad con consumidores previos; el sistema limita el destello a 300 ms al interactuar. */
   readonly speed?: `${number}s`;
 }
 

@@ -46,6 +46,46 @@ const catalog: readonly PublicCatalogEntry[] = [
       : entry;
   }),
   ...curriculumLessons,
+  ...CURRICULUM_OUTLINE.flatMap((outline) =>
+    outline.lessons.flatMap((lesson): readonly PublicCatalogEntry[] => [
+      {
+        id: `class-${lesson.id}`,
+        title: `${lesson.shortTitle} · Clase`,
+        description: `Definición y explicación: ${lesson.summary}`,
+        group: 'Conceptos',
+        href: `/sections/${outline.section}/class?scene=${outline.classLessonScenes[lesson.id] ?? 1}`,
+        aliases: [lesson.shortTitle, 'clase', 'definición'],
+        available: true,
+      },
+      {
+        id: `practice-${lesson.id}`,
+        title: `${lesson.shortTitle} · Práctica guiada`,
+        description: `Comprueba lo aprendido: ${lesson.summary}`,
+        group: 'Práctica',
+        href: `/sections/${outline.section}/practice`,
+        aliases: [lesson.shortTitle, 'practicar'],
+        available: true,
+      },
+      {
+        id: `challenge-${lesson.id}`,
+        title: `${lesson.shortTitle} · Bloques de retos`,
+        description: `Aplica lo aprendido en ${outline.section === 'plsql' ? 'PL/SQL' : 'SQL relacional'}: ${lesson.summary}`,
+        group: 'Práctica',
+        href: `/sections/${outline.section}/challenge`,
+        aliases: [lesson.shortTitle, 'challenge', 'reto'],
+        available: true,
+      },
+      {
+        id: `resource-${lesson.id}`,
+        title: `${lesson.shortTitle} · Referencia`,
+        description: `Sintaxis, ejemplos, errores y Oracle oficial: ${lesson.summary}`,
+        group: 'Recursos',
+        href: `/sections/${outline.section}/resources#recursos-${lesson.block}`,
+        aliases: [lesson.shortTitle, 'recurso'],
+        available: true,
+      },
+    ]),
+  ),
 ];
 
 export interface SearchResultDto {

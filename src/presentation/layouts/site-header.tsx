@@ -28,6 +28,7 @@ export function SiteHeader({ account }: { readonly account?: ReactNode }) {
       <Link
         key={item.href}
         href={item.href as Route}
+        prefetch={false}
         aria-current={isNavigationItemActive(item, pathname) ? 'page' : undefined}
         onClick={() => {
           if (menuRef.current) menuRef.current.open = false;
@@ -40,7 +41,12 @@ export function SiteHeader({ account }: { readonly account?: ReactNode }) {
   return (
     <header className="site-header">
       <div className="site-container site-header__bar">
-        <Link href="/" className="site-brand" aria-label={`${product.name} — Inicio`}>
+        <Link
+          href="/"
+          className="site-brand"
+          aria-label={`${product.name} — Inicio`}
+          prefetch={false}
+        >
           <span className="site-brand__mark" aria-hidden="true">
             &gt;_
           </span>

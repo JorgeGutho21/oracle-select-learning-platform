@@ -1,4 +1,5 @@
 import { SECTIONS, type SectionId, type SectionStatus } from '@/features/sections/domain/sections';
+import { curriculumScenePosition, outlineOf } from '@/features/curriculum/application/outline';
 import { latestRecord, type ProgressRecord } from '../domain/progress';
 import {
   catalogItem,
@@ -123,7 +124,9 @@ function activityText(record: ProgressRecord): string | null {
       : `Empezaste la ${item.label.toLowerCase()}`;
   }
   if (record.mode === 'class') {
-    const scene = record.state.scene;
+    const scene = outlineOf(record.section)
+      ? curriculumScenePosition(record.section, record.state)
+      : record.state.scene;
     return typeof scene === 'number' ? `Exposición: escena ${scene}` : 'Abriste la exposición';
   }
   return null;

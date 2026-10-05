@@ -7,6 +7,7 @@ import type {
 } from '../application/curriculum-api';
 import { DataView, anchorIndexes } from '@/presentation/components/data/data-view';
 import { SqlCode, SqlLines } from '@/presentation/components/data/sql-code';
+import { explainOracleError } from '../application/learning-feedback';
 
 /**
  * Piezas comunes de los ejemplos del currículo: tablas (siempre como tabla, nunca como fichas),
@@ -168,12 +169,33 @@ export function NumberedCode({
 }
 
 export function OracleError({ error }: { readonly error: OracleErrorText }) {
+  const explanation = explainOracleError(error.code);
   return (
-    <section className="cu-oracle-error" aria-label={`Error de Oracle ${error.code}`}>
+    <section
+      className="cu-oracle-error"
+      aria-label={`Ejemplo de error: ${error.code}`}
+      data-error-kind="pedagogical"
+    >
+      <p className="study-part">Ejemplo de error · resultado esperado</p>
       <p className="cu-oracle-error__title">
-        <span aria-hidden="true">✗</span> Oracle rechazó el código: <code>{error.code}</code>
+        <span aria-hidden="true">!</span>{' '}
+        {explanation?.title ?? 'Revisa la instrucción del ejemplo'}
       </p>
-      <pre className="cu-oracle-error__message">{error.message}</pre>
+      <p>
+        {explanation?.explanation ??
+          'El ejemplo muestra una instrucción que Oracle rechaza para aprender a corregirla.'}
+      </p>
+      {explanation && (
+        <p>
+          <strong>Cómo corregirlo:</strong> {explanation.correction}
+        </p>
+      )}
+      <details>
+        <summary>
+          Detalle técnico de Oracle: <code>{error.code}</code>
+        </summary>
+        <pre className="cu-oracle-error__message">{error.message}</pre>
+      </details>
     </section>
   );
 }

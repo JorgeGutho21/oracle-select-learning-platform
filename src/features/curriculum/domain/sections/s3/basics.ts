@@ -642,32 +642,32 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     shortTitle: 'SQL y PL/SQL',
     summary:
       'SQL dice qué datos quieres; PL/SQL añade variables, decisiones y repeticiones alrededor de SQL, dentro de Oracle.',
-    concepts: ['plsql'],
+    concepts: ['plsql', 'block', 'anonymous-block', 'dbms-output'],
     purpose:
       'Automatizar tareas que una sola consulta no puede resolver: decidir según un dato, recorrer filas, validar y reaccionar a cambios.',
-    syntax: lines('DECLARE', '  -- variables', 'BEGIN', '  -- SQL y lógica', 'END;'),
+    syntax: lines('BEGIN', "  DBMS_OUTPUT.PUT_LINE('Hola desde PL/SQL');", 'END;'),
     explanation: [
-      'SQL es declarativo: describes el resultado («cuenta las personas activas») y Oracle decide cómo obtenerlo. No guarda valores entre sentencias ni toma decisiones.',
+      'SQL es declarativo: describes el resultado («cuenta las personas activas») y Oracle decide cómo obtenerlo. PL/SQL permite organizar varias acciones en un programa.',
       'PL/SQL (Procedural Language/SQL) es el lenguaje de programación de Oracle. Ejecuta sentencias SQL y, alrededor de ellas, usa variables, condiciones (IF), bucles (LOOP) y manejo de errores. Se ejecuta dentro de la base de datos, cerca de los datos.',
       'Sirve para automatizar procesos, validar reglas, procesar fila a fila, encapsular lógica en procedimientos y funciones, y reaccionar a eventos con triggers.',
     ],
     example: {
-      question: '¿La plantilla activa es amplia o reducida? SQL cuenta; PL/SQL además decide.',
-      example: 'S3-E-PRIMER-BLOQUE',
+      question: '¿Cuál es el programa más pequeño que escribe un saludo?',
+      example: 'S3-E-SOLO-BEGIN',
       reading:
-        'Cuenta las personas activas con SQL, guarda el resultado en una variable y, según su valor, escribe un mensaje u otro.',
-      visual: { kind: 'flow' },
+        'BEGIN inicia la parte ejecutable. PUT_LINE añade el saludo al búfer de DBMS_OUTPUT. END; cierra el bloque.',
     },
     more: [
       {
-        question: 'Solo con SQL: el dato, pero ninguna decisión.',
+        question: 'Con SQL obtenemos una tabla de resultados.',
         example: 'S3-E-SQL-SOLO',
-        reading: 'La consulta devuelve 17. Decidir qué hacer con ese número ya no es tarea de SQL.',
+        reading:
+          'La consulta cuenta 17 personas activas y devuelve una fila. SQL también tiene expresiones condicionales; PL/SQL coordina acciones alrededor de SQL.',
       },
     ],
     changed: [
-      'La consulta SQL sigue siendo la misma; PL/SQL la envuelve con una variable y una decisión.',
-      'El resultado no es una tabla: es una línea de texto que escribe DBMS_OUTPUT.',
+      'El bloque ejecuta una acción: añade el saludo al búfer de DBMS_OUTPUT.',
+      'En el saludo no se lee ninguna tabla ni cambia ningún dato. La salida se muestra cuando el cliente recoge DBMS_OUTPUT.',
     ],
     mistakes: [
       {
@@ -703,15 +703,15 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
         },
       ],
       hints: [
-        'Piensa en qué hace el bloque después del SELECT.',
-        'IF no existe dentro de una consulta SQL.',
+        'Compara obtener una tabla de resultados con organizar varias acciones.',
+        'El saludo usa BEGIN y END; más adelante aprenderás variables e IF.',
       ],
       explanation:
         'PL/SQL añade variables, condiciones, bucles y manejo de errores alrededor de SQL.',
     },
     keyIdea: 'SQL pide datos; PL/SQL programa con ellos dentro de Oracle.',
     topic: 'bloques',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L02',
@@ -736,17 +736,17 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       'EXCEPTION abre la sección de manejo de errores: si una sentencia falla, el control salta aquí. END; cierra el bloque.',
     ],
     example: {
-      question: '¿Qué pasa si la consulta no encuentra al empleado?',
-      example: 'S3-E-ESTRUCTURA',
+      question: '¿Podemos ejecutar un bloque sin DECLARE ni EXCEPTION?',
+      example: 'S3-E-SOLO-BEGIN',
       reading:
-        'Busca al empleado 99; como no existe, Oracle lanza NO_DATA_FOUND y el bloque salta a EXCEPTION, que escribe un mensaje en lugar de fallar.',
-      visual: { kind: 'flow' },
+        'BEGIN empieza las acciones. DBMS_OUTPUT.PUT_LINE escribe una línea. END; termina el bloque. DECLARE y EXCEPTION no son obligatorios.',
     },
     more: [
       {
-        question: 'El bloque más pequeño: solo BEGIN y END.',
-        example: 'S3-E-SOLO-BEGIN',
-        reading: 'Sin variables ni manejo de errores: DECLARE y EXCEPTION son opcionales.',
+        question: 'Ampliación: un bloque con manejo de errores (lo estudiarás en Excepciones).',
+        example: 'S3-E-ESTRUCTURA',
+        reading:
+          'Busca al empleado 99; SELECT INTO no encuentra ninguna fila y el control salta al manejador NO_DATA_FOUND. Este ejemplo integra conceptos que se desarrollan más adelante.',
       },
       {
         question: 'Error: falta un punto y coma.',
@@ -756,8 +756,8 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       },
     ],
     changed: [
-      'La línea 7 nunca se ejecuta: el error desvía el control a EXCEPTION.',
-      'El bloque termina sin error porque el manejador atrapó la excepción.',
+      'El bloque mínimo ejecuta PUT_LINE sin declarar variables.',
+      'DECLARE y EXCEPTION se añaden cuando necesitamos preparar datos o manejar un error.',
     ],
     mistakes: [
       {
@@ -793,7 +793,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     shortTitle: 'Anónimo y DBMS_OUTPUT',
     summary:
       'Un bloque anónimo se ejecuta una vez y no se guarda; un procedimiento se guarda en la base y se llama por su nombre. DBMS_OUTPUT escribe mensajes de diagnóstico.',
-    concepts: ['anonymous-block', 'dbms-output'],
+    concepts: ['anonymous-block', 'dbms-output', 'procedure'],
     purpose:
       'Distinguir un script de prueba de un programa reutilizable, y entender qué es (y qué no es) la salida de DBMS_OUTPUT.',
     syntax: lines(
@@ -889,7 +889,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       'END;',
     ),
     explanation: [
-      'Los tipos más usados: NUMBER (números), VARCHAR2(n) (textos de hasta n caracteres), DATE (fechas) y BOOLEAN (TRUE, FALSE o NULL, solo en PL/SQL).',
+      'NUMBER guarda números; VARCHAR2(n), texto hasta el límite indicado; DATE, fecha y hora. BOOLEAN guarda TRUE, FALSE o NULL. En Oracle 19c BOOLEAN es un tipo de PL/SQL; las versiones actuales también lo admiten en SQL.',
       'Una variable sin valor inicial vale NULL. La asignación usa := (el = solo compara).',
       'CONSTANT obliga a dar un valor inicial y prohíbe cambiarlo: Oracle detecta el intento al compilar (PLS-00363).',
     ],
@@ -1334,6 +1334,13 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
         question: 'Con NULL, la condición no es verdadera.',
         example: 'S3-E-IF-NULL',
         reading: 'El bono de Paula es NULL: v_bono > 0 es desconocido y se ejecuta ELSE.',
+      },
+      {
+        question: 'Ahora sí: SQL y una decisión juntos.',
+        example: 'S3-E-PRIMER-BLOQUE',
+        reading:
+          'SELECT INTO guarda la cantidad de personas activas en v_total. IF compara con 15. PUT_LINE escribe el mensaje de la rama elegida.',
+        visual: { kind: 'flow' },
       },
       {
         question: 'Error: falta END IF.',

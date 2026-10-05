@@ -1,5 +1,25 @@
 # Continuidad del proyecto
 
+## Revisión pedagógica/UI activa (4 de octubre de 2026)
+
+Encargo actual: adjunto de Principal Architect, S2/S3 para principiantes, UX de todas las rutas y acceso docente Jorge/Amilkar. El usuario pide continuar hasta completar. Rama actual `codex-final-pedagogy-ui-20261004`, base verificada `6109e4a3d94c69e2f20f5cf373becf1420ef3251`. Checkpoint anotado `checkpoint-phase5-released-20261004`; main y DOCX preservados. Cambios todavía locales, sin nuevo release.
+
+- Contrato derivado de S1; 53 modelos mentales y escenas de definición/sintaxis/explicación/comprobación. 51 microejemplos nuevos + saludo mínimo reutilizado. Oracle local existente estaba detenido: se inició sin recrear usuario/datos. 273 ejemplos ejecutados y PASS; resultados actuales en oracle-results.json. Las ejecuciones solo recargan el esquema de verificación aislado.
+- Diccionario antes de JOIN, ejemplos adicionales progresivos, error ambiguo reubicado después de ON. Oracle error UX humana con detalle técnico desplegable. Challenge agrupado por bloques reales; recursos por sección y tipo.
+- Cult HaloProgress, Magic CodeComparison y Motion core InView adaptados sin paquetes nuevos. Licencias completas y registro en docs/UI_COMPONENT_REGISTRY.md. React Bits conservado y limitado por perfiles de ruta.
+- Baseline medido antes de cambiar: Home 257623 bytes JS / LCP 1632 ms; Lab 409693 / 1028 ms / CLS .047; detalle S3 225182 / 380 ms. Local production 390px, sin throttling; no son métricas de campo.
+- Supabase Auth: una cuenta candidata confirmada. Aún faltan los correos exactos autorizados de Jorge y Amilkar (pregunta ya enviada); no se asigna rol por nombre visible. Bootstrap administrativo preparado para UUID/email y rol teacher, sin alterar contraseñas existentes ni incluir secretos. QA real de ambos todavía pendiente.
+- La credencial Vercel vencida se renovó con el login existente. Reinspección API confirmó Production READY `dpl_BSVxTo5ZtyAj2ETmSvcPiiTHVEtb`, commit `6be89ed`; aún no hay un despliegue nuevo. El gate exige ambos docentes y Preview completos.
+- Suite completa actual: 64 archivos PASS, uno omitido; 2185 pruebas PASS y 7 omisiones explícitas, 400.52 s. Incluye los 273 ejemplos Oracle, banco, Auth/RLS y migraciones sobre los entornos de QA existentes. Lint/typecheck/formato/build y auditoría de 17 secretos PASS antes del último ajuste dirigido de desplegables.
+- QA dirigido de escenas: todas las 193 S2 y 203 S3 a 390 y 1366 px PASS, incluyendo desplegables abiertos. Se detectó y corrigió desborde al abrir una tabla de comprobación S2 en escritorio. Pruebas distinguen contenido pintado de details cerrado y verifican también su apertura. La suite completa actual de 1137 E2E Chromium/Edge/WebKit está en ejecución; no se declara la matriz total aprobada aún.
+- Reanudación de clases: posiciones del release anterior migradas por identidad/tema; se guarda sceneId estable. Se conservan porcentaje, completados y datos de la nube. Cuatro pruebas específicas PASS en la suite completa.
+- La medición posterior inicial detectó precargas de modos ajenos a la vista. Se deshabilitaron y se volvió a medir el build final: ocho rutas PASS, crecimiento máximo académico 3.71 %, LCP máximo 1192 ms, CLS máximo .047, cero animaciones activas con reduced motion. Son mediciones locales sin throttling; no un SLA de campo. Evidencia en output/playwright/pedagogy-ui/performance-comparison.json.
+- Build final, lint, typecheck y formato PASS. ShapeGrid se detiene después de 300 ms, al ocultar la pestaña o salir de pantalla. Se capturaron 65 vistas de viewport a cinco tamaños para inspección de temas críticos.
+- Supabase remoto actual: 12 pruebas Auth/RLS/evaluaciones PASS, sin omisiones; solo fixtures propios eliminados. Banco 50/50/50 preservado. Este PASS administrativo no acredita las identidades reales de los dos profesores.
+- Firefox se volvió a intentar con el runtime instalado: spawn UNKNOWN antes de abrir el navegador. Firefox NOT_TESTED_RUNTIME; no sustituye el QA obligatorio Chromium/Edge/WebKit.
+- Primera E2E de evaluaciones encontró un selector ambiguo que elegía «Banco de preguntas» del menú cerrado. Se limita a la región semántica Preguntas y su cantidad real; se revalidará el flujo completo. No se altera la evaluación para hacer pasar el test.
+- Pendiente: terminar correcciones, lint/typecheck/formato/unit/integración/build, QA visual responsive/accesible y navegadores, medición posterior, seguridad, identidades docentes, Preview/QA y Production solo con gates reales verdes. Los PASS históricos de abajo pertenecen exclusivamente al release anterior.
+
 Actualizado: 4 de octubre de 2026 (Colombia). Fase 5 RELEASED en `codex-phase5-production-final-20261004`, creada desde la Fase 4 verificada `6fda02b`. El encargo actual de integración, QA y producción prevalece sobre las instrucciones históricas de alcance que aparecen más abajo.
 
 ## Fase 5: RELEASED

@@ -209,13 +209,31 @@ export function ResourcesPage() {
     <div className="site-container feature-page resources-page">
       <header className="feature-heading">
         <span className="eyebrow">Consultar y repasar</span>
-        <h1>Recursos de SELECT</h1>
+        <h1>Recursos de DB LAB</h1>
         <p className="muted readable">
           La chuleta por categorías, una tabla de referencia, ejemplos listos para el laboratorio,
           los videos de la unidad y sus fuentes. Todo usa la misma tabla EMPLEADOS que el Estudio y
           el laboratorio.
         </p>
       </header>
+
+      <nav className="db-resource-sections" aria-label="Recursos por sección">
+        <a href="#chuleta" aria-current="page">
+          <span>Sección 1</span>
+          <strong>Fundamentos de SQL</strong>
+          <small>Conceptos, sintaxis, ejemplos y guías de SELECT.</small>
+        </a>
+        <Link href="/sections/consultas-relacionales/resources">
+          <span>Sección 2</span>
+          <strong>Consultas relacionales</strong>
+          <small>Relaciones, JOIN, agregación y subconsultas.</small>
+        </Link>
+        <Link href="/sections/plsql/resources">
+          <span>Sección 3</span>
+          <strong>PL/SQL y automatización</strong>
+          <small>Bloques, control, cursores, programas y triggers.</small>
+        </Link>
+      </nav>
 
       <nav className="resources-shortcuts" aria-label="Accesos directos">
         {SHORTCUTS.map(({ href, title, text }) => (

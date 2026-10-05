@@ -9,7 +9,7 @@ import {
   signIn,
   type TestUser,
 } from './support/accounts';
-import { expectNoHorizontalScroll } from './support/layout';
+import { expectFlowRegionsDoNotOverlap, expectNoHorizontalScroll } from './support/layout';
 
 const run = `${Date.now()}-${process.pid}`;
 const sections = ['fundamentos-sql', 'consultas-relacionales', 'plsql'] as const;
@@ -34,12 +34,16 @@ async function admin(path: string, method: string) {
   });
 }
 async function capture(page: Page, name: string) {
+  if (name.startsWith('teacher-') || name === 'student-exam') {
+    await expect(page.locator('main')).toHaveAttribute('data-motion-budget', '0');
+  }
   for (const width of [
-    320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1536, 1600, 1920,
+    320, 360, 375, 390, 412, 430, 768, 1024, 1280, 1366, 1440, 1536, 1600, 1920, 2560,
   ]) {
     await page.setViewportSize({ width, height: 900 });
     try {
       await expectNoHorizontalScroll(page, `${name} @${width}`);
+      await expectFlowRegionsDoNotOverlap(page, `${name} @${width}`);
     } catch (error) {
       const overflow = await page.evaluate(() =>
         [...document.querySelectorAll<HTMLElement>('main *')]
@@ -86,9 +90,9 @@ async function capture(page: Page, name: string) {
         await tabs.first().click();
       }
     }
-    if ([1440, 390].includes(width)) {
+    if ([390, 768, 1366, 1440, 1920].includes(width)) {
       if (width === 390) await expectAccessible(page, `${name} @390`);
-      mkdirSync('output/playwright/phase5/screens', { recursive: true });
+      mkdirSync('output/playwright/pedagogy-ui/screens', { recursive: true });
       await page.evaluate(() => {
         if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
         window.scrollTo({ top: 0, behavior: 'instant' });
@@ -103,17 +107,22 @@ async function capture(page: Page, name: string) {
         test.info().project.name !== 'webkit' ||
         dimensions.height * dimensions.pixelRatio <= 32_767;
       await page.screenshot({
-        path: `output/playwright/phase5/screens/${name}-${width}.png`,
+        path: `output/playwright/pedagogy-ui/screens/${name}-${width}-${test.info().project.name}.png`,
         fullPage,
         animations: 'disabled',
       });
       if (!fullPage)
         writeFileSync(
-          `output/playwright/phase5/screens/${name}-${width}.capture.json`,
+          `output/playwright/pedagogy-ui/screens/${name}-${width}-${test.info().project.name}.capture.json`,
           JSON.stringify({ ...dimensions, width, fullPage, reason: 'WebKit image limit' }),
         );
       else
-        rmSync(`output/playwright/phase5/screens/${name}-${width}.capture.json`, { force: true });
+        rmSync(
+          `output/playwright/pedagogy-ui/screens/${name}-${width}-${test.info().project.name}.capture.json`,
+          {
+            force: true,
+          },
+        );
     }
   }
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -160,6 +169,7 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
     page,
     browser,
   }) => {
+    test.setTimeout(90_000);
     await page.goto('/learn/alias');
     await page.getByRole('radio', { name: /Sigue llamándose SALARIO/ }).check();
     await page.getByRole('button', { name: 'Comprobar' }).click();
@@ -233,7 +243,8 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
       page,
       browser,
     }) => {
-      test.setTimeout(90_000);
+      // La revisión añadida recorre quince anchos y guarda cinco capturas por vista privada.
+      test.setTimeout(180_000);
       await signIn(page, teacher);
       await page.goto('/teacher/questions');
       await page.getByRole('button', { name: 'Sincronizar banco oficial de DB LAB' }).click();

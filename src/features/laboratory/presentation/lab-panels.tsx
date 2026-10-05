@@ -24,6 +24,7 @@ import {
   type OracleServiceStatus,
 } from '../application/lab-api';
 import type { LabExecution } from '../application/execute-on-oracle';
+import { explainOracleError } from '@/features/curriculum/application/learning-feedback';
 
 /** Paneles del laboratorio. Solo presentan el análisis; no contienen reglas SQL. */
 
@@ -402,9 +403,11 @@ function OracleOutcome({
         />
       )}
       {result.status === 'unavailable' && (
-        <Alert tone="warning" title="Servicio Oracle no disponible">
-          {result.message}
-        </Alert>
+        <div data-error-kind="application">
+          <Alert tone="warning" title="Servicio Oracle no disponible">
+            {result.message}
+          </Alert>
+        </div>
       )}
       {result.status === 'rejected' && (
         <Alert tone="danger" title="No se envió a Oracle">
@@ -412,8 +415,23 @@ function OracleOutcome({
         </Alert>
       )}
       {result.status === 'oracle-error' && (
-        <Alert tone="danger" title={`Oracle devolvió ${result.code}`}>
-          {result.message}
+        <Alert
+          tone="warning"
+          title={explainOracleError(result.code)?.title ?? 'Revisa la consulta'}
+        >
+          <p>
+            {explainOracleError(result.code)?.explanation ??
+              'Oracle rechazó esta sentencia. Revisa la sintaxis y los datos de la consulta.'}
+          </p>
+          {explainOracleError(result.code) && (
+            <p>
+              <strong>Cómo corregirlo:</strong> {explainOracleError(result.code)!.correction}
+            </p>
+          )}
+          <details>
+            <summary>Oracle devolvió {result.code}</summary>
+            <pre className="cu-oracle-error__message">{result.message}</pre>
+          </details>
         </Alert>
       )}
     </div>

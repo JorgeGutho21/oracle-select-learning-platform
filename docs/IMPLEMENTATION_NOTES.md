@@ -1,5 +1,21 @@
 # Notas de implementación — Cimientos y sistema de diseño
 
+## Revisión pedagógica y visual del 4 de octubre de 2026
+
+El nuevo encargo autoriza contenido y UX, con gate estricto de acceso docente antes de Production. El contrato de S1 se aplica a S2/S3 mediante modelos mentales escritos, definiciones anteriores al código y 51 microejemplos nuevos ejecutados en Oracle. Se preservan las tablas de S1, el banco de 150 preguntas, la puntuación y la persistencia. Detalles: docs/PEDAGOGICAL_TOPIC_CONTRACT.md.
+
+Dominio conserva las reglas y vocabulario; aplicación expone vistas y una superficie pequeña de feedback; presentación no importa dominio directamente. El diccionario usa filas reales del dataset. Un resultado verificado no se presenta como ejecución nueva. El error esperado de un ejemplo tiene explicación/corrección y detalle técnico desplegable; la indisponibilidad de Oracle se identifica como fallo del servicio.
+
+UI: Cult HaloProgress, Magic CodeComparison y Motion core InView se adaptan sin instalar runtimes completos. React Bits existente se limita a interacciones de 300 ms y se desactiva en docencia/exámenes. Perfiles de ruta y aliases --db-* preservan el sistema Sass/CSS original. Registro, fuentes inmutables y licencias completas: docs/UI_COMPONENT_REGISTRY.md y THIRD_PARTY_NOTICES.md.
+
+Teacher bootstrap requiere dos correos verificados distintos y, si se proporciona UUID, correspondencia exacta con Auth; los nombres son etiquetas. Usa la administración Supabase y verifica el rol almacenado, sin alterar contraseñas de cuentas existentes. Solo una cuenta nueva, autorizada e identificada puede recibir la credencial existente de En vivo desde el entorno; nunca desde el navegador, repositorio o logs.
+
+Baseline, medición posterior, QA de navegador y estado de release deben distinguirse. El PASS de Oracle (273 ejecuciones) no acredita por sí mismo responsive, accesibilidad, Preview ni acceso real de Jorge/Amilkar. Estado activo y bloqueos reales: CONTINUITY.md.
+
+La nueva clase tiene 193/203 escenas frente a 34/37. El índice ligero registra identidades estables y una correspondencia con el guion publicado en `6109e4a`; un registro antiguo se resuelve sin borrar ni rebajar avance. Las nuevas visitas guardan sceneId y release junto con la posición numérica. S3-L01 cambia de versión porque ahora comienza con un saludo mínimo; los registros previos permanecen.
+
+Los enlaces entre modos y las referencias de recursos no precargan otros recorridos completos. Esto evita cargar escenas, actividades o clientes de evaluación antes de elegirlos. La tabla de una escena conserva datos de al menos 14 px, código de 17 px en teléfono/26 px a 1920, y las preguntas se apilan en anchos pequeños. Los mínimos nunca se resuelven encogiendo datos. El vocabulario de ampliaciones está abierto en Estudio y desplegable en Clase, después de escenas de definición.
+
 Fecha: 23 de septiembre de 2026. Alcance: base técnica y visual de R2.
 
 ## Alcance de esta entrega

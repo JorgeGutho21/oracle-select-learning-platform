@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { SiteFooter } from './site-footer';
 import { SiteHeader } from './site-header';
+import { RouteSurface } from './route-surface';
 
 /**
  * Estructura común de DB LAB: salto al contenido, cabecera con navegación, contenido de la
@@ -21,9 +22,7 @@ export function AppShell({
         Saltar al contenido
       </a>
       <SiteHeader account={account} />
-      <main id="main-content" className="app-main" tabIndex={-1}>
-        {children}
-      </main>
+      <RouteSurface>{children}</RouteSurface>
       <SiteFooter />
     </>
   );

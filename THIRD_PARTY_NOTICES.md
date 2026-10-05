@@ -2,6 +2,14 @@
 
 DB LAB incluye código adaptado de proyectos de terceros. Este archivo conserva los avisos que exigen sus licencias.
 
+## Adaptaciones gratuitas añadidas el 4 de octubre de 2026
+
+- **Cult UI HaloProgress**, commit `67a66c6ac1cd240914ba688a907611b3437a7a2b`, copyright (c) 2023 Jordan-Gilliam. Licencia MIT completa: [licenses/cult-ui-MIT.txt](licenses/cult-ui-MIT.txt).
+- **Magic UI CodeComparison**, commit `d7207e5692d14c00dceafa8488d6d01f197fa0e4`, copyright (c) Magic UI. Licencia MIT completa: [licenses/magic-ui-MIT.txt](licenses/magic-ui-MIT.txt).
+- **Motion Primitives core InView**, commit `120f64f6ca60348e251f929e9c81f11ccbe45eda`, copyright (c) 2024 ibelick. Licencia MIT completa: [licenses/motion-primitives-MIT.txt](licenses/motion-primitives-MIT.txt).
+
+Fuentes/licencias revisadas antes de adaptar. Sin código Pro, plantillas pagas ni Aceternity. Los adaptadores eliminan runtimes externos, tematización y decoración innecesaria. Orígenes inmutables, rutas y diferencias: [docs/UI_COMPONENT_REGISTRY.md](docs/UI_COMPONENT_REGISTRY.md).
+
 ## React Bits
 
 - **Origen:** <https://github.com/DavidHDev/react-bits>, variante TypeScript + CSS (`src/ts-default/`).

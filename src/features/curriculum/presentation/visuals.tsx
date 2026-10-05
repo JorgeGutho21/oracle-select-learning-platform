@@ -208,10 +208,12 @@ export function CompareVisual({
     </article>
   );
   return (
-    <div className={`compare-visual compare-visual--${density}`}>
-      {column(first, labels[0])}
-      {column(second, labels[1])}
-    </div>
+    <CodeComparison
+      className={`compare-visual--${density}`}
+      label={`${labels[0]} frente a ${labels[1]} · ${density === 'stage' ? 'Clase' : 'Estudio'}`}
+      before={column(first, labels[0])}
+      after={column(second, labels[1])}
+    />
   );
 }
 
@@ -241,3 +243,4 @@ export function SourceTables({
     </div>
   );
 }
+import { CodeComparison } from '@/presentation/components/data/code-comparison';

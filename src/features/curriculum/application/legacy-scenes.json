@@ -1,0 +1,347 @@
+{
+  "consultas-relacionales": [
+    {
+      "id": "portada",
+      "block": "relaciones"
+    },
+    {
+      "id": "ruta",
+      "block": "relaciones"
+    },
+    {
+      "id": "varias-tablas",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "pk-fk",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "alias",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "modelo",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "modelo-datos",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "inner",
+      "block": "inner-join",
+      "lesson": "S2-L06"
+    },
+    {
+      "id": "dos-tablas",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "tres-tablas",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "check-on",
+      "block": "inner-join"
+    },
+    {
+      "id": "left",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "left-faltantes",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "full",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "self",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "cross",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "resumen-join",
+      "block": "otros-join"
+    },
+    {
+      "id": "fila-grupo",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "agregados",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "count-null",
+      "block": "funciones-grupo",
+      "lesson": "S2-L13"
+    },
+    {
+      "id": "group-by",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "group-dos",
+      "block": "group-by",
+      "lesson": "S2-L15"
+    },
+    {
+      "id": "having",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "where-having",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "check-where-having",
+      "block": "having"
+    },
+    {
+      "id": "join-count",
+      "block": "join-agregacion",
+      "lesson": "S2-L18"
+    },
+    {
+      "id": "join-having",
+      "block": "join-agregacion",
+      "lesson": "S2-L19"
+    },
+    {
+      "id": "subconsulta",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "not-in",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "correlacionada",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "union",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "intersect-minus",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "integracion",
+      "block": "integracion",
+      "lesson": "S2-L25"
+    },
+    {
+      "id": "cierre",
+      "block": "integracion"
+    }
+  ],
+  "plsql": [
+    {
+      "id": "portada",
+      "block": "que-es-plsql"
+    },
+    {
+      "id": "ruta",
+      "block": "que-es-plsql"
+    },
+    {
+      "id": "sql-vs-plsql",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "primer-bloque",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "estructura",
+      "block": "bloques",
+      "lesson": "S3-L02"
+    },
+    {
+      "id": "anonimo",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "check-bloque",
+      "block": "bloques"
+    },
+    {
+      "id": "variables",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "rowtype",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "alcance",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "select-into",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "dml",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "check-select-into",
+      "block": "sql-en-plsql"
+    },
+    {
+      "id": "if",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "case",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "loop",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "for",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "check-for",
+      "block": "bucles"
+    },
+    {
+      "id": "modelo-cursor",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "cursor-explicito",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "cursor-for",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "excepciones",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "raise",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "check-excepcion",
+      "block": "excepciones"
+    },
+    {
+      "id": "procedimiento",
+      "block": "procedimientos",
+      "lesson": "S3-L18"
+    },
+    {
+      "id": "parametros",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "funcion",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "paquete",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "modelo-trigger",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "trigger-sentencia",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "trigger-filas",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "check-trigger",
+      "block": "triggers"
+    },
+    {
+      "id": "auditoria",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "validacion",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "limites",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "integrador",
+      "block": "integracion",
+      "lesson": "S3-L28"
+    },
+    {
+      "id": "cierre",
+      "block": "integracion"
+    }
+  ]
+}

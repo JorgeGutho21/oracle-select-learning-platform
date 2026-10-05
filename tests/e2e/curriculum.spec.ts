@@ -95,7 +95,7 @@ const OUTLINE = JSON.parse(
     'utf8',
   ),
 ) as {
-  sections: { section: string; lessons: { slug: string }[] }[];
+  sections: { section: string; scenes: number; lessons: { slug: string }[] }[];
   extensions: { section: string; lessons: { slug: string }[] }[];
 };
 const ALL_ROUTES = [
@@ -206,7 +206,10 @@ test.describe('Fase 4 · interacciones', () => {
       await expect(scene).toHaveAttribute('data-scene', '2', { timeout: 1_000 });
     }).toPass();
     await page.keyboard.press('End');
-    await expect(scene).toHaveAttribute('data-scene', '37');
+    await expect(scene).toHaveAttribute(
+      'data-scene',
+      String(OUTLINE.sections.find((entry) => entry.section === 'plsql')!.scenes),
+    );
     await page.keyboard.press('Home');
     await expect(scene).toHaveAttribute('data-scene', '1');
 

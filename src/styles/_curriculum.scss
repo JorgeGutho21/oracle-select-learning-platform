@@ -556,11 +556,11 @@
   border-radius: var(--radius-sm);
   background: var(--color-soft);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.85em;
+  font-size: max(0.85em, 12px);
 }
 .join-chip__partners {
   color: var(--color-muted);
-  font-size: 0.85em;
+  font-size: max(0.85em, 12px);
 }
 .join-chip--matched {
   border-color: var(--color-sem-join);
@@ -1068,7 +1068,7 @@
 }
 .cu-stage__question {
   margin: 0;
-  font-size: 1.15em;
+  font-size: max(1.15em, 12px);
   font-weight: 700;
 }
 .cu-stage__label {
@@ -1093,7 +1093,7 @@
 }
 .cu-cover__title {
   margin: 0;
-  font-size: 2.4em;
+  font-size: max(2.4em, 12px);
   font-weight: 800;
   line-height: 1.1;
 }
@@ -1107,7 +1107,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 1.15em;
+  font-size: max(1.15em, 12px);
 }
 .cu-points li {
   padding: 0.5em 0.8em;
@@ -1117,7 +1117,7 @@
 }
 .cu-points--agenda {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  font-size: 1em;
+  font-size: max(1em, 12px);
 }
 .cu-points__number {
   display: inline-grid;
@@ -1128,7 +1128,7 @@
   border-radius: 50%;
   background: var(--color-primary);
   color: var(--color-inverse);
-  font-size: 0.85em;
+  font-size: max(0.85em, 12px);
 }
 .cu-idea {
   display: grid;
@@ -1189,7 +1189,7 @@
   overflow-y: auto;
 }
 .cu-stage {
-  font-size: 0.86em;
+  font-size: max(0.86em, 16px);
 }
 .cu-stage--join,
 .cu-stage--group,
@@ -1221,10 +1221,10 @@
     'result';
 }
 .cu-stage--trace .cu-stage__question {
-  font-size: 1em;
+  font-size: max(1em, 12px);
 }
 .cu-stage--plsql .sql-code__pre {
-  font-size: 0.8em;
+  font-size: max(0.8em, 12px);
 }
 // Pregunta de clase con código: el código a la izquierda y las respuestas a la derecha.
 .cu-scene--check .cu-activity:has(> .cu-activity__context) {
@@ -1250,14 +1250,14 @@
   gap: 0.8em;
 }
 .cu-scene .stepper__vars {
-  font-size: 0.8em;
+  font-size: max(0.8em, 12px);
 }
 .cu-scene .stepper__vars th,
 .cu-scene .stepper__vars td {
   padding: 0.1em 0.5em;
 }
 .cu-scene .stepper__note {
-  font-size: 0.9em;
+  font-size: max(0.9em, 16px);
 }
 // Sin recorrido, el código es lo más largo de la escena: recibe más ancho.
 .cu-stage--plsql:not(.cu-stage--trace) {
@@ -1279,13 +1279,13 @@
   grid-area: result;
 }
 .cu-scene .sql-code__pre {
-  font-size: 0.9em;
+  font-size: max(0.9em, 12px);
 }
 .cu-scene .join-visual,
 .cu-scene .group-visual,
 .cu-scene .pipeline-visual__stage,
 .cu-scene .compare-visual {
-  font-size: 0.85em;
+  font-size: max(0.85em, 12px);
 }
 .cu-scene .join-visual {
   padding: 0.6em;
@@ -1304,7 +1304,7 @@
 .cu-scene .group-box__members li,
 .cu-scene .group-box__key {
   display: block;
-  font-size: 0.9em;
+  font-size: max(0.9em, 12px);
 }
 // En la clase, la clave del grupo muestra solo los valores («10 · ACTIVO»): los nombres de
 // las columnas ya están en el título del GROUP BY y siguen disponibles para lectores de pantalla.
@@ -1332,16 +1332,16 @@
 .cu-scene .join-chip {
   padding: 0.1em 0.5em;
   border-width: 1.5px;
-  font-size: 0.78em;
+  font-size: max(0.78em, 12px);
 }
 .cu-scene .join-chip__partners {
   display: none;
 }
 .cu-scene .join-chip--legend {
-  font-size: 0.72em;
+  font-size: max(0.72em, 12px);
 }
 .cu-scene .group-box__members li {
-  font-size: 0.8em;
+  font-size: max(0.8em, 12px);
 }
 .cu-scene .pipeline-visual__stage {
   padding: 0.4em 0.7em;
@@ -1353,7 +1353,7 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   padding: 0.6em;
-  font-size: 0.85em;
+  font-size: max(0.85em, 12px);
 }
 // En la clase, los controles del recorrido suben a la cabecera: siempre visibles.
 .cu-scene .stepper__controls {
@@ -1364,17 +1364,64 @@
 .cu-scene .stepper__controls .ds-button {
   min-height: 2.2em;
   padding: 0.25em 0.8em;
-  font-size: 0.85em;
+  font-size: max(0.85em, 12px);
 }
 .cu-scene .stepper__grid {
   grid-column: 1 / -1;
 }
 .cu-scene .cu-console__body,
 .cu-scene .cu-oracle-error__message {
-  font-size: 0.9em;
+  font-size: max(0.9em, 12px);
 }
 .cu-scene .mini-check {
-  font-size: 0.9em;
+  font-size: max(0.9em, 16px);
+}
+
+// Evita reducciones acumuladas en tablas anidadas; los datos conservan un mínimo de 14 px.
+.cu-scene .dv table {
+  font-size: max(1em, 14px);
+}
+.cu-scene .dv th,
+.cu-scene .dv td {
+  overflow-wrap: anywhere;
+}
+.cu-scene .join-chip,
+.cu-scene .join-chip__key,
+.cu-scene .group-box__members li {
+  font-size: max(0.85em, 14px);
+}
+.cu-scene .sql-code__pre {
+  font-size: max(0.9em, 17px);
+}
+
+@media (max-width: 991px) {
+  .cu-scene--check .cu-activity:has(> .cu-activity__context) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cu-scene--check .cu-activity:has(> .cu-activity__context) > *,
+  .cu-scene--check .cu-activity:has(> .cu-activity__context) > .cu-activity__context {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+@media (max-width: 767px) {
+  .cu-stage--join,
+  .cu-stage--group,
+  .cu-stage--transform,
+  .cu-stage--pipeline,
+  .cu-stage--plsql,
+  .cu-stage--plsql:not(.cu-stage--trace) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'code' 'visual' 'result';
+  }
+}
+@media (min-width: 1920px) {
+  .cu-scene .cu-stage {
+    font-size: max(0.86em, 26px);
+  }
+  .cu-scene .sql-code__pre {
+    font-size: max(0.9em, 26px);
+  }
 }
 
 // La lección de la fuente curricular muestra la sintaxis en una sola columna.

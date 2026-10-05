@@ -521,14 +521,6 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
       reading:
         'Llama e a EMPLEADOS y toma de ella nombre, cargo y salario de las personas del departamento 20, de mayor a menor salario (con empate, por nombre).',
     },
-    more: [
-      {
-        question: '¿Qué pasa si dos tablas tienen la misma columna y no se califica?',
-        example: 'S2-E-AMBIGUA',
-        reading:
-          'ID_DEPARTAMENTO existe en EMPLEADOS y en DEPARTAMENTOS: Oracle no sabe cuál mostrar y responde ORA-00918 (columna definida de forma ambigua).',
-      },
-    ],
     changed: [
       'El resultado es el mismo que sin alias: el alias cambia cómo se escribe, no qué se obtiene.',
     ],
@@ -783,6 +775,12 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
         example: 'S2-E-COLUMNA-CALIFICADA',
         reading:
           'Con e.id_departamento no hay duda: es la columna de EMPLEADOS (en un INNER JOIN vale lo mismo que d.id_departamento).',
+      },
+      {
+        question: 'Error esperado: una columna tiene dos orígenes posibles.',
+        example: 'S2-E-AMBIGUA',
+        reading:
+          'Después de aprender JOIN y ON, compara los nombres: ID_DEPARTAMENTO existe en ambas tablas. Oracle devuelve ORA-00918; e.id_departamento o d.id_departamento resuelve la ambigüedad.',
       },
     ],
     changed: [

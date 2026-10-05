@@ -27,5 +27,6 @@
 @use 'assessments';
 @use 'curriculum';
 @use 'record-table';
+@use 'pedagogy-ui';
 
 @include tokens.emit;

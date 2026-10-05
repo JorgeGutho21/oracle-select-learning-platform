@@ -92,7 +92,11 @@ export function AccountMenu({ state, signOut }: AccountMenuProps) {
           </span>
         )}
         <span className="account-menu__label" aria-hidden="true">
-          {authenticated ? authenticated.firstName || 'Mi cuenta' : 'Entrar'}
+          {authenticated
+            ? authenticated.role === 'teacher'
+              ? 'Docente'
+              : authenticated.firstName || 'Mi cuenta'
+            : 'Entrar'}
         </span>
       </summary>
       <div className="account-menu__panel">
@@ -110,7 +114,11 @@ export function AccountMenu({ state, signOut }: AccountMenuProps) {
               <Link href="/profile">Mi perfil</Link>
               <Link href="/sections">Secciones</Link>
               {authenticated.role === 'teacher' && (
-                <Link href={'/teacher' as Route}>Panel docente</Link>
+                <>
+                  <Link href={'/teacher' as Route}>Panel docente</Link>
+                  <Link href={'/teacher/assessments' as Route}>Evaluaciones y supervisión</Link>
+                  <Link href={'/teacher/questions' as Route}>Banco de preguntas</Link>
+                </>
               )}
             </nav>
             <form action={signOut} className="account-menu__signout">

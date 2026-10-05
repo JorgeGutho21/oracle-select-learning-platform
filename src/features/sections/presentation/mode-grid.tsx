@@ -21,7 +21,7 @@ export function ModeGrid({ modes, sectionTitle }: ModeGridProps) {
         <li key={mode.id}>
           {mode.href ? (
             <SpotlightCard className="mode-card mode-card--available">
-              <Link href={mode.href as Route} className="mode-card__link">
+              <Link href={mode.href as Route} className="mode-card__link" prefetch={false}>
                 <span className="mode-card__icon">
                   <ModeIcon mode={mode.id} />
                 </span>

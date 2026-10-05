@@ -12,6 +12,7 @@ import {
   tableSummary,
 } from './example-parts';
 import { ExecutionStepper } from './execution-stepper';
+import { ExamplePrimer } from './example-primer';
 import { CompareVisual, GroupVisual, JoinVisual, PipelineVisual } from './visuals';
 import { Reveal } from '@/features/presentation/presentation/scene-step';
 
@@ -34,7 +35,7 @@ function Frame({
 }) {
   return (
     <article
-      className={`scene scene--${tone} scene--${layout} cu-scene cu-scene--${scene.kind}`}
+      className={`scene scene--${tone} scene--${layout} cu-scene cu-scene--${scene.kind}${scene.intent ? ` cu-scene--${scene.intent}` : ''}`}
       aria-labelledby={`scene-title-${scene.number}`}
       data-scene={scene.number}
       data-scene-id={scene.id}
@@ -76,6 +77,8 @@ function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
       >
         <Reveal at={1} className="cu-stage__code">
           <p className="cu-stage__question">{entry.question}</p>
+          <p className="cu-stage__reading">{entry.reading}</p>
+          <ExamplePrimer example={example} compact />
           <SetupFold setup={example.setup} />
         </Reveal>
         <Reveal at={2} className="cu-stage__visual">
@@ -194,7 +197,50 @@ export function CurriculumSceneView({
                 </li>
               ))}
             </ol>
-            {scene.code && <pre className="cu-idea__diagram">{scene.code}</pre>}
+            {scene.code &&
+              (scene.intent === 'syntax' ? (
+                <CodeView code={scene.code} label="Forma general" size="large" />
+              ) : (
+                <pre className="cu-idea__diagram">{scene.code}</pre>
+              ))}
+          </div>
+        </Frame>
+      );
+    case 'dataset':
+      return (
+        <Frame scene={scene}>
+          <div className="cu-dataset-map">
+            <p>Antes de unir tablas, identifica qué hecho guarda cada una y cómo se conecta.</p>
+            <p>
+              Una fila registra un hecho; una columna indica un atributo. PK identifica una fila sin
+              duplicados; FK referencia una clave de otra tabla.
+            </p>
+            <ol className="cu-dataset-map__tables">
+              {scene.tables.map((table) => (
+                <li key={table.name}>
+                  <h2>{table.name}</h2>
+                  <p>{table.purpose}</p>
+                  <p>
+                    {table.rowCount} filas · PK: <code>{table.primaryKey.join(', ')}</code>
+                  </p>
+                  {table.foreignKeys.map((key) => (
+                    <p key={key.columns}>
+                      <code>{key.columns}</code> → <code>{key.references}</code>
+                    </p>
+                  ))}
+                  <details>
+                    <summary>Columnas y primeras filas de {table.name}</summary>
+                    <p>Datos versionados de la empresa; no es una consulta recién ejecutada.</p>
+                    <CurriculumTable
+                      table={table.sample}
+                      label={`Datos: ${table.name}`}
+                      caption={`Primeras filas de ${table.name}`}
+                      size="compact"
+                    />
+                  </details>
+                </li>
+              ))}
+            </ol>
           </div>
         </Frame>
       );

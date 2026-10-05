@@ -26,6 +26,9 @@ export interface OutlineLesson {
 }
 
 export interface SectionOutline {
+  readonly scenePositions: Readonly<Record<string, number>>;
+  readonly legacyScenePositions: readonly number[];
+  readonly classLessonScenes: Readonly<Record<string, number>>;
   readonly section: SectionId;
   readonly blocks: readonly OutlineBlock[];
   readonly lessons: readonly OutlineLesson[];
@@ -57,6 +60,21 @@ export function extensionOf(section: string): ExtensionOutline | undefined {
 
 export function outlineOf(section: string): SectionOutline | undefined {
   return CURRICULUM_OUTLINE.find((entry) => entry.section === section);
+}
+
+/** Resuelve por identidad estable; la posición numérica del release anterior se migra sin borrar progreso. */
+export function curriculumScenePosition(
+  section: string,
+  state: Readonly<Record<string, number | string | boolean>>,
+): number | null {
+  const outline = outlineOf(section);
+  if (!outline) return null;
+  if (typeof state.sceneId === 'string') return outline.scenePositions[state.sceneId] ?? null;
+  const scene = state.scene;
+  if (typeof scene !== 'number' || !Number.isInteger(scene) || scene < 1) return null;
+  if (state.sceneRelease !== 'pedagogy-20261004')
+    return outline.legacyScenePositions[scene - 1] ?? null;
+  return scene <= outline.scenes ? scene : null;
 }
 
 export function curriculumLessonHref(section: SectionId, slug: string): string {

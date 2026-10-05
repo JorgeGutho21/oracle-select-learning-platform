@@ -17,7 +17,7 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
       'Extensión procedimental de SQL de Oracle: añade variables, condiciones, bucles, manejo de errores y programas guardados en la base de datos.',
     purpose: 'Resolver tareas de varios pasos que una sola consulta SQL no puede expresar.',
     syntax: lines('BEGIN', '  -- sentencias SQL y PL/SQL', 'END;'),
-    example: 'S3-E-PRIMER-BLOQUE',
+    example: 'S3-E-SOLO-BEGIN',
     mistake: {
       title: 'Creer que reemplaza a SQL',
       why: 'PL/SQL usa SQL para leer y modificar datos; añade la lógica alrededor.',
@@ -41,7 +41,7 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
       '  -- errores',
       'END;',
     ),
-    example: 'S3-E-ESTRUCTURA',
+    example: 'S3-E-SOLO-BEGIN',
     mistake: {
       title: 'Olvidar el punto y coma',
       why: 'Cada sentencia y el END final terminan en «;»; si falta, Oracle responde PLS-00103.',
@@ -57,7 +57,7 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
       'Bloque sin nombre que se compila y ejecuta una vez; no queda guardado en la base de datos.',
     purpose: 'Probar lógica o ejecutar una tarea puntual.',
     syntax: lines('BEGIN', "  DBMS_OUTPUT.PUT_LINE('Hola');", 'END;'),
-    example: 'S3-E-ANONIMO-VS-ALMACENADO',
+    example: 'S3-E-SOLO-BEGIN',
     mistake: {
       title: 'Esperar volver a llamarlo por nombre',
       why: 'Para reutilizarlo hay que guardarlo como procedimiento o función.',
@@ -73,7 +73,7 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
       'Procedimiento del paquete DBMS_OUTPUT que escribe una línea en un búfer; la herramienta cliente la muestra si la salida está activada.',
     purpose: 'Ver valores intermedios y mensajes mientras se aprende o se depura.',
     syntax: "DBMS_OUTPUT.PUT_LINE('Total: ' || v_total);",
-    example: 'S3-E-PRIMER-BLOQUE',
+    example: 'S3-E-SOLO-BEGIN',
     mistake: {
       title: 'Usarlo como resultado del programa',
       why: 'Es una ayuda de depuración: otros programas no leen ese texto.',

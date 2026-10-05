@@ -1,0 +1,322 @@
+// One DB LAB identity; native adapters intentionally omit upstream glow/theme runtimes.
+:root {
+  --db-primary: var(--color-primary);
+  --db-accent: var(--color-cyan);
+  --db-navy: var(--color-night);
+  --db-surface: var(--color-surface);
+  --db-border: var(--color-border-subtle);
+  --db-success: var(--color-success);
+  --db-warning: var(--color-warning);
+  --db-danger: var(--color-danger);
+  --db-code: var(--color-editor);
+  --db-muted: var(--color-muted);
+}
+.home-hero__visual {
+  min-width: 0;
+}
+.db-academic-path {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+.db-academic-path a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid rgb(247 250 255 / 24%);
+  border-radius: var(--radius-control);
+  background: var(--db-code);
+  color: var(--color-inverse);
+  text-decoration: none;
+}
+.db-academic-path a:hover,
+.db-academic-path a:focus-visible {
+  border-color: var(--db-accent);
+}
+.db-academic-path__number {
+  color: var(--db-accent);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.db-academic-path code {
+  color: var(--color-inverse);
+  font-size: var(--type-small);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 430px) {
+  .db-academic-path {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .db-academic-path a {
+    display: grid;
+    grid-template-columns: 2em minmax(0, 1fr);
+    align-items: center;
+  }
+  .db-academic-path code {
+    grid-column: 2;
+  }
+}
+
+.ds-progress--halo .ds-progress__track {
+  background: var(--color-soft);
+  border: 1px solid var(--db-border);
+}
+.ds-progress--halo .ds-progress__fill {
+  width: 100%;
+  transform: scaleX(var(--progress-ratio, 0));
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--db-primary), var(--color-info));
+  transition: transform 250ms ease-out;
+}
+.db-in-view {
+  min-width: 0;
+}
+.db-in-view[data-in-view='true'] {
+  animation: db-enter 250ms ease-out both;
+}
+@keyframes db-enter {
+  from {
+    transform: translateY(4px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.db-code-comparison {
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+  background: var(--color-surface-alt);
+}
+.cu-orientation {
+  grid-column: 1 / -1;
+  border-left: 4px solid var(--db-primary);
+}
+.cu-orientation h2 {
+  font-size: var(--type-body);
+}
+.cu-orientation__model {
+  white-space: pre-line;
+  font-weight: 700;
+}
+.cu-dataset-map__tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16em), 1fr));
+  gap: 1em;
+  list-style: none;
+  padding: 0;
+  margin: 1em 0;
+}
+.cu-dataset-map__tables > li {
+  min-width: 0;
+  padding: 1em;
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-card);
+  background: var(--color-soft);
+  overflow-wrap: anywhere;
+}
+.cu-dataset-map__tables h2 {
+  font-size: 1em;
+}
+.cu-scene--definition .cu-idea,
+.cu-scene--explanation .cu-idea {
+  grid-template-columns: minmax(0, 1fr);
+}
+.cu-scene--syntax .cu-idea {
+  align-items: start;
+}
+.cu-oracle-error details {
+  margin-top: 1em;
+}
+.cu-oracle-error summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.cu-oracle-error__message {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.db-learning-journey {
+  margin-block: var(--space-6);
+  padding: var(--space-5);
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-card);
+  background: var(--db-surface);
+}
+.db-learning-journey ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--space-3);
+  counter-reset: learning-step;
+}
+.db-learning-journey li {
+  min-width: 0;
+  counter-increment: learning-step;
+}
+.db-learning-journey a {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 700;
+}
+.db-learning-journey a::before {
+  content: counter(learning-step);
+  color: var(--db-primary);
+  background: var(--color-soft);
+  border-radius: 50%;
+  padding: 0.25em 0.65em;
+}
+.db-learning-journey li p {
+  margin: var(--space-2) 0 0;
+  font-size: var(--type-small);
+  color: var(--db-muted);
+}
+.db-challenge-blocks {
+  display: grid;
+  gap: var(--space-5);
+}
+.db-challenge-block {
+  background: var(--color-soft);
+  padding: clamp(1rem, 3vw, 2rem);
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-card);
+}
+.db-challenge-block__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+.db-challenge-block__header h2 {
+  font-size: var(--type-h3);
+}
+.db-challenge-block .cu-mission-map {
+  margin-bottom: 0;
+}
+.db-challenge-topics,
+.db-challenge-state {
+  font-size: var(--type-small);
+}
+.db-challenge-state {
+  color: var(--db-primary);
+  font-weight: 700;
+}
+.db-learning-journey__number {
+  display: none;
+}
+.db-resource-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+}
+.db-resource-filter__button {
+  min-height: 44px;
+  border: 1px solid var(--db-border);
+  background: var(--db-surface);
+  cursor: pointer;
+  padding: 0.5em 1em;
+}
+.db-resource-filter__button[aria-pressed='true'] {
+  background: var(--db-primary);
+  color: var(--color-inverse);
+  border-color: var(--db-primary);
+}
+.db-resource-help {
+  color: var(--db-muted);
+}
+.cu-example-primer dl {
+  margin: var(--space-3) 0 0;
+  display: grid;
+  gap: var(--space-3);
+}
+.cu-example-primer dt {
+  font-weight: 700;
+}
+.cu-example-primer dd {
+  margin: var(--space-1) 0 0;
+}
+@each $category in concept, syntax, example, error, reference, guide {
+  .db-resource-explorer[data-category='#{$category}']
+    [data-resource-kind]:not([data-resource-kind='#{$category}']) {
+    display: none;
+  }
+}
+.db-resource-block {
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  margin-top: var(--space-3);
+  background: var(--db-surface);
+}
+.db-resource-block > summary {
+  cursor: pointer;
+  padding-block: var(--space-2);
+  font-weight: 700;
+}
+.db-resource-block[open] > summary {
+  margin-bottom: var(--space-4);
+}
+.db-resource-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-4);
+  margin-block: var(--space-5);
+}
+.db-resource-sections a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-card);
+  background: var(--color-soft);
+  text-decoration: none;
+}
+.db-resource-sections a[aria-current] {
+  border-color: var(--db-primary);
+}
+.db-resource-sections span,
+.db-resource-sections small {
+  color: var(--db-muted);
+}
+.app-main[data-motion-budget='0'] {
+  .fx-star-border__glow {
+    display: none;
+    animation: none;
+  }
+  .fx-spotlight::before {
+    display: none;
+  }
+  .fx-pixel-card canvas {
+    display: none;
+  }
+  .ds-progress__fill {
+    transition: none;
+  }
+}
+.app-main[data-visual-profile='study'],
+.app-main[data-visual-profile='class'],
+.app-main[data-visual-profile='practice'] {
+  .fx-star-border__glow {
+    display: none;
+    animation: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .db-in-view[data-in-view] {
+    animation: none;
+    transform: none;
+  }
+  .ds-progress--halo .ds-progress__fill {
+    transition: none;
+  }
+}

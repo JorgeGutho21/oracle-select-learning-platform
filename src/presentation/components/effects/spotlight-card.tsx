@@ -23,7 +23,8 @@ export function SpotlightCard({ children, className = '', tone = 'light' }: Spot
 
   const follow = (event: PointerEvent<HTMLDivElement>) => {
     const element = ref.current;
-    if (!element || event.pointerType !== 'mouse') return;
+    if (!element || event.pointerType !== 'mouse' || element.closest('[data-motion-budget="0"]'))
+      return;
     const rect = element.getBoundingClientRect();
     element.style.setProperty('--spotlight-x', `${event.clientX - rect.left}px`);
     element.style.setProperty('--spotlight-y', `${event.clientY - rect.top}px`);

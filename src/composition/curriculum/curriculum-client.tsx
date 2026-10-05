@@ -350,35 +350,71 @@ export function ChallengeRoot({
           Ver la respuesta cierra la misión sin puntos. Se guarda tu mejor resultado.
         </p>
       </div>
-      <ol className="cu-mission-map">
-        {missions.map((entry) => {
-          const score = scores.get(entry.id);
+      <div className="db-challenge-blocks">
+        {[...new Set(missions.map((entry) => entry.block.id))].map((blockId) => {
+          const entries = missions.filter((entry) => entry.block.id === blockId);
+          const complete = entries.filter((entry) => scores.has(entry.id)).length;
           return (
-            <li key={entry.id} className={`cu-mission-card${score ? ' is-closed' : ''}`}>
-              <p className="cu-mission-card__number">Misión {entry.number}</p>
-              <h2 className="cu-mission-card__title">{entry.title}</h2>
-              <p className="cu-mission-card__skill">{entry.skill}</p>
-              <p className="cu-mission-card__steps">
-                {entry.steps.length} {entry.steps.length === 1 ? 'paso' : 'pasos'}
-                {score && (
-                  <>
-                    {' '}
-                    · <span aria-hidden="true">✓</span> {score.points} puntos
-                  </>
-                )}
-              </p>
-              <button
-                type="button"
-                className={`ds-button ${score ? 'ds-button--secondary' : 'ds-button--primary'}`}
-                onClick={() => open(entry.id)}
-              >
-                {score ? 'Repetir' : 'Empezar'}
-                <span className="visually-hidden"> la misión {entry.title}</span>
-              </button>
-            </li>
+            <section
+              key={blockId}
+              className="db-challenge-block"
+              aria-labelledby={`retos-${blockId}`}
+            >
+              <header className="db-challenge-block__header">
+                <div>
+                  <p className="study-eyebrow">Bloque de retos</p>
+                  <h2 id={`retos-${blockId}`}>{entries[0]!.block.title}</h2>
+                </div>
+                <p>
+                  {complete} de {entries.length} misiones cerradas ·{' '}
+                  {complete === entries.length
+                    ? 'Completado'
+                    : complete
+                      ? 'En progreso'
+                      : 'Por empezar'}
+                </p>
+              </header>
+              <ol className="cu-mission-map">
+                {entries.map((entry) => {
+                  const score = scores.get(entry.id);
+                  return (
+                    <li key={entry.id} className={`cu-mission-card${score ? ' is-closed' : ''}`}>
+                      <p className="cu-mission-card__number">Misión {entry.number}</p>
+                      <h3 className="cu-mission-card__title">{entry.title}</h3>
+                      <p className="cu-mission-card__skill">{entry.skill}</p>
+                      <p className="db-challenge-topics">
+                        <strong>Temas:</strong> {entry.topics.join(' · ')}
+                      </p>
+                      <p className="db-challenge-state">
+                        {score
+                          ? 'Cerrada · puedes mejorar tu resultado'
+                          : 'Disponible · práctica guiada'}
+                      </p>
+                      <p className="cu-mission-card__steps">
+                        {entry.steps.length} {entry.steps.length === 1 ? 'paso' : 'pasos'}
+                        {score && (
+                          <>
+                            {' '}
+                            · <span aria-hidden="true">✓</span> {score.points} puntos
+                          </>
+                        )}
+                      </p>
+                      <button
+                        type="button"
+                        className={`ds-button ${score ? 'ds-button--secondary' : 'ds-button--primary'}`}
+                        onClick={() => open(entry.id)}
+                      >
+                        {score ? 'Repetir' : 'Empezar'}
+                        <span className="visually-hidden"> la misión {entry.title}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
           );
         })}
-      </ol>
+      </div>
     </div>
   );
 }

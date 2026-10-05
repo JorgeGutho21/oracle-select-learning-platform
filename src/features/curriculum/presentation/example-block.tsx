@@ -10,6 +10,7 @@ import {
   tableSummary,
 } from './example-parts';
 import { ExecutionStepper } from './execution-stepper';
+import { ExamplePrimer } from './example-primer';
 import { CompareVisual, GroupVisual, JoinVisual, PipelineVisual, SourceTables } from './visuals';
 
 /**
@@ -198,6 +199,7 @@ export function ExampleBlock({
   return (
     <div className={`cu-example cu-example--${density}`}>
       {density === 'study' && <Heading className="cu-example__question">{entry.question}</Heading>}
+      <ExamplePrimer example={entry.example} />
       {entry.example.kind === 'query' ? (
         <QueryExample example={entry.example} visual={entry.visual} density={density} />
       ) : (

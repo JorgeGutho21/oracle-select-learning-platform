@@ -48,8 +48,8 @@
   height: 50%;
   border-radius: 50%;
   background: radial-gradient(circle, var(--color-cyan), transparent 10%);
-  opacity: 0.75;
-  animation: fx-star-bottom var(--star-speed, 8s) linear infinite alternate;
+  opacity: 0;
+  animation: none;
 }
 .fx-star-border__glow--bottom {
   right: -250%;
@@ -58,7 +58,14 @@
 .fx-star-border__glow--top {
   top: -12px;
   left: -250%;
-  animation-name: fx-star-top;
+}
+.fx-star-border:hover .fx-star-border__glow--bottom,
+.fx-star-border:focus-within .fx-star-border__glow--bottom {
+  animation: fx-star-bottom 300ms ease-out;
+}
+.fx-star-border:hover .fx-star-border__glow--top,
+.fx-star-border:focus-within .fx-star-border__glow--top {
+  animation: fx-star-top 300ms ease-out;
 }
 .fx-star-border__inner {
   position: relative;
@@ -107,7 +114,7 @@
   display: block;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 700ms var(--ease-out);
+  transition: opacity 300ms var(--ease-out);
   mask-image: radial-gradient(120% 110% at 85% 10%, #000 0%, rgb(0 0 0 / 55%) 45%, transparent 82%);
 }
 .fx-shape-grid[data-ready='true'] {
