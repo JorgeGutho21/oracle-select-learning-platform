@@ -9,7 +9,11 @@ import {
   signIn,
   type TestUser,
 } from './support/accounts';
-import { expectFlowRegionsDoNotOverlap, expectNoHorizontalScroll } from './support/layout';
+import {
+  expectFlowRegionsDoNotOverlap,
+  expectNoHorizontalScroll,
+  watchConsole,
+} from './support/layout';
 import { watchAuthCookieAttributes } from './support/auth-cookies';
 
 const run = `${Date.now()}-${process.pid}`;
@@ -386,4 +390,106 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
       }
     });
   }
+
+  test('una señal de intento terminado conserva el motivo real mientras la respuesta de entrega sigue pendiente', async ({
+    page,
+    browser,
+  }) => {
+    test.setTimeout(90_000);
+    await signIn(page, teacher);
+    await page.goto('/teacher/questions');
+    await page.getByRole('button', { name: 'Sincronizar banco oficial de DB LAB' }).click();
+    await expect(page.getByText(/Banco oficial sincronizado/)).toBeVisible();
+    await page.goto('/teacher/assessments/new');
+    await page.getByLabel('Nombre de la evaluación').fill(`QA completion ${run}`);
+    await page.getByLabel('Sección', { exact: true }).selectOption('plsql');
+    await page.getByLabel('Selección automática').check();
+    await page.getByLabel('Cantidad de preguntas por estudiante').fill('1');
+    await page.getByLabel('Duración (minutos)').fill('5');
+    await page.getByLabel('Solo los estudiantes que elija', { exact: true }).check();
+    await page.getByRole('checkbox', { name: new RegExp(student.email) }).check();
+    await page.getByRole('button', { name: 'Guardar borrador' }).click();
+    try {
+      await expect(page).toHaveURL(/\/teacher\/assessments\/[0-9a-f-]{36}/);
+    } catch (error) {
+      // Conservar el fallo original y recuperar solo el borrador propio tardío
+      // para teardown; esta observación no convierte el caso en PASS.
+      await page
+        .waitForURL(/\/teacher\/assessments\/[0-9a-f-]{36}/, { timeout: 15_000 })
+        .catch(() => undefined);
+      const lateId = new URL(page.url()).pathname.match(
+        /\/teacher\/assessments\/([0-9a-f-]{36})/,
+      )?.[1];
+      if (lateId) ownedAssessments.push(lateId);
+      throw error;
+    }
+    const path = new URL(page.url()).pathname;
+    ownedAssessments.push(path.split('/').at(-1)!);
+    await page.locator('summary', { hasText: 'Publicar…' }).click();
+    await page.getByRole('button', { name: 'Publicar evaluación', exact: true }).click();
+    await expect(page.getByText(/Evaluación publicada/)).toBeVisible();
+
+    const context = await browser.newContext({
+      ...(state ? { storageState: state } : {}),
+      ...(preview ? { extraHTTPHeaders: { 'x-vercel-skip-toolbar': '1' } } : {}),
+    });
+    let releaseReply!: () => void;
+    const withheldReply = new Promise<void>((resolve) => {
+      releaseReply = resolve;
+    });
+    let persisted!: () => void;
+    let persistenceFailed!: (error: unknown) => void;
+    const committed = new Promise<void>((resolve, reject) => {
+      persisted = resolve;
+      persistenceFailed = reject;
+    });
+    let replyFinished!: () => void;
+    const handled = new Promise<void>((resolve) => {
+      replyFinished = resolve;
+    });
+    let intercepted = false;
+    try {
+      const exam = await context.newPage();
+      const errors = watchConsole(exam);
+      await signIn(exam, student);
+      await exam.goto(path.replace('/teacher/assessments/', '/evaluations/'));
+      await exam.getByRole('button', { name: 'Comenzar evaluación' }).click();
+      await expect(exam.getByRole('timer')).toBeVisible();
+      await answer(exam);
+      await expect(exam.locator('.exam-save')).toHaveText('Guardado', { timeout: 15_000 });
+      // La petición y la persistencia son reales. Solo retenemos la respuesta
+      // original para invertir el orden de llegada frente al heartbeat.
+      await exam.route('**/api/attempts/*/submit', async (route) => {
+        intercepted = true;
+        try {
+          const response = await route.fetch();
+          expect(response.ok()).toBe(true);
+          expect((await response.json()).status).toBe('submitted');
+          persisted();
+          await withheldReply;
+          await route.fulfill({ response });
+        } catch (error) {
+          persistenceFailed(error);
+          throw error;
+        } finally {
+          replyFinished();
+        }
+      });
+      await exam.getByRole('button', { name: 'Entregar evaluación' }).click();
+      await exam.getByRole('dialog').getByRole('button', { name: 'Entregar evaluación' }).click();
+      await committed;
+      // Evento controlado, no simulación de una reconexión física: envía el
+      // heartbeat real contra el intento ya entregado en la base.
+      await exam.evaluate(() => window.dispatchEvent(new Event('online')));
+      await expect(exam).toHaveURL(/aviso=entregada/);
+      await expect(exam.getByText('La evaluación se cerró.', { exact: false })).toHaveCount(0);
+      releaseReply();
+      await handled;
+      expect(errors).toEqual([]);
+    } finally {
+      releaseReply();
+      if (intercepted) await handled;
+      await context.close();
+    }
+  });
 });

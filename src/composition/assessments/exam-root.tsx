@@ -40,7 +40,7 @@ import { useServerClock } from '@/presentation/hooks/use-server-clock';
  */
 
 type InProgress = Extract<AttemptView, { status: 'in_progress' }>;
-type Finish = 'entregada' | 'tiempo' | 'cerrada';
+type Finish = 'entregada' | 'tiempo' | 'cerrada' | null;
 
 const HEARTBEAT_MS = 30_000;
 const EVENTS_FLUSH_MS = 5_000;
@@ -54,6 +54,8 @@ export function ExamRoot({ view }: { readonly view: InProgress }) {
   const router = useRouter();
   const resultHref = `/evaluations/${view.assessment.id}`;
   const finishedRef = useRef(false);
+  const activeRef = useRef(false);
+  const lifecycle = useRef(0);
   const finishRef = useRef<(notice: Finish) => void>(() => undefined);
   const gateway = useMemo(() => new HttpExamGateway(), []);
   const buffer = useMemo(() => new EventBuffer(), []);
@@ -86,14 +88,47 @@ export function ExamRoot({ view }: { readonly view: InProgress }) {
 
   const finish = useCallback(
     (notice: Finish) => {
-      if (finishedRef.current) return;
+      if (!activeRef.current || finishedRef.current) return;
       finishedRef.current = true;
       queue.dispose();
-      router.replace(`${resultHref}?aviso=${notice}` as Route);
+      router.replace((notice ? `${resultHref}?aviso=${notice}` : resultHref) as Route);
       router.refresh();
     },
     [queue, resultHref, router],
   );
+
+  useEffect(() => {
+    activeRef.current = true;
+    return () => {
+      activeRef.current = false;
+      lifecycle.current += 1;
+    };
+  }, []);
+
+  // Una señal «finished» no identifica quién entregó. Puede llegar desde un
+  // heartbeat después de persistir la entrega, antes de su respuesta HTTP.
+  const confirmFinished = useCallback(async () => {
+    if (!activeRef.current || finishedRef.current) return true;
+    const version = lifecycle.current;
+    const confirmed = await gateway.view(view.attemptId);
+    if (!activeRef.current || version !== lifecycle.current || finishedRef.current) return true;
+    if (confirmed === 'not-found') {
+      finish(null);
+      return true;
+    } else if (confirmed !== 'network' && confirmed.status === 'finished') {
+      finish(
+        confirmed.submittedBy === 'student'
+          ? 'entregada'
+          : confirmed.submittedBy === 'timer'
+            ? 'tiempo'
+            : confirmed.submittedBy === 'teacher'
+              ? 'cerrada'
+              : null,
+      );
+      return true;
+    }
+    return false;
+  }, [finish, gateway, view.attemptId]);
 
   useEffect(() => {
     finishRef.current = finish;
@@ -101,9 +136,9 @@ export function ExamRoot({ view }: { readonly view: InProgress }) {
 
   // Copia local de este dispositivo y envío pendiente.
   useEffect(() => {
-    queue.start(() => finishRef.current('cerrada'));
+    queue.start(() => void confirmFinished());
     return () => queue.dispose();
-  }, [queue]);
+  }, [confirmFinished, queue]);
 
   const record = useCallback(
     (type: ClientEventType) => buffer.record(type, Date.now(), currentRef.current),
@@ -116,7 +151,7 @@ export function ExamRoot({ view }: { readonly view: InProgress }) {
       const { batch, taken } = buffer.take(Date.now());
       const outcome = await gateway.heartbeat(view.attemptId, currentRef.current, batch, keepalive);
       if (outcome.status === 'finished') {
-        finishRef.current('cerrada');
+        await confirmFinished();
         return;
       }
       if (outcome.status === 'network') {
@@ -126,7 +161,7 @@ export function ExamRoot({ view }: { readonly view: InProgress }) {
       if (outcome.serverNow) setServerNow(outcome.serverNow);
       if (outcome.expiresAt) setExpiresAt(outcome.expiresAt);
     },
-    [buffer, gateway, view.attemptId],
+    [buffer, confirmFinished, gateway, view.attemptId],
   );
 
   // Señal de conexión y eventos agrupados.
@@ -200,14 +235,15 @@ export function ExamRoot({ view }: { readonly view: InProgress }) {
       await queue.flushNow();
       const outcome = await gateway.submit(view.attemptId, 'timer');
       if (cancelled) return;
-      if (outcome === 'submitted') finishRef.current('tiempo');
-      else if (outcome === 'not-expired') void heartbeat();
+      if (outcome === 'submitted') {
+        if (!(await confirmFinished())) finishRef.current(null);
+      } else if (outcome === 'not-expired') void heartbeat();
       else window.setTimeout(() => setTimerRetry((value) => value + 1), 3000);
     })();
     return () => {
       cancelled = true;
     };
-  }, [expired, gateway, heartbeat, queue, timerRetry, view.attemptId]);
+  }, [confirmFinished, expired, gateway, heartbeat, queue, timerRetry, view.attemptId]);
 
   useEffect(() => {
     currentRef.current = current;
@@ -247,7 +283,9 @@ export function ExamRoot({ view }: { readonly view: InProgress }) {
     }
     const outcome = await gateway.submit(view.attemptId, 'student');
     if (outcome === 'submitted') {
-      finishRef.current('entregada');
+      // Una respuesta idempotente puede confirmar una entrega previa por tiempo
+      // o por el profesor. El motivo también se obtiene del intento real.
+      if (!(await confirmFinished())) finishRef.current(null);
       return;
     }
     setSubmitting(false);
