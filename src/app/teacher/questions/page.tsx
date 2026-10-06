@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Suspense, use } from 'react';
+import { requireTeacher } from '@/composition/accounts/auth-server';
 import { SECTION_TITLES } from '@/composition/assessments/section-titles';
 import { syncOfficialBankAction } from '@/composition/assessments/teacher-actions';
 import { loadQuestionBank } from '@/composition/assessments/teacher-pages';
@@ -8,7 +10,7 @@ import {
   OfficialBankPanel,
   QuestionBankView,
 } from '@/features/assessments/presentation/question-bank-view';
-import { Alert, PageHeader } from '@/presentation/components/ui';
+import { Alert, LoadingState, PageHeader } from '@/presentation/components/ui';
 
 export const metadata: Metadata = {
   title: 'Banco de preguntas · Panel docente',
@@ -31,7 +33,8 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     search: (firstParam(params.q) ?? '').trim().slice(0, 80) || undefined,
     page,
   };
-  const data = await loadQuestionBank(filter);
+  const account = await requireTeacher('/teacher/questions');
+  const bank = loadQuestionBank(filter, account);
   const notice = teacherNotice(firstParam(params.aviso), {
     counts: [
       count(firstParam(params.nuevas)),
@@ -49,27 +52,40 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
       />
       <div className="site-container teacher-page__content">
         {notice && <Alert tone={notice.tone} title={notice.text} live />}
-        {data.status === 'error' ? (
-          <Alert tone="warning" title="No pudimos leer el banco.">
-            Inténtalo de nuevo en unos minutos.
-          </Alert>
-        ) : (
-          <>
-            <OfficialBankPanel
-              official={data.official}
-              sectionTitles={SECTION_TITLES}
-              sync={syncOfficialBankAction}
-            />
-            <QuestionBankView
-              rows={data.rows}
-              total={data.total}
-              pages={data.pages}
-              filter={filter}
-              sections={Object.entries(SECTION_TITLES).map(([id, title]) => ({ id, title }))}
-            />
-          </>
-        )}
+        <Suspense fallback={<LoadingState label="Cargando banco de preguntas…" />}>
+          <BankContent pending={bank} filter={filter} />
+        </Suspense>
       </div>
     </div>
+  );
+}
+
+function BankContent({
+  pending,
+  filter,
+}: {
+  pending: ReturnType<typeof loadQuestionBank>;
+  filter: Parameters<typeof loadQuestionBank>[0];
+}) {
+  const data = use(pending);
+  return data.status === 'error' ? (
+    <Alert tone="warning" title="No pudimos leer el banco.">
+      Inténtalo de nuevo en unos minutos.
+    </Alert>
+  ) : (
+    <>
+      <OfficialBankPanel
+        official={data.official}
+        sectionTitles={SECTION_TITLES}
+        sync={syncOfficialBankAction}
+      />
+      <QuestionBankView
+        rows={data.rows}
+        total={data.total}
+        pages={data.pages}
+        filter={filter}
+        sections={Object.entries(SECTION_TITLES).map(([id, title]) => ({ id, title }))}
+      />
+    </>
   );
 }

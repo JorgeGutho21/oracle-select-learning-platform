@@ -1,6 +1,7 @@
 import 'server-only';
-import { notFound } from 'next/navigation';
+import { forbidden, notFound } from 'next/navigation';
 import type { AccountProfile } from '@/features/accounts/domain/account';
+import { canOpenTeacherArea } from '@/features/accounts/domain/account';
 import {
   BANK_TARGET_PER_SECTION,
   OFFICIAL_BANK,
@@ -129,6 +130,23 @@ export async function loadAssessmentDetail(id: string) {
   const account = await requireTeacher(`/teacher/assessments/${id}`);
   const record = await readAssessment(account.client, id);
   if (!record) notFound();
+  const phase = assessmentPhase(record, Date.now());
+  // Auth and the actual RLS-visible record must resolve before streaming any shell.
+  // Independent secondary reads must not hold back a confirmed write's redirect.
+  return {
+    status: 'ready' as const,
+    record,
+    phase,
+    detail: loadAssessmentDetailContent(account, record, phase),
+  };
+}
+
+async function loadAssessmentDetailContent(
+  account: Awaited<ReturnType<typeof requireTeacher>>,
+  record: AssessmentRecord,
+  phase: AssessmentPhase,
+) {
+  const id = record.id;
   const [selection, frozen, counts, audit, profiles] = await Promise.all([
     assessmentSelection(account.client, id),
     record.status === 'draft' ? Promise.resolve([]) : frozenQuestions(account.client, id),
@@ -145,7 +163,7 @@ export async function loadAssessmentDetail(id: string) {
   return {
     status: 'ready' as const,
     record,
-    phase: assessmentPhase(record, Date.now()),
+    phase,
     draftQuestions: [...draftQuestions].sort(
       (a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
     ),
@@ -272,15 +290,19 @@ export async function loadAttemptReview(id: string, attemptId: string) {
 
 export const BANK_PAGE_SIZE = 20;
 
-export async function loadQuestionBank(filter: {
-  readonly section?: string | undefined;
-  readonly topic?: string | undefined;
-  readonly type?: string | undefined;
-  readonly status?: string | undefined;
-  readonly search?: string | undefined;
-  readonly page: number;
-}) {
-  const account = await requireTeacher('/teacher/questions');
+export async function loadQuestionBank(
+  filter: {
+    readonly section?: string | undefined;
+    readonly topic?: string | undefined;
+    readonly type?: string | undefined;
+    readonly status?: string | undefined;
+    readonly search?: string | undefined;
+    readonly page: number;
+  },
+  verifiedAccount?: Awaited<ReturnType<typeof requireTeacher>>,
+) {
+  const account = verifiedAccount ?? (await requireTeacher('/teacher/questions'));
+  if (!canOpenTeacherArea(account.profile.role)) forbidden();
   const [page, published, all] = await Promise.all([
     listQuestions(account.client, { ...filter, pageSize: BANK_PAGE_SIZE }),
     publishedTopicCounts(account.client),

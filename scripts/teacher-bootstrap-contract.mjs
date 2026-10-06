@@ -32,3 +32,18 @@ export function matchTeacher(teacher, users) {
   if (user && !user.email_confirmed_at) throw new Error(`Unconfirmed account for ${teacher.key}.`);
   return user ?? null;
 }
+
+/** Preflight only for creating missing accounts; never touches existing passwords. */
+export function missingTeacherCredential(env) {
+  const credential = env.PRESENTER_ACCESS_CODE;
+  if (
+    env.DBLAB_BOOTSTRAP_MISSING_TEACHERS !== '1' ||
+    !credential?.trim() ||
+    /^\[(?:SENSITIVE|REDACTED)\]$/i.test(credential.trim())
+  ) {
+    throw new Error(
+      'Missing accounts require explicit bootstrap mode and an unredacted existing presenter credential.',
+    );
+  }
+  return credential;
+}

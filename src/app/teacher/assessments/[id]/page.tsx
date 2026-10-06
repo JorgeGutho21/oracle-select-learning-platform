@@ -1,5 +1,6 @@
 import type { Metadata, Route } from 'next';
 import Link from 'next/link';
+import { Suspense, use } from 'react';
 import { SECTION_TITLES } from '@/composition/assessments/section-titles';
 import {
   archiveAssessmentAction,
@@ -26,7 +27,7 @@ import {
   DraftQuestionList,
   FrozenQuestionList,
 } from '@/features/assessments/presentation/assessment-detail';
-import { Alert, PageHeader } from '@/presentation/components/ui';
+import { Alert, LoadingState, PageHeader } from '@/presentation/components/ui';
 
 export const metadata: Metadata = {
   title: 'Evaluación · Panel docente',
@@ -45,18 +46,8 @@ export default async function Page({
   const notice = teacherNotice(firstParam(query.aviso), {
     reason: firstParam(query.motivo) ?? 'data',
   });
-  if (data.status === 'error') {
-    return (
-      <div className="site-container feature-page">
-        <h1>Evaluación</h1>
-        <Alert tone="warning" title="No pudimos leer la evaluación.">
-          Inténtalo de nuevo en unos minutos.
-        </Alert>
-      </div>
-    );
-  }
   const record = toDetailRecord(data.record);
-  const editor = data.phase === 'draft' ? await loadAssessmentEditor(id) : null;
+  const editor = data.phase === 'draft' ? loadAssessmentEditor(id) : null;
   return (
     <div className="teacher-page">
       <PageHeader
@@ -83,40 +74,79 @@ export default async function Page({
             deleteDraft: deleteDraftAction,
           }}
         />
-        <AssessmentSettings
-          record={record}
-          phase={data.phase}
-          audienceSize={data.audienceSize}
-          assignedNames={data.assigned.map((student) =>
-            `${student.firstName} ${student.lastName}`.trim(),
-          )}
-          counts={data.counts}
-        />
-        {editor?.status === 'ready' && editor.record && editor.selection && (
-          <section className="teacher-block" aria-labelledby="draft-editor-title">
-            <h2 id="draft-editor-title">Editar borrador</h2>
-            <AssessmentForm
-              action={saveAssessmentAction}
-              values={toFormValues(editor.record, editor.selection)}
-              sections={Object.entries(SECTION_TITLES).map(([key, title]) => ({ id: key, title }))}
-              bank={editor.bank}
-              topicCounts={editor.topicCounts}
-              students={editor.students}
-            />
-          </section>
+        <Suspense fallback={<LoadingState label="Cargando detalles de la evaluación…" />}>
+          <DetailContent pending={data.detail} />
+        </Suspense>
+        {editor && (
+          <Suspense fallback={<LoadingState label="Cargando editor del borrador…" />}>
+            <DraftEditor pending={editor} />
+          </Suspense>
         )}
-        <section className="teacher-block" aria-labelledby="assessment-questions-title">
-          <h2 id="assessment-questions-title">
-            {data.phase === 'draft' ? 'Preguntas elegidas' : 'Preguntas congeladas al publicar'}
-          </h2>
-          {data.phase === 'draft' ? (
-            <DraftQuestionList questions={data.draftQuestions} sectionKey={record.sectionKey} />
-          ) : (
-            <FrozenQuestionList questions={data.frozen} sectionKey={record.sectionKey} />
-          )}
-        </section>
-        <AuditList entries={data.audit} />
       </div>
     </div>
+  );
+}
+
+function DetailContent({
+  pending,
+}: {
+  pending: Awaited<ReturnType<typeof loadAssessmentDetail>>['detail'];
+}) {
+  const data = use(pending);
+  if (data.status === 'error') {
+    return (
+      <Alert tone="warning" title="No pudimos leer los detalles de la evaluación.">
+        Inténtalo de nuevo en unos minutos.
+      </Alert>
+    );
+  }
+  const record = toDetailRecord(data.record);
+  return (
+    <>
+      <AssessmentSettings
+        record={record}
+        phase={data.phase}
+        audienceSize={data.audienceSize}
+        assignedNames={data.assigned.map((student) =>
+          `${student.firstName} ${student.lastName}`.trim(),
+        )}
+        counts={data.counts}
+      />
+      <section className="teacher-block" aria-labelledby="assessment-questions-title">
+        <h2 id="assessment-questions-title">
+          {data.phase === 'draft' ? 'Preguntas elegidas' : 'Preguntas congeladas al publicar'}
+        </h2>
+        {data.phase === 'draft' ? (
+          <DraftQuestionList questions={data.draftQuestions} sectionKey={record.sectionKey} />
+        ) : (
+          <FrozenQuestionList questions={data.frozen} sectionKey={record.sectionKey} />
+        )}
+      </section>
+      <AuditList entries={data.audit} />
+    </>
+  );
+}
+
+function DraftEditor({ pending }: { pending: ReturnType<typeof loadAssessmentEditor> }) {
+  const editor = use(pending);
+  if (editor.status !== 'ready' || !editor.record || !editor.selection) {
+    return (
+      <Alert tone="warning" title="No pudimos cargar el editor.">
+        Inténtalo de nuevo en unos minutos.
+      </Alert>
+    );
+  }
+  return (
+    <section className="teacher-block" aria-labelledby="draft-editor-title">
+      <h2 id="draft-editor-title">Editar borrador</h2>
+      <AssessmentForm
+        action={saveAssessmentAction}
+        values={toFormValues(editor.record, editor.selection)}
+        sections={Object.entries(SECTION_TITLES).map(([key, title]) => ({ id: key, title }))}
+        bank={editor.bank}
+        topicCounts={editor.topicCounts}
+        students={editor.students}
+      />
+    </section>
   );
 }

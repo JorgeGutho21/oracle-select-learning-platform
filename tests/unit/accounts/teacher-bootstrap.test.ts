@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { teacherIdentities, matchTeacher } from '../../../scripts/teacher-bootstrap-contract.mjs';
+import {
+  teacherIdentities,
+  matchTeacher,
+  missingTeacherCredential,
+} from '../../../scripts/teacher-bootstrap-contract.mjs';
 
 const emailEnv = {
   DBLAB_TEACHER_JORGE_EMAIL: 'jorge@example.test',
@@ -59,5 +63,27 @@ describe('Administrative teacher identity boundary', () => {
       email_confirmed_at: '2026-10-04',
     };
     expect(matchTeacher(teacher!, [user])).toBe(user);
+  });
+  it.each([undefined, '', '  ', '[SENSITIVE]', '[REDACTED]', ' [sensitive] '])(
+    'rejects missing or redacted credential %s without including its value in errors',
+    (credential) => {
+      expect(() =>
+        missingTeacherCredential({
+          DBLAB_BOOTSTRAP_MISSING_TEACHERS: '1',
+          PRESENTER_ACCESS_CODE: credential,
+        }),
+      ).toThrow('unredacted existing presenter credential');
+    },
+  );
+  it('requires explicit creation mode and preserves the actual credential bytes', () => {
+    expect(() =>
+      missingTeacherCredential({ PRESENTER_ACCESS_CODE: 'test-only-credential' }),
+    ).toThrow('explicit bootstrap mode');
+    expect(
+      missingTeacherCredential({
+        DBLAB_BOOTSTRAP_MISSING_TEACHERS: '1',
+        PRESENTER_ACCESS_CODE: ' test-only-credential ',
+      }),
+    ).toBe(' test-only-credential ');
   });
 });

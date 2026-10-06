@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
-import { teacherIdentities, matchTeacher } from './teacher-bootstrap-contract.mjs';
+import {
+  teacherIdentities,
+  matchTeacher,
+  missingTeacherCredential,
+} from './teacher-bootstrap-contract.mjs';
 
 // Run with --env-file=.env.local. All inputs stay in the administration environment.
 // Default: inspect only. --apply assigns roles; missing users additionally require
@@ -25,22 +29,15 @@ async function run() {
   }
   // Resolve both identities before mutating either. A bad UUID cannot partially grant access.
   const resolved = teachers.map((teacher) => ({ teacher, user: matchTeacher(teacher, users) }));
-  if (
-    apply &&
-    resolved.some(({ user }) => !user) &&
-    (process.env.DBLAB_BOOTSTRAP_MISSING_TEACHERS !== '1' || !process.env.PRESENTER_ACCESS_CODE)
-  ) {
-    throw new Error(
-      'Missing accounts need explicit bootstrap mode and the existing presenter credential in the server environment.',
-    );
-  }
+  const credential =
+    apply && resolved.some(({ user }) => !user) ? missingTeacherCredential(process.env) : undefined;
   for (const entry of resolved) {
     const { teacher } = entry;
     let user = entry.user;
     if (!user && apply) {
       const created = await admin.auth.admin.createUser({
         email: teacher.email,
-        password: process.env.PRESENTER_ACCESS_CODE,
+        password: credential,
         email_confirm: true,
         user_metadata: { first_name: teacher.first, last_name: teacher.last },
       });

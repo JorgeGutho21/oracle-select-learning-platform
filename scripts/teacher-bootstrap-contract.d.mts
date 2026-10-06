@@ -18,3 +18,4 @@ export function matchTeacher(
   teacher: TeacherIdentity,
   users: readonly AuthIdentity[],
 ): AuthIdentity | null;
+export function missingTeacherCredential(env: Readonly<Record<string, string | undefined>>): string;
