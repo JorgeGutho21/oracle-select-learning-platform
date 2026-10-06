@@ -22,7 +22,9 @@ let teacher: TestUser;
 let student: TestUser;
 const ownedAssessments: string[] = [];
 const preview = process.env.PHASE5_REMOTE_QA === 'preview';
-const state = preview ? 'output/playwright/phase5/remote-state.json' : undefined;
+const isProduction = process.env.PHASE5_REMOTE_QA === 'production';
+const isRemote = preview || isProduction;
+const state = isRemote ? 'output/playwright/phase5/remote-state.json' : undefined;
 
 async function expectAccessible(page: Page, screen: string) {
   const result = await new AxeBuilder({ page })
@@ -152,6 +154,8 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
       expect(process.env.REMOTE_BASE_URL).toMatch(
         /^https:\/\/sql-select-[a-z0-9]+-jorge-gutierrez1\.vercel\.app\/?$/,
       );
+    } else if (isProduction) {
+      expect(process.env.REMOTE_BASE_URL).toBe('https://sql-select-lab.vercel.app');
     } else {
       expect(['127.0.0.1', 'localhost']).toContain(new URL(SUPABASE_URL).hostname);
     }
