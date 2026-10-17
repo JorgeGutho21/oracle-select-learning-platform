@@ -178,21 +178,22 @@ export function OracleError({ error }: { readonly error: OracleErrorText }) {
     >
       <p className="study-part">Ejemplo de error · resultado esperado</p>
       <p className="cu-oracle-error__title">
-        <span aria-hidden="true">!</span>{' '}
-        {explanation?.title ?? 'Revisa la instrucción del ejemplo'}
+        <span aria-hidden="true">!</span> <strong>Qué pasó:</strong>{' '}
+        {explanation?.title ?? 'Oracle no pudo ejecutar la instrucción del ejemplo'}
       </p>
       <p>
+        <strong>Por qué:</strong>{' '}
         {explanation?.explanation ??
-          'El ejemplo muestra una instrucción que Oracle rechaza para aprender a corregirla.'}
+          'El ejemplo muestra a propósito una instrucción incorrecta para aprender a corregirla.'}
       </p>
       {explanation && (
         <p>
-          <strong>Cómo corregirlo:</strong> {explanation.correction}
+          <strong>Cómo se corrige:</strong> {explanation.correction}
         </p>
       )}
       <details>
         <summary>
-          Detalle técnico de Oracle: <code>{error.code}</code>
+          Detalle técnico: Oracle denomina este caso <code>{error.code}</code>
         </summary>
         <pre className="cu-oracle-error__message">{error.message}</pre>
       </details>

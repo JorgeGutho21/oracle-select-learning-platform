@@ -1,80 +1,11 @@
 import { lines } from '../../builders';
-import type { CurriculumBlock, CurriculumScene } from '../../types';
+import type { CurriculumScene } from '../../types';
 
 /**
  * Bloques y guion de la clase de la Sección 2. Las escenas de lección proyectan el ejemplo
  * de su lección (mismos datos, misma consulta, mismo resultado verificado); aquí solo se
  * escriben las notas del profesor y las escenas de idea, pregunta y cierre.
  */
-
-export const S2_BLOCKS: readonly CurriculumBlock[] = [
-  {
-    id: 'relaciones',
-    number: 1,
-    title: 'Relaciones y claves',
-    summary: 'Por qué varias tablas: PK, FK, integridad referencial y alias de tabla.',
-  },
-  {
-    id: 'modelo-join',
-    number: 2,
-    title: 'Modelo mental del JOIN',
-    summary: 'Tabla A + tabla B + condición = resultado.',
-  },
-  {
-    id: 'inner-join',
-    number: 3,
-    title: 'INNER JOIN',
-    summary: 'ON, columnas de varias tablas, JOIN con WHERE y joins múltiples.',
-  },
-  {
-    id: 'otros-join',
-    number: 4,
-    title: 'OUTER, SELF y CROSS JOIN',
-    summary: 'Qué filas conserva cada JOIN: LEFT, RIGHT, FULL, SELF, CROSS y NATURAL.',
-  },
-  {
-    id: 'funciones-grupo',
-    number: 5,
-    title: 'Funciones de grupo',
-    summary: 'COUNT, SUM, AVG, MIN y MAX, y cómo tratan los NULL.',
-  },
-  {
-    id: 'group-by',
-    number: 6,
-    title: 'GROUP BY',
-    summary: 'Un resumen por grupo y los errores típicos.',
-  },
-  {
-    id: 'having',
-    number: 7,
-    title: 'HAVING',
-    summary: 'Filtrar grupos y el orden WHERE → GROUP BY → HAVING.',
-  },
-  {
-    id: 'join-agregacion',
-    number: 8,
-    title: 'JOIN + agregaciones',
-    summary: 'Resúmenes por departamento y proyecto con nombres legibles.',
-  },
-  {
-    id: 'subconsultas',
-    number: 9,
-    title: 'Subconsultas',
-    summary: 'De una fila, de varias filas, correlacionadas y EXISTS.',
-  },
-  {
-    id: 'conjuntos',
-    number: 10,
-    title: 'Operadores de conjuntos',
-    summary: 'UNION, UNION ALL, INTERSECT y MINUS.',
-  },
-  {
-    id: 'integracion',
-    number: 11,
-    title: 'Integración final',
-    summary: 'Una consulta completa, construida y comprobada por capas.',
-  },
-];
 
 export const S2_SCENES: readonly CurriculumScene[] = [
   {

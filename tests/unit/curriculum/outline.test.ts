@@ -3,6 +3,20 @@ import { describe, expect, it } from 'vitest';
 import { CURRICULA, EXTENSIONS } from '@/features/curriculum/domain/registry';
 import type { CurriculumUnit } from '@/features/curriculum/domain/types';
 import legacyScenes from '@/features/curriculum/application/legacy-scenes.json';
+import releaseScenes from '@/features/curriculum/application/release-scenes-20261004.json';
+import type { CurriculumScene } from '@/features/curriculum/domain/types';
+
+type PreviousScene = { readonly id: string; readonly block: string; readonly lesson?: string };
+
+/** Posición vigente de una escena anterior: la misma escena o la primera de su lección o bloque. */
+function migrated(scenes: readonly CurriculumScene[], previous: PreviousScene): number {
+  const exact = scenes.findIndex((scene) => scene.id === previous.id);
+  if (exact >= 0) return exact + 1;
+  const related = scenes.findIndex((scene) =>
+    previous.lesson ? scene.lesson === previous.lesson : scene.block === previous.block,
+  );
+  return related >= 0 ? related + 1 : 1;
+}
 
 /**
  * El índice ligero (`application/outline.json`) coincide con el contenido. Con
@@ -37,17 +51,20 @@ function expected() {
       scenePositions: Object.fromEntries(
         curriculum.scenes.map((scene, index) => [scene.id, index + 1]),
       ),
-      legacyScenePositions: legacyScenes[curriculum.section as keyof typeof legacyScenes].map(
-        (previous) => {
-          const exact = curriculum.scenes.findIndex((scene) => scene.id === previous.id);
-          if (exact >= 0) return exact + 1;
-          const related = curriculum.scenes.findIndex((scene) =>
-            'lesson' in previous
-              ? scene.lesson === previous.lesson
-              : scene.block === previous.block,
-          );
-          return related >= 0 ? related + 1 : 1;
-        },
+      legacyScenePositions: (
+        legacyScenes[curriculum.section as keyof typeof legacyScenes] as readonly PreviousScene[]
+      ).map((previous) => migrated(curriculum.scenes, previous)),
+      releaseScenePositions: (
+        releaseScenes[curriculum.section as keyof typeof releaseScenes] as readonly PreviousScene[]
+      ).map((previous) => migrated(curriculum.scenes, previous)),
+      retiredScenePositions: Object.fromEntries(
+        (
+          releaseScenes[
+            curriculum.section as keyof typeof releaseScenes
+          ] as readonly PreviousScene[]
+        )
+          .filter((previous) => !curriculum.scenes.some((scene) => scene.id === previous.id))
+          .map((previous) => [previous.id, migrated(curriculum.scenes, previous)]),
       ),
       classLessonScenes: Object.fromEntries(
         curriculum.lessons.map((lesson) => [

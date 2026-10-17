@@ -5,7 +5,7 @@ import {
   type ProgressRecord,
 } from '@/features/progress/domain/progress';
 import { readProgressRecord } from '@/features/progress/application/progress-wire';
-import { curriculumScenePosition, outlineOf } from './outline';
+import { CURRENT_SCENE_RELEASE, curriculumScenePosition, outlineOf } from './outline';
 
 /**
  * Progreso local de las secciones de la fuente curricular (lecciones, prácticas, misiones y
@@ -176,7 +176,7 @@ export class CurriculumProgressStore {
       status: scene === total || current?.status === 'completed' ? 'completed' : 'in_progress',
       percent: Math.max(current?.percent ?? 0, Math.round((scene / total) * 100)),
       contentVersion: null,
-      state: { scene, sceneRelease: 'pedagogy-20261004', ...(sceneId ? { sceneId } : {}) },
+      state: { scene, sceneRelease: CURRENT_SCENE_RELEASE, ...(sceneId ? { sceneId } : {}) },
       lastActivityAt: this.now(),
     };
     this.records.set(key, record);

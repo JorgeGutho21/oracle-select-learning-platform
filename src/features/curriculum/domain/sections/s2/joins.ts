@@ -13,6 +13,17 @@ const SAMPLE = [2, 3, 6, 9, 20] as const;
 export const JOIN_EXAMPLES: readonly CurriculumExample[] = [
   /* ---------- Bloque 1: relaciones y claves ---------- */
   query(
+    'S2-E-S1-TEXTO',
+    lines(
+      'SELECT id_empleado, nombre, departamento',
+      'FROM empleados',
+      'WHERE id_empleado IN (2, 6, 7)',
+      'ORDER BY id_empleado;',
+    ),
+    [source('EMPLEADOS', ['ID_EMPLEADO', 'NOMBRE', 'DEPARTAMENTO'], [2, 6, 7])],
+    { dataset: 'empleados-v2' },
+  ),
+  query(
     'S2-E-PK-FK',
     lines(
       'SELECT id_empleado, nombre, id_departamento',
@@ -422,6 +433,12 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
       'La clave primaria (PRIMARY KEY) identifica cada fila sin repetirse ni quedar vacía. La clave foránea (FOREIGN KEY) es una columna que apunta a la clave primaria de otra tabla: EMPLEADOS.ID_DEPARTAMENTO apunta a DEPARTAMENTOS.ID_DEPARTAMENTO.',
       'Oracle protege la relación: no deja guardar un empleado con un departamento que no existe (integridad referencial). Una clave foránea sí puede quedar en NULL: Esteban Torres todavía no tiene departamento.',
     ],
+    micro: {
+      question: 'Primero, un ejemplo pequeño',
+      example: 'S2-E-S1-TEXTO',
+      reading:
+        'Así era EMPLEADOS en la Sección 1: el área como texto. Carlos, Andrés y Paula trabajan en TI y el texto «TI» se repite en cada fila. Si el área cambiara de nombre, habría que corregir cada persona. A continuación, la misma información repartida en dos tablas.',
+    },
     example: {
       question: '¿En qué área trabaja cada persona? EMPLEADOS solo dice un número.',
       example: 'S2-E-PK-FK',
@@ -429,6 +446,12 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
         'Muestra el identificador, el nombre y el número de departamento de cuatro personas. Para saber qué es el 20 hay que mirar DEPARTAMENTOS: es TI.',
     },
     more: [
+      {
+        question: 'El número 20 se busca en la tabla padre: DEPARTAMENTOS.',
+        example: 'S2-L01-MICRO',
+        reading:
+          'SELECT elige la clave y el nombre; FROM indica la tabla de áreas; WHERE busca la clave 20. El 20 es TI y se guarda una sola vez.',
+      },
       {
         question:
           '¿Qué pasa si se intenta guardar un empleado en el departamento 70, que no existe?',
@@ -498,11 +521,11 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'La clave primaria identifica; la clave foránea apunta. Juntas permiten reunir datos.',
     topic: 'relaciones',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S2-L02',
-    block: 'relaciones',
+    block: 'alias',
     slug: 'alias-de-tabla',
     title: 'Alias de tabla y columnas calificadas',
     shortTitle: 'Alias de tabla',
@@ -588,7 +611,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
     shortTitle: 'Modelo del JOIN',
     summary:
       'Un JOIN arma filas nuevas uniendo cada fila de una tabla con las filas de otra que cumplen la condición.',
-    concepts: ['join'],
+    concepts: ['join', 'on'],
     purpose:
       'Entender qué hace Oracle antes de memorizar la sintaxis: buscar pareja para cada fila usando la columna que conecta las tablas.',
     syntax: lines(
@@ -905,7 +928,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S2-L07',
-    block: 'inner-join',
+    block: 'joins-multiples',
     slug: 'joins-multiples',
     title: 'JOIN de tres o más tablas',
     shortTitle: 'Joins múltiples',
@@ -994,7 +1017,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S2-L08',
-    block: 'otros-join',
+    block: 'outer-join',
     slug: 'left-outer-join',
     title: 'LEFT OUTER JOIN: conservar las filas sin pareja',
     shortTitle: 'LEFT JOIN',
@@ -1117,7 +1140,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S2-L09',
-    block: 'otros-join',
+    block: 'outer-join',
     slug: 'right-y-full-outer-join',
     title: 'RIGHT y FULL OUTER JOIN',
     shortTitle: 'RIGHT y FULL',
@@ -1205,7 +1228,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S2-L10',
-    block: 'otros-join',
+    block: 'self-join',
     slug: 'self-join',
     title: 'SELF JOIN: una tabla consigo misma',
     shortTitle: 'SELF JOIN',
@@ -1297,7 +1320,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S2-L11',
-    block: 'otros-join',
+    block: 'cross-join',
     slug: 'cross-y-natural-join',
     title: 'CROSS JOIN, NATURAL JOIN y USING',
     shortTitle: 'CROSS y NATURAL',

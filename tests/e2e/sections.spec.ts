@@ -35,7 +35,7 @@ test.describe('Secciones', () => {
     // Sin progreso: estado neutro, nada inventado. Fase 4: un medidor por sección publicada,
     // con los mismos totales que el catálogo de progreso.
     const overview = page.getByRole('region', { name: 'Tu avance' });
-    for (const total of [25, 25, 28]) {
+    for (const total of [25, 25, 29]) {
       await expect(
         overview.getByRole('progressbar', { name: `Tu avance: 0 de ${total} lecciones` }).first(),
       ).toHaveAttribute('aria-valuenow', '0');

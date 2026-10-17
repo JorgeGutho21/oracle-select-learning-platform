@@ -13,6 +13,14 @@ import type {
 import { ExampleBlock } from './example-block';
 import { ResourceExplorer } from './resource-explorer';
 import { CodeView, CurriculumTable, ExampleOutcome, VerifiedNote } from './example-parts';
+import {
+  ChangeColumns,
+  Prerequisites,
+  SyntaxParts,
+  TierBadge,
+  TopicPreviews,
+  TopicTables,
+} from './topic-contract';
 import { SpotlightCard } from '@/presentation/components/effects/spotlight-card';
 import { Breadcrumb, PageHeader } from '@/presentation/components/ui';
 
@@ -148,12 +156,26 @@ export function LessonBlocks({
             <span className="cu-block__number">{String(block.number).padStart(2, '0')}</span>{' '}
             {block.title}
           </h2>
+          {block.tier === 'extension' && (
+            <p className="cu-block__tier">
+              <TierBadge tier="extension" label="Ampliación" /> Después del núcleo; no hace falta
+              para entender los temas centrales.
+            </p>
+          )}
           <p className="cu-block__summary">{block.summary}</p>
           <ol className="cu-block__lessons">
             {block.lessons.map((lesson) => (
               <li key={lesson.id} className="cu-lesson-link">
                 <Link href={lesson.href as Route}>
-                  <span className="cu-lesson-link__number">Lección {lesson.number}</span>
+                  <span className="cu-lesson-link__number">
+                    Lección {lesson.number}
+                    {lesson.tier === 'extension' && (
+                      <>
+                        {' '}
+                        <TierBadge tier="extension" label="Ampliación" />
+                      </>
+                    )}
+                  </span>
                   <span className="cu-lesson-link__title">{lesson.title}</span>
                   <span className="cu-lesson-link__summary">{lesson.summary}</span>
                 </Link>
@@ -307,11 +329,25 @@ export function LessonArticle({
           {view.total}
         </p>
         <h1>{view.lesson.title}</h1>
+        {view.contract && view.contract.tier !== 'core' && (
+          <p className="cu-lesson__tier">
+            <TierBadge tier={view.contract.tier} label={view.contract.tierLabel} />{' '}
+            {view.contract.tier === 'extension'
+              ? 'Contenido de siguiente nivel: amplía lo central de la sección.'
+              : 'Tema de apoyo: prepara o completa un tema central.'}
+          </p>
+        )}
+        {view.contract && (
+          <p className="cu-lesson__problem">
+            <span className="study-part">El problema</span> {view.contract.problem}
+          </p>
+        )}
         <p className="cu-lesson__summary">{view.lesson.summary}</p>
         {view.concepts.map((concept) => (
           <ConceptDefinition key={concept.id} concept={concept} />
         ))}
         <nav className="study-onpage" aria-label="En esta lección">
+          {view.contract && view.contract.tables.length > 0 && <a href="#datos">Datos</a>}
           <a href="#sintaxis">Sintaxis</a>
           <a href="#practica">Predicción</a>
           <a href="#ejemplo">Ejemplo</a>
@@ -320,12 +356,18 @@ export function LessonArticle({
       </header>
 
       <div className="study-intro">
-        {view.orientation && (
+        {view.contract && (
           <section className="study-card-block cu-orientation" aria-label="Antes de empezar">
             <p className="study-part">Antes de empezar</p>
-            <p>{view.orientation.prerequisite}</p>
+            <Prerequisites
+              prerequisites={view.contract.prerequisites}
+              prior={view.contract.prior}
+            />
             <h2>Modelo mental</h2>
-            <p className="cu-orientation__model">{view.orientation.mentalModel}</p>
+            <pre className="cu-orientation__model">{view.contract.model}</pre>
+            <p className="cu-orientation__note">
+              Es un esquema para entender la idea, no una ejecución de Oracle.
+            </p>
           </section>
         )}
         <section className="study-card-block" aria-labelledby="purpose-title">
@@ -346,12 +388,30 @@ export function LessonArticle({
         </section>
       </div>
 
+      {view.contract && view.contract.tables.length > 0 && (
+        <section
+          className="study-card-block cu-lesson__data"
+          id="datos"
+          aria-labelledby="data-title"
+        >
+          <p className="study-part">Con qué datos trabajamos</p>
+          <h2 id="data-title" className="visually-hidden">
+            Tablas de esta lección
+          </h2>
+          <TopicTables tables={view.contract.tables} />
+        </section>
+      )}
+
       <section className="study-syntax-block" id="sintaxis" aria-labelledby="syntax-title">
         <p className="study-part">Sintaxis</p>
         <h2 id="syntax-title" className="visually-hidden">
           Sintaxis
         </h2>
         <CodeView code={view.syntax} label="Forma general" />
+        {view.contract && (
+          <SyntaxParts parts={view.contract.parts} reading={view.contract.reading} />
+        )}
+        {view.contract && <TopicPreviews previews={view.contract.previews} />}
       </section>
 
       <div id="practica" className="study-anchor">
@@ -386,17 +446,11 @@ export function LessonArticle({
       </section>
 
       <section className="study-changes cu-changes" aria-labelledby="changes-title">
-        <div className="study-changes__col study-changes__col--changed">
-          <p className="study-part">Qué cambió</p>
-          <h2 id="changes-title" className="visually-hidden">
-            Qué cambió
-          </h2>
-          <ul>
-            {view.changed.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
+        <ChangeColumns
+          changed={view.changed}
+          unchanged={view.contract?.unchanged ?? []}
+          headingId="changes-title"
+        />
       </section>
 
       <section className="cu-mistakes" id="errores" aria-labelledby="errors-title">
@@ -554,7 +608,7 @@ export function ResourceBlocks({ blocks }: { readonly blocks: readonly ResourceB
             ))}
           </ol>
         </nav>
-        {blocks.map((block) => (
+        {blocks.map((block, index) => (
           <section
             key={block.id}
             id={`recursos-${block.id}`}
@@ -564,7 +618,7 @@ export function ResourceBlocks({ blocks }: { readonly blocks: readonly ResourceB
             <h2 id={`recursos-${block.id}-title`}>
               {block.number}. {block.title}
             </h2>
-            <details className="db-resource-block" open={block.number === 1}>
+            <details className="db-resource-block" open={index === 0}>
               <summary>
                 Consultar {block.concepts.length} fichas · {block.title}
               </summary>

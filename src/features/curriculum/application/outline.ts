@@ -25,9 +25,17 @@ export interface OutlineLesson {
   readonly version: number;
 }
 
+/** Guion de clase vigente: cambia cuando se reestructuran las escenas. */
+export const CURRENT_SCENE_RELEASE = 'pedagogy-20261017';
+
 export interface SectionOutline {
   readonly scenePositions: Readonly<Record<string, number>>;
+  /** Posiciones del primer guion (antes de los releases con identidad de escena). */
   readonly legacyScenePositions: readonly number[];
+  /** Posiciones del guion pedagogy-20261004 en el guion vigente. */
+  readonly releaseScenePositions: readonly number[];
+  /** Escenas retiradas del guion anterior → escena equivalente del vigente. */
+  readonly retiredScenePositions: Readonly<Record<string, number>>;
   readonly classLessonScenes: Readonly<Record<string, number>>;
   readonly section: SectionId;
   readonly blocks: readonly OutlineBlock[];
@@ -69,12 +77,16 @@ export function curriculumScenePosition(
 ): number | null {
   const outline = outlineOf(section);
   if (!outline) return null;
-  if (typeof state.sceneId === 'string') return outline.scenePositions[state.sceneId] ?? null;
+  if (typeof state.sceneId === 'string')
+    return (
+      outline.scenePositions[state.sceneId] ?? outline.retiredScenePositions[state.sceneId] ?? null
+    );
   const scene = state.scene;
   if (typeof scene !== 'number' || !Number.isInteger(scene) || scene < 1) return null;
-  if (state.sceneRelease !== 'pedagogy-20261004')
-    return outline.legacyScenePositions[scene - 1] ?? null;
-  return scene <= outline.scenes ? scene : null;
+  if (state.sceneRelease === CURRENT_SCENE_RELEASE) return scene <= outline.scenes ? scene : null;
+  if (state.sceneRelease === 'pedagogy-20261004')
+    return outline.releaseScenePositions[scene - 1] ?? null;
+  return outline.legacyScenePositions[scene - 1] ?? null;
 }
 
 export function curriculumLessonHref(section: SectionId, slug: string): string {

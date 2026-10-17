@@ -56,13 +56,150 @@ export const BASICS_EXAMPLES: readonly CurriculumExample[] = [
       ],
     },
   ),
+  query('S3-E-SQL-SALARIO', lines('SELECT salario', 'FROM empleados', 'WHERE id_empleado = 6;'), [
+    source('EMPLEADOS', ['ID_EMPLEADO', 'NOMBRE', 'SALARIO'], [6]),
+  ]),
   query(
     'S3-E-SQL-SOLO',
     lines('SELECT COUNT(*) AS activos', 'FROM empleados', "WHERE estado = 'ACTIVO';"),
     [source('EMPLEADOS', ['ID_EMPLEADO', 'NOMBRE', 'ESTADO'])],
   ),
 
-  /* ---------- Bloque 2: estructura ---------- */
+  /* ---------- Bloque 1: el bloque anónimo en tres versiones ---------- */
+  plsql(
+    'S3-E-DECLARE-SIMPLE',
+    lines(
+      'DECLARE',
+      "  v_mensaje VARCHAR2(30) := 'Hola, DB LAB';",
+      'BEGIN',
+      '  DBMS_OUTPUT.PUT_LINE(v_mensaje);',
+      'END;',
+    ),
+    {
+      trace: [
+        {
+          line: 2,
+          note: 'DECLARE prepara v_mensaje y le da un valor inicial.',
+          vars: { v_mensaje: 'Hola, DB LAB' },
+        },
+        {
+          line: 4,
+          note: 'BEGIN ejecuta PUT_LINE, que muestra el valor guardado en v_mensaje.',
+          vars: { v_mensaje: 'Hola, DB LAB' },
+          output: 'Hola, DB LAB',
+        },
+        { line: 5, note: 'END; termina el bloque.', vars: { v_mensaje: 'Hola, DB LAB' } },
+      ],
+    },
+  ),
+  plsql(
+    'S3-E-EXCEPTION-SIMPLE',
+    lines(
+      'BEGIN',
+      "  DBMS_OUTPUT.PUT_LINE('Antes de dividir');",
+      '  DBMS_OUTPUT.PUT_LINE(10 / 0);',
+      "  DBMS_OUTPUT.PUT_LINE('Esta línea no se ejecuta');",
+      'EXCEPTION',
+      '  WHEN ZERO_DIVIDE THEN',
+      "    DBMS_OUTPUT.PUT_LINE('No se puede dividir entre cero');",
+      'END;',
+    ),
+    {
+      trace: [
+        { line: 2, note: 'La primera instrucción se ejecuta.', output: 'Antes de dividir' },
+        {
+          line: 3,
+          note: 'Dividir entre cero es un error: Oracle deja de ejecutar BEGIN y salta a EXCEPTION.',
+        },
+        {
+          line: 7,
+          note: 'WHEN ZERO_DIVIDE coincide con el error y su instrucción se ejecuta. La línea 4 nunca se ejecutó.',
+          output: 'No se puede dividir entre cero',
+        },
+      ],
+    },
+  ),
+
+  /* ---------- Bloque 2: variables ---------- */
+  plsql(
+    'S3-E-VARIABLES-BASICO',
+    lines(
+      'DECLARE',
+      "  v_nombre  VARCHAR2(30) := 'Andrés';",
+      '  v_salario NUMBER(10)   := 4200000;',
+      '  v_bono    NUMBER(10);',
+      'BEGIN',
+      "  DBMS_OUTPUT.PUT_LINE(v_nombre || ' gana ' || v_salario);",
+      "  DBMS_OUTPUT.PUT_LINE('Bono al empezar: ' || NVL(TO_CHAR(v_bono), 'NULL'));",
+      '  v_bono := 300000;',
+      "  DBMS_OUTPUT.PUT_LINE('Bono asignado: ' || v_bono);",
+      'END;',
+    ),
+    {
+      trace: [
+        { line: 2, note: 'v_nombre se inicializa con un texto.', vars: { v_nombre: 'Andrés' } },
+        {
+          line: 3,
+          note: 'v_salario se inicializa con un número.',
+          vars: { v_nombre: 'Andrés', v_salario: '4200000' },
+        },
+        {
+          line: 4,
+          note: 'v_bono se declara sin valor inicial: empieza en NULL.',
+          vars: { v_nombre: 'Andrés', v_salario: '4200000', v_bono: 'NULL' },
+        },
+        {
+          line: 6,
+          note: '|| une textos y valores en una sola línea de salida.',
+          vars: { v_nombre: 'Andrés', v_salario: '4200000', v_bono: 'NULL' },
+          output: 'Andrés gana 4200000',
+        },
+        {
+          line: 7,
+          note: 'NVL muestra la palabra NULL porque v_bono todavía no tiene valor.',
+          vars: { v_nombre: 'Andrés', v_salario: '4200000', v_bono: 'NULL' },
+          output: 'Bono al empezar: NULL',
+        },
+        {
+          line: 8,
+          note: ':= asigna 300000 a v_bono.',
+          vars: { v_nombre: 'Andrés', v_salario: '4200000', v_bono: '300000' },
+        },
+        {
+          line: 9,
+          note: 'La variable ya tiene el valor asignado.',
+          vars: { v_nombre: 'Andrés', v_salario: '4200000', v_bono: '300000' },
+          output: 'Bono asignado: 300000',
+        },
+      ],
+    },
+  ),
+
+  /* ---------- Bloque 3: %TYPE ---------- */
+  plsql(
+    'S3-E-TYPE-BASICO',
+    lines(
+      'DECLARE',
+      "  v_nombre  empleados.nombre%TYPE  := 'Paula';",
+      '  v_salario empleados.salario%TYPE := 4200000;',
+      'BEGIN',
+      "  DBMS_OUTPUT.PUT_LINE(v_nombre || ': ' || v_salario);",
+      'END;',
+    ),
+  ),
+  plsql(
+    'S3-E-TYPE-CORTO',
+    lines(
+      'DECLARE',
+      "  v_nombre VARCHAR2(3) := 'Paula';",
+      'BEGIN',
+      '  DBMS_OUTPUT.PUT_LINE(v_nombre);',
+      'END;',
+    ),
+    { expectError: 'ORA-06502' },
+  ),
+
+  /* ---------- Ampliación: estructura completa con SELECT INTO ---------- */
   plsql(
     'S3-E-ESTRUCTURA',
     lines(
@@ -642,32 +779,38 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     shortTitle: 'SQL y PL/SQL',
     summary:
       'SQL dice qué datos quieres; PL/SQL añade variables, decisiones y repeticiones alrededor de SQL, dentro de Oracle.',
-    concepts: ['plsql', 'block', 'anonymous-block', 'dbms-output'],
+    concepts: ['plsql'],
     purpose:
       'Automatizar tareas que una sola consulta no puede resolver: decidir según un dato, recorrer filas, validar y reaccionar a cambios.',
-    syntax: lines('BEGIN', "  DBMS_OUTPUT.PUT_LINE('Hola desde PL/SQL');", 'END;'),
+    syntax: lines(
+      '-- SQL: una sentencia que describe qué datos queremos',
+      'SELECT salario FROM empleados WHERE id_empleado = 6;',
+      '',
+      '-- PL/SQL: un bloque que organiza pasos alrededor de SQL',
+      'BEGIN',
+      '  … sentencias SQL, variables, decisiones, repeticiones …',
+      'END;',
+    ),
     explanation: [
       'SQL es declarativo: describes el resultado («cuenta las personas activas») y Oracle decide cómo obtenerlo. PL/SQL permite organizar varias acciones en un programa.',
-      'PL/SQL (Procedural Language/SQL) es el lenguaje de programación de Oracle. Ejecuta sentencias SQL y, alrededor de ellas, usa variables, condiciones (IF), bucles (LOOP) y manejo de errores. Se ejecuta dentro de la base de datos, cerca de los datos.',
+      'PL/SQL (Procedural Language/SQL) es la extensión procedural de SQL de Oracle. «Procedural» significa que indicamos los pasos, en orden: guardar un valor en una variable, decidir con IF, repetir con FOR. Se ejecuta dentro de la base de datos, cerca de los datos.',
       'Sirve para automatizar procesos, validar reglas, procesar fila a fila, encapsular lógica en procedimientos y funciones, y reaccionar a eventos con triggers.',
     ],
-    example: {
-      question: '¿Cuál es el programa más pequeño que escribe un saludo?',
-      example: 'S3-E-SOLO-BEGIN',
+    micro: {
+      question: 'Primero, un ejemplo pequeño',
+      example: 'S3-E-SQL-SALARIO',
       reading:
-        'BEGIN inicia la parte ejecutable. PUT_LINE añade el saludo al búfer de DBMS_OUTPUT. END; cierra el bloque.',
+        'Partimos de algo conocido: el salario de Andrés con SQL. SELECT elige la columna SALARIO, FROM indica la tabla EMPLEADOS y WHERE se queda con la persona 6. Oracle devuelve una fila con un valor. La consulta no guarda ese valor ni decide nada con él: eso es lo que añadirá PL/SQL.',
     },
-    more: [
-      {
-        question: 'Con SQL obtenemos una tabla de resultados.',
-        example: 'S3-E-SQL-SOLO',
-        reading:
-          'La consulta cuenta 17 personas activas y devuelve una fila. SQL también tiene expresiones condicionales; PL/SQL coordina acciones alrededor de SQL.',
-      },
-    ],
+    example: {
+      question: 'Otra respuesta de SQL: ¿cuántas personas activas hay?',
+      example: 'S3-E-SQL-SOLO',
+      reading:
+        'COUNT(*) cuenta las filas que cumplen el WHERE y devuelve una sola fila. Si además quisiéramos decidir algo según ese número, haría falta un programa: un bloque PL/SQL.',
+    },
     changed: [
-      'El bloque ejecuta una acción: añade el saludo al búfer de DBMS_OUTPUT.',
-      'En el saludo no se lee ninguna tabla ni cambia ningún dato. La salida se muestra cuando el cliente recoge DBMS_OUTPUT.',
+      'Una consulta SQL devuelve un resultado; no lo guarda en ninguna parte.',
+      'Decidir según ese resultado o repetirlo para varias personas necesita PL/SQL.',
     ],
     mistakes: [
       {
@@ -704,24 +847,24 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       ],
       hints: [
         'Compara obtener una tabla de resultados con organizar varias acciones.',
-        'El saludo usa BEGIN y END; más adelante aprenderás variables e IF.',
+        'Lo que SQL ya hace (filtrar, unir) no es lo nuevo de PL/SQL.',
       ],
       explanation:
         'PL/SQL añade variables, condiciones, bucles y manejo de errores alrededor de SQL.',
     },
     keyIdea: 'SQL pide datos; PL/SQL programa con ellos dentro de Oracle.',
     topic: 'bloques',
-    version: 2,
+    version: 3,
   },
   {
     id: 'S3-L02',
-    block: 'bloques',
+    block: 'bloque-anonimo',
     slug: 'estructura-de-un-bloque',
-    title: 'Estructura de un bloque: DECLARE, BEGIN, EXCEPTION y END',
-    shortTitle: 'Estructura',
+    title: 'El bloque anónimo: BEGIN y END, después DECLARE y EXCEPTION',
+    shortTitle: 'Bloque anónimo',
     summary:
-      'Un bloque tiene una parte declarativa opcional, una ejecutable obligatoria y una de manejo de errores opcional.',
-    concepts: ['block'],
+      'Un bloque anónimo es un programa PL/SQL sin nombre: BEGIN y END son obligatorios; DECLARE y EXCEPTION, opcionales.',
+    concepts: ['block', 'anonymous-block', 'dbms-output'],
     purpose:
       'Saber dónde va cada cosa: declarar antes de usar, ejecutar en BEGIN y responder a errores en EXCEPTION.',
     syntax: lines(
@@ -731,22 +874,30 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       'END;',
     ),
     explanation: [
-      'DECLARE abre la sección declarativa: ahí se crean variables, constantes, cursores y excepciones. Es opcional.',
-      'BEGIN abre la sección ejecutable, la única obligatoria: sentencias SQL y PL/SQL, cada una terminada en punto y coma.',
-      'EXCEPTION abre la sección de manejo de errores: si una sentencia falla, el control salta aquí. END; cierra el bloque.',
+      'DBMS_OUTPUT.PUT_LINE muestra un texto en la salida del programa: es la forma de ver qué hizo el bloque. Un bloque anónimo no tiene nombre: se envía, se ejecuta una vez y no queda guardado.',
+      'Versión 1: BEGIN marca dónde empiezan las instrucciones y END; dónde termina el bloque. Cada instrucción termina en punto y coma. Es la única parte obligatoria.',
+      'Versión 2: DECLARE, antes de BEGIN, prepara nombres que el bloque usará (variables; se estudian en el bloque 2). Versión 3: EXCEPTION, antes de END, dice qué hacer si una instrucción falla. Las dos son opcionales.',
     ],
-    example: {
-      question: '¿Podemos ejecutar un bloque sin DECLARE ni EXCEPTION?',
+    micro: {
+      question: 'Primero, un ejemplo pequeño',
       example: 'S3-E-SOLO-BEGIN',
       reading:
-        'BEGIN empieza las acciones. DBMS_OUTPUT.PUT_LINE escribe una línea. END; termina el bloque. DECLARE y EXCEPTION no son obligatorios.',
+        'Versión 1, el bloque más pequeño: BEGIN inicia las instrucciones; DBMS_OUTPUT.PUT_LINE muestra el saludo en la salida; END; cierra el bloque. No se lee ni cambia ninguna tabla.',
+    },
+    example: {
+      question: 'Versión 2: añadimos DECLARE para preparar un valor.',
+      example: 'S3-E-DECLARE-SIMPLE',
+      reading:
+        'DECLARE prepara v_mensaje con el texto «Hola, DB LAB». BEGIN muestra ese valor con PUT_LINE. END; cierra el bloque.',
+      visual: { kind: 'flow' },
     },
     more: [
       {
-        question: 'Ampliación: un bloque con manejo de errores (lo estudiarás en Excepciones).',
-        example: 'S3-E-ESTRUCTURA',
+        question: 'Versión 3: añadimos EXCEPTION para responder a un error.',
+        example: 'S3-E-EXCEPTION-SIMPLE',
         reading:
-          'Busca al empleado 99; SELECT INTO no encuentra ninguna fila y el control salta al manejador NO_DATA_FOUND. Este ejemplo integra conceptos que se desarrollan más adelante.',
+          'La primera línea se muestra. Dividir entre cero es un error: Oracle abandona el resto de BEGIN y ejecuta el manejador WHEN ZERO_DIVIDE. El bloque termina sin error.',
+        visual: { kind: 'flow' },
       },
       {
         question: 'Error: falta un punto y coma.',
@@ -756,8 +907,8 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       },
     ],
     changed: [
-      'El bloque mínimo ejecuta PUT_LINE sin declarar variables.',
-      'DECLARE y EXCEPTION se añaden cuando necesitamos preparar datos o manejar un error.',
+      'Versión 1 → 2: aparece DECLARE y el texto sale de una variable.',
+      'Versión 2 → 3: aparece EXCEPTION y un error se convierte en un mensaje.',
     ],
     mistakes: [
       {
@@ -783,17 +934,17 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'Declarar → ejecutar → manejar errores → cerrar.',
     topic: 'bloques',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L03',
-    block: 'bloques',
+    block: 'procedimientos',
     slug: 'bloque-anonimo-y-dbms-output',
-    title: 'Bloque anónimo, objeto almacenado y DBMS_OUTPUT',
-    shortTitle: 'Anónimo y DBMS_OUTPUT',
+    title: 'Bloque anónimo o procedimiento almacenado',
+    shortTitle: 'Anónimo o almacenado',
     summary:
       'Un bloque anónimo se ejecuta una vez y no se guarda; un procedimiento se guarda en la base y se llama por su nombre. DBMS_OUTPUT escribe mensajes de diagnóstico.',
-    concepts: ['anonymous-block', 'dbms-output', 'procedure'],
+    concepts: ['anonymous-block', 'procedure'],
     purpose:
       'Distinguir un script de prueba de un programa reutilizable, y entender qué es (y qué no es) la salida de DBMS_OUTPUT.',
     syntax: lines(
@@ -873,8 +1024,8 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     id: 'S3-L04',
     block: 'variables',
     slug: 'variables-y-constantes',
-    title: 'Variables, constantes y tipos de datos',
-    shortTitle: 'Variables y tipos',
+    title: 'Variables: declarar, inicializar y asignar',
+    shortTitle: 'Variables',
     summary:
       'Una variable tiene nombre, tipo y valor; se le asigna con := y una constante no puede cambiar.',
     concepts: ['variable', 'constant'],
@@ -894,10 +1045,10 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       'CONSTANT obliga a dar un valor inicial y prohíbe cambiarlo: Oracle detecta el intento al compilar (PLS-00363).',
     ],
     example: {
-      question: '¿Cuánto ganaría Andrés con un aumento del 10 %?',
-      example: 'S3-E-VARIABLES',
+      question: 'Declarar, inicializar y asignar: el bono de Andrés.',
+      example: 'S3-E-VARIABLES-BASICO',
       reading:
-        'Declara una constante y cinco variables, calcula el salario nuevo y escribe tres líneas. IF prueba una condición: THEN ejecuta su acción solo si es TRUE; END IF cierra esa decisión. Aquí v_activo es TRUE, por eso se muestra la fecha. Las decisiones se desarrollan en el bloque de Condicionales.',
+        'v_nombre y v_salario empiezan con un valor; v_bono empieza en NULL. PUT_LINE muestra los valores. Después, := asigna 300000 a v_bono y la última línea ya lo muestra.',
       visual: { kind: 'flow' },
     },
     more: [
@@ -914,15 +1065,15 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       },
     ],
     changed: [
-      'v_nuevo empieza en NULL y termina en 4620000.',
-      'El BOOLEAN no se imprime: se usa como condición.',
+      'v_bono empieza en NULL y termina en 300000: := cambió su valor.',
+      'v_nombre y v_salario conservan su valor inicial: nadie les asignó otro.',
     ],
     mistakes: [
       {
         title: 'Usar = para asignar',
         why: 'En PL/SQL = compara. Para asignar se usa :=.',
-        wrong: 'v_nuevo = v_salario * 1.10;',
-        right: 'v_nuevo := v_salario * 1.10;',
+        wrong: 'v_bono = 300000;',
+        right: 'v_bono := 300000;',
       },
       {
         title: 'VARCHAR2 sin longitud',
@@ -959,51 +1110,49 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'Nombre + tipo + valor; := asigna, CONSTANT no cambia.',
     topic: 'variables',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L05',
-    block: 'variables',
+    block: 'type',
     slug: 'type-y-rowtype',
-    title: '%TYPE y %ROWTYPE',
-    shortTitle: '%TYPE y %ROWTYPE',
+    title: '%TYPE: el tipo de una columna',
+    shortTitle: '%TYPE',
     summary:
-      '%TYPE copia el tipo de una columna; %ROWTYPE crea una variable con todas las columnas de una fila.',
+      '%TYPE hace que una variable adopte el tipo de una columna: si la columna cambia, la variable cambia con ella.',
     concepts: ['anchored-type'],
     purpose:
       'Declarar variables que siempre coinciden con la tabla, aunque una columna cambie de tamaño o de tipo.',
     syntax: lines(
       'v_salario empleados.salario%TYPE;',
-      'v_emp     empleados%ROWTYPE;   -- v_emp.nombre, v_emp.salario…',
+      "v_nombre  empleados.nombre%TYPE := 'Paula';",
     ),
     explanation: [
-      'empleados.salario%TYPE significa «del mismo tipo que la columna SALARIO». Si la columna cambia, la variable cambia con ella al recompilar.',
-      'empleados%ROWTYPE es un registro con un campo por columna; se lee con punto: v_emp.nombre. Es ideal para SELECT * INTO.',
-      'Sin %TYPE es fácil equivocarse de tamaño: guardar «Paula» en un VARCHAR2(3) falla con ORA-06502.',
+      'Una variable para un salario podría declararse como NUMBER(10), copiando a mano el tipo de la columna. empleados.salario%TYPE dice lo mismo sin copiarlo: «del mismo tipo que la columna SALARIO de EMPLEADOS».',
+      '%TYPE copia el tipo, no el valor: la variable empieza en NULL salvo que la inicialicemos. Si la columna cambia de tamaño, la variable cambia con ella al recompilar.',
+      'Escribir el tipo a mano es fácil de equivocar: un texto como «Paula» no cabe en un VARCHAR2(3) y Oracle lo rechaza.',
     ],
     example: {
-      question: '¿Cómo leer toda la fila de Paula Castro de una vez?',
-      example: 'S3-E-ROWTYPE',
+      question: 'Dos variables con el tipo de sus columnas.',
+      example: 'S3-E-TYPE-BASICO',
       reading:
-        'Declara un registro con la forma de una fila de EMPLEADOS. SELECT INTO copia exactamente una fila de la consulta a una variable o registro; aquí SELECT * INTO llena todos los campos. Después se escriben esos campos. NVL sustituye un NULL por el texto «sin bono». SELECT INTO se desarrolla en el siguiente bloque.',
+        'v_nombre toma el tipo de EMPLEADOS.NOMBRE y v_salario el de EMPLEADOS.SALARIO; las dos se inicializan y PUT_LINE las muestra. No se lee ninguna fila de la tabla: solo se usa su definición.',
     },
     more: [
       {
-        question: 'Error: una variable demasiado pequeña.',
-        example: 'S3-E-TYPE-TAMANO',
+        question: 'Error: un tipo escrito a mano demasiado pequeño.',
+        example: 'S3-E-TYPE-CORTO',
         reading:
-          '«Paula» no cabe en VARCHAR2(3): ORA-06502 (error de valor). Con %TYPE no ocurriría.',
+          '«Paula» tiene cinco caracteres y VARCHAR2(3) admite tres: Oracle no puede guardar el valor (ORA-06502). Con empleados.nombre%TYPE el tamaño sería el de la columna.',
       },
     ],
-    changed: ['Un solo SELECT llena todos los campos del registro.'],
+    changed: ['Las variables tienen el mismo tipo que sus columnas sin escribirlo a mano.'],
     mistakes: [
       {
         title: 'Escribir el tipo a mano',
         why: 'Si la columna cambia de tamaño, la variable queda desactualizada. %TYPE la mantiene sincronizada.',
-      },
-      {
-        title: 'Usar el registro sin punto',
-        why: 'v_emp es la fila entera; para un dato se escribe v_emp.nombre.',
+        wrong: 'v_nombre VARCHAR2(3);',
+        right: 'v_nombre empleados.nombre%TYPE;',
       },
     ],
     check: {
@@ -1023,7 +1172,8 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
           text: 'v_nombre empleados%ROWTYPE;',
           code: true,
           correct: false,
-          feedback: 'Eso crea un registro con todas las columnas, no un solo dato.',
+          feedback:
+            '%ROWTYPE (ampliación) crea un registro con todas las columnas, no un solo dato.',
         },
         {
           text: 'v_nombre %TYPE(empleados.nombre);',
@@ -1038,16 +1188,85 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
           feedback: 'Falta %TYPE: así no es un tipo válido.',
         },
       ],
-      hints: ['El atributo va pegado a tabla.columna.', 'ROWTYPE es para filas completas.'],
+      hints: [
+        'El atributo va pegado a tabla.columna.',
+        'Se escribe tabla.columna y después %TYPE.',
+      ],
       explanation: 'tabla.columna%TYPE copia el tipo de una columna.',
     },
-    keyIdea: '%TYPE = tipo de una columna; %ROWTYPE = forma de una fila.',
+    keyIdea: '%TYPE = el tipo de una columna, sin copiarlo a mano.',
+    topic: 'variables',
+    version: 2,
+  },
+  {
+    id: 'S3-L29',
+    block: 'ampliacion-plsql',
+    slug: 'rowtype',
+    title: '%ROWTYPE: una variable con la forma de una fila',
+    shortTitle: '%ROWTYPE',
+    summary:
+      '%ROWTYPE crea un registro con un campo por columna; SELECT * INTO lo llena con una fila y cada dato se lee con punto.',
+    concepts: ['rowtype'],
+    purpose: 'Leer una fila completa en una sola variable en lugar de declarar una por columna.',
+    syntax: lines(
+      'v_emp empleados%ROWTYPE;',
+      'SELECT * INTO v_emp FROM empleados WHERE id_empleado = 7;',
+      'v_emp.nombre   -- un campo del registro',
+    ),
+    explanation: [
+      'Con %TYPE declaramos una variable por columna. empleados%ROWTYPE declara de una vez un registro con un campo por cada columna de EMPLEADOS, con sus mismos tipos.',
+      'SELECT * INTO v_emp copia exactamente una fila en el registro; cada campo se lee con punto: v_emp.nombre, v_emp.salario.',
+      'Si la tabla gana una columna, el registro la incluye al recompilar.',
+    ],
+    example: {
+      question: '¿Cómo leer toda la fila de Paula Castro de una vez?',
+      example: 'S3-E-ROWTYPE',
+      reading:
+        'Declara un registro con la forma de una fila de EMPLEADOS y otra variable con %TYPE. SELECT * INTO llena todos los campos con la fila 7; después se escriben algunos campos. NVL sustituye un NULL por el texto «sin bono».',
+    },
+    changed: ['Un solo SELECT llena todos los campos del registro.'],
+    mistakes: [
+      {
+        title: 'Usar el registro sin punto',
+        why: 'v_emp es la fila entera; para un dato se escribe v_emp.nombre.',
+      },
+    ],
+    check: {
+      id: 'S3-L29-C',
+      kind: 'choice',
+      lesson: 'S3-L29',
+      prompt: 'v_emp es empleados%ROWTYPE. ¿Cómo se lee su salario?',
+      options: [
+        { text: 'v_emp.salario', code: true, correct: true, feedback: 'Correcto: registro.campo.' },
+        {
+          text: 'v_emp(salario)',
+          code: true,
+          correct: false,
+          feedback: 'Los campos de un registro se leen con punto, no con paréntesis.',
+        },
+        {
+          text: 'salario.v_emp',
+          code: true,
+          correct: false,
+          feedback: 'Primero el registro y después el campo.',
+        },
+        {
+          text: 'empleados.salario',
+          code: true,
+          correct: false,
+          feedback: 'Eso nombra la columna de la tabla, no el campo del registro.',
+        },
+      ],
+      hints: ['Un registro tiene campos.', 'Igual que alias.columna en SQL.'],
+      explanation: 'Un campo del registro se lee como registro.campo: v_emp.salario.',
+    },
+    keyIdea: '%ROWTYPE = la forma de una fila; registro.campo para cada dato.',
     topic: 'variables',
     version: 1,
   },
   {
     id: 'S3-L06',
-    block: 'variables',
+    block: 'ampliacion-plsql',
     slug: 'alcance-de-variables',
     title: 'Bloques anidados y alcance de las variables',
     shortTitle: 'Alcance',
@@ -1145,7 +1364,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     explanation: [
       'INTO va después de la lista de columnas: una variable por columna, en el mismo orden y con tipos compatibles.',
       'La consulta debe devolver exactamente una fila. Si no devuelve ninguna, Oracle lanza NO_DATA_FOUND (ORA-01403); si devuelve más de una, TOO_MANY_ROWS (ORA-01422).',
-      'Las funciones de grupo sin GROUP BY (COUNT, SUM…) siempre devuelven una fila: son seguras con INTO. Para recorrer varias filas se usa un cursor (bloque 7).',
+      'Las funciones de grupo sin GROUP BY (COUNT, SUM…) siempre devuelven una fila: son seguras con INTO. Para recorrer varias filas se usa un cursor (bloque 8).',
     ],
     example: {
       question: '¿Dónde trabaja Camila y cuánto gana?',
@@ -1163,6 +1382,12 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
         question: 'Error: la consulta no devuelve ninguna fila.',
         example: 'S3-E-NO-DATA',
         reading: 'No existe el empleado 99: ORA-01403 (NO_DATA_FOUND).',
+      },
+      {
+        question: 'Error: la variable es demasiado pequeña para el valor leído.',
+        example: 'S3-E-TYPE-TAMANO',
+        reading:
+          'SELECT INTO lee «Paula» y la variable VARCHAR2(3) no puede guardarlo: ORA-06502. Declararla con empleados.nombre%TYPE lo evita.',
       },
     ],
     changed: ['Una fila de un JOIN se convierte en tres variables.'],
@@ -1212,13 +1437,13 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S3-L08',
-    block: 'sql-en-plsql',
+    block: 'cursor-implicito',
     slug: 'dml-en-plsql',
-    title: 'INSERT, UPDATE y DELETE en un bloque; SQL%ROWCOUNT',
-    shortTitle: 'DML y SQL%ROWCOUNT',
+    title: 'INSERT, UPDATE y DELETE en un bloque; COMMIT y ROLLBACK',
+    shortTitle: 'DML y ROLLBACK',
     summary:
       'Un bloque ejecuta sentencias que modifican datos; SQL%ROWCOUNT dice cuántas filas afectó la última. COMMIT confirma y ROLLBACK deshace.',
-    concepts: ['dml-in-plsql', 'implicit-cursor'],
+    concepts: ['dml-in-plsql'],
     purpose: 'Automatizar cambios de datos y comprobar cuántas filas se modificaron.',
     syntax: lines(
       'BEGIN',
@@ -1229,27 +1454,18 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     ),
     explanation: [
       'INSERT, UPDATE y DELETE se escriben igual que en SQL. Pueden usar variables en sus valores y condiciones.',
-      'Después de cada sentencia, SQL%ROWCOUNT guarda cuántas filas afectó (atributo del cursor implícito, bloque 7).',
+      'Después de cada sentencia, SQL%ROWCOUNT (lección anterior) dice cuántas filas afectó.',
       'Los cambios no son definitivos hasta COMMIT; ROLLBACK los deshace. En los ejemplos de DB LAB todo se deshace al terminar para que el dataset no cambie.',
     ],
     example: {
-      question:
-        'Sumar 100.000 al bono de Recursos Humanos, contando también a quien no tenía bono.',
-      example: 'S3-E-UPDATE-ROWCOUNT',
+      question: 'ROLLBACK deshace lo que la transacción no confirmó.',
+      example: 'S3-E-ROLLBACK',
       reading:
-        'Actualiza el bono de las tres personas del departamento 50 (NVL convierte el NULL de Julián en 0 antes de sumar) e informa cuántas filas cambió.',
+        'Borra las cuatro asignaciones del proyecto 101 y luego las restaura con ROLLBACK: al final siguen ahí.',
     },
-    more: [
-      {
-        question: 'ROLLBACK deshace lo que la transacción no confirmó.',
-        example: 'S3-E-ROLLBACK',
-        reading:
-          'Borra las cuatro asignaciones del proyecto 101 y luego las restaura con ROLLBACK: al final siguen ahí.',
-      },
-    ],
     changed: [
-      'Julián pasa de NULL a 100000 gracias a NVL; sin NVL seguiría en NULL (NULL + 100000 = NULL).',
-      'SQL%ROWCOUNT confirma las tres filas.',
+      'Durante el bloque, el proyecto 101 se queda sin asignaciones; SQL%ROWCOUNT informa cuántas se borraron.',
+      'ROLLBACK deshace el borrado: al terminar, ASIGNACIONES está como al principio.',
     ],
     mistakes: [
       {
@@ -1295,7 +1511,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'DML en bloques + SQL%ROWCOUNT para comprobar; COMMIT o ROLLBACK para cerrar.',
     topic: 'variables',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L09',
@@ -1340,6 +1556,13 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
         example: 'S3-E-PRIMER-BLOQUE',
         reading:
           'SELECT INTO guarda la cantidad de personas activas en v_total. IF compara con 15. PUT_LINE escribe el mensaje de la rama elegida.',
+        visual: { kind: 'flow' },
+      },
+      {
+        question: 'IF con una variable BOOLEAN y una constante.',
+        example: 'S3-E-VARIABLES',
+        reading:
+          'Calcula el salario de Andrés con un aumento del 10 % usando una constante. IF v_activo THEN muestra el estado solo si v_activo es TRUE.',
         visual: { kind: 'flow' },
       },
       {
@@ -1392,7 +1615,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S3-L10',
-    block: 'condicionales',
+    block: 'ampliacion-plsql',
     slug: 'case',
     title: 'CASE: expresión y sentencia',
     shortTitle: 'CASE',
@@ -1487,16 +1710,26 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     id: 'S3-L11',
     block: 'bucles',
     slug: 'loop-y-exit-when',
-    title: 'LOOP y EXIT WHEN',
-    shortTitle: 'LOOP',
+    title: 'LOOP y WHILE: repetir mientras haga falta',
+    shortTitle: 'LOOP y WHILE',
     summary:
-      'LOOP repite sus sentencias hasta que EXIT WHEN encuentra la condición de salida; sin ella el bucle no termina.',
-    concepts: ['loop'],
+      'LOOP repite hasta que EXIT WHEN encuentra la condición de salida; WHILE repite mientras su condición sea verdadera.',
+    concepts: ['loop', 'while-loop'],
     purpose: 'Repetir un cálculo cuando no se sabe de antemano cuántas vueltas hacen falta.',
-    syntax: lines('LOOP', '  sentencias;', '  EXIT WHEN condición_de_salida;', 'END LOOP;'),
+    syntax: lines(
+      'LOOP',
+      '  sentencias;',
+      '  EXIT WHEN condición_de_salida;',
+      'END LOOP;',
+      '',
+      'WHILE condición LOOP',
+      '  sentencias;',
+      'END LOOP;',
+    ),
     explanation: [
       'El bucle básico se ejecuta al menos una vez y se repite hasta que se cumple EXIT WHEN.',
       'La condición de salida debe depender de algo que cambia dentro del bucle; si no cambia nunca, el bucle es infinito.',
+      'WHILE evalúa la condición antes de cada vuelta: si es falsa desde el principio, no ejecuta ninguna. FOR, LOOP y WHILE tienen el mismo cuerpo; cambia quién decide cuándo parar.',
     ],
     example: {
       question: '¿Cuántos años de aumentos del 8 % necesita Felipe para llegar a 2.600.000?',
@@ -1505,6 +1738,13 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
         'Lee el salario de Felipe y, en cada vuelta, aplica el aumento, cuenta un año y lo escribe, hasta superar la meta.',
       visual: { kind: 'flow' },
     },
+    more: [
+      {
+        question: 'WHILE: ¿en qué mes se agota el presupuesto del proyecto 104?',
+        example: 'S3-E-WHILE',
+        reading: 'Resta 12.000.000 cada mes mientras quede presupuesto y cuenta los meses.',
+      },
+    ],
     changed: ['Tres vueltas: el número de repeticiones lo decidió el dato, no el programador.'],
     mistakes: [
       {
@@ -1542,34 +1782,26 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       ],
       explanation: 'La primera vuelta escribe «Año 1: 2268000» y la condición ya se cumple.',
     },
-    keyIdea: 'LOOP repite; EXIT WHEN decide cuándo parar.',
+    keyIdea: 'LOOP repite hasta EXIT WHEN; WHILE, mientras se cumpla; FOR, un rango conocido.',
     topic: 'cursores',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L12',
     block: 'bucles',
     slug: 'while-y-for',
-    title: 'WHILE LOOP y FOR LOOP',
-    shortTitle: 'WHILE y FOR',
+    title: 'FOR: repetir un número conocido de veces',
+    shortTitle: 'FOR',
     summary:
-      'WHILE comprueba la condición antes de cada vuelta; FOR recorre un rango de números con un contador que declara él mismo.',
-    concepts: ['while-loop', 'for-loop'],
+      'FOR recorre un rango de números con un contador que declara él mismo: FOR i IN 1..5 da cinco vueltas.',
+    concepts: ['for-loop'],
     purpose:
-      'Elegir el bucle más claro: FOR cuando se conoce el rango, WHILE cuando depende de una condición.',
-    syntax: lines(
-      'WHILE condición LOOP',
-      '  …',
-      'END LOOP;',
-      '',
-      'FOR i IN inicio..fin LOOP',
-      '  …',
-      'END LOOP;',
-    ),
+      'Repetir una acción un número conocido de veces, o para cada número de un rango, sin escribirla varias veces.',
+    syntax: lines('FOR i IN inicio..fin LOOP', '  …', 'END LOOP;'),
     explanation: [
-      'WHILE evalúa la condición antes de entrar: si es falsa desde el principio, no ejecuta ninguna vuelta.',
-      'FOR i IN 1..5 declara i automáticamente, le da cada valor del rango y lo descarta al terminar. REVERSE recorre el rango al revés. Dentro del bucle, i no se puede modificar. Si el primer límite es mayor que el segundo (5..1), el bucle no da ninguna vuelta.',
-      'Los bucles anidados (un bucle dentro de otro) son una ampliación: útiles, pero fáciles de volver lentos si cada vuelta consulta la base.',
+      'FOR i IN 1..5 crea el contador i automáticamente (no se declara) y le da cada valor del rango: 1, 2, 3, 4 y 5. En cada valor ejecuta las instrucciones entre LOOP y END LOOP;.',
+      'Dentro del bucle, i no se puede modificar. Si el primer límite es mayor que el segundo (5..1), el bucle no da ninguna vuelta; REVERSE recorre el rango al revés.',
+      'Cuando no se sabe cuántas vueltas hacen falta, se usan LOOP o WHILE (lección siguiente).',
     ],
     example: {
       question: '¿Quiénes son los líderes con ID del 2 al 5?',
@@ -1577,13 +1809,6 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       reading: 'Recorre los números del 2 al 5, busca el nombre de cada uno y lo escribe.',
       visual: { kind: 'flow' },
     },
-    more: [
-      {
-        question: 'WHILE: ¿en qué mes se agota el presupuesto del proyecto 104?',
-        example: 'S3-E-WHILE',
-        reading: 'Resta 12.000.000 cada mes mientras quede presupuesto y cuenta los meses.',
-      },
-    ],
     changed: ['Cuatro vueltas exactas: el rango 2..5 las fija.'],
     mistakes: [
       {
@@ -1607,8 +1832,8 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
       ],
       explanation: 'Dos: i = 2 (Carlos) e i = 3 (María).',
     },
-    keyIdea: 'FOR = rango conocido; WHILE = mientras se cumpla; LOOP = hasta EXIT.',
+    keyIdea: 'FOR = repetir para cada valor de un rango conocido.',
     topic: 'cursores',
-    version: 1,
+    version: 2,
   },
 ];

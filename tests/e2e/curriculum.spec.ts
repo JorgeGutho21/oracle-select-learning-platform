@@ -166,7 +166,7 @@ test.describe('Fase 4 · interacciones', () => {
     await page.getByLabel('Número de líneas').fill('3');
     await page.getByRole('button', { name: 'Comprobar' }).click();
     await page.getByRole('button', { name: 'Siguiente paso →' }).click();
-    await page.getByRole('radio', { name: 'v_fila empleados%ROWTYPE;' }).check();
+    await page.getByRole('radio', { name: 'v_salario empleados.salario%TYPE;' }).check();
     await page.getByRole('button', { name: 'Comprobar' }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Misión cumplida' })).toContainText(
       '100',

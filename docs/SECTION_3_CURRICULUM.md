@@ -1,43 +1,47 @@
 # SECTION_3_CURRICULUM — PL/SQL y automatización
 
-Fecha: 3–4 de octubre de 2026. Fuente: `src/features/curriculum/domain/sections/s3/` (`basics.ts`, `programs.ts`, `triggers.ts`, `concepts.ts`, `activities.ts`, `scenes.ts`, `assessment.ts`). Rutas: `/sections/plsql/{study,class,practice,challenge,resources}` y evaluación con el motor de la Fase 3.
+Fecha: 3–4 de octubre de 2026; reestructurada el 17 de octubre de 2026 (ver [S2_S3_PEDAGOGICAL_RESTRUCTURE.md](S2_S3_PEDAGOGICAL_RESTRUCTURE.md)). Fuente: `src/features/curriculum/domain/sections/s3/` (`basics.ts`, `programs.ts`, `triggers.ts`, `concepts.ts`, `activities.ts`, `scenes.ts`, `assessment.ts`). Rutas: `/sections/plsql/{study,class,practice,challenge,resources}` y evaluación con el motor de la Fase 3.
 
 ## 1. Cifras
 
-| Elemento                           | Cantidad                                                                                                    |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Bloques                            | 13                                                                                                          |
-| Lecciones                          | 28                                                                                                          |
-| Fichas de conceptos (Recursos)     | 33                                                                                                          |
-| Ejemplos ejecutados en Oracle      | 77: 72 bloques o sentencias PL/SQL y 5 consultas; 24 terminan con el error de Oracle que la lección explica |
-| Prácticas guiadas                  | 26                                                                                                          |
-| Misiones del Challenge             | 10 (21 pasos)                                                                                               |
-| Escenas de clase                   | 37                                                                                                          |
-| Banco de evaluación                | 50 preguntas (ver `QUESTION_BANK_SPEC.md`)                                                                  |
-| Bloques propios del banco (S3-B-*) | 14                                                                                                          |
+| Elemento                       | Cantidad                                                                           |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| Bloques                        | 17 (0–16): el núcleo sigue el orden del profesor; los bloques 13–16 son ampliación |
+| Lecciones                      | 29: 15 de núcleo, 6 de apoyo y 8 de ampliación (nueva: L29 %ROWTYPE)               |
+| Fichas de conceptos (Recursos) | 34 (nueva: %ROWTYPE, separada de %TYPE)                                            |
+| Ejemplos ejecutados en Oracle  | 110 en la sección (lecciones, microejemplos y práctica)                            |
+| Prácticas guiadas              | 26                                                                                 |
+| Misiones del Challenge         | 10 (21 pasos)                                                                      |
+| Escenas de clase               | 167 (antes 203)                                                                    |
+| Banco de evaluación            | 50 preguntas (ver `QUESTION_BANK_SPEC.md`)                                         |
+| Bloques propios del banco      | 14 (S3-B)                                                                          |
 
 ## 2. Recorrido
 
-| Bloque                   | Lecciones                                                                                                |
-| ------------------------ | -------------------------------------------------------------------------------------------------------- |
-| 1 · Qué es PL/SQL        | L01 SQL y PL/SQL                                                                                         |
-| 2 · Bloques PL/SQL       | L02 Estructura; L03 Anónimo y DBMS_OUTPUT                                                                |
-| 3 · Variables y tipos    | L04 Variables y tipos; L05 %TYPE y %ROWTYPE; L06 Alcance                                                 |
-| 4 · SQL dentro de PL/SQL | L07 SELECT INTO; L08 DML y SQL%ROWCOUNT                                                                  |
-| 5 · Condicionales        | L09 IF; L10 CASE                                                                                         |
-| 6 · Bucles               | L11 LOOP; L12 WHILE y FOR                                                                                |
-| 7 · Cursores             | L13 Cursor implícito; L14 Cursor explícito; L15 Cursor FOR                                               |
-| 8 · Excepciones          | L16 Excepciones; L17 RAISE                                                                               |
-| 9 · Procedimientos       | L18 Procedimientos; L19 IN, OUT, IN OUT                                                                  |
-| 10 · Funciones           | L20 Funciones; L21 Procedimiento o función                                                               |
-| 11 · Paquetes            | L22 Paquetes                                                                                             |
-| 12 · Triggers            | L23 Qué es un trigger; L24 BEFORE/AFTER y filas; L25 :OLD y :NEW; L26 Trigger de validación; L27 Límites |
-| 13 · Integración         | L28 Integración                                                                                          |
+| Bloque                              | Lecciones (en orden)                                                                           | Nivel          |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- | -------------- |
+| 0 · De SQL a PL/SQL                 | L01 SQL y PL/SQL                                                                               | Núcleo         |
+| 1 · Bloque anónimo                  | L02 Bloque anónimo (BEGIN/END → DECLARE → EXCEPTION)                                           | Núcleo         |
+| 2 · Variables                       | L04 Variables                                                                                  | Núcleo         |
+| 3 · %TYPE                           | L05 %TYPE                                                                                      | Núcleo         |
+| 4 · SQL dentro de PL/SQL            | L07 SELECT INTO                                                                                | Apoyo          |
+| 5 · IF                              | L09 IF                                                                                         | Núcleo         |
+| 6 · FOR                             | L12 FOR; L11 LOOP y WHILE                                                                      | Núcleo · Apoyo |
+| 7 · Cursor implícito                | L13 Cursor implícito; L08 DML y ROLLBACK                                                       | Núcleo · Apoyo |
+| 8 · Cursor explícito                | L14 Cursor explícito; L15 Cursor FOR                                                           | Núcleo · Apoyo |
+| 9 · Funciones                       | L20 Funciones                                                                                  | Núcleo         |
+| 10 · Procedimientos                 | L18 Procedimientos; L19 IN, OUT, IN OUT; L03 Anónimo o almacenado; L21 Procedimiento o función | Núcleo · Apoyo |
+| 11 · Paquetes                       | L22 Paquetes                                                                                   | Núcleo         |
+| 12 · Triggers                       | L23 Momento, evento, nivel y cuerpo; L24 BEFORE/AFTER y filas; L25 :OLD y :NEW                 | Núcleo         |
+| 13 · Ampliación · Más herramientas  | L29 %ROWTYPE; L06 Alcance; L10 CASE                                                            | Ampliación     |
+| 14 · Ampliación · Excepciones       | L16 Excepciones; L17 RAISE                                                                     | Ampliación     |
+| 15 · Ampliación · Validar y límites | L26 Trigger de validación; L27 Límites                                                         | Ampliación     |
+| 16 · Ampliación · Integración final | L28 Integración                                                                                | Ampliación     |
 
 Misiones:
 
 - M01 Primer bloque
-- M02 Variables con ancla
+- M02 Variables con ancla (variables y %TYPE)
 - M03 Leer una fila
 - M04 Decisiones
 - M05 Repetir

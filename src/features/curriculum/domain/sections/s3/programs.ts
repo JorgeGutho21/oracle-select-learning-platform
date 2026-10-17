@@ -492,27 +492,39 @@ export const PROGRAMS_EXAMPLES: readonly CurriculumExample[] = [
 export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
   {
     id: 'S3-L13',
-    block: 'cursores',
+    block: 'cursor-implicito',
     slug: 'cursor-implicito',
     title: 'Cursor implícito y atributos SQL%',
     shortTitle: 'Cursor implícito',
     summary:
       'Oracle abre un cursor implícito para cada sentencia SQL de un bloque; SQL%FOUND, SQL%NOTFOUND y SQL%ROWCOUNT dicen qué pasó.',
     concepts: ['implicit-cursor'],
-    purpose: 'Comprobar si un UPDATE o DELETE afectó filas y cuántas, sin otra consulta.',
+    purpose:
+      'Saber qué hizo una sentencia SQL dentro de un bloque: si procesó filas y cuántas, sin otra consulta.',
     syntax: lines('UPDATE …;', 'IF SQL%FOUND THEN … END IF;', 'SQL%ROWCOUNT   -- filas afectadas'),
     explanation: [
-      'Un cursor es el área de trabajo donde Oracle procesa una sentencia y su resultado. Para cada INSERT, UPDATE, DELETE o SELECT INTO, Oracle usa uno implícito llamado SQL.',
+      'Cuando PL/SQL ejecuta una sentencia SQL, Oracle procesa su resultado en un área de trabajo llamada cursor. Para cada SELECT INTO, INSERT, UPDATE o DELETE, Oracle crea y administra uno automáticamente: el cursor implícito, llamado SQL.',
       'SQL%FOUND es verdadero si la última sentencia afectó al menos una fila; SQL%NOTFOUND, lo contrario; SQL%ROWCOUNT, cuántas.',
       'Un UPDATE que no encuentra filas no es un error: simplemente afecta cero filas. Por eso conviene comprobarlo.',
     ],
     example: {
-      question: '¿A cuántas personas se aplicó el aumento? ¿Existía el empleado 99?',
-      example: 'S3-E-IMPLICITO',
+      question: 'Sumar 100.000 al bono de Recursos Humanos: ¿cuántas filas procesó el UPDATE?',
+      example: 'S3-E-UPDATE-ROWCOUNT',
       reading:
-        'Aumenta el salario de los representantes comerciales de Ventas e informa cuántos fueron; luego intenta actualizar el ID 99 y detecta que no había fila.',
+        'UPDATE cambia el bono de las personas del departamento 50 (NVL convierte el NULL de Julián en 0 antes de sumar). Justo después, SQL%ROWCOUNT informa cuántas filas procesó el cursor implícito.',
     },
-    changed: ['El segundo UPDATE no falla: SQL%NOTFOUND revela que no cambió nada.'],
+    more: [
+      {
+        question: 'SQL%FOUND y SQL%NOTFOUND: ¿se aplicó el aumento? ¿Existía el empleado 99?',
+        example: 'S3-E-IMPLICITO',
+        reading:
+          'Aumenta el salario de los representantes comerciales de Ventas e informa cuántos fueron; luego intenta actualizar el ID 99 y SQL%NOTFOUND detecta que no había fila.',
+      },
+    ],
+    changed: [
+      'Julián pasa de un bono NULL a 100000 gracias a NVL; SQL%ROWCOUNT confirma las tres filas.',
+      'Un UPDATE sin filas no falla: SQL%NOTFOUND revela que no cambió nada.',
+    ],
     mistakes: [
       {
         title: 'Esperar un error cuando no hay filas',
@@ -555,11 +567,11 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'SQL%ROWCOUNT, SQL%FOUND y SQL%NOTFOUND describen la última sentencia.',
     topic: 'cursores',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L14',
-    block: 'cursores',
+    block: 'cursor-explicito',
     slug: 'cursor-explicito',
     title: 'Cursor explícito: OPEN, FETCH y CLOSE',
     shortTitle: 'Cursor explícito',
@@ -633,7 +645,7 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S3-L15',
-    block: 'cursores',
+    block: 'cursor-explicito',
     slug: 'cursor-for-y-parametros',
     title: 'Cursor FOR loop y cursores con parámetros',
     shortTitle: 'Cursor FOR',
@@ -722,6 +734,12 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
       visual: { kind: 'flow' },
     },
     more: [
+      {
+        question: 'El bloque completo: DECLARE, BEGIN, EXCEPTION y END con SELECT INTO.',
+        example: 'S3-E-ESTRUCTURA',
+        reading:
+          'Busca al empleado 99; SELECT INTO no encuentra ninguna fila y el control salta al manejador NO_DATA_FOUND, que escribe un mensaje.',
+      },
       {
         question: 'WHEN OTHERS con SQLCODE y SQLERRM.',
         example: 'S3-E-OTHERS',
@@ -1136,7 +1154,7 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S3-L21',
-    block: 'funciones',
+    block: 'procedimientos',
     slug: 'procedimiento-o-funcion',
     title: '¿Procedimiento o función?',
     shortTitle: 'Procedimiento o función',

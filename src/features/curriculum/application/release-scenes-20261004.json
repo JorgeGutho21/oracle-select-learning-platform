@@ -1,0 +1,1979 @@
+{
+  "consultas-relacionales": [
+    {
+      "id": "portada",
+      "block": "relaciones"
+    },
+    {
+      "id": "ruta",
+      "block": "relaciones"
+    },
+    {
+      "id": "dataset-relacional",
+      "block": "relaciones"
+    },
+    {
+      "id": "define-primary-key",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "define-foreign-key",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "define-referential-integrity",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "model-S2-L01",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "syntax-S2-L01",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "micro-S2-L01",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "pk-fk",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "explain-S2-L01",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "check-S2-L01",
+      "block": "relaciones",
+      "lesson": "S2-L01"
+    },
+    {
+      "id": "define-table-alias",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "model-S2-L02",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "syntax-S2-L02",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "micro-S2-L02",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "example-S2-L02",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "explain-S2-L02",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "check-S2-L02",
+      "block": "relaciones",
+      "lesson": "S2-L02"
+    },
+    {
+      "id": "define-join",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "model-S2-L03",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "syntax-S2-L03",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "micro-S2-L03",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "modelo-datos",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "explain-S2-L03",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "check-S2-L03",
+      "block": "modelo-join",
+      "lesson": "S2-L03"
+    },
+    {
+      "id": "define-inner-join",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "define-on",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "model-S2-L04",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "syntax-S2-L04",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "micro-S2-L04",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "example-S2-L04",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "explain-S2-L04",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "check-S2-L04",
+      "block": "inner-join",
+      "lesson": "S2-L04"
+    },
+    {
+      "id": "model-S2-L05",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "syntax-S2-L05",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "micro-S2-L05",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "alias",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "dos-tablas",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "explain-S2-L05",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "check-S2-L05",
+      "block": "inner-join",
+      "lesson": "S2-L05"
+    },
+    {
+      "id": "model-S2-L06",
+      "block": "inner-join",
+      "lesson": "S2-L06"
+    },
+    {
+      "id": "syntax-S2-L06",
+      "block": "inner-join",
+      "lesson": "S2-L06"
+    },
+    {
+      "id": "micro-S2-L06",
+      "block": "inner-join",
+      "lesson": "S2-L06"
+    },
+    {
+      "id": "inner",
+      "block": "inner-join",
+      "lesson": "S2-L06"
+    },
+    {
+      "id": "explain-S2-L06",
+      "block": "inner-join",
+      "lesson": "S2-L06"
+    },
+    {
+      "id": "check-S2-L06",
+      "block": "inner-join",
+      "lesson": "S2-L06"
+    },
+    {
+      "id": "define-junction-table",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "model-S2-L07",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "syntax-S2-L07",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "micro-S2-L07",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "tres-tablas",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "explain-S2-L07",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "check-S2-L07",
+      "block": "inner-join",
+      "lesson": "S2-L07"
+    },
+    {
+      "id": "define-left-join",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "define-outer-join",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "model-S2-L08",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "syntax-S2-L08",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "micro-S2-L08",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "left",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "left-faltantes",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "explain-S2-L08",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "check-S2-L08",
+      "block": "otros-join",
+      "lesson": "S2-L08"
+    },
+    {
+      "id": "define-right-join",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "define-full-join",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "model-S2-L09",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "syntax-S2-L09",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "micro-S2-L09",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "example-S2-L09",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "full",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "explain-S2-L09",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "check-S2-L09",
+      "block": "otros-join",
+      "lesson": "S2-L09"
+    },
+    {
+      "id": "define-self-join",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "model-S2-L10",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "syntax-S2-L10",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "micro-S2-L10",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "self",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "explain-S2-L10",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "check-S2-L10",
+      "block": "otros-join",
+      "lesson": "S2-L10"
+    },
+    {
+      "id": "define-cross-join",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "define-natural-join",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "model-S2-L11",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "syntax-S2-L11",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "micro-S2-L11",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "cross",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "explain-S2-L11",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "check-S2-L11",
+      "block": "otros-join",
+      "lesson": "S2-L11"
+    },
+    {
+      "id": "define-group-function",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "define-count",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "define-sum-avg",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "define-min-max",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "model-S2-L12",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "syntax-S2-L12",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "micro-S2-L12",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "fila-grupo",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "agregados",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "explain-S2-L12",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "check-S2-L12",
+      "block": "funciones-grupo",
+      "lesson": "S2-L12"
+    },
+    {
+      "id": "model-S2-L13",
+      "block": "funciones-grupo",
+      "lesson": "S2-L13"
+    },
+    {
+      "id": "syntax-S2-L13",
+      "block": "funciones-grupo",
+      "lesson": "S2-L13"
+    },
+    {
+      "id": "micro-S2-L13",
+      "block": "funciones-grupo",
+      "lesson": "S2-L13"
+    },
+    {
+      "id": "count-null",
+      "block": "funciones-grupo",
+      "lesson": "S2-L13"
+    },
+    {
+      "id": "explain-S2-L13",
+      "block": "funciones-grupo",
+      "lesson": "S2-L13"
+    },
+    {
+      "id": "check-S2-L13",
+      "block": "funciones-grupo",
+      "lesson": "S2-L13"
+    },
+    {
+      "id": "define-group-by",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "model-S2-L14",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "syntax-S2-L14",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "micro-S2-L14",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "group-by",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "explain-S2-L14",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "check-S2-L14",
+      "block": "group-by",
+      "lesson": "S2-L14"
+    },
+    {
+      "id": "model-S2-L15",
+      "block": "group-by",
+      "lesson": "S2-L15"
+    },
+    {
+      "id": "syntax-S2-L15",
+      "block": "group-by",
+      "lesson": "S2-L15"
+    },
+    {
+      "id": "micro-S2-L15",
+      "block": "group-by",
+      "lesson": "S2-L15"
+    },
+    {
+      "id": "group-dos",
+      "block": "group-by",
+      "lesson": "S2-L15"
+    },
+    {
+      "id": "explain-S2-L15",
+      "block": "group-by",
+      "lesson": "S2-L15"
+    },
+    {
+      "id": "check-S2-L15",
+      "block": "group-by",
+      "lesson": "S2-L15"
+    },
+    {
+      "id": "define-having",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "model-S2-L16",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "syntax-S2-L16",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "micro-S2-L16",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "having",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "explain-S2-L16",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "check-S2-L16",
+      "block": "having",
+      "lesson": "S2-L16"
+    },
+    {
+      "id": "define-where-vs-having",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "model-S2-L17",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "syntax-S2-L17",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "micro-S2-L17",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "where-having",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "explain-S2-L17",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "check-S2-L17",
+      "block": "having",
+      "lesson": "S2-L17"
+    },
+    {
+      "id": "model-S2-L18",
+      "block": "join-agregacion",
+      "lesson": "S2-L18"
+    },
+    {
+      "id": "syntax-S2-L18",
+      "block": "join-agregacion",
+      "lesson": "S2-L18"
+    },
+    {
+      "id": "micro-S2-L18",
+      "block": "join-agregacion",
+      "lesson": "S2-L18"
+    },
+    {
+      "id": "join-count",
+      "block": "join-agregacion",
+      "lesson": "S2-L18"
+    },
+    {
+      "id": "explain-S2-L18",
+      "block": "join-agregacion",
+      "lesson": "S2-L18"
+    },
+    {
+      "id": "check-S2-L18",
+      "block": "join-agregacion",
+      "lesson": "S2-L18"
+    },
+    {
+      "id": "model-S2-L19",
+      "block": "join-agregacion",
+      "lesson": "S2-L19"
+    },
+    {
+      "id": "syntax-S2-L19",
+      "block": "join-agregacion",
+      "lesson": "S2-L19"
+    },
+    {
+      "id": "micro-S2-L19",
+      "block": "join-agregacion",
+      "lesson": "S2-L19"
+    },
+    {
+      "id": "join-having",
+      "block": "join-agregacion",
+      "lesson": "S2-L19"
+    },
+    {
+      "id": "explain-S2-L19",
+      "block": "join-agregacion",
+      "lesson": "S2-L19"
+    },
+    {
+      "id": "check-S2-L19",
+      "block": "join-agregacion",
+      "lesson": "S2-L19"
+    },
+    {
+      "id": "define-subquery",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "define-single-row-subquery",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "model-S2-L20",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "syntax-S2-L20",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "micro-S2-L20",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "subconsulta",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "explain-S2-L20",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "check-S2-L20",
+      "block": "subconsultas",
+      "lesson": "S2-L20"
+    },
+    {
+      "id": "define-multi-row-subquery",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "model-S2-L21",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "syntax-S2-L21",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "micro-S2-L21",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "example-S2-L21",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "not-in",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "explain-S2-L21",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "check-S2-L21",
+      "block": "subconsultas",
+      "lesson": "S2-L21"
+    },
+    {
+      "id": "define-correlated-subquery",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "define-exists",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "model-S2-L22",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "syntax-S2-L22",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "micro-S2-L22",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "correlacionada",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "explain-S2-L22",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "check-S2-L22",
+      "block": "subconsultas",
+      "lesson": "S2-L22"
+    },
+    {
+      "id": "define-set-operators",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "define-union",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "define-union-all",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "model-S2-L23",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "syntax-S2-L23",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "micro-S2-L23",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "example-S2-L23",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "union",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "explain-S2-L23",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "check-S2-L23",
+      "block": "conjuntos",
+      "lesson": "S2-L23"
+    },
+    {
+      "id": "define-intersect",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "define-minus",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "model-S2-L24",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "syntax-S2-L24",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "micro-S2-L24",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "example-S2-L24",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "intersect-minus",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "explain-S2-L24",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "check-S2-L24",
+      "block": "conjuntos",
+      "lesson": "S2-L24"
+    },
+    {
+      "id": "model-S2-L25",
+      "block": "integracion",
+      "lesson": "S2-L25"
+    },
+    {
+      "id": "syntax-S2-L25",
+      "block": "integracion",
+      "lesson": "S2-L25"
+    },
+    {
+      "id": "micro-S2-L25",
+      "block": "integracion",
+      "lesson": "S2-L25"
+    },
+    {
+      "id": "integracion",
+      "block": "integracion",
+      "lesson": "S2-L25"
+    },
+    {
+      "id": "explain-S2-L25",
+      "block": "integracion",
+      "lesson": "S2-L25"
+    },
+    {
+      "id": "check-S2-L25",
+      "block": "integracion",
+      "lesson": "S2-L25"
+    },
+    {
+      "id": "cierre",
+      "block": "integracion"
+    }
+  ],
+  "plsql": [
+    {
+      "id": "portada",
+      "block": "que-es-plsql"
+    },
+    {
+      "id": "ruta",
+      "block": "que-es-plsql"
+    },
+    {
+      "id": "define-plsql",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "define-block",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "define-anonymous-block",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "define-dbms-output",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "model-S3-L01",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "syntax-S3-L01",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "primer-bloque",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "explain-S3-L01",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "check-S3-L01",
+      "block": "que-es-plsql",
+      "lesson": "S3-L01"
+    },
+    {
+      "id": "model-S3-L02",
+      "block": "bloques",
+      "lesson": "S3-L02"
+    },
+    {
+      "id": "syntax-S3-L02",
+      "block": "bloques",
+      "lesson": "S3-L02"
+    },
+    {
+      "id": "estructura",
+      "block": "bloques",
+      "lesson": "S3-L02"
+    },
+    {
+      "id": "explain-S3-L02",
+      "block": "bloques",
+      "lesson": "S3-L02"
+    },
+    {
+      "id": "check-S3-L02",
+      "block": "bloques",
+      "lesson": "S3-L02"
+    },
+    {
+      "id": "define-procedure",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "model-S3-L03",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "syntax-S3-L03",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "micro-S3-L03",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "anonimo",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "explain-S3-L03",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "check-S3-L03",
+      "block": "bloques",
+      "lesson": "S3-L03"
+    },
+    {
+      "id": "define-variable",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "define-constant",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "model-S3-L04",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "syntax-S3-L04",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "micro-S3-L04",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "variables",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "explain-S3-L04",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "check-S3-L04",
+      "block": "variables",
+      "lesson": "S3-L04"
+    },
+    {
+      "id": "define-anchored-type",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "model-S3-L05",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "syntax-S3-L05",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "micro-S3-L05",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "rowtype",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "explain-S3-L05",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "check-S3-L05",
+      "block": "variables",
+      "lesson": "S3-L05"
+    },
+    {
+      "id": "define-scope",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "model-S3-L06",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "syntax-S3-L06",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "micro-S3-L06",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "alcance",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "explain-S3-L06",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "check-S3-L06",
+      "block": "variables",
+      "lesson": "S3-L06"
+    },
+    {
+      "id": "define-select-into",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "model-S3-L07",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "syntax-S3-L07",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "micro-S3-L07",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "select-into",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "explain-S3-L07",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "check-S3-L07",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L07"
+    },
+    {
+      "id": "define-dml-in-plsql",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "define-implicit-cursor",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "model-S3-L08",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "syntax-S3-L08",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "micro-S3-L08",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "dml",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "explain-S3-L08",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "check-S3-L08",
+      "block": "sql-en-plsql",
+      "lesson": "S3-L08"
+    },
+    {
+      "id": "define-if",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "model-S3-L09",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "syntax-S3-L09",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "micro-S3-L09",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "if",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "explain-S3-L09",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "check-S3-L09",
+      "block": "condicionales",
+      "lesson": "S3-L09"
+    },
+    {
+      "id": "define-case",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "model-S3-L10",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "syntax-S3-L10",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "micro-S3-L10",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "case",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "explain-S3-L10",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "check-S3-L10",
+      "block": "condicionales",
+      "lesson": "S3-L10"
+    },
+    {
+      "id": "define-loop",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "model-S3-L11",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "syntax-S3-L11",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "micro-S3-L11",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "loop",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "explain-S3-L11",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "check-S3-L11",
+      "block": "bucles",
+      "lesson": "S3-L11"
+    },
+    {
+      "id": "define-while-loop",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "define-for-loop",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "model-S3-L12",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "syntax-S3-L12",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "micro-S3-L12",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "for",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "explain-S3-L12",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "check-S3-L12",
+      "block": "bucles",
+      "lesson": "S3-L12"
+    },
+    {
+      "id": "model-S3-L13",
+      "block": "cursores",
+      "lesson": "S3-L13"
+    },
+    {
+      "id": "syntax-S3-L13",
+      "block": "cursores",
+      "lesson": "S3-L13"
+    },
+    {
+      "id": "micro-S3-L13",
+      "block": "cursores",
+      "lesson": "S3-L13"
+    },
+    {
+      "id": "example-S3-L13",
+      "block": "cursores",
+      "lesson": "S3-L13"
+    },
+    {
+      "id": "explain-S3-L13",
+      "block": "cursores",
+      "lesson": "S3-L13"
+    },
+    {
+      "id": "check-S3-L13",
+      "block": "cursores",
+      "lesson": "S3-L13"
+    },
+    {
+      "id": "define-explicit-cursor",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "define-cursor-attributes",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "model-S3-L14",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "syntax-S3-L14",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "micro-S3-L14",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "cursor-explicito",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "explain-S3-L14",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "check-S3-L14",
+      "block": "cursores",
+      "lesson": "S3-L14"
+    },
+    {
+      "id": "define-cursor-for-loop",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "model-S3-L15",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "syntax-S3-L15",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "micro-S3-L15",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "cursor-for",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "explain-S3-L15",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "check-S3-L15",
+      "block": "cursores",
+      "lesson": "S3-L15"
+    },
+    {
+      "id": "define-exception",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "define-predefined-exceptions",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "model-S3-L16",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "syntax-S3-L16",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "micro-S3-L16",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "excepciones",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "explain-S3-L16",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "check-S3-L16",
+      "block": "excepciones",
+      "lesson": "S3-L16"
+    },
+    {
+      "id": "define-user-exception",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "define-raise-application-error",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "model-S3-L17",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "syntax-S3-L17",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "micro-S3-L17",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "raise",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "explain-S3-L17",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "check-S3-L17",
+      "block": "excepciones",
+      "lesson": "S3-L17"
+    },
+    {
+      "id": "model-S3-L18",
+      "block": "procedimientos",
+      "lesson": "S3-L18"
+    },
+    {
+      "id": "syntax-S3-L18",
+      "block": "procedimientos",
+      "lesson": "S3-L18"
+    },
+    {
+      "id": "micro-S3-L18",
+      "block": "procedimientos",
+      "lesson": "S3-L18"
+    },
+    {
+      "id": "procedimiento",
+      "block": "procedimientos",
+      "lesson": "S3-L18"
+    },
+    {
+      "id": "explain-S3-L18",
+      "block": "procedimientos",
+      "lesson": "S3-L18"
+    },
+    {
+      "id": "check-S3-L18",
+      "block": "procedimientos",
+      "lesson": "S3-L18"
+    },
+    {
+      "id": "define-parameter-modes",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "model-S3-L19",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "syntax-S3-L19",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "micro-S3-L19",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "parametros",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "explain-S3-L19",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "check-S3-L19",
+      "block": "procedimientos",
+      "lesson": "S3-L19"
+    },
+    {
+      "id": "define-function",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "model-S3-L20",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "syntax-S3-L20",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "micro-S3-L20",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "example-S3-L20",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "funcion",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "explain-S3-L20",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "check-S3-L20",
+      "block": "funciones",
+      "lesson": "S3-L20"
+    },
+    {
+      "id": "model-S3-L21",
+      "block": "funciones",
+      "lesson": "S3-L21"
+    },
+    {
+      "id": "syntax-S3-L21",
+      "block": "funciones",
+      "lesson": "S3-L21"
+    },
+    {
+      "id": "micro-S3-L21",
+      "block": "funciones",
+      "lesson": "S3-L21"
+    },
+    {
+      "id": "example-S3-L21",
+      "block": "funciones",
+      "lesson": "S3-L21"
+    },
+    {
+      "id": "explain-S3-L21",
+      "block": "funciones",
+      "lesson": "S3-L21"
+    },
+    {
+      "id": "check-S3-L21",
+      "block": "funciones",
+      "lesson": "S3-L21"
+    },
+    {
+      "id": "define-package",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "model-S3-L22",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "syntax-S3-L22",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "micro-S3-L22",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "paquete",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "explain-S3-L22",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "check-S3-L22",
+      "block": "paquetes",
+      "lesson": "S3-L22"
+    },
+    {
+      "id": "define-trigger",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "model-S3-L23",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "syntax-S3-L23",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "micro-S3-L23",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "trigger-sentencia",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "explain-S3-L23",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "check-S3-L23",
+      "block": "triggers",
+      "lesson": "S3-L23"
+    },
+    {
+      "id": "define-trigger-timing",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "define-row-trigger",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "model-S3-L24",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "syntax-S3-L24",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "micro-S3-L24",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "trigger-filas",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "explain-S3-L24",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "check-S3-L24",
+      "block": "triggers",
+      "lesson": "S3-L24"
+    },
+    {
+      "id": "define-old-new",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "model-S3-L25",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "syntax-S3-L25",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "micro-S3-L25",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "auditoria",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "explain-S3-L25",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "check-S3-L25",
+      "block": "triggers",
+      "lesson": "S3-L25"
+    },
+    {
+      "id": "define-trigger-validation",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "model-S3-L26",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "syntax-S3-L26",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "micro-S3-L26",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "validacion",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "explain-S3-L26",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "check-S3-L26",
+      "block": "triggers",
+      "lesson": "S3-L26"
+    },
+    {
+      "id": "define-trigger-limits",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "model-S3-L27",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "syntax-S3-L27",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "micro-S3-L27",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "limites",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "explain-S3-L27",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "check-S3-L27",
+      "block": "triggers",
+      "lesson": "S3-L27"
+    },
+    {
+      "id": "model-S3-L28",
+      "block": "integracion",
+      "lesson": "S3-L28"
+    },
+    {
+      "id": "syntax-S3-L28",
+      "block": "integracion",
+      "lesson": "S3-L28"
+    },
+    {
+      "id": "micro-S3-L28",
+      "block": "integracion",
+      "lesson": "S3-L28"
+    },
+    {
+      "id": "integrador",
+      "block": "integracion",
+      "lesson": "S3-L28"
+    },
+    {
+      "id": "explain-S3-L28",
+      "block": "integracion",
+      "lesson": "S3-L28"
+    },
+    {
+      "id": "check-S3-L28",
+      "block": "integracion",
+      "lesson": "S3-L28"
+    },
+    {
+      "id": "cierre",
+      "block": "integracion"
+    }
+  ]
+}

@@ -455,3 +455,32 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - Edge, WebKit, Oracle 19c y Autonomous Database;
   - vista previa;
   - producción, que no se tocó.
+
+## Sesión del 17 de octubre de 2026: reingeniería pedagógica de las secciones 2 y 3
+
+- Rama `codex-final-pedagogy-ui-20261004`. Commit local; no se subió ni se desplegó.
+- **Estructura:**
+  - Cada lección tiene un plan (`domain/sections/s2/plan.ts` y `s3/plan.ts`) con nivel (núcleo, apoyo o ampliación), problema, requisitos, modelo, tablas, sintaxis por partes, qué no cambia y avances marcados.
+  - `arrangeLessons` ordena las lecciones según el plan.
+  - Mapa completo: `docs/S2_S3_PEDAGOGICAL_RESTRUCTURE.md`.
+- **Cifras:**
+  - S2: 15 bloques, 25 lecciones y 144 escenas (antes 193).
+  - S3: 17 bloques, 29 lecciones (nueva: L29 %ROWTYPE) y 167 escenas (antes 203).
+  - No se borró contenido: lo que no es núcleo se reclasificó como ampliación.
+- **Reglas que ahora son tests:** `tests/unit/curriculum/pedagogical-contract.test.ts` tiene 30 puertas.
+  - `construct-map.ts` detecta construcciones usadas antes de su lección.
+  - Las tablas se presentan antes de su primer uso.
+  - AUDITORIA_SALARIOS aparece solo en triggers y empieza vacía.
+- **Progreso guardado:**
+  - Las escenas guardadas se migran con `CURRENT_SCENE_RELEASE = 'pedagogy-20261017'`, a partir de `release-scenes-20261004.json`.
+  - Las escenas retiradas apuntan a la lección que las contenía.
+- **Verificaciones:**
+  - Oracle real: 281/281 ejemplos.
+  - Integración: 520/520.
+  - Unitarias: 1567 pasan (2 omitidas).
+  - Lint, tipos, formato y build: PASS.
+  - Barrido de las escenas nuevas en 1366×768 y 1920×1080 sin desbordes.
+- **Pendiente:** dos comprobaciones anteriores a este cambio todavía desplazan la escena en 1366×768:
+  - `check-S2-L25`, ordenar cláusulas: 57 px;
+  - `check-S3-L15`, cursor FOR de 18 líneas: 40 px.
+  - Las dos se pueden responder desplazando la escena.

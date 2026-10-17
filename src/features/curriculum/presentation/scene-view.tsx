@@ -14,6 +14,7 @@ import {
 import { ExecutionStepper } from './execution-stepper';
 import { ExamplePrimer } from './example-primer';
 import { CompareVisual, GroupVisual, JoinVisual, PipelineVisual } from './visuals';
+import { ChangeColumns, SyntaxParts, TierBadge, TopicTables } from './topic-contract';
 import { Reveal } from '@/features/presentation/presentation/scene-step';
 
 /**
@@ -45,7 +46,15 @@ function Frame({
           {String(scene.number).padStart(2, '0')}
         </span>
         <div className="scene__heading">
-          <p className="scene__eyebrow">{scene.block.title}</p>
+          <p className="scene__eyebrow">
+            {scene.block.title}
+            {scene.tier && scene.tier.id !== 'core' && (
+              <>
+                {' '}
+                <TierBadge tier={scene.tier.id} label={scene.tier.label} />
+              </>
+            )}
+          </p>
           <h1 id={`scene-title-${scene.number}`} className="scene__title" tabIndex={-1}>
             {scene.title}
           </h1>
@@ -182,6 +191,65 @@ export function CurriculumSceneView({
         </Frame>
       );
     case 'idea':
+      if (scene.intent === 'definition') {
+        const [problem, ...rest] = scene.points;
+        return (
+          <Frame scene={scene}>
+            <div className="cu-idea cu-idea--topic">
+              <div className="cu-idea__text">
+                <p className="cu-idea__problem">
+                  <span className="study-part">El problema</span> {problem}
+                </p>
+                {scene.code && (
+                  <figure className="cu-idea__model">
+                    <pre className="cu-idea__diagram">{scene.code}</pre>
+                    <figcaption>Modelo mental: un esquema, no una ejecución de Oracle.</figcaption>
+                  </figure>
+                )}
+              </div>
+              <Reveal at={1}>
+                <ul className="cu-points cu-points--topic">
+                  {rest.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              </Reveal>
+            </div>
+          </Frame>
+        );
+      }
+      if (scene.intent === 'syntax')
+        return (
+          <Frame scene={scene}>
+            <div className="cu-idea cu-idea--syntax">
+              {scene.code && <CodeView code={scene.code} label="Forma general" size="large" />}
+              <Reveal at={1}>
+                <SyntaxParts
+                  parts={scene.parts}
+                  reading={(scene.points[0] ?? '').replace(/^Se lee así: /, '')}
+                />
+              </Reveal>
+            </div>
+          </Frame>
+        );
+      if (scene.intent === 'explanation')
+        return (
+          <Frame scene={scene}>
+            <div className="cu-scene-change">
+              <div className="study-changes cu-changes cu-changes--scene">
+                <ChangeColumns changed={scene.changed} unchanged={scene.unchanged} />
+              </div>
+              {scene.mistake && (
+                <aside className="cu-scene-mistake" aria-label="Error frecuente">
+                  <p className="study-part">Error frecuente</p>
+                  <p>
+                    <strong>{scene.mistake.title}.</strong> {scene.mistake.why}
+                  </p>
+                </aside>
+              )}
+            </div>
+          </Frame>
+        );
       return (
         <Frame scene={scene}>
           <div className="cu-idea">
@@ -197,12 +265,7 @@ export function CurriculumSceneView({
                 </li>
               ))}
             </ol>
-            {scene.code &&
-              (scene.intent === 'syntax' ? (
-                <CodeView code={scene.code} label="Forma general" size="large" />
-              ) : (
-                <pre className="cu-idea__diagram">{scene.code}</pre>
-              ))}
+            {scene.code && <pre className="cu-idea__diagram">{scene.code}</pre>}
           </div>
         </Frame>
       );
@@ -241,6 +304,18 @@ export function CurriculumSceneView({
                 </li>
               ))}
             </ol>
+          </div>
+        </Frame>
+      );
+    case 'tables':
+      return (
+        <Frame scene={scene}>
+          <div className="cu-scene-tables">
+            <p className="cu-scene-tables__lead">
+              Antes del código: qué representa cada fila, cómo se identifica (PK), qué la conecta
+              con otra tabla (FK) y las columnas que usará el ejemplo.
+            </p>
+            <TopicTables tables={scene.tables} headingLevel={2} compact />
           </div>
         </Frame>
       );

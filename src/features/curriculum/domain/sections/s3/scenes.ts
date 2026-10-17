@@ -1,92 +1,11 @@
 import { lines } from '../../builders';
-import type { CurriculumBlock, CurriculumScene } from '../../types';
+import type { CurriculumScene } from '../../types';
 
 /**
  * Bloques y guion de la clase de la Sección 3. Las escenas de lección proyectan el ejemplo
  * de su lección (mismo código, misma salida y mismas tablas verificadas en Oracle); aquí solo
  * se escriben las notas del profesor y las escenas de idea, pregunta y cierre.
  */
-
-export const S3_BLOCKS: readonly CurriculumBlock[] = [
-  {
-    id: 'que-es-plsql',
-    number: 1,
-    title: 'Qué es PL/SQL',
-    summary: 'Por qué un lenguaje procedimental junto a SQL y qué problemas resuelve.',
-  },
-  {
-    id: 'bloques',
-    number: 2,
-    title: 'Bloques PL/SQL',
-    summary: 'DECLARE, BEGIN, EXCEPTION y END; bloques anónimos y salida con DBMS_OUTPUT.',
-  },
-  {
-    id: 'variables',
-    number: 3,
-    title: 'Variables y tipos',
-    summary: 'Declaración, asignación, constantes, %TYPE, %ROWTYPE y alcance.',
-  },
-  {
-    id: 'sql-en-plsql',
-    number: 4,
-    title: 'SQL dentro de PL/SQL',
-    summary: 'SELECT INTO, DML con variables, SQL%ROWCOUNT y transacciones.',
-  },
-  {
-    id: 'condicionales',
-    number: 5,
-    title: 'Condicionales',
-    summary: 'IF, ELSIF, ELSE, el caso NULL y CASE.',
-  },
-  {
-    id: 'bucles',
-    number: 6,
-    title: 'Bucles',
-    summary: 'LOOP con EXIT WHEN, WHILE y FOR numérico.',
-  },
-  {
-    id: 'cursores',
-    number: 7,
-    title: 'Cursores',
-    summary: 'Cursor implícito, cursor explícito (OPEN, FETCH, CLOSE) y cursor FOR.',
-  },
-  {
-    id: 'excepciones',
-    number: 8,
-    title: 'Excepciones',
-    summary: 'Errores predefinidos, WHEN OTHERS, excepciones propias y RAISE_APPLICATION_ERROR.',
-  },
-  {
-    id: 'procedimientos',
-    number: 9,
-    title: 'Procedimientos',
-    summary: 'Bloques con nombre guardados en la base y modos de parámetro IN, OUT e IN OUT.',
-  },
-  {
-    id: 'funciones',
-    number: 10,
-    title: 'Funciones',
-    summary: 'RETURN, funciones en expresiones y dentro de SQL.',
-  },
-  {
-    id: 'paquetes',
-    number: 11,
-    title: 'Paquetes',
-    summary: 'Especificación pública, cuerpo y elementos privados.',
-  },
-  {
-    id: 'triggers',
-    number: 12,
-    title: 'Triggers',
-    summary: 'Evento, BEFORE/AFTER, FOR EACH ROW, :OLD/:NEW, auditoría, validación y límites.',
-  },
-  {
-    id: 'integracion',
-    number: 13,
-    title: 'Integración',
-    summary: 'Un procedimiento con cursor y excepciones más un trigger de auditoría.',
-  },
-];
 
 export const S3_SCENES: readonly CurriculumScene[] = [
   {

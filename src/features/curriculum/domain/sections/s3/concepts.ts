@@ -117,19 +117,35 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
   },
   {
     id: 'anchored-type',
-    term: '%TYPE y %ROWTYPE',
+    term: '%TYPE',
     category: 'Declaración',
     definition:
-      '%TYPE copia el tipo de una columna o variable; %ROWTYPE crea un registro con un campo por cada columna de una tabla.',
+      '%TYPE hace que una variable adopte el tipo de una columna o de otra variable existente, sin escribirlo a mano.',
     purpose: 'Que el código siga funcionando si cambia el tipo de la columna.',
-    syntax: lines('v_salario empleados.salario%TYPE;', 'v_fila    empleados%ROWTYPE;'),
-    example: 'S3-E-ROWTYPE',
+    syntax: lines('v_salario empleados.salario%TYPE;'),
+    example: 'S3-E-TYPE-BASICO',
     mistake: {
       title: 'Declarar un tamaño menor que la columna',
       why: 'Con VARCHAR2(3) para un nombre largo, Oracle responde ORA-06502; %TYPE evita el desajuste.',
     },
     keyIdea: 'Ancla la variable a la columna, no a un tipo escrito a mano.',
     reference: plsqlRef('%TYPE Attribute'),
+  },
+  {
+    id: 'rowtype',
+    term: '%ROWTYPE',
+    category: 'Declaración',
+    definition:
+      '%ROWTYPE crea un registro: una variable con un campo por cada columna de una tabla, que se lee con punto (v_emp.nombre).',
+    purpose: 'Guardar una fila completa en una sola variable, por ejemplo con SELECT * INTO.',
+    syntax: lines('v_emp empleados%ROWTYPE;', 'v_emp.nombre'),
+    example: 'S3-E-ROWTYPE',
+    mistake: {
+      title: 'Usar el registro sin punto',
+      why: 'v_emp es la fila entera; para un dato se escribe v_emp.nombre.',
+    },
+    keyIdea: '%TYPE = el tipo de una columna; %ROWTYPE = la forma de una fila.',
+    reference: plsqlRef('%ROWTYPE Attribute'),
   },
   {
     id: 'scope',
@@ -503,7 +519,7 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
       'Momento del trigger: BEFORE actúa antes del cambio y puede corregir :NEW; AFTER actúa cuando el cambio ya se aplicó.',
     purpose: 'Corregir o validar antes; auditar o propagar después.',
     syntax: lines('BEFORE INSERT ON empleados', 'AFTER UPDATE OF salario ON empleados'),
-    example: 'S3-E-TRIGGER-BEFORE',
+    example: 'S3-E-TRIGGER-SENTENCIA',
     mistake: {
       title: 'Corregir :NEW en un trigger AFTER',
       why: 'El cambio ya ocurrió: Oracle no compila la asignación.',

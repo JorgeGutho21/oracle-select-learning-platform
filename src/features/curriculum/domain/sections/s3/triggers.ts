@@ -54,6 +54,16 @@ export const TRIGGER_FILA = lines(
   'END;',
 );
 
+/** Trigger de fila sin :NEW, para presentar el nivel antes de :OLD y :NEW. */
+export const TRIGGER_FILA_SIMPLE = lines(
+  'CREATE OR REPLACE TRIGGER trg_salario_fila',
+  'AFTER UPDATE OF salario ON empleados',
+  'FOR EACH ROW',
+  'BEGIN',
+  "  DBMS_OUTPUT.PUT_LINE('Trigger de fila: una ejecución por fila');",
+  'END;',
+);
+
 export const APLICAR_AUMENTOS = lines(
   'CREATE OR REPLACE PROCEDURE aplicar_aumentos (',
   '  p_departamento IN  NUMBER,',
@@ -114,7 +124,7 @@ export const TRIGGER_EXAMPLES: readonly CurriculumExample[] = [
     'S3-E-TRIGGER-FILAS',
     lines('UPDATE empleados', 'SET salario = salario + 100000', 'WHERE id_departamento = 50;'),
     {
-      setup: [TRIGGER_SENTENCIA, TRIGGER_FILA],
+      setup: [TRIGGER_SENTENCIA, TRIGGER_FILA_SIMPLE],
     },
   ),
   plsql(
@@ -283,7 +293,7 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
     id: 'S3-L23',
     block: 'triggers',
     slug: 'que-es-un-trigger',
-    title: 'Qué es un trigger: evento, momento y acción',
+    title: 'Qué es un trigger: momento, evento, nivel y cuerpo',
     shortTitle: 'Qué es un trigger',
     summary:
       'Un trigger es un bloque guardado que Oracle ejecuta solo cuando ocurre un evento sobre una tabla (INSERT, UPDATE o DELETE).',
@@ -352,19 +362,19 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
     title: 'BEFORE y AFTER, por sentencia o FOR EACH ROW',
     shortTitle: 'BEFORE/AFTER y filas',
     summary:
-      'BEFORE actúa antes del cambio (puede corregir los valores nuevos); AFTER, después. FOR EACH ROW se ejecuta una vez por cada fila afectada.',
+      'BEFORE actúa antes del cambio y AFTER después. Sin FOR EACH ROW el trigger se ejecuta una vez por sentencia; con ella, una vez por cada fila afectada.',
     concepts: ['trigger-timing', 'row-trigger'],
     purpose:
       'Elegir el momento y el nivel según la tarea: corregir antes de guardar o registrar después de guardar.',
     syntax: lines(
-      'BEFORE INSERT ON t FOR EACH ROW   -- puede cambiar :NEW',
-      'AFTER UPDATE ON t FOR EACH ROW    -- ve el cambio hecho',
+      'BEFORE INSERT ON t FOR EACH ROW   -- antes de guardar cada fila',
+      'AFTER UPDATE ON t FOR EACH ROW    -- después de cambiar cada fila',
       'AFTER UPDATE ON t                 -- una vez por sentencia',
     ),
     explanation: [
-      'Un trigger BEFORE de fila puede modificar los valores que se van a guardar asignando a :NEW: sirve para normalizar o completar datos.',
-      'Un trigger AFTER de fila ve el cambio ya aplicado: sirve para auditar o propagar. Con una sentencia que cambia tres filas, un trigger de fila se ejecuta tres veces; uno de sentencia, una.',
-      'Cuando conviven, Oracle ejecuta los de fila durante la sentencia y el de sentencia AFTER al final.',
+      'Momento: un trigger BEFORE actúa antes de que la fila se guarde (sirve para revisar o completar datos); uno AFTER actúa cuando el cambio ya está hecho (sirve para registrar o avisar).',
+      'Nivel: con una sentencia que cambia tres filas, un trigger de fila (FOR EACH ROW) se ejecuta tres veces; uno de sentencia, una sola vez, aunque cambien muchas filas o ninguna.',
+      'Cuando conviven, Oracle ejecuta los de fila durante la sentencia y el de sentencia AFTER al final. Leer los valores de cada fila (:OLD y :NEW) es el tema de la lección siguiente.',
     ],
     example: {
       question: '¿Cuántas veces se dispara cada trigger con un UPDATE de tres filas?',
@@ -377,20 +387,11 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
         timing: 'AFTER: de fila y de sentencia',
       },
     },
-    more: [
-      {
-        question: 'BEFORE INSERT corrige los datos antes de guardarlos.',
-        example: 'S3-E-TRIGGER-BEFORE',
-        reading:
-          'El trigger pone en mayúscula inicial el nombre y el apellido y cambia el bono NULL por 0 antes de guardar la fila.',
-        visual: { kind: 'trigger', event: 'INSERT ON empleados', timing: 'BEFORE, FOR EACH ROW' },
-      },
-    ],
     changed: ['Cuatro líneas de salida: tres de fila y una de sentencia.'],
     mistakes: [
       {
-        title: 'Asignar :NEW en un trigger AFTER',
-        why: 'Después del cambio ya no se puede corregir la fila: Oracle no compila la asignación. Para corregir, BEFORE.',
+        title: 'Esperar una ejecución por fila sin FOR EACH ROW',
+        why: 'Sin FOR EACH ROW el trigger es de sentencia: se ejecuta una vez aunque el UPDATE cambie muchas filas.',
       },
     ],
     check: {
@@ -406,9 +407,9 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
       ],
       explanation: 'Cuatro: tres del trigger de fila y una del de sentencia.',
     },
-    keyIdea: 'BEFORE corrige, AFTER registra; FOR EACH ROW = una vez por fila.',
+    keyIdea: 'BEFORE actúa antes, AFTER después; FOR EACH ROW = una vez por fila.',
     topic: 'triggers',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L25',
@@ -457,6 +458,13 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
         },
       },
       {
+        question: 'BEFORE INSERT puede corregir :NEW antes de guardar la fila.',
+        example: 'S3-E-TRIGGER-BEFORE',
+        reading:
+          'El trigger pone en mayúscula inicial :NEW.nombre y :NEW.apellido y cambia un bono NULL por 0 antes de que la fila se guarde.',
+        visual: { kind: 'trigger', event: 'INSERT ON empleados', timing: 'BEFORE, FOR EACH ROW' },
+      },
+      {
         question: 'Error: :NEW en un trigger de sentencia.',
         example: 'S3-E-NEW-SENTENCIA',
         reading: 'Sin FOR EACH ROW no hay «fila actual»: Oracle responde ORA-04082.',
@@ -468,6 +476,10 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
     ],
     mistakes: [
       { title: ':NEW en un DELETE', why: 'En un borrado no hay fila nueva: :NEW vale NULL.' },
+      {
+        title: 'Asignar :NEW en un trigger AFTER',
+        why: 'Después del cambio ya no se puede corregir la fila: Oracle no compila la asignación. Para corregir, BEFORE.',
+      },
       {
         title: 'Usar :OLD y :NEW sin FOR EACH ROW',
         why: 'Solo existen en triggers de fila (ORA-04082).',
@@ -507,7 +519,7 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S3-L26',
-    block: 'triggers',
+    block: 'triggers-avanzados',
     slug: 'trigger-de-validacion',
     title: 'Validar con un trigger BEFORE',
     shortTitle: 'Trigger de validación',
@@ -595,7 +607,7 @@ export const TRIGGER_LESSONS: readonly CurriculumLesson[] = [
   },
   {
     id: 'S3-L27',
-    block: 'triggers',
+    block: 'triggers-avanzados',
     slug: 'limites-de-los-triggers',
     title: 'Cuándo no usar un trigger',
     shortTitle: 'Límites',

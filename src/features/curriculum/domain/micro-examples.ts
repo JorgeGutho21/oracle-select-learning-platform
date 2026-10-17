@@ -198,8 +198,14 @@ const MICROS: readonly Micro[] = [
   ),
   b(
     'S3-L12',
-    '  FOR i IN 1..2 LOOP\n    DBMS_OUTPUT.PUT_LINE(i);\n  END LOOP;',
-    'FOR crea automáticamente el índice i y recorre el rango entero 1..2. PUT_LINE se ejecuta una vez para cada valor. END LOOP; cierra la repetición. No hace falta declarar ni incrementar i; WHILE, en el ejemplo siguiente, usa una condición en lugar de un rango.',
+    "  FOR i IN 1..5 LOOP\n    DBMS_OUTPUT.PUT_LINE('i = ' || i);\n  END LOOP;",
+    'FOR crea automáticamente el contador i y recorre el rango 1..5: i vale 1, 2, 3, 4 y 5. PUT_LINE se ejecuta una vez para cada valor y muestra cuánto vale i en esa vuelta. END LOOP; cierra la repetición. No hace falta declarar ni incrementar i.',
+  ),
+  b(
+    'S3-L29',
+    "  SELECT * INTO v_emp FROM empleados WHERE id_empleado = 2;\n  DBMS_OUTPUT.PUT_LINE(v_emp.nombre || ' ' || v_emp.apellido || ': ' || v_emp.cargo);",
+    'DECLARE crea v_emp con un campo por cada columna de EMPLEADOS. SELECT * INTO copia en él la fila de Carlos. PUT_LINE lee tres campos con punto: v_emp.nombre, v_emp.apellido y v_emp.cargo.',
+    '  v_emp empleados%ROWTYPE;',
   ),
   b(
     'S3-L13',
@@ -363,19 +369,16 @@ export const MICRO_EXAMPLES: readonly CurriculumExample[] = MICROS.map((micro) =
 
 export function microFor(lesson: string): LessonExample {
   const micro = MICROS.find((entry) => entry.lesson === lesson);
-  if (!micro && !['S3-L01', 'S3-L02'].includes(lesson))
-    throw new Error(`Missing microexample: ${lesson}`);
+  if (!micro) throw new Error(`Missing microexample: ${lesson}`);
   return {
     question: 'Primero, un ejemplo pequeño',
-    example: micro ? `${lesson}-MICRO` : 'S3-E-SOLO-BEGIN',
-    reading:
-      micro?.reading ??
-      'BEGIN inicia la parte ejecutable; DBMS_OUTPUT.PUT_LINE añade el saludo al búfer; END; cierra el bloque. No se lee ni cambia ninguna tabla.',
+    example: `${lesson}-MICRO`,
+    reading: micro.reading,
   };
 }
 
 export function withMicroExamples(
   lessons: readonly CurriculumLesson[],
 ): readonly CurriculumLesson[] {
-  return lessons.map((lesson) => ({ ...lesson, micro: microFor(lesson.id) }));
+  return lessons.map((lesson) => ({ ...lesson, micro: lesson.micro ?? microFor(lesson.id) }));
 }

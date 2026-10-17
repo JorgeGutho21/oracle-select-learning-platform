@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CURRENT_SCENE_RELEASE,
   CURRICULUM_OUTLINE,
   curriculumScenePosition,
 } from '@/features/curriculum/application/outline';
@@ -33,6 +34,26 @@ describe.each(CURRICULUM_OUTLINE)('Class resume migration: $section', (outline) 
       expect(store.getSnapshot()[0]?.percent).toBe(100);
       expect(store.lastScene(outline.section)).toBe(mapped);
     }
+  });
+  it('maps every position of the pedagogy-20261004 script to the same topic in the new script', () => {
+    for (const [index, mapped] of outline.releaseScenePositions.entries()) {
+      expect(
+        curriculumScenePosition(outline.section, {
+          scene: index + 1,
+          sceneRelease: 'pedagogy-20261004',
+        }),
+      ).toBe(mapped);
+      expect(mapped).toBeGreaterThan(0);
+      expect(mapped).toBeLessThanOrEqual(outline.scenes);
+    }
+    for (const [sceneId, position] of Object.entries(outline.retiredScenePositions))
+      expect(curriculumScenePosition(outline.section, { scene: 1, sceneId })).toBe(position);
+    expect(
+      curriculumScenePosition(outline.section, {
+        scene: outline.scenes,
+        sceneRelease: CURRENT_SCENE_RELEASE,
+      }),
+    ).toBe(outline.scenes);
   });
   it('uses the stable identity ahead of stale numeric positions', () => {
     for (const [sceneId, position] of Object.entries(outline.scenePositions))

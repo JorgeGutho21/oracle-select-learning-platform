@@ -195,6 +195,59 @@ export type Activity =
 
 export type ActivityKind = Activity['kind'];
 
+/* ---------- Contrato pedagógico de un tema (S2_S3_PEDAGOGICAL_RESTRUCTURE.md) ---------- */
+
+/**
+ * Lugar del tema en la ruta: `core` es lo que pide el profesor (INNER JOIN y agregaciones en
+ * S2; el recorrido de PL/SQL hasta los triggers en S3); `support` hace falta para entender
+ * un tema central; `extension` es contenido válido más avanzado, marcado como ampliación.
+ */
+export type TopicTier = 'core' | 'support' | 'extension';
+
+/** Una tabla que el tema usa: qué representa aquí y qué columnas importan. */
+export interface TopicTable {
+  readonly table: string;
+  /** Qué papel cumple en este tema («cada fila es una persona; ID_DEPARTAMENTO es la FK»). */
+  readonly role: string;
+  readonly columns: readonly string[];
+}
+
+/** Un fragmento de la sintaxis y lo que significa. */
+export interface SyntaxPart {
+  readonly code: string;
+  readonly meaning: string;
+}
+
+/**
+ * Construcción que un ejemplo usa antes de su lección propia. Solo se admite marcada y
+ * explicada (la prueba de prerrequisitos lo exige).
+ */
+export interface TopicPreview {
+  readonly term: string;
+  readonly explanation: string;
+}
+
+export interface TopicPlan {
+  readonly lesson: string;
+  readonly tier: TopicTier;
+  /** ¿Qué problema queremos resolver? */
+  readonly problem: string;
+  /** Lecciones de la misma sección que hay que conocer antes (siempre anteriores). */
+  readonly prerequisites: readonly string[];
+  /** Lo que se trae de secciones anteriores. */
+  readonly prior?: string;
+  /** Modelo mental: esquema breve, sin presentarse como ejecución de Oracle. */
+  readonly model: string;
+  readonly tables: readonly TopicTable[];
+  /** Cada parte de la sintaxis mínima con su significado. */
+  readonly parts: readonly SyntaxPart[];
+  /** La sintaxis completa leída en español. */
+  readonly reading: string;
+  /** ¿Qué NO cambió? */
+  readonly unchanged: readonly string[];
+  readonly previews?: readonly TopicPreview[];
+}
+
 /* ---------- Lecciones, bloques, misiones y escenas ---------- */
 
 export interface CurriculumBlock {
@@ -202,6 +255,8 @@ export interface CurriculumBlock {
   readonly number: number;
   readonly title: string;
   readonly summary: string;
+  /** Bloque de ampliación: se ofrece después del núcleo y se identifica como tal. */
+  readonly tier?: TopicTier;
 }
 
 export interface CurriculumLesson {
@@ -233,6 +288,8 @@ export interface CurriculumLesson {
   readonly topic: string;
   /** Sube cuando el contenido cambia de forma que invalida lo completado. */
   readonly version: number;
+  /** Contrato pedagógico del tema (S2 y S3). */
+  readonly plan?: TopicPlan;
 }
 
 export interface Mission {
@@ -259,6 +316,8 @@ export type CurriculumSceneKind =
   | 'agenda'
   /** Relational dictionary introduced before the first JOIN. */
   | 'dataset'
+  /** Presentación de las tablas que un tema usa por primera vez (antes de cualquier código). */
+  | 'tables'
   /** Idea o modelo mental en pocas líneas, opcionalmente con un ejemplo. */
   | 'idea'
   /** El ejemplo principal de una lección con su visualización. */
@@ -273,6 +332,15 @@ export interface CurriculumScene {
   readonly block: string;
   readonly kind: CurriculumSceneKind;
   readonly intent?: 'definition' | 'model' | 'syntax' | 'explanation';
+  /** Tablas que presenta una escena `tables` (con su papel en el tema). */
+  readonly tables?: readonly TopicTable[];
+  /** Partes de la sintaxis de una escena de sintaxis. */
+  readonly parts?: readonly SyntaxPart[];
+  /** Columnas «qué cambió / qué no cambió» de una escena de explicación. */
+  readonly changed?: readonly string[];
+  readonly unchanged?: readonly string[];
+  /** Error frecuente que acompaña a la comprobación. */
+  readonly mistake?: Mistake;
   readonly title: string;
   readonly shortTitle: string;
   /** Lección que la escena proyecta o amplía. */

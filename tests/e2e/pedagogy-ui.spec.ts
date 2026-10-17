@@ -176,7 +176,9 @@ test('Pedagogy/UI: resources filter, block disclosure and Oracle technical detai
     .click();
   const error = page.locator('.cu-oracle-error');
   await expect(error.locator('.cu-oracle-error__title')).toContainText('Hay una columna ambigua');
-  const detail = error.getByText('Detalle técnico de Oracle: ORA-00918', { exact: true });
+  const detail = error.getByText('Detalle técnico: Oracle denomina este caso ORA-00918', {
+    exact: true,
+  });
   await detail.click();
   await expect(error.locator('.cu-oracle-error__message')).toContainText('ORA-00918');
 });
@@ -208,15 +210,15 @@ test('Pedagogy/UI: mobile class controls leave the lesson clear and return to it
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/sections/consultas-relacionales/class?scene=95');
+  await page.goto('/sections/consultas-relacionales/class?scene=71');
   await expect(page.locator('.deck')).toHaveAttribute('data-ready', 'true');
   await expectFlowRegionsDoNotOverlap(page, 'Long mobile comparison and class controls', '.deck');
   const next = page.getByRole('button', { name: 'Escena siguiente', exact: true });
   await next.scrollIntoViewIfNeeded();
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
   await next.click();
-  await expect(page.locator('.scene[data-scene="96"] .scene__title')).toBeInViewport();
-  await expect(page.locator('.scene[data-scene="96"] .scene__title')).toBeFocused();
+  await expect(page.locator('.scene[data-scene="72"] .scene__title')).toBeInViewport();
+  await expect(page.locator('.scene[data-scene="72"] .scene__title')).toBeFocused();
   await expectFlowRegionsDoNotOverlap(page, 'Next mobile class scene and controls', '.deck');
 });
 

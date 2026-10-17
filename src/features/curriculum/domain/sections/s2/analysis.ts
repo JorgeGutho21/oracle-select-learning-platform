@@ -647,12 +647,6 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
         },
       },
       {
-        question: 'Error: una columna suelta junto a una función de grupo.',
-        example: 'S2-E-SIN-GRUPO',
-        reading:
-          'Sin GROUP BY, COUNT(*) devuelve un solo valor y Oracle no sabe qué ID_DEPARTAMENTO poner a su lado: ORA-00937.',
-      },
-      {
         question: 'MIN y MAX también sirven para fechas y textos.',
         example: 'S2-E-MIN-MAX-TEXTO',
         reading:
@@ -665,10 +659,8 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     ],
     mistakes: [
       {
-        title: 'Mezclar una columna normal con una función de grupo sin GROUP BY',
-        why: 'SELECT id_departamento, COUNT(*) FROM empleados da ORA-00937: Oracle no sabe qué ID_DEPARTAMENTO mostrar junto a un único total.',
-        wrong: 'SELECT id_departamento, COUNT(*) FROM empleados;',
-        right: 'SELECT id_departamento, COUNT(*) FROM empleados GROUP BY id_departamento;',
+        title: 'Esperar una fila por persona',
+        why: 'Una función de grupo resume: con varias filas de entrada devuelve una sola fila. Los nombres de las personas ya no aparecen en el resultado.',
       },
     ],
     check: {
@@ -686,7 +678,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'Función de una fila: un valor por fila. Función de grupo: un valor por grupo.',
     topic: 'agregacion',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S2-L13',
@@ -804,12 +796,24 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
         reading: 'Agrupa por CARGO y ordena de más a menos personas; con empate, por cargo.',
         visual: { kind: 'group', table: 'EMPLEADOS', by: ['CARGO'] },
       },
+      {
+        question: 'Error frecuente: una columna suelta junto a una función de grupo, sin GROUP BY.',
+        example: 'S2-E-SIN-GRUPO',
+        reading:
+          'Sin GROUP BY, COUNT(*) devuelve un solo total y Oracle no sabe qué ID_DEPARTAMENTO poner a su lado. Añadir GROUP BY id_departamento lo resuelve.',
+      },
     ],
     changed: [
       'De 20 filas se pasa a una fila por departamento (y una para el NULL).',
       'Cada fila resume un grupo: ya no hay nombres de personas.',
     ],
     mistakes: [
+      {
+        title: 'Mezclar una columna normal con una función de grupo sin GROUP BY',
+        why: 'Con un único total, Oracle no sabe qué ID_DEPARTAMENTO mostrar a su lado. Para un total por departamento hace falta GROUP BY.',
+        wrong: 'SELECT id_departamento, COUNT(*) FROM empleados;',
+        right: 'SELECT id_departamento, COUNT(*) FROM empleados GROUP BY id_departamento;',
+      },
       {
         title: 'Agrupar por una columna y mostrar otra',
         why: 'Si el SELECT tiene CARGO pero el GROUP BY solo ID_DEPARTAMENTO, Oracle responde ORA-00979: cada grupo tiene varios cargos.',
@@ -829,7 +833,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'GROUP BY: una fila por grupo; la función se calcula dentro de cada grupo.',
     topic: 'grupos',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S2-L15',
@@ -841,12 +845,11 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
       'Con varias columnas, cada combinación distinta es un grupo; lo que se muestra debe estar agrupado o resumido.',
     concepts: ['group-by'],
     purpose:
-      'Hacer resúmenes más finos (activos e inactivos por departamento) y reconocer los dos errores más comunes con GROUP BY.',
+      'Hacer resúmenes más finos (activos e inactivos por departamento) y reconocer el error más común con GROUP BY.',
     syntax: lines('SELECT col1, col2, FUNCION(col3)', 'FROM tabla', 'GROUP BY col1, col2;'),
     explanation: [
       'GROUP BY id_departamento, estado crea un grupo por cada pareja (departamento, estado) que existe en los datos.',
-      'Regla de oro: toda columna del SELECT que no esté dentro de una función de grupo debe estar en el GROUP BY. Si falta, Oracle responde ORA-00979.',
-      'Las funciones de grupo no pueden ir en el WHERE: el WHERE trabaja con filas sueltas, antes de que existan los grupos (ORA-00934). Para filtrar grupos está HAVING.',
+      'Regla de oro: toda columna del SELECT que no esté dentro de una función de grupo debe estar en el GROUP BY. Si falta, Oracle no sabe qué valor mostrar en cada grupo y rechaza la consulta.',
     ],
     example: {
       question: '¿Cuántas personas activas e inactivas hay en cada departamento?',
@@ -862,11 +865,6 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
         reading:
           'Oracle responde ORA-00979: CARGO no está en el GROUP BY ni en una función de grupo.',
       },
-      {
-        question: 'Error: una función de grupo en el WHERE.',
-        example: 'S2-E-WHERE-AGREGADO',
-        reading: 'Oracle responde ORA-00934: no se permite una función de grupo en el WHERE.',
-      },
     ],
     changed: [
       'Cada departamento puede aparecer dos veces: una por estado.',
@@ -877,12 +875,6 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
       {
         title: 'GROUP BY incompleto',
         why: 'Columna en el SELECT, fuera de una función y fuera del GROUP BY: ORA-00979.',
-      },
-      {
-        title: 'Función de grupo en el WHERE',
-        why: 'WHERE COUNT(*) > 3 da ORA-00934. Ese filtro se escribe en HAVING.',
-        wrong: 'WHERE COUNT(*) > 3',
-        right: 'HAVING COUNT(*) > 3',
       },
     ],
     check: {
@@ -922,7 +914,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'En el SELECT: columnas del GROUP BY o funciones de grupo. Nada más.',
     topic: 'grupos',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S2-L16',
@@ -1025,6 +1017,12 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     },
     more: [
       {
+        question: 'Error frecuente: una función de grupo en el WHERE.',
+        example: 'S2-E-WHERE-AGREGADO',
+        reading:
+          'WHERE trabaja con filas sueltas, antes de que existan los grupos: todavía no hay un COUNT que comparar. La condición sobre el resumen va en HAVING.',
+      },
+      {
         question: '¿Y si se cuentan todas las personas, activas o no?',
         example: 'S2-E-HAVING-SIN-WHERE',
         reading:
@@ -1087,7 +1085,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'WHERE filtra FILAS antes de agrupar; HAVING filtra GRUPOS después.',
     topic: 'grupos',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S2-L18',

@@ -28,10 +28,14 @@ import type {
   CurriculumUnit,
   SectionCurriculum,
   SourceView,
+  SyntaxPart,
+  TopicPreview,
+  TopicTable,
+  TopicTier,
   TraceStep,
 } from '../domain/types';
 import { curriculumLessonHref } from './outline';
-import { pedagogicalTopic } from '../domain/pedagogy';
+import { pedagogicalTopic, tierLabel } from '../domain/pedagogy';
 import {
   VERIFIED,
   verifiedResult,
@@ -47,7 +51,15 @@ import {
  */
 
 export type { CellValue } from '@/domain/dataset/empleados';
-export type { JoinKind, Mistake, SceneNotes, TraceStep } from '../domain/types';
+export type {
+  JoinKind,
+  Mistake,
+  SceneNotes,
+  SyntaxPart,
+  TopicPreview,
+  TopicTier,
+  TraceStep,
+} from '../domain/types';
 export type { OracleErrorText } from './verified-results';
 
 export interface TableColumnView {
@@ -319,6 +331,44 @@ export function datasetDictionary(): readonly TableDictionaryView[] {
       description: column.description,
     })),
   }));
+}
+
+/** Una tabla tal como la presenta un tema: su papel, sus claves y solo las columnas usadas. */
+export interface TopicTableView extends TableDictionaryView {
+  readonly role: string;
+}
+
+export function topicTables(tables: readonly TopicTable[]): readonly TopicTableView[] {
+  return tables.map((entry) => {
+    const table = empresaTable(entry.table);
+    if (!table) throw new Error(`Tabla desconocida: ${entry.table}`);
+    const used = new Set(entry.columns);
+    const sample = sourceTable('empresa-v1', { table: entry.table, columns: entry.columns });
+    return {
+      role: entry.role,
+      sample: { ...sample, rows: sample.rows.slice(0, 6) },
+      rowCount: table.rows.length,
+      name: table.name,
+      purpose: table.purpose,
+      primaryKey: table.primaryKey.columns,
+      foreignKeys: table.foreignKeys
+        .filter((key) => key.columns.some((column) => used.has(column)))
+        .map((key) => ({
+          columns: key.columns.join(', '),
+          references: `${key.references} (${key.referencedColumns.join(', ')})`,
+        })),
+      columns: entry.columns.map((name) => {
+        const column = table.columns.find((item) => item.name === name);
+        if (!column) throw new Error(`Columna desconocida: ${entry.table}.${name}`);
+        return {
+          name: column.name,
+          type: column.oracleType,
+          nullable: column.nullable,
+          description: column.description,
+        };
+      }),
+    };
+  });
 }
 
 /* ---------- Ejemplos ---------- */
@@ -662,6 +712,8 @@ export interface LessonSummaryView {
   readonly summary: string;
   readonly href: string;
   readonly version: number;
+  /** Núcleo, apoyo o ampliación (S2 y S3). */
+  readonly tier: TopicTier | null;
 }
 
 export interface BlockView {
@@ -669,6 +721,7 @@ export interface BlockView {
   readonly number: number;
   readonly title: string;
   readonly summary: string;
+  readonly tier?: TopicTier;
   readonly lessons: readonly LessonSummaryView[];
 }
 
@@ -686,6 +739,7 @@ function lessonSummary(curriculum: CurriculumUnit, lesson: CurriculumLesson): Le
     summary: lesson.summary,
     href: lessonHref(curriculum.section, lesson.slug),
     version: lesson.version,
+    tier: lesson.plan?.tier ?? null,
   };
 }
 
@@ -736,8 +790,23 @@ export function lessonSummaries(section: SectionId): readonly LessonSummaryView[
   return curriculum ? curriculum.lessons.map((lesson) => lessonSummary(curriculum, lesson)) : [];
 }
 
+/** Contrato del tema que se muestra antes del código. */
+export interface TopicView {
+  readonly tier: TopicTier;
+  readonly tierLabel: string;
+  readonly problem: string;
+  readonly prerequisites: readonly { readonly title: string; readonly href: string }[];
+  readonly prior: string | null;
+  readonly model: string;
+  readonly tables: readonly TopicTableView[];
+  readonly parts: readonly SyntaxPart[];
+  readonly reading: string;
+  readonly unchanged: readonly string[];
+  readonly previews: readonly TopicPreview[];
+}
+
 export interface LessonPageView {
-  readonly orientation: { readonly prerequisite: string; readonly mentalModel: string } | null;
+  readonly contract: TopicView | null;
   readonly section: SectionId;
   readonly lesson: LessonSummaryView;
   readonly block: { readonly number: number; readonly title: string };
@@ -767,15 +836,29 @@ export function lessonPage(section: SectionId, slug: string): LessonPageView | n
   const block = curriculum.blocks.find((entry) => entry.id === lesson.block)!;
   const previous = curriculum.lessons[index - 1];
   const next = curriculum.lessons[index + 1];
-  const orientation =
-    section === 'consultas-relacionales' || section === 'plsql'
-      ? pedagogicalTopic(lesson, curriculum.lessons, curriculum.concepts)
-      : null;
+  const contract = lesson.plan
+    ? pedagogicalTopic(lesson, curriculum.lessons, curriculum.concepts)
+    : null;
   return {
     section,
     lesson: lessonSummary(curriculum, lesson),
-    orientation: orientation
-      ? { prerequisite: orientation.prerequisite, mentalModel: orientation.mentalModel }
+    contract: contract
+      ? {
+          tier: contract.tier,
+          tierLabel: tierLabel(contract.tier),
+          problem: contract.problem,
+          prerequisites: contract.prerequisites.map((entry) => ({
+            title: entry.title,
+            href: lessonHref(section, entry.slug),
+          })),
+          prior: contract.prior,
+          model: contract.mentalModel,
+          tables: topicTables(contract.tables),
+          parts: contract.parts,
+          reading: contract.reading,
+          unchanged: contract.unchanged,
+          previews: lesson.plan?.previews ?? [],
+        }
       : null,
     block: { number: block.number, title: block.title },
     total: lessonOffset(curriculum) + curriculum.lessons.length,
@@ -914,7 +997,13 @@ export function trackedActivities(section: SectionId): {
 
 export interface SceneView {
   readonly intent: SectionCurriculum['scenes'][number]['intent'] | null;
-  readonly tables: readonly TableDictionaryView[];
+  readonly tables: readonly TopicTableView[];
+  readonly parts: readonly SyntaxPart[];
+  readonly changed: readonly string[];
+  readonly unchanged: readonly string[];
+  readonly mistake: Mistake | null;
+  /** Núcleo, apoyo o ampliación del tema de la escena. */
+  readonly tier: { readonly id: TopicTier; readonly label: string } | null;
   readonly number: number;
   readonly id: string;
   readonly kind: SectionCurriculum['scenes'][number]['kind'];
@@ -962,7 +1051,17 @@ export function deckView(section: SectionId): DeckView | null {
     return {
       number: index + 1,
       intent: scene.intent ?? null,
-      tables: scene.kind === 'dataset' ? datasetDictionary() : [],
+      tables:
+        scene.kind === 'dataset'
+          ? datasetDictionary().map((table) => ({ ...table, role: table.purpose }))
+          : scene.kind === 'tables'
+            ? topicTables(scene.tables ?? [])
+            : [],
+      parts: scene.parts ?? [],
+      changed: scene.changed ?? [],
+      unchanged: scene.unchanged ?? [],
+      mistake: scene.mistake ?? null,
+      tier: lesson?.plan ? { id: lesson.plan.tier, label: tierLabel(lesson.plan.tier) } : null,
       id: scene.id,
       kind: scene.kind,
       block: { id: block.id, number: block.number, title: block.title },
