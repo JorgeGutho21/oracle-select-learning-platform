@@ -484,3 +484,25 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - `check-S2-L25`, ordenar cláusulas: 57 px;
   - `check-S3-L15`, cursor FOR de 18 líneas: 40 px.
   - Las dos se pueden responder desplazando la escena.
+
+## Sesión del 17 de octubre de 2026: cierre pedagógico, visual y de producción de S2 y S3
+
+- Rama `codex-final-pedagogy-ui-20261004`, sobre `49468e6`. Evidencia completa en `docs/S2_S3_FINAL_QA.md`.
+- **Contenido:**
+  - Auditoría semántica de los 54 temas.
+  - L18 construye la nómina por departamento paso a paso (`S2-E-NOMINA-DEPTO`).
+  - Microejemplos de variables y %TYPE con una sola idea nueva.
+  - Definiciones del profesor para trigger y procedimiento.
+  - Modelos de cursor, función y trigger como árbol o secuencia.
+  - 18 modelos reescritos en vertical; 25 escenas curadas con títulos y notas al día.
+- **Errores de Oracle:**
+  - `domain/error-lessons.ts`: 35 «errores para aprender», cada uno con qué ocurrió, por qué, cómo corregirlo, el ejemplo correcto verificado en Oracle y el detalle técnico plegado.
+  - 31 ejemplos correctos nuevos (`<error>-OK`).
+- **Oracle:** 313 ejemplos. 9 de S1, 137 de S2, 133 de S3, 20 del banco S2 y 14 del banco S3. La cifra anterior era 281.
+- **Clase:**
+  - `check-S2-L25` y `check-S3-L15` caben sin desplazar.
+  - Resultados limitados a 6 filas en clase.
+  - Recorrido paso a paso con la pregunta junto al estado.
+  - Auditoría de las 312 escenas en 12 tamaños: sin problemas desde 1366 × 768; 6 escenas con 6–31 px en 1280 × 720 y 1024 × 768.
+- **Supabase local de QA:** contenedores `supabase_*_db-lab-phase5` en Podman dentro de WSL (`wsl -d Ubuntu -u root -- podman start …`). Se arranca primero la base y después el resto. Sus variables están en `.env.qa.local`.
+- **Guiones de auditoría:** `output/playwright/qa-scripts/` (ignorado por Git).

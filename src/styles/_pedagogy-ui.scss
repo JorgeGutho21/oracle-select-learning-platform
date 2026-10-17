@@ -563,3 +563,142 @@ pre.cu-orientation__model {
 .cu-scene--check .cu-activity:has(> .cu-activity__context) {
   grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
 }
+.cu-scene--check .mini-check {
+  gap: 0.7em;
+  padding: 1em 1.4em;
+}
+.cu-scene--check .ch-sequence {
+  min-block-size: 36px;
+}
+.cu-activity__excerpt-note {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: max(0.88em, 12px);
+}
+
+// Ejemplo PL/SQL en clase sin recorrido: el código ocupa la columna izquierda a toda altura;
+// la pregunta, la lectura y el resultado van a la derecha.
+@media (min-width: 768px) {
+  .cu-stage--plsql.cu-stage--long:not(.cu-stage--trace) {
+    grid-template-areas:
+      'visual code'
+      'visual result';
+    grid-template-rows: auto 1fr;
+  }
+}
+// En clase el vocabulario previo ya se vio en las escenas de introducción y sintaxis: queda
+// plegado en una línea breve.
+.cu-stage .cu-example-primer {
+  margin-block: 0;
+  padding: 0.1em 0.8em;
+  font-size: max(0.82em, 12px);
+}
+// Objetivo táctil de 32 px: por encima del mínimo de 24 px de WCAG 2.5.8.
+.cu-stage .cu-example-primer > summary {
+  min-height: 32px;
+}
+
+.cu-stage--trace .cu-numbered .sql-code__pre {
+  font-size: max(0.78em, 14px);
+  line-height: 1.4;
+}
+.cu-oracle-error__correct > summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+// Integración por capas: las capas son breves; el resultado va debajo de ellas, junto al código.
+@media (min-width: 768px) {
+  .cu-stage--pipeline {
+    grid-template-areas:
+      'code visual'
+      'code result';
+    grid-template-rows: auto 1fr;
+    align-items: start;
+  }
+}
+.cu-stage--plsql.cu-stage--long .sql-code__pre,
+.cu-stage--compare .sql-code__pre {
+  font-size: max(0.78em, 14px);
+  line-height: 1.4;
+}
+// Proyector de 768 px de alto: el lienzo baja su piso de 16 a 15 px para que el ejemplo, su
+// visualización y el resultado quepan juntos.
+@media (min-width: 992px) and (max-height: 820px) {
+  .cu-stage {
+    font-size: max(0.86em, 15px);
+  }
+}
+
+.cu-idea__form {
+  display: grid;
+  gap: 0.8em;
+  align-content: start;
+  min-width: 0;
+}
+// Código de consulta en clase: un poco más compacto para que las columnas alineadas no se partan.
+.cu-stage:not(.cu-stage--plsql) .sql-code__pre {
+  font-size: max(0.9em, 14px);
+}
+// Un solo grupo (sin GROUP BY): sus filas se reparten a lo ancho, no en una columna estrecha.
+.cu-scene .group-visual__groups:has(> .group-box:only-child) > .group-box {
+  grid-column: 1 / -1;
+}
+
+.stepper__lead {
+  display: grid;
+  gap: 0.3em;
+}
+.stepper__lead .cu-stage__question {
+  font-size: max(1em, 13px);
+}
+.stepper__lead .cu-stage__reading {
+  font-size: max(0.9em, 13px);
+}
+.cu-scene .stepper__grid {
+  align-items: start;
+}
+// Comparación en clase: el rótulo del código repite el título de la columna; se oculta a la
+// vista (el bloque conserva su nombre accesible) para que las dos tablas se vean completas.
+.compare-visual--stage .sql-code__label {
+  display: none;
+}
+.compare-visual--stage .sql-code__pre {
+  line-height: 1.3;
+}
+@media (min-width: 768px) {
+  .cu-stage--join.cu-stage--small,
+  .cu-stage--group.cu-stage--small {
+    grid-template-areas:
+      'code visual'
+      'code result';
+    grid-template-rows: auto 1fr;
+    align-items: start;
+  }
+}
+.cu-scene .stepper__note {
+  padding: 0.45em 0.8em;
+}
+// Proyectores de 720 px de alto (1280 × 720 y 1024 × 768 con barras): un escalón más compacto.
+// El código y las tablas no bajan de 14 px y los controles conservan 32 px de alto.
+@media (min-width: 992px) and (max-height: 780px) {
+  .cu-stage {
+    font-size: max(0.84em, 14px);
+  }
+  .cu-scene--check .mini-check {
+    gap: 0.5em;
+    padding: 0.8em 1.2em;
+  }
+  .cu-scene--check .ch-piece {
+    min-block-size: 32px;
+  }
+  .cu-scene--check .ch-sequence {
+    min-block-size: 32px;
+  }
+}
+// Recorrido en clase: el bloque recibe más ancho que el estado para no partir sus líneas.
+@media (min-width: 992px) {
+  .cu-scene .stepper__grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  }
+}

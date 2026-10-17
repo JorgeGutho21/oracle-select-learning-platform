@@ -151,14 +151,14 @@ const MICROS: readonly Micro[] = [
   ),
   b(
     'S3-L04',
-    '  v_total := v_total + c_incremento;\n  DBMS_OUTPUT.PUT_LINE(v_total);',
-    'DECLARE crea v_total NUMBER con valor 2 y c_incremento CONSTANT NUMBER con valor 1. BEGIN inicia las acciones; := cambia v_total a 3; PUT_LINE permite observarlo. La constante no se puede reasignar; END; cierra el bloque.',
-    '  v_total NUMBER := 2;\n  c_incremento CONSTANT NUMBER := 1;',
+    '  DBMS_OUTPUT.PUT_LINE(v_salario);\n  v_salario := 4620000;\n  DBMS_OUTPUT.PUT_LINE(v_salario);',
+    'DECLARE crea v_salario, de tipo NUMBER(10), y la inicializa con := en 4200000. PUT_LINE muestra ese valor. Después, v_salario := 4620000 le asigna otro valor y la segunda línea ya muestra el nuevo. El signo := asigna; el = solo compara.',
+    '  v_salario NUMBER(10) := 4200000;',
   ),
   b(
     'S3-L05',
     '  DBMS_OUTPUT.PUT_LINE(v_salario);',
-    '%TYPE toma el tipo de EMPLEADOS.SALARIO, no su valor. La declaración inicializa v_salario en cero; PUT_LINE escribe ese cero. %ROWTYPE, desarrollado en el ejemplo siguiente, prepara un registro con un campo por columna de la tabla.',
+    '%TYPE toma el tipo de EMPLEADOS.SALARIO, no su valor. La declaración inicializa v_salario en cero; PUT_LINE escribe ese cero. No se lee ninguna fila de la tabla: solo se usa la definición de la columna.',
     '  v_salario empleados.salario%TYPE := 0;',
   ),
   b(

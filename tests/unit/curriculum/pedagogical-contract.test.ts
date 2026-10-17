@@ -4,6 +4,8 @@ import { pedagogicalTopic } from '@/features/curriculum/domain/pedagogy';
 import { constructsIn } from '@/features/curriculum/domain/construct-map';
 import { VERIFIED } from '@/features/curriculum/application/verified-results';
 import { explainOracleError } from '@/features/curriculum/domain/oracle-errors';
+import { correctExampleId, ERROR_LESSONS } from '@/features/curriculum/domain/error-lessons';
+import { ALL_EXAMPLES } from '@/features/curriculum/domain/registry';
 import { EMPRESA_TABLES } from '@/domain/dataset/empresa';
 import type {
   Activity,
@@ -352,6 +354,55 @@ it('cada ejemplo con error de Oracle tiene explicación humana y corrección', (
     expect(explanation?.correction.length, code).toBeGreaterThan(20);
   }
   expect(explainOracleError('NETWORK_CONNECTION_FAILED')).toBeNull();
+});
+
+describe.each(CURRICULA)('Error para aprender: $section', (curriculum) => {
+  const errors = curriculum.examples.filter((example) => example.expectError);
+
+  it('cada ejemplo con error explica qué ocurrió, por qué, cómo corregirlo y enseña el ejemplo correcto', () => {
+    expect(errors.length).toBeGreaterThan(0);
+    for (const example of errors) {
+      const lesson = ERROR_LESSONS[example.id];
+      expect(lesson, `${example.id}: falta la explicación humana`).toBeDefined();
+      for (const text of [lesson!.what, lesson!.why, lesson!.fix])
+        expect(text.trim().length, example.id).toBeGreaterThan(15);
+      // El código técnico es secundario: no encabeza la explicación.
+      expect(lesson!.what, example.id).not.toMatch(/(?:ORA|PLS)-\d{5}/);
+      expect(lesson!.why, example.id).not.toMatch(/(?:ORA|PLS)-\d{5}/);
+      const correct = curriculum.examples.find(
+        (entry) => entry.id === correctExampleId(example.id),
+      );
+      expect(correct, `${example.id}: ejemplo correcto de la misma sección`).toBeDefined();
+      expect(correct!.expectError, `${example.id}: el ejemplo correcto no falla`).toBeUndefined();
+      const stored = VERIFIED.results[correct!.id];
+      expect(stored, `${correct!.id}: verificado en Oracle`).toBeDefined();
+      expect(
+        stored!.kind === 'query-error' || (stored!.kind === 'plsql' && stored!.error !== null),
+        `${correct!.id}: Oracle lo ejecuta sin error`,
+      ).toBe(false);
+    }
+  });
+
+  it('la corrección de un error solo usa lo enseñado en la lección que lo muestra', () => {
+    for (const example of errors) {
+      const lesson = curriculum.lessons.find((entry) =>
+        lessonExamples(entry).some((item) => item.example === example.id),
+      );
+      if (!lesson) continue;
+      const correct = exampleById(correctExampleId(example.id)!)!;
+      expect(unmetConstructs(curriculum, lesson, exampleParts(correct)), correct.id).toEqual([]);
+    }
+  });
+});
+
+it('ningún identificador de ejemplo se repite', () => {
+  const ids = ALL_EXAMPLES.map((example) => example.id);
+  expect(ids.filter((id, index) => ids.indexOf(id) !== index)).toEqual([]);
+});
+
+it('cada explicación de error corresponde a un ejemplo que falla de verdad', () => {
+  for (const id of Object.keys(ERROR_LESSONS))
+    expect(exampleById(id)?.expectError, id).toBeDefined();
 });
 
 it.each(['JOIN', 'cursor'])(

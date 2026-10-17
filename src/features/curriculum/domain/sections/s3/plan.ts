@@ -377,7 +377,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
     problem: 'Cuando PL/SQL ejecuta una sentencia SQL, ¿cómo sabemos cuántas filas procesó?',
     prerequisites: ['S3-L07', 'S3-L09'],
     model:
-      'Oracle ejecuta SQL  →  procesa su resultado en un cursor  →  SQL%ROWCOUNT, SQL%FOUND\nCursor = el mecanismo con el que PL/SQL trabaja con el resultado de una sentencia.\nImplícito: Oracle lo crea y lo administra solo.',
+      'Oracle ejecuta una sentencia SQL\n  ↓ procesa su resultado en un cursor\n  ↓ SQL%ROWCOUNT, SQL%FOUND describen lo que hizo\nCursor = el mecanismo con el que PL/SQL trabaja con el resultado de una sentencia.\nImplícito: Oracle lo crea y lo administra solo.',
     tables: [persona(['ID_EMPLEADO', 'NOMBRE', 'BONO', 'ID_DEPARTAMENTO'])],
     parts: [
       {
@@ -405,7 +405,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
     problem: '¿Cómo cambiamos datos desde un bloque y cómo deshacemos un cambio de prueba?',
     prerequisites: ['S3-L13'],
     model:
-      'INSERT / UPDATE / DELETE  →  filas cambiadas (SQL%ROWCOUNT)  →  COMMIT confirma · ROLLBACK deshace',
+      'INSERT / UPDATE / DELETE\n  ↓ filas cambiadas (SQL%ROWCOUNT)\n  ↓ COMMIT confirma  ·  ROLLBACK deshace',
     tables: [
       persona(['ID_EMPLEADO', 'BONO']),
       {
@@ -430,7 +430,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'SELECT INTO solo admite una fila. ¿Cómo procesamos una a una las cuatro personas de TI?',
     prerequisites: ['S3-L13', 'S3-L11'],
     model:
-      'CURSOR  (definir la consulta)\n  ↓ OPEN   (abrir el resultado)\nfila 1 ← FETCH\nfila 2 ← FETCH\nfila 3 ← FETCH\n  ↓ CLOSE  (cerrar el cursor)\nImplícito: lo administra Oracle. Explícito: lo declaramos y controlamos nosotros.',
+      'CURSOR c_ti IS SELECT …   (definir la consulta)\n  ↓ OPEN     ejecuta la consulta; el puntero queda antes de la fila 1\n  ↓ FETCH    fila 1 → variables → procesar\n  ↓ FETCH    fila 2 → variables → procesar\n  ↓ …        (una vuelta por fila)\n  ↓ FETCH    no hay más filas: %NOTFOUND = TRUE → salir\n  ↓ CLOSE    cerrar el cursor\nImplícito: lo administra Oracle. Explícito: lo declaramos y controlamos nosotros.',
     tables: [persona(['ID_EMPLEADO', 'NOMBRE', 'SALARIO', 'ID_DEPARTAMENTO'])],
     parts: [
       { code: 'CURSOR c IS SELECT …;', meaning: 'Define la consulta (en DECLARE).' },
@@ -449,7 +449,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
     problem: 'OPEN, FETCH y CLOSE funcionan, pero son muchas líneas. ¿Hay una forma más cómoda?',
     prerequisites: ['S3-L14'],
     model:
-      'FOR fila IN cursor LOOP  =  OPEN + FETCH en cada vuelta + salir al final + CLOSE, automáticos',
+      'FOR fila IN cursor LOOP   hace, automáticamente:\n  OPEN\n  FETCH en cada vuelta → fila\n  salir cuando no quedan filas\n  CLOSE',
     tables: [
       {
         table: 'DEPARTAMENTOS',
@@ -481,7 +481,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'Calculamos muchas veces el salario anual con bono. ¿Podemos guardar ese cálculo con un nombre y pedirle el resultado?',
     prerequisites: ['S3-L07', 'S3-L09'],
     model:
-      'calcular_bono(4000000)\n        ↓\n      400000\nUna función recibe datos, calcula y devuelve un valor con RETURN.',
+      'doble(3)   →   la función calcula 3 * 2   →   RETURN 6\n        ↑ entra un dato              ↓ sale un valor\nFUNCIÓN = subprograma con nombre que devuelve un valor: se usa dentro de una expresión.',
     tables: [persona(['ID_EMPLEADO', 'NOMBRE', 'SALARIO', 'BONO'])],
     parts: [
       {
@@ -619,7 +619,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'Queremos que algo ocurra automáticamente cada vez que se inserta un departamento, sin que nadie tenga que acordarse de llamarlo.',
     prerequisites: ['S3-L02', 'S3-L08'],
     model:
-      '                TRIGGER\n                   |\n      ---------------------------\n      |            |            |\n   MOMENTO      EVENTO        NIVEL\n   BEFORE       INSERT       SENTENCIA\n   AFTER        UPDATE       FILA (FOR EACH ROW)\n                DELETE\n                   ↓\n             BLOQUE PL/SQL',
+      'TRIGGER\n├── MOMENTO   BEFORE · AFTER\n├── EVENTO    INSERT · UPDATE · DELETE  (ON tabla)\n├── NIVEL     sentencia · fila (FOR EACH ROW)\n└── CUERPO    BEGIN … END;  (bloque PL/SQL)',
     tables: [
       {
         table: 'DEPARTAMENTOS',
@@ -675,7 +675,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       '¿Cómo guardamos un historial de cada cambio de salario, con el valor de antes y el de después?',
     prerequisites: ['S3-L24'],
     model:
-      'ANTES        DESPUÉS\nSALARIO      SALARIO\n2.300.000 →  2.530.000\n:OLD.salario = valor anterior     :NEW.salario = valor nuevo\nAUDITORIA_SALARIOS: vacía → UPDATE → el trigger detecta el cambio → recibe una fila por persona',
+      'ANTES        DESPUÉS\nSALARIO      SALARIO\n2.300.000 →  2.530.000\n:OLD.salario = valor anterior\n:NEW.salario = valor nuevo\nAUDITORIA_SALARIOS: vacía\n  ↓ UPDATE\n  ↓ el trigger detecta el cambio\n  ↓ una fila por persona',
     tables: [
       persona(['ID_EMPLEADO', 'NOMBRE', 'SALARIO', 'ID_DEPARTAMENTO']),
       {
@@ -780,7 +780,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'Un SELECT INTO que no encuentra filas termina el bloque con error. ¿Podemos responder con un mensaje en su lugar?',
     prerequisites: ['S3-L02', 'S3-L07'],
     model:
-      'Error al ejecutar → se abandona el resto de BEGIN → se busca un WHEN en EXCEPTION → se ejecuta su manejador',
+      'Error al ejecutar\n  ↓ se abandona el resto de BEGIN\n  ↓ se busca un WHEN en EXCEPTION\n  ↓ se ejecuta su manejador',
     tables: [persona(['ID_EMPLEADO', 'NOMBRE', 'CIUDAD'])],
     parts: [
       { code: 'WHEN NO_DATA_FOUND THEN', meaning: 'SELECT INTO no encontró ninguna fila.' },
@@ -825,7 +825,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
     problem: 'Queremos impedir que cualquier programa suba un salario más del 20 %.',
     prerequisites: ['S3-L25', 'S3-L17'],
     model:
-      'BEFORE UPDATE (fila) → compara :OLD y :NEW → regla aceptada: continúa · rechazada: la sentencia falla entera',
+      'BEFORE UPDATE (fila)\n  ↓ compara :OLD y :NEW\n  ↓ regla aceptada → la fila se guarda\n  ↓ regla rechazada → la sentencia falla entera',
     tables: [persona(['ID_EMPLEADO', 'NOMBRE', 'SALARIO'])],
     parts: [
       {
@@ -870,7 +870,7 @@ export const S3_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       '¿Cómo encajan juntos un procedimiento, un cursor y un trigger en un aumento anual con auditoría?',
     prerequisites: ['S3-L25', 'S3-L19', 'S3-L15', 'S3-L17'],
     model:
-      'Procedimiento valida y aumenta (cursor FOR) → cada UPDATE dispara el trigger → AUDITORIA_SALARIOS registra',
+      'Procedimiento: valida y aumenta (cursor FOR)\n  ↓ cada UPDATE dispara el trigger\n  ↓ AUDITORIA_SALARIOS registra cada cambio',
     tables: [
       persona(['ID_EMPLEADO', 'NOMBRE', 'SALARIO', 'ESTADO', 'ID_DEPARTAMENTO']),
       {

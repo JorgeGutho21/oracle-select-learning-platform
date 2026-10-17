@@ -356,7 +356,7 @@ export const S2_PRACTICE: readonly Activity[] = [
     lesson: 'S2-L01',
     kind: 'choice',
     prompt:
-      'Alguien intenta guardar un empleado con ID_DEPARTAMENTO = 70 y Oracle responde ORA-02291. ¿Qué restricción lo impidió?',
+      'Alguien intenta guardar un empleado con ID_DEPARTAMENTO = 70 y Oracle no lo guarda (detalle técnico: ORA-02291). ¿Qué restricción lo impidió?',
     options: [
       {
         text: 'La FOREIGN KEY de EMPLEADOS.ID_DEPARTAMENTO',
@@ -449,7 +449,8 @@ export const S2_PRACTICE: readonly Activity[] = [
     id: 'S2-P04',
     lesson: 'S2-L05',
     kind: 'choice',
-    prompt: 'Oracle responde ORA-00918 a esta consulta. ¿Qué corrección funciona?',
+    prompt:
+      'Oracle no puede ejecutar esta consulta porque no sabe de qué tabla sale ID_DEPARTAMENTO (ORA-00918). ¿Qué corrección funciona?',
     context: { example: 'S2-E-AMBIGUA' },
     options: [
       {
@@ -791,7 +792,8 @@ export const S2_PRACTICE: readonly Activity[] = [
     id: 'S2-P16',
     lesson: 'S2-L20',
     kind: 'choice',
-    prompt: 'Esta consulta da ORA-01427. ¿Cuál es la mejor corrección?',
+    prompt:
+      'Oracle detiene esta consulta: la subconsulta devuelve varias filas y se comparó con = (ORA-01427). ¿Cuál es la mejor corrección?',
     context: { example: 'S2-E-SUB-VARIAS' },
     options: [
       {
@@ -1393,7 +1395,7 @@ export const S2_MISSIONS: readonly Mission[] = [
         lesson: 'S2-L15',
         kind: 'choice',
         prompt:
-          'Alguien añade NOMBRE para saber quién gana ese máximo y Oracle responde ORA-00979. ¿Por qué?',
+          'Alguien añade NOMBRE para saber quién gana ese máximo y Oracle rechaza la consulta (detalle técnico: ORA-00979). ¿Por qué?',
         context: {
           code: lines(
             'SELECT id_departamento, nombre, MAX(salario)',

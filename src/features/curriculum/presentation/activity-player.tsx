@@ -228,16 +228,40 @@ export function ActivityPlayer({
             </details>
           )}
           {context.example.kind === 'plsql' && <SetupFold setup={context.example.setup} />}
-          <CodeView
-            code={context.example.code}
-            label={context.example.kind === 'plsql' ? 'Código PL/SQL' : 'Consulta'}
-          />
+          {context.excerpt ? (
+            <>
+              <p className="cu-activity__excerpt-note">{context.excerpt.note}</p>
+              <CodeView
+                code={context.excerpt.code}
+                label={
+                  context.example.kind === 'plsql' ? 'Fragmento del código PL/SQL' : 'Fragmento'
+                }
+              />
+            </>
+          ) : (
+            <CodeView
+              code={context.example.code}
+              label={context.example.kind === 'plsql' ? 'Código PL/SQL' : 'Consulta'}
+            />
+          )}
           {context.showResult ? (
             <ExampleOutcome example={context.example} size="compact" />
           ) : (
             context.example.error && <OracleError error={context.example.error} />
           )}
         </div>
+      )}
+      {context.example && context.excerpt && (
+        // Fuera del contexto: en la clase queda junto a la respuesta y no alarga el fragmento.
+        <details className="study-fold cu-activity__full">
+          <summary>
+            <span className="study-part">Ver el bloque completo</span>
+          </summary>
+          <CodeView
+            code={context.example.code}
+            label={context.example.kind === 'plsql' ? 'Código PL/SQL' : 'Consulta'}
+          />
+        </details>
       )}
 
       {(activity.kind === 'choice' || activity.kind === 'multi') && (

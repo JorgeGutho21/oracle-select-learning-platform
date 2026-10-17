@@ -198,6 +198,23 @@ export const ANALYSIS_EXAMPLES: readonly CurriculumExample[] = [
 
   /* ---------- Bloque 8: JOIN + agregaciones ---------- */
   query(
+    'S2-E-NOMINA-DEPTO',
+    lines(
+      'SELECT d.nombre_departamento,',
+      '       COUNT(*)       AS empleados,',
+      '       SUM(e.salario) AS nomina',
+      'FROM empleados e',
+      'JOIN departamentos d',
+      '  ON e.id_departamento = d.id_departamento',
+      'GROUP BY d.nombre_departamento',
+      'ORDER BY nomina DESC;',
+    ),
+    [
+      source('EMPLEADOS', ['ID_EMPLEADO', 'NOMBRE', 'SALARIO', 'ID_DEPARTAMENTO']),
+      source('DEPARTAMENTOS', DEP_KEY),
+    ],
+  ),
+  query(
     'S2-E-JOIN-COUNT',
     lines(
       'SELECT d.nombre_departamento,',
@@ -816,7 +833,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
       },
       {
         title: 'Agrupar por una columna y mostrar otra',
-        why: 'Si el SELECT tiene CARGO pero el GROUP BY solo ID_DEPARTAMENTO, Oracle responde ORA-00979: cada grupo tiene varios cargos.',
+        why: 'Si el SELECT tiene CARGO pero el GROUP BY solo ID_DEPARTAMENTO, Oracle no sabe qué cargo mostrar: cada grupo tiene varios (detalle técnico: ORA-00979).',
       },
     ],
     check: {
@@ -863,7 +880,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
         question: 'Error: mostrar CARGO sin agruparlo.',
         example: 'S2-E-GROUP-INCOMPLETO',
         reading:
-          'Oracle responde ORA-00979: CARGO no está en el GROUP BY ni en una función de grupo.',
+          'CARGO no está en el GROUP BY ni dentro de una función de grupo: cada grupo tiene varios cargos y Oracle no sabe cuál mostrar (detalle técnico: ORA-00979).',
       },
     ],
     changed: [
@@ -874,7 +891,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     mistakes: [
       {
         title: 'GROUP BY incompleto',
-        why: 'Columna en el SELECT, fuera de una función y fuera del GROUP BY: ORA-00979.',
+        why: 'Una columna del SELECT que no está en el GROUP BY ni dentro de una función tiene varios valores por grupo: Oracle no sabe cuál mostrar (detalle técnico: ORA-00979).',
       },
     ],
     check: {
@@ -885,7 +902,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
         'SELECT id_departamento, cargo, COUNT(*) FROM empleados GROUP BY id_departamento; ¿Qué ocurre?',
       options: [
         {
-          text: 'Oracle responde ORA-00979: CARGO no está agrupado.',
+          text: 'Oracle rechaza la consulta: CARGO no está agrupado (ORA-00979).',
           correct: true,
           feedback: 'Correcto: cada departamento tiene varios cargos y Oracle no puede elegir uno.',
         },
@@ -900,7 +917,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
           feedback: 'Oracle no completa el GROUP BY: hay que escribirlo.',
         },
         {
-          text: 'Oracle responde ORA-00934 por usar COUNT.',
+          text: 'Oracle rechaza la consulta: COUNT no puede ir en el WHERE (ORA-00934).',
           correct: false,
           feedback: 'ORA-00934 aparece con una función de grupo en el WHERE, no en el SELECT.',
         },
@@ -1046,7 +1063,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
       },
       {
         title: 'Filtrar grupos con WHERE',
-        why: 'WHERE COUNT(*) >= 3 da ORA-00934.',
+        why: 'WHERE revisa filas sueltas antes de formar los grupos: todavía no hay un COUNT(*) que comparar (detalle técnico: ORA-00934). La condición va en HAVING.',
       },
     ],
     check: {
@@ -1091,35 +1108,42 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     id: 'S2-L18',
     block: 'join-agregacion',
     slug: 'join-y-agregaciones',
-    title: 'Contar y promediar por departamento con JOIN',
+    title: 'Nómina y personas por departamento con JOIN',
     shortTitle: 'JOIN + GROUP BY',
     summary:
       'Primero se unen las tablas y después se agrupa: así el resumen lleva nombres en lugar de claves.',
-    concepts: ['group-by', 'left-join', 'count'],
+    concepts: ['group-by', 'sum-avg', 'count', 'left-join'],
     purpose:
       'Producir informes legibles: «Ventas: 5 personas» en vez de «30: 5», y no perder los departamentos vacíos.',
     syntax: lines(
-      'SELECT d.nombre, COUNT(e.id_empleado)',
-      'FROM departamentos d',
-      'LEFT JOIN empleados e ON d.id = e.id_departamento',
-      'GROUP BY d.nombre;',
+      'SELECT d.nombre_departamento, COUNT(*), SUM(e.salario)',
+      'FROM empleados e',
+      'JOIN departamentos d ON e.id_departamento = d.id_departamento',
+      'GROUP BY d.nombre_departamento;',
     ),
     explanation: [
-      'Oracle primero hace el JOIN (cada empleado con su departamento) y después agrupa las filas resultantes por el nombre del departamento.',
+      'El salario está en EMPLEADOS y el nombre del área en DEPARTAMENTOS. Oracle primero hace el JOIN (cada persona con su departamento) y después agrupa esas parejas por el nombre del departamento.',
+      'Dentro de cada grupo, COUNT(*) cuenta las parejas (las personas del área) y SUM(e.salario) suma sus salarios: la nómina del área.',
       'Para incluir departamentos sin empleados se usa LEFT JOIN desde DEPARTAMENTOS. Pero ojo: esa fila sin pareja existe, así que COUNT(*) la cuenta como 1. Para contar empleados se usa COUNT(e.id_empleado), que ignora el NULL.',
     ],
     example: {
-      question: '¿Cuántos empleados tiene cada departamento, incluidos los que no tienen ninguno?',
-      example: 'S2-E-JOIN-COUNT',
+      question: '¿Cuánto cuesta la nómina de cada departamento y cuántos empleados tiene?',
+      example: 'S2-E-NOMINA-DEPTO',
       reading:
-        'Une cada departamento con sus empleados (conservando los vacíos), agrupa por nombre del departamento y cuenta los empleados reales.',
-      visual: {
-        kind: 'compare',
-        other: 'S2-E-JOIN-COUNT-STAR',
-        labels: ['COUNT(e.id_empleado)', 'COUNT(*)'],
-      },
+        'Une cada persona con su departamento, forma un grupo por nombre de área, cuenta las personas y suma sus salarios; ordena de mayor a menor nómina.',
     },
     more: [
+      {
+        question: '¿Y los departamentos que no tienen ninguna persona?',
+        example: 'S2-E-JOIN-COUNT',
+        reading:
+          'Parte de DEPARTAMENTOS con LEFT JOIN para conservar Investigación y cuenta con COUNT(e.id_empleado): las áreas vacías salen con 0.',
+        visual: {
+          kind: 'compare',
+          other: 'S2-E-JOIN-COUNT-STAR',
+          labels: ['COUNT(e.id_empleado)', 'COUNT(*)'],
+        },
+      },
       {
         question: '¿Cuál es el salario promedio de cada departamento, con su nombre?',
         example: 'S2-E-JOIN-AVG',
@@ -1128,8 +1152,9 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
       },
     ],
     changed: [
-      'El resumen muestra nombres de departamento en lugar de números.',
-      'Investigación aparece con 0 gracias al LEFT JOIN y a COUNT(e.id_empleado).',
+      '20 personas → 19 parejas con área (Esteban no tiene) → 5 grupos → 5 filas de resumen.',
+      'Cada fila muestra el nombre del departamento, cuántas personas tiene y su nómina total.',
+      'Con LEFT JOIN desde DEPARTAMENTOS, Investigación también aparece, con 0 personas en COUNT(e.id_empleado).',
     ],
     mistakes: [
       {
@@ -1176,7 +1201,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'JOIN primero, GROUP BY después; con LEFT JOIN, cuenta la columna de la derecha.',
     topic: 'grupos',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S2-L19',
@@ -1223,7 +1248,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     mistakes: [
       {
         title: 'Agrupar por la clave y mostrar el nombre',
-        why: 'GROUP BY p.id_proyecto con SELECT p.nombre_proyecto da ORA-00979. Agrupa por lo que muestras (o por ambas columnas).',
+        why: 'Con GROUP BY p.id_proyecto y SELECT p.nombre_proyecto, Oracle no acepta mostrar una columna que no está agrupada (detalle técnico: ORA-00979). Agrupa por lo que muestras (o por ambas columnas).',
       },
     ],
     check: {
@@ -1262,7 +1287,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
     ),
     explanation: [
       'Oracle resuelve primero la subconsulta (entre paréntesis) y usa su resultado en la consulta externa. Si el promedio cambia, la consulta sigue siendo correcta sin tocarla.',
-      'Con =, >, <, >=, <= o <>, la subconsulta debe devolver una sola fila. Si devuelve varias, Oracle responde ORA-01427.',
+      'Con =, >, <, >=, <= o <>, la subconsulta debe devolver una sola fila. Si devuelve varias, Oracle no puede comparar un valor con una lista y se detiene (detalle técnico: ORA-01427).',
       'Muchas subconsultas pueden reescribirse con JOIN; se elige la forma más clara para la pregunta.',
     ],
     example: {
@@ -1289,7 +1314,7 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
         question: 'Error: la subconsulta devuelve varias filas.',
         example: 'S2-E-SUB-VARIAS',
         reading:
-          'Hay tres departamentos con sede en Bogotá: «=» no puede comparar con tres valores y Oracle responde ORA-01427.',
+          'Hay tres departamentos con sede en Bogotá: «=» no puede comparar con tres valores y Oracle detiene la consulta (detalle técnico: ORA-01427).',
       },
     ],
     changed: [
@@ -1554,12 +1579,14 @@ export const ANALYSIS_LESSONS: readonly CurriculumLesson[] = [
       {
         question: 'Error: distinto número de columnas.',
         example: 'S2-E-UNION-COLUMNAS',
-        reading: 'Dos columnas arriba y una abajo: Oracle responde ORA-01789.',
+        reading:
+          'Dos columnas arriba y una abajo: las filas no encajan y Oracle no puede apilarlas (detalle técnico: ORA-01789).',
       },
       {
         question: 'Error: tipos incompatibles.',
         example: 'S2-E-UNION-TIPOS',
-        reading: 'Un texto arriba y un número abajo: Oracle responde ORA-01790.',
+        reading:
+          'Un texto arriba y un número abajo: no pueden formar una misma columna (detalle técnico: ORA-01790).',
       },
     ],
     changed: [

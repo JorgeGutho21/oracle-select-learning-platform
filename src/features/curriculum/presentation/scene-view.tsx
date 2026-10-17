@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { LessonExampleView, SceneView } from '../application/curriculum-api';
+import type { ExampleView, LessonExampleView, SceneView } from '../application/curriculum-api';
 import { ActivityPlayer } from './activity-player';
 import {
   CodeView,
@@ -9,6 +9,7 @@ import {
   NumberedCode,
   OracleError,
   OutputConsole,
+  ProbeQuery,
   tableSummary,
 } from './example-parts';
 import { ExecutionStepper } from './execution-stepper';
@@ -76,55 +77,116 @@ function sourcesLine(entry: LessonExampleView): string {
   return entry.example.sources.map((table) => `${table.title}: ${tableSummary(table)}`).join(' · ');
 }
 
+/** Filas del resultado que caben en el lienzo de clase; el resto se indica («6 de 19 filas»). */
+const STAGE_ROWS = 6;
+/** Desde estas líneas, el código PL/SQL ocupa la columna izquierda a toda altura. */
+const LONG_CODE = 10;
+
+/**
+ * El código va a la izquierda a toda altura si es largo o si el resultado es solo la salida de
+ * DBMS_OUTPUT; con tablas «después» o un error, el resultado necesita la columna derecha.
+ */
+function codeLeft(example: ExampleView): boolean {
+  if (example.code.split('\n').length > LONG_CODE) return true;
+  return example.after.length === 0 && !example.error;
+}
+
+function stageRows(example: ExampleView): ExampleView {
+  const result = example.result;
+  if (!result || result.rows.length <= STAGE_ROWS) return example;
+  return { ...example, result: { ...result, rows: result.rows.slice(0, STAGE_ROWS) } };
+}
+
+/**
+ * Con pocas filas de origen la visualización es breve: el resultado sube a la columna derecha,
+ * bajo ella, y la fila que explica el tema (la que queda con NULL) se ve sin desplazar.
+ */
+function smallSources(entry: LessonExampleView): boolean {
+  return entry.example.sources.reduce((total, table) => total + table.rows.length, 0) <= 8;
+}
+
 function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
-  const { example, visual } = entry;
+  const { visual } = entry;
+  const example = stageRows(entry.example);
   if (example.kind === 'plsql') {
     const cursor = visual.kind === 'cursor' ? visual.query.result : null;
-    return (
-      <div
-        className={`cu-stage cu-stage--plsql${example.trace.length > 0 ? ' cu-stage--trace' : ''}`}
-      >
-        <Reveal at={1} className="cu-stage__code">
-          <p className="cu-stage__question">{entry.question}</p>
-          <p className="cu-stage__reading">{entry.reading}</p>
-          <ExamplePrimer example={example} compact />
-          <SetupFold setup={example.setup} />
-        </Reveal>
-        <Reveal at={2} className="cu-stage__visual">
-          {example.trace.length > 0 ? (
+    const lead = (
+      <>
+        <p className="cu-stage__question">{entry.question}</p>
+        <p className="cu-stage__reading">{entry.reading}</p>
+        <ExamplePrimer example={example} compact />
+        <SetupFold setup={example.setup} />
+      </>
+    );
+    if (example.trace.length > 0)
+      return (
+        <div className="cu-stage cu-stage--plsql cu-stage--trace">
+          <Reveal at={1} className="cu-stage__visual">
             <ExecutionStepper
               code={example.code}
               trace={example.trace}
               cursor={cursor}
               density="stage"
+              lead={
+                // El vocabulario ya se vio en las escenas de introducción y sintaxis del tema.
+                <>
+                  <p className="cu-stage__question">{entry.question}</p>
+                  <p className="cu-stage__reading">{entry.reading}</p>
+                  <SetupFold setup={example.setup} />
+                </>
+              }
             />
-          ) : (
-            <NumberedCode code={example.code} label="Código" />
-          )}
+          </Reveal>
+          <Reveal at={3} className="cu-stage__result">
+            {example.error && <OracleError error={example.error} stage />}
+            {example.after.map((table, index) => (
+              <div key={index} className="cu-probe-table">
+                {table.query && <ProbeQuery query={table.query} />}
+                <CurriculumTable
+                  table={table}
+                  label={`Después: ${table.title}`}
+                  caption={`${table.title} después de ejecutar`}
+                  size="compact"
+                />
+              </div>
+            ))}
+          </Reveal>
+        </div>
+      );
+    return (
+      <div className={`cu-stage cu-stage--plsql${codeLeft(example) ? ' cu-stage--long' : ''}`}>
+        <Reveal at={1} className="cu-stage__code">
+          {lead}
+        </Reveal>
+        <Reveal at={2} className="cu-stage__visual">
+          <NumberedCode code={example.code} label="Código" />
         </Reveal>
         <Reveal at={3} className="cu-stage__result">
-          {example.trace.length === 0 && example.output.length > 0 && (
-            <OutputConsole lines={example.output} />
-          )}
-          {example.error && <OracleError error={example.error} />}
+          {example.output.length > 0 && <OutputConsole lines={example.output} />}
+          {example.error && <OracleError error={example.error} stage />}
           {example.after.map((table, index) => (
-            <CurriculumTable
-              key={index}
-              table={table}
-              label={`Después: ${table.title}`}
-              caption={`${table.title} después de ejecutar`}
-              size="compact"
-            />
+            <div key={index} className="cu-probe-table">
+              {table.query && <ProbeQuery query={table.query} />}
+              <CurriculumTable
+                table={table}
+                label={`Después: ${table.title}`}
+                caption={`${table.title} después de ejecutar`}
+                size="compact"
+              />
+            </div>
           ))}
         </Reveal>
       </div>
     );
   }
   return (
-    <div className={`cu-stage cu-stage--${visual.kind}`}>
+    <div
+      className={`cu-stage cu-stage--${visual.kind}${smallSources(entry) ? ' cu-stage--small' : ''}`}
+    >
       <Reveal at={1} className="cu-stage__code">
         <p className="cu-stage__question">{entry.question}</p>
-        {example.sources.length > 0 && (
+        {/* JOIN, grupos y comparación ya muestran las filas de origen. */}
+        {example.sources.length > 0 && !['join', 'group', 'compare'].includes(visual.kind) && (
           <p className="cu-stage__sources">
             <span className="cu-stage__label">Antes</span> {sourcesLine(entry)}
           </p>
@@ -137,7 +199,7 @@ function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
         {visual.kind === 'pipeline' && <PipelineVisual stages={visual.stages} density="stage" />}
         {visual.kind === 'compare' && (
           <CompareVisual
-            first={example}
+            first={entry.example}
             second={visual.other}
             labels={visual.labels}
             density="stage"
@@ -222,12 +284,17 @@ export function CurriculumSceneView({
         return (
           <Frame scene={scene}>
             <div className="cu-idea cu-idea--syntax">
-              {scene.code && <CodeView code={scene.code} label="Forma general" size="large" />}
+              <div className="cu-idea__form">
+                {scene.code && <CodeView code={scene.code} label="Forma general" size="large" />}
+                <Reveal at={1}>
+                  <p className="cu-syntax-parts__reading">
+                    <span className="study-part">Se lee así</span>{' '}
+                    {(scene.points[0] ?? '').replace(/^Se lee así: /, '')}
+                  </p>
+                </Reveal>
+              </div>
               <Reveal at={1}>
-                <SyntaxParts
-                  parts={scene.parts}
-                  reading={(scene.points[0] ?? '').replace(/^Se lee así: /, '')}
-                />
+                <SyntaxParts parts={scene.parts} />
               </Reveal>
             </div>
           </Frame>

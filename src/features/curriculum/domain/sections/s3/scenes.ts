@@ -30,7 +30,7 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     shortTitle: 'Ruta',
     notes: {
       explain:
-        'Trece bloques: estructura, variables, SQL dentro de PL/SQL, control, cursores, errores, programas guardados y triggers.',
+        'Diecisiete bloques en el orden del curso: qué es PL/SQL, bloque anónimo, variables, %TYPE, SELECT INTO, IF, FOR, cursor implícito, cursor explícito, funciones, procedimientos, paquetes y triggers. Después, la ampliación: %ROWTYPE, alcance, CASE, excepciones, triggers avanzados e integración.',
       transition: 'Empecemos por la diferencia entre SQL y PL/SQL.',
     },
   },
@@ -58,13 +58,14 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     id: 'primer-bloque',
     block: 'que-es-plsql',
     kind: 'lesson',
-    title: 'El primer bloque',
-    shortTitle: 'Primer bloque',
+    title: 'Lo que SQL responde',
+    shortTitle: 'SQL responde',
     lesson: 'S3-L01',
     notes: {
       explain:
-        'Avanza línea a línea: el SELECT INTO guarda 17 en la variable y el IF elige el mensaje.',
-      question: '¿Qué escribiría si hubiera 10 personas activas?',
+        'COUNT(*) devuelve 17 en una sola fila. La consulta no guarda ese número ni decide nada con él: para eso hará falta un bloque PL/SQL.',
+      question:
+        '¿Qué haría falta para escribir «Hay muchas personas activas» cuando el total supera 15? (Guardar el valor y decidir: PL/SQL.)',
       transition: '¿Qué partes tiene un bloque?',
     },
   },
@@ -77,9 +78,10 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     lesson: 'S3-L02',
     notes: {
       explain:
-        'El empleado 99 no existe: el error salta a EXCEPTION y el bloque termina con un mensaje en lugar de fallar.',
-      mistake: 'Olvidar el punto y coma del END: PLS-00103.',
-      transition: '¿Y si el bloque no tiene nombre?',
+        'Versión 2: DECLARE prepara v_mensaje con su valor inicial y BEGIN lo muestra. EXCEPTION, también opcional, aparece en el ejemplo siguiente.',
+      mistake:
+        'Olvidar un punto y coma: Oracle encuentra END donde esperaba el final de la instrucción.',
+      transition: 'Ahora, guardar valores con nombre: variables.',
     },
   },
   {
@@ -138,11 +140,12 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     id: 'variables',
     block: 'variables',
     kind: 'lesson',
-    title: 'Variables y constantes',
+    title: 'Declarar, inicializar y asignar',
     shortTitle: 'Variables',
     lesson: 'S3-L04',
     notes: {
-      explain: 'Cada variable tiene tipo; la asignación es «:=». La constante no puede cambiar.',
+      explain:
+        'Cada variable tiene nombre y tipo. := le da su valor inicial y, en BEGIN, lo cambia. v_bono empieza en NULL hasta que se le asigna 300000.',
       mistake: 'Escribir = para asignar: en PL/SQL «=» compara.',
       transition: '¿Cómo evitar escribir el tipo a mano?',
     },
@@ -151,14 +154,15 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     id: 'rowtype',
     block: 'variables',
     kind: 'lesson',
-    title: '%TYPE y %ROWTYPE',
-    shortTitle: '%ROWTYPE',
+    title: '%TYPE: el tipo de la columna',
+    shortTitle: '%TYPE',
     lesson: 'S3-L05',
     notes: {
       explain:
-        'La variable copia el tipo de la columna o la forma de la fila completa. Si la tabla cambia, el código sigue funcionando.',
-      question: '¿Qué pasa si declaro VARCHAR2(3) para el nombre? (ORA-06502.)',
-      transition: '¿Dónde existe cada variable?',
+        'La variable copia el tipo de la columna, no su valor. Si la columna cambia de tamaño, la variable cambia con ella al recompilar.',
+      question:
+        '¿Qué pasa si declaro VARCHAR2(3) para el nombre? («Paula» no cabe y Oracle se detiene.)',
+      transition: '¿Cómo guardamos en una variable un dato de la tabla? SELECT INTO.',
     },
   },
   {
@@ -170,7 +174,7 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     lesson: 'S3-L06',
     notes: {
       explain: 'Lo de afuera se ve adentro; lo de adentro no se ve afuera.',
-      transition: 'Con variables listas, traigamos datos de la base.',
+      transition: 'Otra forma de decidir: CASE.',
     },
   },
   {
@@ -183,8 +187,8 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain:
         'SELECT INTO guarda una fila en variables. Cero filas: NO_DATA_FOUND; varias: TOO_MANY_ROWS.',
-      question: '¿Qué pasa con WHERE id_departamento = 20? (Cuatro filas: ORA-01422.)',
-      transition: 'También podemos modificar datos.',
+      question: '¿Qué pasa con WHERE id_departamento = 20? (Hay cuatro filas: TOO_MANY_ROWS.)',
+      transition: 'Con el dato en una variable, ya podemos decidir: IF.',
     },
   },
   {
@@ -196,7 +200,7 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     lesson: 'S3-L08',
     notes: {
       explain:
-        'Compara antes y después: tres bonos cambian y SQL%ROWCOUNT informa 3. El cambio queda pendiente hasta COMMIT.',
+        'El DELETE borra las cuatro asignaciones del proyecto 101 y SQL%ROWCOUNT informa 4. ROLLBACK deshace el borrado: al terminar, ASIGNACIONES está como al principio.',
       mistake: 'Creer que el bloque confirma solo: ROLLBACK lo deshace.',
       transition: 'Pregunta.',
     },
@@ -251,7 +255,7 @@ export const S3_SCENES: readonly CurriculumScene[] = [
       explain:
         'La primera condición verdadera gana. Con NULL, ninguna es verdadera y se ejecuta ELSE.',
       mistake: 'Poner primero la condición menos exigente: la más exigente nunca se alcanza.',
-      transition: 'Con muchas opciones, CASE es más claro.',
+      transition: 'Ahora, repetir una acción: FOR.',
     },
   },
   {
@@ -263,8 +267,8 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     lesson: 'S3-L10',
     notes: {
       explain:
-        'CASE simple compara un valor; CASE de búsqueda evalúa condiciones. Sin ELSE y sin coincidencia: ORA-06592.',
-      transition: 'Ahora, repetir.',
+        'CASE simple compara un valor; CASE de búsqueda evalúa condiciones. Si ninguna rama coincide y no hay ELSE, Oracle se detiene.',
+      transition: '¿Qué pasa cuando algo falla? Excepciones.',
     },
   },
   {
@@ -278,19 +282,19 @@ export const S3_SCENES: readonly CurriculumScene[] = [
       explain:
         'Avanza vuelta a vuelta mirando las variables: el salario crece y el año sube hasta superar la meta.',
       mistake: 'Olvidar EXIT: el bucle no termina.',
-      transition: 'Cuando se conoce el número de vueltas, FOR.',
+      transition: '¿Cómo sabemos qué hizo una sentencia SQL? Cursor implícito.',
     },
   },
   {
     id: 'for',
     block: 'bucles',
     kind: 'lesson',
-    title: 'WHILE y FOR',
+    title: 'FOR: repetir un rango conocido',
     shortTitle: 'FOR',
     lesson: 'S3-L12',
     notes: {
       explain:
-        'FOR declara su índice y recorre el rango completo. WHILE pregunta antes de cada vuelta.',
+        'FOR declara su índice y recorre el rango completo: 2, 3, 4 y 5. En cada vuelta busca un nombre y lo escribe.',
       transition: 'Pregunta trampa.',
     },
   },
@@ -355,7 +359,7 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain:
         'El FOR abre, lee y cierra solo. El parámetro permite reutilizar el cursor para otro proyecto.',
-      transition: '¿Y si algo sale mal?',
+      transition: 'Ahora, guardar un cálculo con nombre: funciones.',
     },
   },
   {
@@ -415,7 +419,8 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain:
         'Se crea una vez y se llama muchas: dos aumentos con una línea cada uno. Compara antes y después.',
-      mistake: 'Llamarlo dentro de un SELECT: ORA-00904.',
+      mistake:
+        'Llamarlo dentro de un SELECT: un procedimiento no devuelve un valor y SQL no lo reconoce.',
       transition: '¿Cómo entran y salen los datos?',
     },
   },
@@ -428,7 +433,7 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     lesson: 'S3-L19',
     notes: {
       explain: 'IN entra, OUT sale, IN OUT entra y sale. Un OUT necesita una variable.',
-      transition: 'Si lo que necesito es un valor, uso una función.',
+      transition: '¿En qué se diferencia un procedimiento guardado de un bloque anónimo?',
     },
   },
   {
@@ -443,7 +448,7 @@ export const S3_SCENES: readonly CurriculumScene[] = [
       explain:
         'La función devuelve un valor con RETURN y por eso puede usarse como una columna calculada.',
       question: '¿Podría usar aumentar_salario así? (No: es un procedimiento.)',
-      transition: 'Muchos subprogramas del mismo tema se agrupan en un paquete.',
+      transition: '¿Y si la tarea no devuelve un valor? Procedimientos.',
     },
   },
   {
@@ -539,8 +544,9 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain:
         'Muestra las tres tablas: salarios antes, salarios después y AUDITORIA_SALARIOS con :OLD y :NEW de cada persona.',
-      mistake: ':OLD y :NEW en un trigger sin FOR EACH ROW: ORA-04082.',
-      transition: 'Un trigger también puede impedir un cambio.',
+      mistake: ':OLD y :NEW en un trigger sin FOR EACH ROW: no hay una fila concreta que leer.',
+      transition:
+        'Fin del núcleo. Ampliación: %ROWTYPE, alcance, CASE, excepciones y triggers avanzados.',
     },
   },
   {
@@ -551,7 +557,8 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     shortTitle: 'Validación',
     lesson: 'S3-L26',
     notes: {
-      explain: 'El aumento del 30 % se rechaza con ORA-20010 y el salario de Valentina no cambia.',
+      explain:
+        'El trigger rechaza el aumento del 30 % con su propio error (-20010) y el salario de Valentina no cambia.',
       transition: 'Los triggers tienen límites.',
     },
   },
@@ -579,7 +586,8 @@ export const S3_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain:
         'Señala cada pieza: parámetros, validación, cursor FOR, variable, UPDATE, contador OUT y el trigger que audita cada fila.',
-      question: '¿Qué pasa con un 30 %? (ORA-20020 y ningún cambio.)',
+      question:
+        '¿Qué pasa con un 30 %? (El procedimiento lo rechaza con su error -20020 y no cambia nada.)',
       transition: 'Cierre.',
     },
   },

@@ -36,6 +36,7 @@ import type {
 } from '../domain/types';
 import { curriculumLessonHref } from './outline';
 import { pedagogicalTopic, tierLabel } from '../domain/pedagogy';
+import { correctExampleId, errorLesson } from '../domain/error-lessons';
 import {
   VERIFIED,
   verifiedResult,
@@ -90,6 +91,17 @@ export interface VerificationView {
   readonly verifiedAt: string;
 }
 
+/** Error de un ejemplo: explicación humana primero; el texto de Oracle, como detalle técnico. */
+export interface ExampleErrorView extends OracleErrorText {
+  readonly lesson: {
+    readonly what: string;
+    readonly why: string;
+    readonly fix: string;
+    /** Código del ejemplo correcto, también verificado en Oracle. */
+    readonly correct: string;
+  } | null;
+}
+
 export interface ExampleView {
   readonly id: string;
   readonly kind: 'query' | 'plsql';
@@ -98,7 +110,7 @@ export interface ExampleView {
   readonly setup: readonly string[];
   readonly sources: readonly TableView[];
   readonly result: TableView | null;
-  readonly error: OracleErrorText | null;
+  readonly error: ExampleErrorView | null;
   readonly output: readonly string[];
   readonly before: readonly TableView[];
   readonly after: readonly TableView[];
@@ -199,6 +211,7 @@ export type ActivityView = {
     readonly code: string | null;
     readonly example: ExampleView | null;
     readonly showResult: boolean;
+    readonly excerpt: { readonly code: string; readonly note: string } | null;
   };
 } & (
   | { readonly kind: 'choice' | 'multi'; readonly options: readonly ActivityOptionView[] }
@@ -379,6 +392,22 @@ function requireExample(id: string): CurriculumExample {
   return example;
 }
 
+function errorView(id: string, error: OracleErrorText): ExampleErrorView {
+  const lesson = errorLesson(id);
+  const correct = correctExampleId(id);
+  if (!lesson || !correct) return { ...error, lesson: null };
+  const example = requireExample(correct);
+  return {
+    ...error,
+    lesson: {
+      what: lesson.what,
+      why: lesson.why,
+      fix: lesson.fix,
+      correct: example.kind === 'query' ? example.sql : example.code,
+    },
+  };
+}
+
 export function exampleView(id: string): ExampleView {
   const example = requireExample(id);
   const result = verifiedResult(id);
@@ -390,7 +419,10 @@ export function exampleView(id: string): ExampleView {
       setup: [],
       sources: example.sources.map((view) => sourceTable(example.dataset, view)),
       result: result?.kind === 'query' ? resultTable('Resultado', result.table) : null,
-      error: result?.kind === 'query-error' ? { code: result.code, message: result.message } : null,
+      error:
+        result?.kind === 'query-error'
+          ? errorView(id, { code: result.code, message: result.message })
+          : null,
       output: [],
       before: [],
       after: [],
@@ -405,7 +437,7 @@ export function exampleView(id: string): ExampleView {
     setup: example.setup ?? [],
     sources: [],
     result: null,
-    error: plsql?.error ?? null,
+    error: plsql?.error ? errorView(id, plsql.error) : null,
     output: plsql?.output ?? [],
     before: (plsql?.before ?? []).map((table, index) => probeTable(example.before?.[index], table)),
     after: (plsql?.after ?? []).map((table, index) => probeTable(example.after?.[index], table)),
@@ -596,6 +628,18 @@ function optionView(option: ActivityOption): ActivityOptionView {
   };
 }
 
+function excerptOf(
+  example: ExampleView | null,
+  excerpt: { readonly from: number; readonly to: number; readonly note: string } | undefined,
+): { readonly code: string; readonly note: string } | null {
+  if (!example || !excerpt) return null;
+  const lines = example.code.split('\n');
+  if (excerpt.from < 1 || excerpt.to > lines.length || excerpt.from > excerpt.to) {
+    throw new Error(`Fragmento fuera del ejemplo ${example.id}: ${excerpt.from}–${excerpt.to}`);
+  }
+  return { code: lines.slice(excerpt.from - 1, excerpt.to).join('\n'), note: excerpt.note };
+}
+
 export function activityView(section: SectionId, activity: Activity): ActivityView {
   const curriculum = unitOf(section);
   const lesson = curriculum?.lessons.find((entry) => entry.id === activity.lesson);
@@ -612,6 +656,7 @@ export function activityView(section: SectionId, activity: Activity): ActivityVi
       code: activity.context?.code ?? null,
       example,
       showResult: activity.context?.showResult ?? false,
+      excerpt: excerptOf(example, activity.context?.excerpt),
     },
   };
   switch (activity.kind) {

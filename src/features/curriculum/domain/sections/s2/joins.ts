@@ -457,13 +457,13 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
           '¿Qué pasa si se intenta guardar un empleado en el departamento 70, que no existe?',
         example: 'S2-E-FK-VIOLADA',
         reading:
-          'Oracle rechaza la fila con ORA-02291: la clave foránea EMPLEADOS_DEPARTAMENTO_FK no encuentra su clave padre.',
+          'Oracle no guarda la fila: el departamento 70 no existe en DEPARTAMENTOS y la clave foránea no encuentra a qué área apuntar (detalle técnico: ORA-02291).',
       },
       {
         question: '¿Y si se repite la clave primaria 20 en DEPARTAMENTOS?',
         example: 'S2-E-PK-DUPLICADA',
         reading:
-          'Oracle rechaza la fila con ORA-00001: la clave primaria DEPARTAMENTOS_PK no admite valores repetidos.',
+          'Oracle no guarda la fila: ya existe un departamento con la clave 20 y la clave primaria no admite repetidos (detalle técnico: ORA-00001).',
       },
     ],
     changed: [
@@ -556,7 +556,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
       },
       {
         title: 'Usar el nombre completo después de definir el alias',
-        why: 'Con FROM empleados e, la tabla ya se llama e: empleados.nombre da error ORA-00904.',
+        why: 'Con FROM empleados e, la tabla ya se llama e dentro de la consulta: Oracle no reconoce empleados.nombre (detalle técnico: ORA-00904). Escribe e.nombre.',
         wrong: 'SELECT empleados.nombre FROM empleados e',
         right: 'SELECT e.nombre FROM empleados e',
       },
@@ -803,7 +803,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
         question: 'Error esperado: una columna tiene dos orígenes posibles.',
         example: 'S2-E-AMBIGUA',
         reading:
-          'Después de aprender JOIN y ON, compara los nombres: ID_DEPARTAMENTO existe en ambas tablas. Oracle devuelve ORA-00918; e.id_departamento o d.id_departamento resuelve la ambigüedad.',
+          'Después de aprender JOIN y ON, compara los nombres: ID_DEPARTAMENTO existe en ambas tablas. Como la consulta no dice de cuál habla, Oracle no puede decidir (detalle técnico: ORA-00918); e.id_departamento o d.id_departamento resuelve la ambigüedad.',
       },
     ],
     changed: [
@@ -813,7 +813,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
     mistakes: [
       {
         title: 'Columna ambigua',
-        why: 'Si dos tablas tienen ID_DEPARTAMENTO, escribirla sin alias da ORA-00918.',
+        why: 'Las dos tablas tienen ID_DEPARTAMENTO: sin alias, Oracle no sabe cuál usar (detalle técnico: ORA-00918). Escribe e.id_departamento o d.id_departamento.',
         wrong: 'SELECT id_departamento FROM empleados e JOIN departamentos d ON …',
         right: 'SELECT e.id_departamento FROM empleados e JOIN departamentos d ON …',
       },
@@ -1362,7 +1362,7 @@ export const JOIN_LESSONS: readonly CurriculumLesson[] = [
         question: '¿Y si se escribe JOIN sin ON?',
         example: 'S2-E-JOIN-SIN-ON',
         reading:
-          'Oracle lo rechaza: falta ON o USING. Oracle 23 responde ORA-02000; Oracle 19c, ORA-00905 (falta una palabra clave).',
+          'Oracle no sabe cómo emparejar las filas: a JOIN le falta ON o USING (detalle técnico: ORA-02000 en Oracle 23; ORA-00905 en Oracle 19c).',
       },
       {
         question: 'USING une por una columna con el mismo nombre en las dos tablas.',

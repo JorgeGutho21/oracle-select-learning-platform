@@ -30,7 +30,7 @@ export const S2_SCENES: readonly CurriculumScene[] = [
     shortTitle: 'Ruta',
     notes: {
       explain:
-        'Once bloques: relaciones, JOIN, agregaciones, subconsultas, conjuntos e integración.',
+        'Quince bloques. Núcleo: relaciones y claves, alias, modelo del JOIN, INNER JOIN, varias tablas, OUTER JOIN, funciones de grupo, GROUP BY, WHERE frente a HAVING y JOIN con agregación. Ampliación: SELF y CROSS JOIN, subconsultas, conjuntos e integración.',
       transition: 'Empezamos por la pregunta clave: ¿por qué varias tablas?',
     },
   },
@@ -69,7 +69,8 @@ export const S2_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain:
         'El 20 de Andrés no dice nada por sí solo: hay que buscar el 20 en DEPARTAMENTOS. Esteban tiene NULL: todavía sin área.',
-      question: '¿Puede Oracle guardar un empleado del departamento 70? (No: ORA-02291.)',
+      question:
+        '¿Puede Oracle guardar un empleado del departamento 70? (No: el departamento 70 no existe.)',
       transition: 'Con dos tablas en una consulta necesitamos nombrarlas: alias.',
     },
   },
@@ -77,15 +78,15 @@ export const S2_SCENES: readonly CurriculumScene[] = [
     id: 'alias',
     block: 'inner-join',
     kind: 'lesson',
-    title: 'Alias de tabla',
-    shortTitle: 'Alias',
+    title: 'Columna ambigua: ¿de qué tabla?',
+    shortTitle: 'Ambigua',
     lesson: 'S2-L05',
     example: 'S2-E-AMBIGUA',
     notes: {
       explain:
-        'ID_DEPARTAMENTO existe en las dos tablas: sin alias, Oracle no sabe cuál mostrar. Con e. y d. desaparece la duda.',
-      mistake: 'Escribir FROM empleados AS e: Oracle no acepta AS en el alias de tabla.',
-      transition: 'Ahora sí: ¿cómo combina Oracle las dos tablas?',
+        'ID_DEPARTAMENTO existe en las dos tablas: sin alias, Oracle no sabe cuál mostrar. Con e. o d. delante desaparece la duda.',
+      mistake: 'Escribir id_departamento sin alias cuando la columna está en las dos tablas.',
+      transition: '¿Y si comparamos un dato de cada tabla en la misma fila?',
     },
   },
   {
@@ -268,7 +269,7 @@ export const S2_SCENES: readonly CurriculumScene[] = [
       explain:
         'Dos departamentos × tres proyectos = seis filas. Completo: 6 × 7 = 42. Aparece por error con FROM a, b sin condición.',
       mistake: 'NATURAL JOIN une por nombre de columna, no por significado.',
-      transition: 'Resumen de los JOIN.',
+      transition: 'Ahora resumimos muchas filas en una: funciones de grupo.',
     },
   },
   {
@@ -351,7 +352,7 @@ export const S2_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain: 'Cada combinación departamento–estado es un grupo.',
       mistake:
-        'Mostrar una columna que no está agrupada (ORA-00979) o usar COUNT en el WHERE (ORA-00934).',
+        'Mostrar una columna que no está agrupada, o usar COUNT en el WHERE: Oracle rechaza las dos consultas.',
       transition: '¿Cómo se filtran los grupos?',
     },
   },
@@ -415,12 +416,27 @@ export const S2_SCENES: readonly CurriculumScene[] = [
     },
   },
   {
+    id: 'join-nomina',
+    block: 'join-agregacion',
+    kind: 'lesson',
+    title: 'Nómina y personas por departamento',
+    shortTitle: 'JOIN + SUM',
+    lesson: 'S2-L18',
+    notes: {
+      explain:
+        'FROM y JOIN reúnen persona y área; ON las empareja; GROUP BY forma un grupo por área; COUNT(*) cuenta personas y SUM(e.salario) suma la nómina.',
+      mistake: 'Agrupar por d.id_departamento y mostrar d.nombre_departamento sin agruparlo.',
+      transition: '¿Y las áreas sin personas? LEFT JOIN.',
+    },
+  },
+  {
     id: 'join-count',
     block: 'join-agregacion',
     kind: 'lesson',
     title: 'Empleados por departamento, sin perder ninguno',
     shortTitle: 'JOIN + COUNT',
     lesson: 'S2-L18',
+    example: 'S2-E-JOIN-COUNT',
     notes: {
       explain:
         'LEFT JOIN desde DEPARTAMENTOS conserva Investigación. COUNT(e.id_empleado) le da 0; COUNT(*) le daría 1.',
@@ -451,7 +467,8 @@ export const S2_SCENES: readonly CurriculumScene[] = [
     notes: {
       explain:
         'Primero la subconsulta (4.580.000), después la externa. El número no se escribe a mano.',
-      mistake: 'Usar = con una subconsulta que devuelve varias filas: ORA-01427.',
+      mistake:
+        'Usar = con una subconsulta que devuelve varias filas: Oracle no puede comparar un valor con una lista.',
       transition: 'Cuando la subconsulta devuelve una lista.',
     },
   },

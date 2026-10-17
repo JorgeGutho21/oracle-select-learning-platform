@@ -120,7 +120,8 @@ export function SyntaxParts({
   reading,
 }: {
   readonly parts: readonly SyntaxPart[];
-  readonly reading: string;
+  /** Sin lectura, la escena de clase la coloca junto al código. */
+  readonly reading?: string;
 }) {
   return (
     <div className="cu-syntax-parts">
@@ -143,9 +144,11 @@ export function SyntaxParts({
           ))}
         </tbody>
       </table>
-      <p className="cu-syntax-parts__reading">
-        <span className="study-part">Se lee así</span> {reading}
-      </p>
+      {reading && (
+        <p className="cu-syntax-parts__reading">
+          <span className="study-part">Se lee así</span> {reading}
+        </p>
+      )}
     </div>
   );
 }

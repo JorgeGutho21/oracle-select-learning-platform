@@ -1110,7 +1110,7 @@ export const BASICS_LESSONS: readonly CurriculumLesson[] = [
     },
     keyIdea: 'Nombre + tipo + valor; := asigna, CONSTANT no cambia.',
     topic: 'variables',
-    version: 2,
+    version: 3,
   },
   {
     id: 'S3-L05',

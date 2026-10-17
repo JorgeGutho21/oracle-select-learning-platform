@@ -434,7 +434,8 @@ export const S3_PRACTICE: readonly Activity[] = [
     id: 'S3-P09',
     lesson: 'S3-L10',
     kind: 'choice',
-    prompt: 'El bloque de Ricardo termina con ORA-06592. ¿Qué cambio lo corrige?',
+    prompt:
+      'El bloque de Ricardo se detiene porque ningún WHEN del CASE se cumple (ORA-06592). ¿Qué cambio lo corrige?',
     context: { example: 'S3-E-CASE-NOT-FOUND' },
     options: [
       {

@@ -167,6 +167,12 @@ interface ActivityBase {
     readonly code?: string;
     /** Muestra también el resultado verificado del ejemplo. */
     readonly showResult?: boolean;
+    /**
+     * Muestra solo las líneas `from`–`to` (desde 1, inclusive) del ejemplo; `note` resume lo
+     * omitido y el bloque completo queda plegado. La comprobación evalúa el concepto, no la
+     * lectura de un bloque largo.
+     */
+    readonly excerpt?: { readonly from: number; readonly to: number; readonly note: string };
   };
   /** Primera pista conceptual; segunda, más concreta. Nunca la respuesta. */
   readonly hints: readonly [string, string];

@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import type {
+  ExampleErrorView,
   ExampleView,
-  OracleErrorText,
   TableView,
   VerificationView,
 } from '../application/curriculum-api';
@@ -168,32 +168,61 @@ export function NumberedCode({
   );
 }
 
-export function OracleError({ error }: { readonly error: OracleErrorText }) {
-  const explanation = explainOracleError(error.code);
+/**
+ * Error para aprender: qué ocurrió, por qué, cómo corregirlo y el ejemplo correcto, en ese
+ * orden. El código ORA o PLS de Oracle es el detalle técnico, plegado al final.
+ */
+export function OracleError({
+  error,
+  stage = false,
+}: {
+  readonly error: ExampleErrorView;
+  /** Lienzo de clase: el ejemplo correcto queda plegado bajo su título. */
+  readonly stage?: boolean;
+}) {
+  const generic = explainOracleError(error.code);
+  const lesson = error.lesson;
+  const what =
+    lesson?.what ?? generic?.title ?? 'Oracle no pudo ejecutar la instrucción del ejemplo';
+  const why =
+    lesson?.why ??
+    generic?.explanation ??
+    'El ejemplo muestra a propósito una instrucción incorrecta para aprender a corregirla.';
+  const fix = lesson?.fix ?? generic?.correction ?? null;
   return (
     <section
       className="cu-oracle-error"
-      aria-label={`Ejemplo de error: ${error.code}`}
+      aria-label={`Error para aprender: ${what}`}
       data-error-kind="pedagogical"
     >
-      <p className="study-part">Ejemplo de error · resultado esperado</p>
+      <p className="study-part">Error para aprender</p>
       <p className="cu-oracle-error__title">
-        <span aria-hidden="true">!</span> <strong>Qué pasó:</strong>{' '}
-        {explanation?.title ?? 'Oracle no pudo ejecutar la instrucción del ejemplo'}
+        <span aria-hidden="true">!</span> <strong>Qué ocurrió:</strong> {what}
       </p>
       <p>
-        <strong>Por qué:</strong>{' '}
-        {explanation?.explanation ??
-          'El ejemplo muestra a propósito una instrucción incorrecta para aprender a corregirla.'}
+        <strong>Por qué ocurrió:</strong> {why}
       </p>
-      {explanation && (
+      {fix && (
         <p>
-          <strong>Cómo se corrige:</strong> {explanation.correction}
+          <strong>Cómo corregirlo:</strong> {fix}
         </p>
       )}
+      {lesson &&
+        (stage ? (
+          <details className="cu-oracle-error__correct">
+            <summary>Ejemplo correcto · Oracle lo ejecuta sin error</summary>
+            <SqlCode sql={lesson.correct} tone="success" />
+          </details>
+        ) : (
+          <SqlCode
+            sql={lesson.correct}
+            label="Ejemplo correcto · Oracle lo ejecuta sin error"
+            tone="success"
+          />
+        ))}
       <details>
         <summary>
-          Detalle técnico: Oracle denomina este caso <code>{error.code}</code>
+          Detalle técnico: <code>{error.code}</code>
         </summary>
         <pre className="cu-oracle-error__message">{error.message}</pre>
       </details>
@@ -253,7 +282,7 @@ export function ExampleOutcome({
       {example.kind === 'plsql' && example.output.length > 0 && (
         <OutputConsole lines={example.output} />
       )}
-      {example.error && <OracleError error={example.error} />}
+      {example.error && <OracleError error={example.error} stage={size === 'compact'} />}
     </>
   );
 }

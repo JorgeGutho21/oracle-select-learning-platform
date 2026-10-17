@@ -1,6 +1,6 @@
 # S2_S3_PEDAGOGICAL_RESTRUCTURE — Reingeniería pedagógica de las secciones 2 y 3
 
-Fecha: 17 de octubre de 2026. Rama: `codex-final-pedagogy-ui-20261004`.
+Fecha: 17 de octubre de 2026; cierre pedagógico y visual el mismo día. Rama: `codex-final-pedagogy-ui-20261004`. Evidencia del cierre: [S2_S3_FINAL_QA.md](S2_S3_FINAL_QA.md).
 
 Fuente: `src/features/curriculum/domain/sections/{s2,s3}/plan.ts`. El orden de esos archivos es el orden de estudio, de clase y de práctica.
 
@@ -75,7 +75,7 @@ El núcleo es lo que pide el profesor: **INNER JOIN y agregaciones**. Los bloque
 | 8      | Funciones de grupo           | L12 · L13 COUNT y NULL                                    | Núcleo             |
 | 9      | GROUP BY                     | L14 · L15                                                 | Núcleo             |
 | 10     | WHERE frente a HAVING        | L16 · L17                                                 | Núcleo             |
-| 11     | JOIN + agregaciones          | L18 · L19 (nómina y meta con HAVING)                      | Núcleo             |
+| 11     | JOIN + agregaciones          | L18 nómina y personas por área · L19 meta con HAVING      | Núcleo             |
 | 12     | Ampliación · Subconsultas    | L20 · L21 · L22                                           | Ampliación         |
 | 13     | Ampliación · Conjuntos       | L23 · L24                                                 | Ampliación         |
 | 14     | Ampliación · Integración     | L25                                                       | Ampliación         |
@@ -89,6 +89,8 @@ Cambios de contenido en S2:
 - **Errores en su lugar:**
   - la columna sin agrupar (ORA-00937) pasa de L12 a GROUP BY (L14);
   - la función de grupo en WHERE (ORA-00934) pasa de L15 a WHERE frente a HAVING (L17).
+- **JOIN + agregación (L18).** Construye paso a paso «¿cuánto cuesta la nómina de cada departamento y cuántos empleados tiene?» (`S2-E-NOMINA-DEPTO`, nuevo): FROM, JOIN, ON, GROUP BY, SUM y COUNT se explican por separado. El LEFT JOIN que conserva Investigación queda como segundo ejemplo.
+- **Alias explícitos.** En el modelo del JOIN y en INNER JOIN se dice «e es el alias de EMPLEADOS; d, de DEPARTAMENTOS».
 
 ## 4. Sección 3 · PL/SQL y automatización
 
@@ -148,6 +150,7 @@ Cambios de contenido en S3:
 - **AUDITORIA_SALARIOS** se presenta en L25 y vacía: «La tabla empieza vacía». Después del UPDATE recibe una fila por persona.
 - **Misión M02** pide solo variables y %TYPE.
 - **Práctica S3-P10 (WHILE)** remite a la lección de LOOP y WHILE.
+- **Cierre.** El microejemplo de variables enseña una sola idea (declarar, inicializar y asignar con `:=`). El de %TYPE ya no menciona %ROWTYPE. La comprobación del cursor FOR muestra solo el cuerpo del bloque, con el bloque completo plegado. Las definiciones de trigger y procedimiento son las del profesor. Los modelos de cursor explícito (CURSOR → OPEN → FETCH fila a fila → procesar → CLOSE), función y trigger (MOMENTO, EVENTO, NIVEL, CUERPO) se dibujan como árbol o secuencia.
 
 ## 5. Escenas de clase
 
@@ -163,10 +166,12 @@ Una escena transmite una idea completa (`domain/pedagogy.ts`). Por tema:
 
 Los temas de ampliación se proyectan en 4 o 5 escenas: idea, ejemplo, cambio y comprobación. Se eliminaron las escenas de solo título, las de solo código y las definiciones aisladas.
 
-|               | Antes | Ahora |
-| ------------- | ----- | ----- |
-| Escenas de S2 | 193   | 144   |
-| Escenas de S3 | 203   | 167   |
+|               | Antes | Reestructura | Cierre |
+| ------------- | ----- | ------------ | ------ |
+| Escenas de S2 | 193   | 144          | 145    |
+| Escenas de S3 | 203   | 167          | 167    |
+
+La escena nueva de S2 es `join-nomina`: la consulta de nómina por departamento antes del LEFT JOIN con COUNT.
 
 El avance de clase guardado se conserva:
 
@@ -175,24 +180,25 @@ El avance de clase guardado se conserva:
 
 ## 6. Errores de Oracle
 
-Cada error se presenta en este orden:
+Cada ejemplo que falla a propósito es un **error para aprender** (`domain/error-lessons.ts`):
 
-1. **Qué pasó**;
-2. **Por qué**;
-3. **Cómo se corrige**;
-4. «Detalle técnico: Oracle denomina este caso ORA-xxxxx», plegado.
+1. **Qué ocurrió**, en lenguaje humano;
+2. **Por qué ocurrió**, con la causa concreta de ese ejemplo;
+3. **Cómo corregirlo**;
+4. **Ejemplo correcto**, también ejecutado en Oracle (identificador `<error>-OK` o un ejemplo existente);
+5. **Detalle técnico**: el código ORA o PLS y el mensaje de Oracle, plegados.
 
-El código ORA o PLS nunca es el mensaje principal. Todos los códigos que producen los ejemplos tienen explicación humana y corrección; lo exige una prueba.
+Hay 35 errores para aprender: 10 en S2 y 25 en S3. Las pruebas exigen que cada uno tenga sus tres textos, que el ejemplo correcto exista en la misma sección, que Oracle lo ejecute sin error y que solo use lo enseñado en la lección que lo muestra. Los textos de las lecciones que citaban un código como mensaje principal («Oracle responde ORA-…») dicen ahora primero la causa.
 
 ## 7. Verificación
 
-| Comprobación                                                                                                  | Resultado                                                        |
-| ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Ejemplos ejecutados en Oracle Database 23 (`CURRICULUM_UPDATE=1 … curriculum-oracle.test.ts`)                 | 281/281 (273 anteriores + 8 nuevos; 3 modificados reejecutados)  |
-| Integración: currículo en Oracle, currículo en PostgreSQL y banco en Oracle                                   | 520/520                                                          |
-| Criterios de aceptación (`tests/unit/curriculum/pedagogical-contract.test.ts`)                                | 30/30                                                            |
-| Pruebas unitarias                                                                                             | 1567 pasan, 2 omitidas                                           |
-| Barrido de escenas nuevas (introducción, tablas, sintaxis, explicación, comprobación) en 1366×768 y 1920×1080 | sin desbordes salvo 2 comprobaciones anteriores (ver pendientes) |
+Las cifras y pruebas del cierre están en [S2_S3_FINAL_QA.md](S2_S3_FINAL_QA.md). Resumen:
+
+| Comprobación                                         | Resultado                                              |
+| ---------------------------------------------------- | ------------------------------------------------------ |
+| Ejemplos ejecutados en Oracle Database 23            | 313/313 (S1 9 · S2 137 · S3 133 · banco S2 20 · S3 14) |
+| Contrato pedagógico (`pedagogical-contract.test.ts`) | 36/36                                                  |
+| Vitest completo (unitarias e integración)            | 2349 pasan, 7 omitidas (humo remoto)                   |
 
 Los criterios de aceptación comprueban:
 
@@ -216,9 +222,4 @@ Los criterios de aceptación comprueban:
 
 ## 9. Pendientes reales
 
-- Una revisión humana en el navegador de cada escena a 16:9. El barrido automático mide desbordes, no la legibilidad desde el fondo del aula.
-- Dos comprobaciones que ya existían antes de este cambio todavía desplazan la escena en 1366×768. Las dos se pueden responder desplazando la escena:
-  - `check-S2-L25`, ordenar seis cláusulas: 57 px;
-  - `check-S3-L15`, cursor FOR de 18 líneas: 40 px.
-    Para eliminarlo hay que acortar el código o las piezas, y eso exige volver a ejecutar en Oracle.
-- Las preguntas del banco de S3 que citan `S3-E-VARIABLES` o `S3-E-ESTRUCTURA` siguen correctas, porque el código no cambió. Su tema de revisión es el del bloque original.
+Ver la sección «Limitaciones reales» de [S2_S3_FINAL_QA.md](S2_S3_FINAL_QA.md). Los dos pendientes de la reestructura (`check-S2-L25` y `check-S3-L15`) están resueltos: caben sin desplazar desde 1280 × 720.

@@ -2,6 +2,7 @@ import type { SectionCurriculum } from '../../types';
 import { arrangeLessons } from '../../arrange';
 import { pedagogicalScenes } from '../../pedagogy';
 import { MICRO_EXAMPLES, withMicroExamples } from '../../micro-examples';
+import { errorFixExamples } from '../../error-lessons';
 import { ACTIVITY_EXAMPLES, S2_MISSIONS, S2_PRACTICE } from './activities';
 import { ANALYSIS_EXAMPLES, ANALYSIS_LESSONS } from './analysis';
 import { S2_CONCEPTS } from './concepts';
@@ -24,6 +25,7 @@ export const S2_CURRICULUM: SectionCurriculum = {
   examples: [
     ...JOIN_EXAMPLES,
     ...ANALYSIS_EXAMPLES,
+    ...errorFixExamples([...JOIN_EXAMPLES, ...ANALYSIS_EXAMPLES]),
     ...ACTIVITY_EXAMPLES,
     ...MICRO_EXAMPLES.filter(({ id }) => id.startsWith('S2')),
   ],

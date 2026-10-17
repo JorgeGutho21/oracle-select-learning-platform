@@ -176,9 +176,11 @@ test('Pedagogy/UI: resources filter, block disclosure and Oracle technical detai
     .click();
   const error = page.locator('.cu-oracle-error');
   await expect(error.locator('.cu-oracle-error__title')).toContainText('Hay una columna ambigua');
-  const detail = error.getByText('Detalle técnico: Oracle denomina este caso ORA-00918', {
-    exact: true,
-  });
+  // Error para aprender: causa humana, corrección y ejemplo correcto antes del código técnico.
+  await expect(error).toContainText('Por qué ocurrió');
+  await expect(error).toContainText('Cómo corregirlo');
+  await expect(error.getByRole('figure')).toContainText('Ejemplo correcto');
+  const detail = error.getByText('Detalle técnico: ORA-00918', { exact: true });
   await detail.click();
   await expect(error.locator('.cu-oracle-error__message')).toContainText('ORA-00918');
 });

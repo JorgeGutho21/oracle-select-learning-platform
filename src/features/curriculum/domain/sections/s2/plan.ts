@@ -157,7 +157,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
     prerequisites: [],
     prior: 'De la Sección 1: leer una tabla (filas y columnas), SELECT, FROM, WHERE e IN.',
     model:
-      'Antes (Sección 1):  EMPLEADOS · Carlos · TI   ← el texto se repite en cada persona\nAhora:              EMPLEADOS.ID_DEPARTAMENTO = 20  ──►  DEPARTAMENTOS.ID_DEPARTAMENTO = 20 · TI\n                    (clave foránea, FK)                     (clave primaria, PK · tabla padre)',
+      'Antes (Sección 1): EMPLEADOS repite «TI» en cada persona\nAhora:\n  EMPLEADOS.ID_DEPARTAMENTO = 20        clave foránea (FK)\n        │ apunta a\n        ▼\n  DEPARTAMENTOS.ID_DEPARTAMENTO = 20 · TI   clave primaria (PK)\nEl nombre «TI» se guarda una sola vez, en la tabla padre.',
     tables: [
       areas(
         ['ID_DEPARTAMENTO', 'NOMBRE_DEPARTAMENTO', 'SEDE'],
@@ -236,8 +236,14 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'EMPLEADOS                 DEPARTAMENTOS\nAna      10  ──────────►  10  Operaciones\nCarlos   20  ──────────►  20  TI\nEsteban  NULL    (sin pareja)  30  Ventas\nJOIN combina las filas relacionadas; ON dice qué columnas deben coincidir.',
     tables: relacion,
     parts: [
-      { code: 'FROM empleados e', meaning: 'Punto de partida: las personas.' },
-      { code: 'JOIN departamentos d', meaning: 'JOIN: trae también las filas de otra tabla.' },
+      {
+        code: 'FROM empleados e',
+        meaning: 'Punto de partida: las personas. e es el alias de EMPLEADOS.',
+      },
+      {
+        code: 'JOIN departamentos d',
+        meaning: 'JOIN trae también las áreas. d es el alias de DEPARTAMENTOS.',
+      },
       {
         code: 'ON e.id_departamento = d.id_departamento',
         meaning: 'ON: indica cómo se relacionan; una persona va con el área de su mismo número.',
@@ -258,17 +264,20 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'Queremos el nombre de cada persona junto al nombre de su departamento. ¿Qué filas devuelve Oracle y qué pasa con quien no tiene departamento?',
     prerequisites: ['S2-L02', 'S2-L03'],
     model:
-      'Antes:   EMPLEADOS (20 personas)  +  DEPARTAMENTOS (6 áreas)\nOperación: cada persona busca su área con ON\nDespués: una fila por pareja encontrada · Esteban (NULL) no encuentra pareja y no sale',
+      'Antes:     EMPLEADOS (20 personas) + DEPARTAMENTOS (6 áreas)\nOperación: cada persona busca su área con ON\nDespués:   una fila por pareja encontrada\nEsteban (NULL) no encuentra pareja: no sale en el resultado.',
     tables: relacion,
     parts: [
       {
         code: 'SELECT e.nombre, d.nombre_departamento',
         meaning: 'Columnas del resultado: una de cada tabla, con su alias.',
       },
-      { code: 'FROM empleados e', meaning: 'Primera tabla: las personas, con alias e.' },
+      {
+        code: 'FROM empleados e',
+        meaning: 'Primera tabla: las personas. e es el alias de EMPLEADOS.',
+      },
       {
         code: 'INNER JOIN departamentos d',
-        meaning: 'Segunda tabla: las áreas, con alias d. INNER: solo parejas.',
+        meaning: 'Segunda tabla: las áreas. d es el alias de DEPARTAMENTOS. INNER: solo parejas.',
       },
       {
         code: 'ON e.id_departamento = d.id_departamento',
@@ -290,7 +299,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'Ya tenemos las parejas persona–área. ¿Cómo nos quedamos solo con algunas, por ejemplo las personas activas de las áreas con sede en Bogotá?',
     prerequisites: ['S2-L04'],
     model:
-      'Tablas  →  ON: forma las parejas  →  WHERE: conserva las parejas que cumplen  →  resultado\nON decide cómo se relacionan las tablas; WHERE decide qué filas del resultado se conservan.',
+      'Tablas\n  ↓ ON      forma las parejas persona–área\n  ↓ WHERE   conserva las parejas que cumplen\nResultado\nON decide cómo se relacionan las tablas; WHERE decide qué parejas se quedan.',
     tables: [
       personas(['ID_EMPLEADO', 'NOMBRE', 'ESTADO', 'ID_DEPARTAMENTO']),
       areas(['ID_DEPARTAMENTO', 'NOMBRE_DEPARTAMENTO', 'SEDE']),
@@ -321,7 +330,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'EMPLEADOS y DEPARTAMENTOS tienen las dos una columna llamada ID_DEPARTAMENTO. Si escribimos solo id_departamento, ¿de cuál de las dos hablamos?',
     prerequisites: ['S2-L04', 'S2-L06'],
     model:
-      'EMPLEADOS.ID_DEPARTAMENTO   y   DEPARTAMENTOS.ID_DEPARTAMENTO   → mismo nombre, dos orígenes\nid_departamento  →  ambiguo        e.id_departamento  →  claro',
+      'EMPLEADOS.ID_DEPARTAMENTO      mismo nombre,\nDEPARTAMENTOS.ID_DEPARTAMENTO  dos tablas de origen\nid_departamento     → ambiguo: ¿de cuál?\ne.id_departamento   → claro: el de EMPLEADOS',
     tables: [
       personas(['ID_EMPLEADO', 'NOMBRE', 'CIUDAD', 'ID_DEPARTAMENTO']),
       areas(['ID_DEPARTAMENTO', 'NOMBRE_DEPARTAMENTO', 'SEDE']),
@@ -352,7 +361,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'Una persona puede trabajar en varios proyectos y un proyecto tiene varias personas. ¿Cómo sabemos quién trabaja en qué proyecto y cuántas horas?',
     prerequisites: ['S2-L04', 'S2-L05'],
     model:
-      'EMPLEADOS ──► ASIGNACIONES ◄── PROYECTOS ──► DEPARTAMENTOS\n(persona)      (persona + proyecto + horas)   (proyecto)     (área responsable)\nPaso 1: EMPLEADOS + ASIGNACIONES  →  Paso 2: + PROYECTOS  →  Paso 3: + DEPARTAMENTOS',
+      'EMPLEADOS ──► ASIGNACIONES ◄── PROYECTOS ──► DEPARTAMENTOS\n  persona     persona+proyecto   proyecto     área responsable\nPaso 1: EMPLEADOS + ASIGNACIONES\nPaso 2:   + PROYECTOS\nPaso 3:   + DEPARTAMENTOS',
     tables: [
       {
         table: PRO,
@@ -521,7 +530,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
     prerequisites: [],
     prior: 'De la Sección 1: SELECT, WHERE y funciones de una fila como UPPER o ROUND.',
     model:
-      'Salarios: 7.500.000 (Carlos) y 4.200.000 (Andrés)\nCOUNT → 2    SUM → 11.700.000    AVG → 5.850.000    MIN → 4.200.000    MAX → 7.500.000\nMuchas filas entran; una fila de resumen sale.',
+      'Salarios: 7.500.000 (Carlos) y 4.200.000 (Andrés)\nCOUNT → 2\nSUM   → 11.700.000\nAVG   → 5.850.000\nMIN   → 4.200.000      MAX → 7.500.000\nMuchas filas entran; una fila de resumen sale.',
     tables: [personas(['ID_EMPLEADO', 'NOMBRE', 'SALARIO', 'ESTADO'])],
     parts: [
       { code: 'COUNT(*)', meaning: 'Cuenta filas.' },
@@ -567,7 +576,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       'El promedio de toda la empresa no dice nada de cada área. ¿Cómo obtenemos un promedio por departamento?',
     prerequisites: ['S2-L12', 'S2-L13'],
     model:
-      'Sin GROUP BY:  todas las filas → un promedio\nCon GROUP BY id_departamento:\n  [20: Carlos, Andrés, Paula…]  → promedio de 20\n  [30: María, Sofía…]           → promedio de 30\n1) Oracle forma los grupos  2) la función opera dentro de cada grupo  3) una fila resumen por grupo',
+      'Sin GROUP BY:  todas las filas → un promedio\nCon GROUP BY id_departamento:\n  [20: Carlos, Andrés, Paula…]  → promedio de 20\n  [30: María, Sofía…]           → promedio de 30\n1) Oracle forma los grupos\n2) la función opera dentro de cada grupo\n3) sale una fila resumen por grupo',
     tables: [personas(['ID_EMPLEADO', 'NOMBRE', 'ID_DEPARTAMENTO', 'SALARIO', 'CARGO'])],
     parts: [
       {
@@ -619,7 +628,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       '¿Qué departamentos tienen un salario promedio superior a 4.500.000? La condición es sobre un resumen, no sobre una persona.',
     prerequisites: ['S2-L14'],
     model:
-      'Grupos ya calculados:  [20: promedio …]  [30: promedio …]  [40: promedio …]\nHAVING AVG(salario) > 4500000  →  ✓ conservar  /  ✗ descartar el grupo completo',
+      'Grupos ya calculados:\n  [20: promedio …]  [30: promedio …]  [40: promedio …]\nHAVING AVG(salario) > 4500000\n  ✓ conservar el grupo  /  ✗ descartar el grupo completo',
     tables: [personas(['ID_EMPLEADO', 'ID_DEPARTAMENTO', 'SALARIO'])],
     parts: [
       { code: 'GROUP BY id_departamento', meaning: 'Primero se forman los grupos.' },
@@ -664,35 +673,53 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
     block: 'join-agregacion',
     tier: 'core',
     problem:
-      '¿Cuántas personas tiene cada departamento, mostrado con su nombre y sin perder los departamentos vacíos?',
+      '¿Cuánto cuesta la nómina de cada departamento y cuántos empleados tiene? Los salarios están en EMPLEADOS y los nombres de las áreas, en DEPARTAMENTOS.',
     prerequisites: ['S2-L04', 'S2-L08', 'S2-L14'],
     model:
-      'Paso 1 ¿Qué tablas?        EMPLEADOS + DEPARTAMENTOS\nPaso 2 ¿Cómo se unen?      ON e.id_departamento = d.id_departamento\nPaso 3 ¿Qué calculo?       COUNT(e.id_empleado), AVG(e.salario)\nPaso 4 ¿Por qué GROUP BY?  Queremos una fila por departamento',
-    tables: relacion,
+      'Paso 1 ¿Qué tablas?     FROM empleados e  +  JOIN departamentos d\nPaso 2 ¿Cómo se unen?   ON e.id_departamento = d.id_departamento\nPaso 3 ¿Qué grupos?     GROUP BY d.nombre_departamento\nPaso 4 ¿Qué calculo?    COUNT(*) personas · SUM(e.salario) nómina\nResultado: una fila por departamento',
+    tables: [
+      personas(
+        ['ID_EMPLEADO', 'NOMBRE', 'SALARIO', 'ID_DEPARTAMENTO'],
+        'Cada fila es una persona: aporta el SALARIO. ID_DEPARTAMENTO (FK) dice su área.',
+      ),
+      areas(
+        ['ID_DEPARTAMENTO', 'NOMBRE_DEPARTAMENTO'],
+        'Cada fila es un área: aporta el NOMBRE_DEPARTAMENTO que se muestra en el resumen.',
+      ),
+    ],
     parts: [
+      { code: 'FROM empleados e', meaning: 'Las personas (alias e): de aquí salen los salarios.' },
       {
-        code: 'FROM departamentos d LEFT JOIN empleados e ON …',
-        meaning: 'Une áreas y personas sin perder las áreas vacías.',
+        code: 'JOIN departamentos d',
+        meaning: 'Las áreas (alias d): de aquí sale el nombre del departamento.',
       },
       {
-        code: 'COUNT(e.id_empleado)',
-        meaning: 'Cuenta personas (ignora el NULL de un área sin personas).',
+        code: 'ON e.id_departamento = d.id_departamento',
+        meaning: 'Cada persona va con el área cuyo número coincide con el suyo.',
       },
-      { code: 'GROUP BY d.nombre_departamento', meaning: 'Una fila de resumen por departamento.' },
+      {
+        code: 'GROUP BY d.nombre_departamento',
+        meaning: 'Reúne las parejas por área: una fila de resumen por departamento.',
+      },
+      { code: 'SUM(e.salario)', meaning: 'Suma los salarios de cada grupo: la nómina del área.' },
+      { code: 'COUNT(*)', meaning: 'Cuenta las parejas de cada grupo: las personas del área.' },
     ],
     reading:
-      'Une cada departamento con sus personas, agrúpalos por nombre de departamento y cuenta las personas de cada uno.',
-    unchanged: ['El JOIN es el mismo de siempre; GROUP BY actúa sobre sus filas.'],
+      'Une cada persona con su departamento, agrupa por nombre de departamento y, en cada grupo, cuenta las personas y suma sus salarios.',
+    unchanged: [
+      'El JOIN es el mismo de siempre; GROUP BY actúa sobre sus parejas.',
+      'SUM y COUNT calculan igual que con una sola tabla: solo cambia de dónde salen las filas.',
+    ],
   },
   {
     lesson: 'S2-L19',
     block: 'join-agregacion',
     tier: 'core',
     problem:
-      '¿Cuánto cuesta la nómina de cada departamento y cuántas personas tiene? ¿Y si solo queremos los que superan una meta?',
+      '¿Qué proyectos reciben más de 35 horas semanales en total y con cuántas personas? La meta se comprueba sobre un resumen calculado después de unir.',
     prerequisites: ['S2-L18', 'S2-L17'],
     model:
-      'Une → filtra filas (WHERE) → agrupa (GROUP BY) → calcula (SUM, COUNT) → filtra grupos (HAVING) → ordena',
+      'Une            JOIN … ON\n  ↓ filtra filas    WHERE\n  ↓ agrupa          GROUP BY\n  ↓ calcula         SUM, COUNT\n  ↓ filtra grupos   HAVING\n  ↓ ordena          ORDER BY',
     tables: [
       ...relacion,
       {
@@ -778,7 +805,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       '¿Quién gana más que el promedio de su propio departamento? Cada persona se compara con un valor distinto.',
     prerequisites: ['S2-L20', 'S2-L21'],
     model:
-      'Para cada fila exterior → la consulta interior usa su departamento → un promedio propio · EXISTS: ¿hay alguna fila?',
+      'Para cada fila exterior:\n  la consulta interior usa su departamento\n  → un promedio propio para comparar\nEXISTS: ¿la consulta interior devuelve alguna fila?',
     tables: [personas(['ID_EMPLEADO', 'NOMBRE', 'ID_DEPARTAMENTO', 'SALARIO'])],
     parts: [
       {
@@ -844,7 +871,7 @@ export const S2_PLAN: readonly (TopicPlan & { readonly block: string })[] = [
       '¿Qué departamentos tienen un salario promedio de personas activas superior al promedio general? Una pregunta, varias capas.',
     prerequisites: ['S2-L19', 'S2-L20'],
     model:
-      '20 personas → JOIN → WHERE activas → GROUP BY departamento → HAVING > promedio general → ORDER BY',
+      '20 personas\n  ↓ JOIN       19 parejas con área\n  ↓ WHERE      solo personas activas\n  ↓ GROUP BY   un grupo por departamento\n  ↓ HAVING     promedio > promedio general\n  ↓ ORDER BY   de mayor a menor promedio',
     tables: relacion,
     parts: [
       { code: 'FROM … JOIN … ON …', meaning: 'Capa 1: las parejas.' },

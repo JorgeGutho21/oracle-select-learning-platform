@@ -1,20 +1,20 @@
 # SECTION_2_CURRICULUM — Consultas relacionales y análisis
 
-Fecha: 3–4 de octubre de 2026; reestructurada el 17 de octubre de 2026 (ver [S2_S3_PEDAGOGICAL_RESTRUCTURE.md](S2_S3_PEDAGOGICAL_RESTRUCTURE.md)). Fuente: `src/features/curriculum/domain/sections/s2/`. Rutas: `/sections/consultas-relacionales/{study,class,practice,challenge,resources}` y evaluación con el motor de la Fase 3.
+Fecha: 3–4 de octubre de 2026; reestructurada y cerrada el 17 de octubre de 2026 (ver [S2_S3_FINAL_QA.md](S2_S3_FINAL_QA.md) y [S2_S3_PEDAGOGICAL_RESTRUCTURE.md](S2_S3_PEDAGOGICAL_RESTRUCTURE.md)). Fuente: `src/features/curriculum/domain/sections/s2/`. Rutas: `/sections/consultas-relacionales/{study,class,practice,challenge,resources}` y evaluación con el motor de la Fase 3.
 
 ## 1. Cifras
 
-| Elemento                       | Cantidad                                                                                        |
-| ------------------------------ | ----------------------------------------------------------------------------------------------- |
-| Bloques                        | 15 (0–14): núcleo INNER JOIN y agregaciones; los bloques 12–14 son ampliación                   |
-| Lecciones                      | 25: 12 de núcleo, 4 de apoyo y 9 de ampliación                                                  |
-| Fichas de conceptos (Recursos) | 32                                                                                              |
-| Ejemplos verificados en Oracle | 128 en la sección (lecciones, microejemplos y práctica), todos ejecutados en Oracle Database 23 |
-| Prácticas guiadas              | 22                                                                                              |
-| Misiones del Challenge         | 10 (20 pasos)                                                                                   |
-| Escenas de clase               | 144 (antes 193)                                                                                 |
-| Banco de evaluación            | 50 preguntas (ver `QUESTION_BANK_SPEC.md`)                                                      |
-| Consultas propias del banco    | 20 (S2-B)                                                                                       |
+| Elemento                       | Cantidad                                                                                                                                       |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Bloques                        | 15 (0–14): núcleo INNER JOIN y agregaciones; los bloques 12–14 son ampliación                                                                  |
+| Lecciones                      | 25: 12 de núcleo, 4 de apoyo y 9 de ampliación                                                                                                 |
+| Fichas de conceptos (Recursos) | 32                                                                                                                                             |
+| Ejemplos verificados en Oracle | 137 en la sección (lecciones, microejemplos, práctica y 8 ejemplos correctos de «error para aprender»), todos ejecutados en Oracle Database 23 |
+| Prácticas guiadas              | 22                                                                                                                                             |
+| Misiones del Challenge         | 10 (20 pasos)                                                                                                                                  |
+| Escenas de clase               | 145 (antes 193)                                                                                                                                |
+| Banco de evaluación            | 50 preguntas (ver `QUESTION_BANK_SPEC.md`)                                                                                                     |
+| Consultas propias del banco    | 20 (S2-B)                                                                                                                                      |
 
 ## 2. Recorrido
 
@@ -31,7 +31,7 @@ Fecha: 3–4 de octubre de 2026; reestructurada el 17 de octubre de 2026 (ver [S
 | 8 · Funciones de grupo                    | L12 Funciones de grupo; L13 COUNT y NULL                            | Núcleo             |
 | 9 · GROUP BY                              | L14 GROUP BY; L15 GROUP BY varias                                   | Núcleo             |
 | 10 · WHERE frente a HAVING                | L16 HAVING; L17 WHERE vs HAVING                                     | Núcleo             |
-| 11 · JOIN + agregaciones                  | L18 JOIN + GROUP BY; L19 JOIN + HAVING                              | Núcleo             |
+| 11 · JOIN + agregaciones                  | L18 nómina y personas por área; L19 JOIN + HAVING                   | Núcleo             |
 | 12 · Ampliación · Subconsultas            | L20 Subconsulta simple; L21 IN con subconsulta; L22 Correlacionadas | Ampliación         |
 | 13 · Ampliación · Operadores de conjuntos | L23 UNION; L24 INTERSECT y MINUS                                    | Ampliación         |
 | 14 · Ampliación · Integración final       | L25 Integración                                                     | Ampliación         |

@@ -423,7 +423,7 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
     term: 'Procedimiento',
     category: 'Subprograma',
     definition:
-      'Bloque con nombre y parámetros guardado en la base de datos; se ejecuta llamándolo y realiza una acción.',
+      'Subprograma con nombre que realiza una tarea; se guarda en la base de datos y se llama como una instrucción. A diferencia de una función, no devuelve un valor.',
     purpose: 'Reutilizar un proceso, como aplicar un aumento, desde cualquier programa.',
     syntax: lines(
       'CREATE OR REPLACE PROCEDURE nombre (p IN NUMBER) IS',
@@ -500,7 +500,7 @@ export const S3_CONCEPTS: readonly CurriculumConcept[] = [
     term: 'Trigger',
     category: 'Trigger',
     definition:
-      'Bloque guardado que Oracle ejecuta automáticamente cuando ocurre su evento (INSERT, UPDATE o DELETE) sobre una tabla.',
+      'Bloque PL/SQL almacenado que Oracle ejecuta automáticamente cuando ocurre el evento para el cual fue definido (INSERT, UPDATE o DELETE sobre una tabla).',
     purpose: 'Reaccionar a cambios de datos sin depender de cada programa.',
     syntax: lines('CREATE OR REPLACE TRIGGER nombre', 'AFTER INSERT ON tabla', 'BEGIN … END;'),
     example: 'S3-E-TRIGGER-SENTENCIA',

@@ -1,20 +1,20 @@
 # SECTION_3_CURRICULUM — PL/SQL y automatización
 
-Fecha: 3–4 de octubre de 2026; reestructurada el 17 de octubre de 2026 (ver [S2_S3_PEDAGOGICAL_RESTRUCTURE.md](S2_S3_PEDAGOGICAL_RESTRUCTURE.md)). Fuente: `src/features/curriculum/domain/sections/s3/` (`basics.ts`, `programs.ts`, `triggers.ts`, `concepts.ts`, `activities.ts`, `scenes.ts`, `assessment.ts`). Rutas: `/sections/plsql/{study,class,practice,challenge,resources}` y evaluación con el motor de la Fase 3.
+Fecha: 3–4 de octubre de 2026; reestructurada y cerrada el 17 de octubre de 2026 (ver [S2_S3_FINAL_QA.md](S2_S3_FINAL_QA.md) y [S2_S3_PEDAGOGICAL_RESTRUCTURE.md](S2_S3_PEDAGOGICAL_RESTRUCTURE.md)). Fuente: `src/features/curriculum/domain/sections/s3/` (`basics.ts`, `programs.ts`, `triggers.ts`, `concepts.ts`, `activities.ts`, `scenes.ts`, `assessment.ts`). Rutas: `/sections/plsql/{study,class,practice,challenge,resources}` y evaluación con el motor de la Fase 3.
 
 ## 1. Cifras
 
-| Elemento                       | Cantidad                                                                           |
-| ------------------------------ | ---------------------------------------------------------------------------------- |
-| Bloques                        | 17 (0–16): el núcleo sigue el orden del profesor; los bloques 13–16 son ampliación |
-| Lecciones                      | 29: 15 de núcleo, 6 de apoyo y 8 de ampliación (nueva: L29 %ROWTYPE)               |
-| Fichas de conceptos (Recursos) | 34 (nueva: %ROWTYPE, separada de %TYPE)                                            |
-| Ejemplos ejecutados en Oracle  | 110 en la sección (lecciones, microejemplos y práctica)                            |
-| Prácticas guiadas              | 26                                                                                 |
-| Misiones del Challenge         | 10 (21 pasos)                                                                      |
-| Escenas de clase               | 167 (antes 203)                                                                    |
-| Banco de evaluación            | 50 preguntas (ver `QUESTION_BANK_SPEC.md`)                                         |
-| Bloques propios del banco      | 14 (S3-B)                                                                          |
+| Elemento                       | Cantidad                                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| Bloques                        | 17 (0–16): el núcleo sigue el orden del profesor; los bloques 13–16 son ampliación                      |
+| Lecciones                      | 29: 15 de núcleo, 6 de apoyo y 8 de ampliación (nueva: L29 %ROWTYPE)                                    |
+| Fichas de conceptos (Recursos) | 34 (nueva: %ROWTYPE, separada de %TYPE)                                                                 |
+| Ejemplos ejecutados en Oracle  | 133 en la sección (lecciones, microejemplos, práctica y 23 ejemplos correctos de «error para aprender») |
+| Prácticas guiadas              | 26                                                                                                      |
+| Misiones del Challenge         | 10 (21 pasos)                                                                                           |
+| Escenas de clase               | 167 (antes 203)                                                                                         |
+| Banco de evaluación            | 50 preguntas (ver `QUESTION_BANK_SPEC.md`)                                                              |
+| Bloques propios del banco      | 14 (S3-B)                                                                                               |
 
 ## 2. Recorrido
 

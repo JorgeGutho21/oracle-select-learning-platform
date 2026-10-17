@@ -94,14 +94,19 @@ export function JoinVisual({
         {side(visual.right, 'derecha')}
       </div>
       <ul className="join-visual__legend" aria-label="Leyenda">
-        {(['matched', 'kept-null', 'discarded'] as const).map((state) => (
-          <li key={state} className={`join-chip join-chip--${state} join-chip--legend`}>
-            <span className="join-chip__symbol" aria-hidden="true">
-              {CHIP_STATE[state].symbol}
-            </span>
-            {CHIP_STATE[state].text}
-          </li>
-        ))}
+        {(['matched', 'kept-null', 'discarded'] as const)
+          // Solo los estados que aparecen en este JOIN: la leyenda explica lo que se ve.
+          .filter((state) =>
+            [...visual.left.chips, ...visual.right.chips].some((chip) => chip.state === state),
+          )
+          .map((state) => (
+            <li key={state} className={`join-chip join-chip--${state} join-chip--legend`}>
+              <span className="join-chip__symbol" aria-hidden="true">
+                {CHIP_STATE[state].symbol}
+              </span>
+              {CHIP_STATE[state].text}
+            </li>
+          ))}
       </ul>
     </figure>
   );

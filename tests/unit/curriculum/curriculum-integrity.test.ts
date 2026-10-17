@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { EMPLEADOS_DATASET } from '@/domain/dataset/empleados';
 import { EMPRESA_TABLES, empresaTable } from '@/domain/dataset/empresa';
 import { ASSESSMENT_TOPICS } from '@/features/assessments/domain/topics';
+import { correctExampleId } from '@/features/curriculum/domain/error-lessons';
 import {
   exampleHash,
   VERIFIED,
@@ -69,6 +70,11 @@ function examplesUsedBy(curriculum: CurriculumUnit): Set<string> {
   for (const activity of sectionActivities(curriculum)) {
     if (activity.context?.example) used.add(activity.context.example);
     if (activity.kind === 'result') activity.distractors.forEach((d) => used.add(d.example));
+  }
+  // El «Error para aprender» de cada ejemplo con error muestra su ejemplo correcto.
+  for (const id of [...used]) {
+    const correct = correctExampleId(id);
+    if (correct) used.add(correct);
   }
   return used;
 }

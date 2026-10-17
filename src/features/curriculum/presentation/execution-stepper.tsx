@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import type { TableView, TraceStep } from '../application/curriculum-api';
 import { CurriculumTable, NumberedCode } from './example-parts';
 
@@ -16,11 +16,14 @@ export function ExecutionStepper({
   trace,
   cursor,
   density = 'study',
+  lead,
 }: {
   readonly code: string;
   readonly trace: readonly TraceStep[];
   readonly cursor?: TableView | null;
   readonly density?: 'study' | 'stage';
+  /** Pregunta y lectura del ejemplo junto al estado (clase): el bloque usa toda la altura. */
+  readonly lead?: ReactNode;
 }) {
   const id = useId();
   const [index, setIndex] = useState(0);
@@ -41,6 +44,7 @@ export function ExecutionStepper({
       <div className="stepper__grid">
         <NumberedCode code={code} label="Bloque PL/SQL" current={step.line} />
         <div className="stepper__state">
+          {lead && <div className="stepper__lead">{lead}</div>}
           <p className="stepper__note">{step.note}</p>
           {vars.length > 0 && (
             <table className="stepper__vars">

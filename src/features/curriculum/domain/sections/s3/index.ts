@@ -2,6 +2,7 @@ import type { SectionCurriculum } from '../../types';
 import { arrangeLessons } from '../../arrange';
 import { pedagogicalScenes } from '../../pedagogy';
 import { MICRO_EXAMPLES, withMicroExamples } from '../../micro-examples';
+import { errorFixExamples } from '../../error-lessons';
 import { ACTIVITY_EXAMPLES, S3_MISSIONS, S3_PRACTICE } from './activities';
 import { BASICS_EXAMPLES, BASICS_LESSONS } from './basics';
 import { S3_CONCEPTS } from './concepts';
@@ -26,6 +27,7 @@ export const S3_CURRICULUM: SectionCurriculum = {
     ...BASICS_EXAMPLES,
     ...PROGRAMS_EXAMPLES,
     ...TRIGGER_EXAMPLES,
+    ...errorFixExamples([...BASICS_EXAMPLES, ...PROGRAMS_EXAMPLES, ...TRIGGER_EXAMPLES]),
     ...ACTIVITY_EXAMPLES,
     ...MICRO_EXAMPLES.filter(({ id }) => id.startsWith('S3')),
   ],

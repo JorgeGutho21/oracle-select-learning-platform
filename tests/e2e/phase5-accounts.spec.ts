@@ -219,7 +219,7 @@ test.describe('Fase 5: cuentas y evaluación por sección', () => {
     };
     await expect.poll(() => cloud(page), { timeout: 15_000 }).toEqual([...sections].sort());
     await page.goto('/');
-    await expect(page.locator('.home-progress h2')).toHaveText('3 de 78 lecciones');
+    await expect(page.locator('.home-progress h2')).toHaveText('3 de 79 lecciones');
     await page.goto('/dashboard');
     await capture(page, 'student-dashboard');
     await page.goto('/profile');

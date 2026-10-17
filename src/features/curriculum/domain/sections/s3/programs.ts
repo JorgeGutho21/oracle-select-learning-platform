@@ -692,17 +692,24 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
       lesson: 'S3-L15',
       prompt:
         '¿Cuántas líneas escribe en total el bloque de los proyectos 103 y 105 (incluidos los títulos)?',
-      context: { example: 'S3-E-CURSOR-FOR-PARAM' },
+      context: {
+        example: 'S3-E-CURSOR-FOR-PARAM',
+        excerpt: {
+          from: 8,
+          to: 17,
+          note: 'Solo el cuerpo del bloque. En DECLARE, c_equipo(p_proyecto) devuelve una fila por cada persona asignada a ese proyecto: el 103 tiene tres y el 105, dos.',
+        },
+      },
       hints: [
         'Cada proyecto escribe un título y una línea por persona.',
-        'El 103 tiene tres personas y el 105, dos.',
+        'Los títulos están fuera del FOR; cada vuelta del FOR escribe una línea.',
       ],
       explanation: 'Siete: dos títulos, tres personas del 103 y dos del 105.',
     },
     keyIdea:
       'Cursor FOR = abrir + leer + cerrar automáticos; parámetros = misma consulta, otro valor.',
     topic: 'cursores',
-    version: 1,
+    version: 2,
   },
   {
     id: 'S3-L16',
@@ -750,7 +757,7 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
         question: 'Sin manejador, el error llega a quien ejecutó el bloque.',
         example: 'S3-E-SIN-MANEJO',
         reading:
-          'La misma consulta sin EXCEPTION termina con ORA-01422; ORA-06512 indica la línea.',
+          'La misma consulta sin EXCEPTION se detiene porque hay varias personas en Cali (detalle técnico: ORA-01422; ORA-06512 indica la línea).',
       },
     ],
     changed: ['El bloque no falla: el manejador convirtió el error en un mensaje.'],
@@ -840,7 +847,7 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
         question: 'RAISE_APPLICATION_ERROR: un error con mensaje propio.',
         example: 'S3-E-RAISE-APP',
         reading:
-          'Andrés ya tiene 30 horas: el bloque termina con ORA-20001 y el mensaje de la regla.',
+          'Andrés ya tiene 30 horas: la regla detiene el bloque con su propio mensaje (detalle técnico: ORA-20001).',
       },
     ],
     changed: ['La línea «Salario válido» nunca se escribe: RAISE interrumpe la ejecución.'],
@@ -919,7 +926,8 @@ export const PROGRAMS_LESSONS: readonly CurriculumLesson[] = [
       {
         question: 'El procedimiento valida que la persona exista.',
         example: 'S3-E-PROC-ERROR',
-        reading: 'Con el ID 99, SQL%ROWCOUNT es 0 y el procedimiento lanza ORA-20002.',
+        reading:
+          'Con el ID 99, el UPDATE no modifica ninguna fila (SQL%ROWCOUNT = 0) y el procedimiento avisa con su propio error (detalle técnico: ORA-20002).',
       },
       {
         question: 'Error de compilación: una variable sin declarar.',
