@@ -151,24 +151,29 @@ export function pedagogicalScenes(
     });
     const tables = topic.tables.filter((table) => !presented.has(table.table));
     for (const table of tables) presented.add(table.table);
-    if (tables.length > 0)
+    // Una tabla por escena: dos tablas juntas no caben en un proyector de 1280 × 720 sin
+    // desplazamiento, y cada tabla merece su propia presentación. La primera conserva el id
+    // anterior para que el progreso guardado siga apuntando a la misma escena.
+    tables.forEach((table, index) =>
       scenes.push({
         ...base,
-        id: `tables-${lesson.id}`,
+        id:
+          index === 0 ? `tables-${lesson.id}` : `tables-${lesson.id}-${table.table.toLowerCase()}`,
         kind: 'tables',
-        title:
-          tables.length === 1
-            ? `La tabla ${tables[0]!.table}`
-            : `Las tablas: ${tables.map((table) => table.table).join(' y ')}`,
+        title: `La tabla ${table.table}`,
         shortTitle: 'Tablas',
-        tables,
-        points: tables.map((table) => `${table.table}: ${table.role}`),
+        tables: [table],
+        points: [`${table.table}: ${table.role}`],
         notes: {
           explain:
-            'Presenta cada tabla antes del código: qué representa una fila, su clave primaria, sus claves foráneas y las columnas que usará el ejemplo.',
-          transition: 'Con los datos a la vista, leamos la forma general.',
+            'Presenta la tabla antes del código: qué representa una fila, su clave primaria, sus claves foráneas y las columnas que usará el ejemplo.',
+          transition:
+            index < tables.length - 1
+              ? `Ahora la tabla ${tables[index + 1]!.table}.`
+              : 'Con los datos a la vista, leamos la forma general.',
         },
-      });
+      }),
+    );
     if (!extension)
       scenes.push({
         ...base,

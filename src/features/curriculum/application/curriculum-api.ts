@@ -1062,6 +1062,8 @@ export interface SceneView {
   readonly lesson: { readonly title: string; readonly href: string } | null;
   readonly example: LessonExampleView | null;
   readonly activity: ActivityView | null;
+  /** Parte de una escena de recorrido dividida (ver `CurriculumScene.phase`). */
+  readonly phase: 'before' | 'trace' | null;
   /** Pasos del modo «paso a paso». */
   readonly steps: number;
 }
@@ -1122,6 +1124,7 @@ export function deckView(section: SectionId): DeckView | null {
       lesson: lesson ? { title: lesson.title, href: lessonHref(section, lesson.slug) } : null,
       example,
       activity: scene.activity ? activityView(section, scene.activity) : null,
+      phase: scene.phase ?? null,
       steps,
     };
   });

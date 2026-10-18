@@ -97,19 +97,61 @@ function stageRows(example: ExampleView): ExampleView {
   return { ...example, result: { ...result, rows: result.rows.slice(0, STAGE_ROWS) } };
 }
 
-/**
- * Con pocas filas de origen la visualización es breve: el resultado sube a la columna derecha,
- * bajo ella, y la fila que explica el tema (la que queda con NULL) se ve sin desplazar.
- */
-function smallSources(entry: LessonExampleView): boolean {
-  return entry.example.sources.reduce((total, table) => total + table.rows.length, 0) <= 8;
+/** Filas de origen que el JOIN o el GROUP BY dibujan como fichas en la visualización. */
+function sourceRows(entry: LessonExampleView): number {
+  return entry.example.sources.reduce((total, table) => total + table.rows.length, 0);
 }
 
-function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
+/**
+ * Columnas de una escena de JOIN o GROUP BY en clase. Con muchas fichas (un JOIN de más de 12
+ * filas de origen o más de seis grupos), la visualización recibe la columna ancha para ocupar
+ * menos filas. Con pocas fichas y una consulta larga, el resultado sube junto a la
+ * visualización, que es la columna más corta.
+ */
+function visualLayout(entry: LessonExampleView): string {
+  const rows = sourceRows(entry);
+  const groups = entry.example.result?.rows.length ?? 0;
+  if (entry.visual.kind === 'group') return groups > 6 ? ' cu-stage--wide-visual' : '';
+  if (entry.visual.kind !== 'join') return '';
+  if (rows > 12) return ' cu-stage--wide-visual';
+  return rows <= 8 && entry.example.code.split('\n').length >= 7 ? ' cu-stage--result-beside' : '';
+}
+
+function LessonScene({
+  entry,
+  phase,
+}: {
+  readonly entry: LessonExampleView;
+  readonly phase: SceneView['phase'];
+}) {
   const { visual } = entry;
   const example = stageRows(entry.example);
   if (example.kind === 'plsql') {
     const cursor = visual.kind === 'cursor' ? visual.query.result : null;
+    // Antes del recorrido: pregunta, lectura, bloque completo y las filas que recorrerá.
+    if (phase === 'before')
+      return (
+        <div className="cu-stage cu-stage--plsql cu-stage--long cu-stage--before">
+          <Reveal at={1} className="cu-stage__code">
+            <p className="cu-stage__question">{entry.question}</p>
+            <p className="cu-stage__reading">{entry.reading}</p>
+            <SetupFold setup={example.setup} />
+          </Reveal>
+          <Reveal at={2} className="cu-stage__visual">
+            <NumberedCode code={example.code} label="Bloque PL/SQL" />
+          </Reveal>
+          {cursor && (
+            <Reveal at={3} className="cu-stage__result">
+              <CurriculumTable
+                table={cursor}
+                label="Filas que recorrerá el cursor"
+                caption="Filas que devuelve la consulta del cursor, en su orden"
+                size="compact"
+              />
+            </Reveal>
+          )}
+        </div>
+      );
     const lead = (
       <>
         <p className="cu-stage__question">{entry.question}</p>
@@ -125,13 +167,15 @@ function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
             <ExecutionStepper
               code={example.code}
               trace={example.trace}
-              cursor={cursor}
+              // Dividida, la escena anterior ya mostró la lectura y las filas del cursor: el
+              // recorrido deja sitio a la nota, las variables y la salida de cada paso.
+              cursor={phase === 'trace' ? null : cursor}
               density="stage"
               lead={
                 // El vocabulario ya se vio en las escenas de introducción y sintaxis del tema.
                 <>
                   <p className="cu-stage__question">{entry.question}</p>
-                  <p className="cu-stage__reading">{entry.reading}</p>
+                  {phase !== 'trace' && <p className="cu-stage__reading">{entry.reading}</p>}
                   <SetupFold setup={example.setup} />
                 </>
               }
@@ -153,8 +197,17 @@ function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
           </Reveal>
         </div>
       );
+    // Dos tablas de comprobación sin error ni salida van lado a lado bajo el código; un error
+    // para aprender recibe la columna más ancha.
+    const layout = codeLeft(example)
+      ? ' cu-stage--long'
+      : example.error
+        ? ' cu-stage--error'
+        : example.output.length === 0 && example.after.length > 1
+          ? ' cu-stage--checks'
+          : '';
     return (
-      <div className={`cu-stage cu-stage--plsql${codeLeft(example) ? ' cu-stage--long' : ''}`}>
+      <div className={`cu-stage cu-stage--plsql${layout}`}>
         <Reveal at={1} className="cu-stage__code">
           {lead}
         </Reveal>
@@ -180,9 +233,7 @@ function LessonScene({ entry }: { readonly entry: LessonExampleView }) {
     );
   }
   return (
-    <div
-      className={`cu-stage cu-stage--${visual.kind}${smallSources(entry) ? ' cu-stage--small' : ''}`}
-    >
+    <div className={`cu-stage cu-stage--${visual.kind}${visualLayout(entry)}`}>
       <Reveal at={1} className="cu-stage__code">
         <p className="cu-stage__question">{entry.question}</p>
         {/* JOIN, grupos y comparación ya muestran las filas de origen. */}
@@ -401,7 +452,7 @@ export function CurriculumSceneView({
     case 'lesson':
       return (
         <Frame scene={scene} layout="transformation">
-          {scene.example && <LessonScene entry={scene.example} />}
+          {scene.example && <LessonScene entry={scene.example} phase={scene.phase} />}
         </Frame>
       );
   }

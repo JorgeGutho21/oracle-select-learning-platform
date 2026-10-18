@@ -336,10 +336,29 @@ export const S3_SCENES: readonly CurriculumScene[] = [
       transition: 'Veámoslo con TI.',
     },
   },
+  // El recorrido del cursor no cabe junto a sus filas y su lectura en un proyector: primero
+  // se presentan el bloque y los datos; después, la ejecución paso a paso.
+  {
+    id: 'cursor-explicito-antes',
+    block: 'cursores',
+    kind: 'lesson',
+    phase: 'before',
+    title: 'OPEN, FETCH, CLOSE: antes de ejecutar',
+    shortTitle: 'Cursor: antes',
+    lesson: 'S3-L14',
+    notes: {
+      explain:
+        'Lee el bloque completo antes de ejecutarlo: el cursor declara la consulta y estas son las filas que recorrerá, en orden.',
+      question:
+        '¿Cuántas veces se ejecutará FETCH? (Cinco: cuatro filas y una más que no trae nada.)',
+      transition: 'Ahora, línea a línea.',
+    },
+  },
   {
     id: 'cursor-explicito',
     block: 'cursores',
     kind: 'lesson',
+    phase: 'trace',
     title: 'OPEN, FETCH, CLOSE',
     shortTitle: 'Cursor',
     lesson: 'S3-L14',

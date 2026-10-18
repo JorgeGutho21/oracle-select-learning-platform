@@ -1199,6 +1199,8 @@
   grid-template-areas:
     'code visual'
     'result visual';
+  // El resultado sigue al código sin hueco aunque la visualización sea más alta.
+  grid-template-rows: auto 1fr;
   align-items: start;
 }
 .cu-stage--transform {
@@ -1219,6 +1221,8 @@
   grid-template-areas:
     'code result'
     'visual result';
+  // El código sigue a la pregunta sin hueco aunque el resultado sea más alto.
+  grid-template-rows: auto 1fr;
   align-items: start;
 }
 // Con recorrido paso a paso, el recorrido usa todo el ancho (código y estado lado a lado).
@@ -1228,6 +1232,7 @@
     'code'
     'visual'
     'result';
+  grid-template-rows: auto;
 }
 .cu-stage--trace .cu-stage__question {
   font-size: max(1em, 12px);

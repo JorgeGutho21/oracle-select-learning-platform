@@ -49,12 +49,20 @@
   padding: clamp(8px, 1.1vw, 18px);
   container-type: size;
 }
+// Proyectores de 720 px de alto: el marco cede su margen a la escena.
+@media (min-width: 992px) and (max-height: 780px) {
+  .deck__viewport {
+    padding: 6px;
+  }
+}
 .deck:fullscreen .deck__viewport {
   padding: 0;
 }
 .deck__stage {
+  // 16:9 en pantallas panorámicas. En un proyector 4:3 (1024 × 768) el lienzo usa la altura
+  // que sobra, hasta 4:3, en vez de dejar franjas vacías: la letra depende del ancho y no cambia.
   width: min(100cqw, calc(100cqh * 16 / 9));
-  aspect-ratio: 16 / 9;
+  height: min(100cqh, 75cqw);
   overflow: hidden;
   border-radius: clamp(8px, 1cqw, 18px);
   box-shadow: 0 24px 64px rgb(0 0 0 / 45%);
@@ -370,11 +378,23 @@
   display: flex;
   flex: 1;
   align-items: baseline;
-  justify-content: center;
+  justify-content: safe center;
   gap: 0.35em 0.75em;
   min-width: 0;
   margin: 0;
+  overflow: hidden;
   white-space: nowrap;
+}
+// Un bloque de nombre largo se abrevia en lugar de pasar bajo los botones; la escena repite
+// el nombre completo en su encabezado.
+.deck-status__block,
+.deck-status__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.deck-status__counter {
+  flex-shrink: 0;
 }
 .deck-status__block {
   color: var(--color-cyan);
@@ -662,7 +682,7 @@
   }
   #{$deck} .deck__stage {
     width: 100%;
-    aspect-ratio: auto;
+    height: auto;
     container-type: normal;
   }
   #{$deck} .scene {

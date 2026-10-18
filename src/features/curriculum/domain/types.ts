@@ -359,6 +359,12 @@ export interface CurriculumScene {
   readonly code?: string;
   readonly activity?: Activity;
   readonly keyIdea?: string;
+  /**
+   * Escena de lección con recorrido paso a paso dividida en dos: `before` presenta la pregunta,
+   * el bloque completo y los datos que recorrerá; `trace` ejecuta el recorrido. Sin división, la
+   * escena muestra todo junto.
+   */
+  readonly phase?: 'before' | 'trace';
   readonly notes: SceneNotes;
 }
 
