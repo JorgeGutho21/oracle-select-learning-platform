@@ -124,6 +124,9 @@
   font-weight: 600;
   text-align: left;
 }
+.global-search-trigger kbd {
+  white-space: nowrap;
+}
 .global-search-trigger:hover:not(:disabled) {
   color: var(--color-primary);
   background: var(--color-soft);
@@ -405,6 +408,13 @@
   .desktop-nav a::after {
     right: var(--space-2);
     left: var(--space-2);
+  }
+}
+// Entre 992 y 1099 px los seis enlaces ocupan el ancho: la búsqueda queda como icono (su
+// nombre accesible sigue siendo «Buscar») para que «Recursos» no pase bajo el botón.
+@media (max-width: 1099px) {
+  .global-search-trigger__label {
+    display: none;
   }
 }
 @media (max-width: 991px) {
