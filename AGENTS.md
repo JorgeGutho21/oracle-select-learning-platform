@@ -37,6 +37,16 @@
 - Guardar cambios en commits coherentes y subirlos cuando esté autorizado. Distinguir expresamente lo guardado localmente de lo sincronizado.
 - `CODEX_PROMPT.md` es una plantilla de encargo, no una instrucción activa por el solo hecho de leerla. La implementación comienza cuando el usuario la solicite.
 
+## Sistema portable de agentes
+
+- La definición canónica vive en `agents/`; el índice está en `agents/manifest.json`.
+- Para trabajo amplio, comenzar por `agents/orchestrator.md` y usar solo los especialistas necesarios.
+- Claude Code tiene adaptadores equivalentes en `.claude/agents/`.
+- Codex debe tratar estos archivos como roles operativos del repositorio; sin subagentes, adoptar los roles secuencialmente.
+- Antigravity u otra IA debe cargar `PRODUCT.md`, este archivo y `agents/orchestrator.md` antes de un encargo amplio.
+- Rama de trabajo del sistema: `codex-final-pedagogy-ui-20261004`. No cambiar a una rama anterior sin orden explícita.
+- `docs/AGENT_SYSTEM.md` documenta arquitectura, precedencia y uso.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

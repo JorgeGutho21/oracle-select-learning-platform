@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "project": "DB LAB",
+  "branch": "codex-final-pedagogy-ui-20261004",
+  "canonical_path": "agents/",
+  "claude_adapter_path": ".claude/agents/",
+  "orchestration": "agents/orchestrator.md",
+  "load_order": [
+    "PRODUCT.md",
+    "AGENTS.md",
+    "CONTINUITY.md",
+    "agents/manifest.json",
+    "agents/orchestrator.md"
+  ],
+  "agents": [
+    {
+      "id": "orchestrator",
+      "canonical": "agents/orchestrator.md",
+      "claude": ".claude/agents/orchestrator.md"
+    },
+    {
+      "id": "product-designer",
+      "canonical": "agents/product-designer.md",
+      "claude": ".claude/agents/product-designer.md"
+    },
+    {
+      "id": "ux-ui-designer",
+      "canonical": "agents/ux-ui-designer.md",
+      "claude": ".claude/agents/ux-ui-designer.md"
+    },
+    {
+      "id": "frontend-architect",
+      "canonical": "agents/frontend-architect.md",
+      "claude": ".claude/agents/frontend-architect.md"
+    },
+    {
+      "id": "nextjs-typescript-engineer",
+      "canonical": "agents/nextjs-typescript-engineer.md",
+      "claude": ".claude/agents/nextjs-typescript-engineer.md"
+    },
+    {
+      "id": "design-systems-engineer",
+      "canonical": "agents/design-systems-engineer.md",
+      "claude": ".claude/agents/design-systems-engineer.md"
+    },
+    {
+      "id": "instructional-designer-oracle",
+      "canonical": "agents/instructional-designer-oracle.md",
+      "claude": ".claude/agents/instructional-designer-oracle.md"
+    },
+    {
+      "id": "oracle-validation-engineer",
+      "canonical": "agents/oracle-validation-engineer.md",
+      "claude": ".claude/agents/oracle-validation-engineer.md"
+    },
+    {
+      "id": "accessibility-engineer",
+      "canonical": "agents/accessibility-engineer.md",
+      "claude": ".claude/agents/accessibility-engineer.md"
+    },
+    {
+      "id": "qa-release-engineer",
+      "canonical": "agents/qa-release-engineer.md",
+      "claude": ".claude/agents/qa-release-engineer.md"
+    }
+  ]
+}
