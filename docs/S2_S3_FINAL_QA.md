@@ -221,3 +221,18 @@ Cambios, todos de composición. Ninguna letra baja de sus mínimos:
   - el atajo «Ctrl K» ya no se parte en dos líneas.
 
 Prueba nueva: `tests/e2e/projector-scenes.spec.ts`, con 315 escenas, todos sus pasos y los cuatro tamaños. Resultado en Chromium: 8/8.
+
+Gates de esta revisión, en un contenedor Linux con solo Chromium:
+
+- Lint, typecheck, formato y build: PASS.
+- Vitest: 2349 pasan y 7 omitidas, con Oracle 23 local y Supabase local reales.
+- E2E Chromium completa: 391 pruebas, 368 pasan y 23 fallan.
+  - Los mismos archivos, ejecutados sobre el commit base `1ed98b4` compilado en el mismo contenedor, dan 29 fallos. Los 23 fallos de la revisión están entre ellos: ninguna regresión.
+  - Tras corregir la barra de estado, `pedagogy-ui` (todas las escenas a cinco anchos) pasa 10/10 y `projector-scenes` 8/8.
+  - Los fallos restantes dependen del entorno y existen en el base:
+    - S1, escena 4;
+    - tablas del Lab y del Challenge con DejaVu Sans;
+    - reflujo a 180 px;
+    - pistas de subtítulos del video resumen.
+- Edge, WebKit y Firefox: NOT TESTED; en este contenedor solo hay Chromium.
+- Preview y Production: NOT TESTED. El proxy del contenedor bloquea Vercel y la API de Supabase (403) y no hay tokens. Production sigue en `66a0093`.
