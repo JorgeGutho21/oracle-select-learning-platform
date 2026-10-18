@@ -64,6 +64,12 @@ export function ExamHeader({
         <span className="exam-save__dot" aria-hidden="true" />
         {SAVE_TEXT[status]}
       </p>
+      <progress
+        className="exam-header__meter"
+        value={answered}
+        max={Math.max(1, total)}
+        aria-label={`${answered} de ${total} preguntas respondidas`}
+      />
     </header>
   );
 }

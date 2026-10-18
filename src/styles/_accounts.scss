@@ -16,6 +16,13 @@
   border-radius: var(--radius-control);
   font: inherit;
   font-size: 1rem;
+  transition:
+    border-color var(--duration-feedback) ease,
+    background-color var(--duration-feedback) ease;
+
+  &:hover:not(:disabled):not([aria-invalid='true']) {
+    border-color: var(--color-primary);
+  }
 
   &[aria-invalid='true'] {
     border-color: var(--color-danger);
@@ -63,7 +70,7 @@
 // ---------------------------------------------------------------------------
 .auth-page {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
   min-height: calc(100svh - 72px);
 }
 .auth-visual {
@@ -74,8 +81,7 @@
   overflow: hidden;
   padding: clamp(32px, 5vw, 80px);
   color: var(--color-inverse);
-  background:
-    radial-gradient(80% 90% at 0% 100%, rgb(32 204 229 / 16%), transparent 60%), var(--color-night);
+  background: var(--color-night);
 }
 .auth-visual__grid {
   position: absolute;
@@ -92,8 +98,10 @@
   margin-bottom: var(--space-3);
   color: var(--color-inverse);
   text-decoration: none;
-  font: 800 clamp(2.5rem, 5vw, 4rem) / 1 var(--font-mono);
-  letter-spacing: 0.06em;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
 
   span {
     color: var(--color-cyan);
@@ -106,29 +114,26 @@
 }
 .auth-visual__benefits {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-5);
   margin: 0;
   padding: 0;
   list-style: none;
 
   li {
     position: relative;
-    padding-inline-start: var(--space-6);
+    padding-block-start: var(--space-3);
     color: rgb(247 250 255 / 86%);
+    border-top: 1px solid rgb(247 250 255 / 24%);
   }
   li::before {
-    position: absolute;
-    inset-inline-start: 0;
-    color: var(--color-cyan);
-    font-family: var(--font-mono);
-    content: '>_';
+    content: none;
   }
 }
 .auth-panel {
   display: flex;
   justify-content: center;
   padding: clamp(24px, 5vw, 72px) var(--space-4);
-  background: var(--color-page);
+  background: var(--color-surface);
 }
 .auth-panel__inner {
   display: grid;
@@ -619,6 +624,9 @@
   gap: var(--space-5);
   align-items: start;
 }
+.profile-grid > .profile-card:nth-child(2) {
+  background: var(--color-surface-alt);
+}
 .profile-card {
   display: grid;
   gap: var(--space-4);
@@ -680,22 +688,25 @@
 .teacher-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: var(--space-3);
   margin: 0;
+  padding: var(--space-3);
+  background: var(--color-soft);
+  border-radius: var(--radius-card);
 }
 .teacher-stat {
   display: flex;
   flex-direction: column-reverse;
   gap: var(--space-1);
   padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
 
   dd {
     margin: 0;
     color: var(--color-primary);
-    font: 800 clamp(1.75rem, 3vw, 2.5rem) / 1.1 var(--font-mono);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
   }
   dt {
     color: var(--color-muted);

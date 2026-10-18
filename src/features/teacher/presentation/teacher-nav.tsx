@@ -3,6 +3,7 @@
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ModeIcon } from '@/features/sections/presentation/mode-icon';
 
 /** Secciones del panel docente: pocas y siempre en el mismo lugar. */
 const LINKS: readonly {
@@ -34,7 +35,7 @@ export function TeacherNav() {
       <div className="site-container teacher-nav__inner">
         <span className="teacher-nav__label">Panel docente</span>
         <ul>
-          {LINKS.map((link) => {
+          {LINKS.map((link, index) => {
             const active = link.match(pathname);
             return (
               <li key={link.href}>
@@ -42,13 +43,20 @@ export function TeacherNav() {
                   href={link.href}
                   aria-current={active ? 'page' : undefined}
                   className="teacher-nav__link"
+                  prefetch={false}
                 >
+                  <ModeIcon
+                    mode={index === 0 ? 'study' : index === 1 ? 'evaluation' : 'resources'}
+                  />
                   {link.label}
                 </Link>
               </li>
             );
           })}
         </ul>
+        <p className="teacher-nav__help">
+          Prepara la evaluación, acompaña a tus estudiantes y revisa sus resultados.
+        </p>
       </div>
     </nav>
   );
