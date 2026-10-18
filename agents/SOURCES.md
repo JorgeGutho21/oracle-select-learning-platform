@@ -3,11 +3,13 @@
 Los agentes de DB LAB son adaptaciones específicas del proyecto.
 
 ## Agentes generales
+
 - https://github.com/VoltAgent/awesome-claude-code-subagents
 - https://github.com/msitarzewski/agency-agents
 - https://github.com/github/awesome-copilot
 
 ## Stack visual usado en Claude/TikTok
+
 - Emil Kowalski Skills: https://github.com/emilkowalski/skills
   - `emil-design-eng`, `animate`, `review-animations`, `improve-animations`, `find-animation-opportunities`, `animation-performance`, `animation-vocabulary`, `break-ui`, `pick-ui-library`, `prototype`.
 - Taste Skill: https://github.com/Leonxlnx/taste-skill

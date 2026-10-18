@@ -3,9 +3,11 @@
 Esta carpeta contiene los agentes canónicos del proyecto para Claude Code, Codex, Antigravity u otra IA con acceso al repositorio.
 
 ## Rama bloqueada
+
 `codex-final-pedagogy-ui-20261004`
 
 ## Uso
+
 1. Cargar `PRODUCT.md`, `AGENTS.md` y `CONTINUITY.md`.
 2. Leer `agents/manifest.json`.
 3. Para trabajos amplios, empezar por `agents/orchestrator.md`.
@@ -13,10 +15,13 @@ Esta carpeta contiene los agentes canónicos del proyecto para Claude Code, Code
 5. Antes del cierre, usar `qa-release-engineer` y, para UI, `playwright-visual-qa-agent`.
 
 ## Equipo base
+
 orchestrator · product-designer · ux-ui-designer · frontend-architect · nextjs-typescript-engineer · design-systems-engineer · instructional-designer-oracle · oracle-validation-engineer · accessibility-engineer · qa-release-engineer
 
 ## Stack visual del video / Claude
+
 También están adaptados como agentes:
+
 - `emil-kowalski-design-engineer` → skills públicas de Emil Kowalski.
 - `impeccable-design-agent` → usa la skill local Impeccable cuando existe.
 - `taste-skill-frontend-director` → usa `design-taste-frontend`.

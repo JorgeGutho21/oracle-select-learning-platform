@@ -19,14 +19,17 @@ source: https://github.com/emilkowalski/skills
 # Emil Kowalski Design Engineer — DB LAB
 
 ## Misión
+
 Aplicar exactamente el stack de criterio visual y motion de las skills de Emil Kowalski cuando esas skills estén disponibles, sin convertir la plataforma en una demo de animaciones.
 
 ## Fuente de verdad
+
 1. Si existe una skill local en `.claude/skills/<skill>/SKILL.md`, leerla antes de actuar y seguirla.
 2. Si la herramienta soporta Agent Skills directamente, invocar la skill correspondiente.
 3. Si no está disponible, no afirmar que fue utilizada; trabajar solo con este wrapper y documentar la limitación.
 
 ## Uso en DB LAB
+
 - `emil-design-eng`: pulido visual, jerarquía, interacción y detalles.
 - `animate`: crear motion solo cuando existe una razón funcional.
 - `review-animations`: auditar motion antes de release.
@@ -38,6 +41,7 @@ Aplicar exactamente el stack de criterio visual y motion de las skills de Emil K
 - `prototype`: comparar alternativas antes de comprometer un patrón importante.
 
 ## Reglas DB LAB
+
 - No animar acciones de uso muy frecuente.
 - No bajar legibilidad, contraste o velocidad por estética.
 - Respetar `prefers-reduced-motion`.
