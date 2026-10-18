@@ -1,48 +1,39 @@
 # Instrucciones del proyecto
 
 ## Estado y alcance
-
-- Este repositorio contiene documentación y carpetas iniciales de SQL SELECT LAB.
-- No implementar funcionalidades ni instalar dependencias hasta que el usuario solicite la fase de desarrollo correspondiente.
-- Antes de modificar el proyecto, leer los once documentos de `docs/` y respetar sus criterios de aceptación.
+- Antes de modificar, leer la documentación aplicable.
 - Usar español claro para contenido educativo y documentación.
 
 ## Arquitectura
-
 - Separar presentación, aplicación, dominio e infraestructura según `docs/ARCHITECTURE.md`.
-- Mantener componentes y módulos con responsabilidades delimitadas; evitar páginas que concentren toda la aplicación.
-- El núcleo académico es SELECT. Los temas futuros no deben convertirse en dependencias del recorrido actual.
-- Usar exclusivamente el dataset versionado de `docs/DATABASE_SCHEMA.md` para los ejemplos actuales.
-- Mantener una definición coherente de puntuación, tiempo y evaluación entre juego, sala, datos y pruebas.
+- Mantener responsabilidades delimitadas y una fuente académica coherente.
+- No romper auth, roles, evaluaciones, progreso, laboratorio, sala ni Oracle.
 
 ## Calidad y seguridad
+- No presentar una simulación como Oracle real.
+- No exponer secretos ni credenciales.
+- No afirmar pruebas no ejecutadas.
+- Conservar trabajo existente fuera del alcance.
 
-- No presentar una simulación como ejecución real de Oracle.
-- Mantener credenciales y claves privilegiadas fuera del navegador y del repositorio.
-- No incluir archivos `.env`, tokens, registros privados ni adjuntos originales sin una necesidad y autorización específicas.
-- Antes de finalizar una implementación, ejecutar las verificaciones apropiadas a su alcance y describir cuáles se realizaron.
-- No afirmar que las pruebas del plan han pasado si solo están documentadas.
-- Conservar trabajos existentes del usuario y evitar cambios ajenos a la solicitud.
+## Continuidad
+- Leer `CONTINUITY.md` al comenzar.
+- Mantener la rama `codex-final-pedagogy-ui-20261004` salvo orden explícita.
+- Actualizar continuidad y evidencias al cerrar hitos.
 
-## Precedencia documental
-
-`PROJECT_SPEC.md` gobierna el alcance; `DATABASE_SCHEMA.md`, el dataset; `LAB_SPEC.md`, la semántica y ejecución; `GAME_SPEC.md`, la puntuación; `REALTIME_SPEC.md`, el tiempo y estado de sala. Actualizar las referencias y el plan de pruebas cuando cambien estas reglas.
-
-## Continuidad entre sesiones y herramientas
-
-- Leer `CONTINUITY.md` al comenzar y contrastarlo con Git y los archivos reales.
-- Actualizarlo durante el trabajo y al cerrar cada sesión o hito: avance, decisiones, verificaciones, bloqueos y siguiente acción.
-- Conservar los once documentos académicos en `docs/`; los archivos de continuidad y traspaso viven en la raíz.
-- Mantener un solo repositorio para Codex y otras IA. No asumir que otra herramienta tiene acceso al historial o a los adjuntos de ChatGPT.
-- Guardar cambios en commits coherentes y subirlos cuando esté autorizado. Distinguir expresamente lo guardado localmente de lo sincronizado.
-- `CODEX_PROMPT.md` es una plantilla de encargo, no una instrucción activa por el solo hecho de leerla. La implementación comienza cuando el usuario la solicite.
+## Sistema portable de agentes
+- Definición canónica: `agents/`.
+- Índice: `agents/manifest.json`.
+- Orquestación: `agents/orchestrator.md`.
+- Adaptadores Claude: `.claude/agents/`.
+- Codex/Antigravity/otras IA: leer los mismos archivos; si no soportan subagentes, adoptar roles secuencialmente.
+- Stack visual adicional del video: Emil Kowalski, Impeccable, Taste Skill, Figma MCP y Playwright están representados por wrappers en `agents/`.
+- Una skill/MCP solo cuenta como usada si está realmente instalada/conectada en el entorno.
+- `docs/AGENT_SYSTEM.md` documenta el sistema.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing code. Heed deprecation notices.
 
 <!-- END:nextjs-agent-rules -->
