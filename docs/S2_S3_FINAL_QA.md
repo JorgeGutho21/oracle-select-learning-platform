@@ -147,7 +147,41 @@ El banco oficial sigue con 50 + 50 + 50 = 150 preguntas y sin cambios de claves.
 
 ## 7. Preview y Production
 
-[[DEPLOY]]
+| Campo             | Valor                                                                                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Commit desplegado | `66a0093` («Cierre pedagógico y visual de las secciones 2 y 3»), subido a `origin/codex-final-pedagogy-ui-20261004`                                                                                                            |
+| Preview           | https://sql-select-2n9tf7d9t-jorge-gutierrez1.vercel.app · `dpl_9UJVP8byRZfSeP1s9XfiH3y8PT4T` · Ready                                                                                                                          |
+| Production        | https://sql-select-lab.vercel.app → `dpl_7UoxANWpMZz1Txnc5TVG756E6fVy` (https://sql-select-8vh9j59yv-jorge-gutierrez1.vercel.app), creado con `vercel promote` del Preview validado: mismo código, configuración de Production |
+| Rollback          | Production anterior `dpl_3B21kJiREVMckxHd3b8r4xxieXH7` (https://sql-select-rbb4l4wft-jorge-gutierrez1.vercel.app, commit `ab1a620`): `vercel promote` de esa URL. No se ejecutó                                                |
+
+QA sobre Preview (`playwright.remote.config.ts`, Chromium, un worker; sin suites superpuestas):
+
+- **Sala, cuentas y evaluaciones:** 26/26.
+  - Sala real con QR, respuesta, ranking y cierre.
+  - Cabeceras de seguridad y archivos privados inaccesibles.
+  - Avance de invitado sincronizado en otra sesión.
+  - En S1, S2 y S3, con docente y alumno temporales: crear, publicar, responder sin conexión, entregar y liberar la retroalimentación.
+  - Motivo real de fin de intento.
+  - Páginas públicas a varios anchos, reflujo y axe WCAG 2.2 AA.
+- **Rutas y secciones:** 185 tests, 184 pasan en la primera ejecución.
+  - Inicio, secciones, currículo, búsqueda, rutas, S1 (Estudio y Exposición), Recursos, Lab, módulos, Challenge M01–M03 y la barrida de escenas de S2 y S3 en cinco anchos.
+  - El fallo fue un test del Lab que tardó 37,7 min con límite de 30 s, mientras el equipo suspendía la red. Al repetir `lab.spec.ts`: 7/7.
+- **Supabase remoto aislado:** 5/5.
+  - Anónimo sin lectura.
+  - Banco 50 + 50 + 50, sincronización idempotente sin cambios.
+  - Intento, autoguardado, entrega y retroalimentación con RLS en las tres secciones.
+
+QA sobre Production (`PHASE5_REMOTE_QA=production`):
+
+- **Primera ejecución:** 140 tests, 139 pasan. Cubre portada, secciones, currículo S2/S3, búsqueda, rutas, Lab con Oracle Cloud, S1 Estudio, Recursos, Challenge, cuentas y evaluaciones de las tres secciones, y axe.
+- **El fallo:** «M01 con arrastre de ratón» falla también en la Production anterior, así que no lo introduce este release.
+  - Causa: `@dnd-kit/core` ignora los clics durante 50 ms después de soltar una pieza. Playwright pulsaba «Comprobar» antes.
+  - No afecta a una persona: comprobado con el mismo arrastre seguido de una pausa breve.
+  - El helper del test espera ahora ese intervalo, documentado en el código.
+  - Challenge en Production tras el cambio: 21/21 en tres ejecuciones seguidas. En local, Chromium, Edge y WebKit: 63/63.
+- **Comprobación de versión:** Production sirve el contenido exclusivo de `66a0093`: la lección «Nómina y personas por departamento con JOIN» y «Ejemplo correcto · Oracle lo ejecuta sin error» en el error para aprender.
+
+El commit posterior a `66a0093` solo contiene esta documentación y el helper de la prueba. La aplicación publicada es exactamente `66a0093`.
 
 ## 8. Limitaciones reales
 

@@ -61,6 +61,10 @@ export async function mouseDrag(page: Page, source: Locator, target: Locator) {
   // mouse events can otherwise finish the drag before React records the drop zone.
   await expect(target).toHaveClass(/ch-zone--over/);
   await page.mouse.up();
+  // @dnd-kit/core ignora todos los clics del documento durante 50 ms después de soltar
+  // (AbstractPointerSensor: setTimeout(removeAll, 50)) para que el drop no dispare un clic.
+  // Una persona no pulsa otro botón tan rápido; la prueba espera ese intervalo.
+  await page.waitForTimeout(80);
 }
 
 /** Sustituye el contenido de un editor CodeMirror como lo haría una persona al teclado. */

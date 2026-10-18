@@ -506,3 +506,13 @@ Otra IA necesita acceso al repositorio actualizado, o a una copia descargada con
   - Auditoría de las 312 escenas en 12 tamaños: sin problemas desde 1366 × 768; 6 escenas con 6–31 px en 1280 × 720 y 1024 × 768.
 - **Supabase local de QA:** contenedores `supabase_*_db-lab-phase5` en Podman dentro de WSL (`wsl -d Ubuntu -u root -- podman start …`). Se arranca primero la base y después el resto. Sus variables están en `.env.qa.local`.
 - **Guiones de auditoría:** `output/playwright/qa-scripts/` (ignorado por Git).
+- **Pruebas:**
+  - Vitest: 2349 pasan, 7 omitidas.
+  - E2E Chromium: 377 en la primera ejecución; tras corregir el total de 79 lecciones, 10/10 en los archivos repetidos.
+  - E2E Edge: 382, más 1 fallo de búferes de Windows que pasa al repetirlo.
+  - E2E WebKit: 383/383.
+- **Publicación:** commit `66a0093` subido.
+  - Preview `dpl_9UJVP8byRZfSeP1s9XfiH3y8PT4T`: 26/26, 184/185 (el Lab pasa al repetirlo) y Supabase remoto 5/5.
+  - Production `dpl_7UoxANWpMZz1Txnc5TVG756E6fVy`, por `vercel promote` del Preview. El humo pasa tras corregir la espera de 50 ms de dnd-kit en el helper del test.
+  - Rollback: `dpl_3B21kJiREVMckxHd3b8r4xxieXH7` (commit `ab1a620`).
+- **Siguiente acción:** revisión humana en aula (proyector) de las 6 escenas con desplazamiento en 1280 × 720.
