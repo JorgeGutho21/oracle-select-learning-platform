@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "project": "DB LAB",
   "branch": "codex-final-pedagogy-ui-20261004",
   "canonical_path": "agents/",
@@ -62,6 +62,31 @@
       "id": "qa-release-engineer",
       "canonical": "agents/qa-release-engineer.md",
       "claude": ".claude/agents/qa-release-engineer.md"
+    },
+    {
+      "id": "emil-kowalski-design-engineer",
+      "canonical": "agents/emil-kowalski-design-engineer.md",
+      "claude": ".claude/agents/emil-kowalski-design-engineer.md"
+    },
+    {
+      "id": "impeccable-design-agent",
+      "canonical": "agents/impeccable-design-agent.md",
+      "claude": ".claude/agents/impeccable-design-agent.md"
+    },
+    {
+      "id": "taste-skill-frontend-director",
+      "canonical": "agents/taste-skill-frontend-director.md",
+      "claude": ".claude/agents/taste-skill-frontend-director.md"
+    },
+    {
+      "id": "figma-reference-agent",
+      "canonical": "agents/figma-reference-agent.md",
+      "claude": ".claude/agents/figma-reference-agent.md"
+    },
+    {
+      "id": "playwright-visual-qa-agent",
+      "canonical": "agents/playwright-visual-qa-agent.md",
+      "claude": ".claude/agents/playwright-visual-qa-agent.md"
     }
   ]
 }

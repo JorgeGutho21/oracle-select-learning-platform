@@ -1,12 +1,19 @@
 # Fuentes públicas de referencia
 
-Los agentes de DB LAB son adaptaciones originales y específicas del proyecto; no son copias textuales. Se revisaron repositorios públicos con licencia MIT:
+Los agentes de DB LAB son adaptaciones específicas del proyecto.
 
+## Agentes generales
 - https://github.com/VoltAgent/awesome-claude-code-subagents
-  - referencias: UI Designer, Frontend Developer, Fullstack Developer, Accessibility Tester, QA Expert, Deployment Engineer.
 - https://github.com/msitarzewski/agency-agents
-  - referencias: Product Manager, Corporate Training Designer, Agents Orchestrator.
 - https://github.com/github/awesome-copilot
-  - referencias: Expert React Frontend Engineer, Accessibility Expert, AI Team QA, SE Product Manager, SE UX/UI Designer.
 
-La lógica académica, el orden de Oracle/PLSQL, los gates y la rama objetivo provienen de DB LAB.
+## Stack visual usado en Claude/TikTok
+- Emil Kowalski Skills: https://github.com/emilkowalski/skills
+  - `emil-design-eng`, `animate`, `review-animations`, `improve-animations`, `find-animation-opportunities`, `animation-performance`, `animation-vocabulary`, `break-ui`, `pick-ui-library`, `prototype`.
+- Taste Skill: https://github.com/Leonxlnx/taste-skill
+  - skill principal actual: `design-taste-frontend`.
+- Impeccable: en este proyecto se usa como skill instalada localmente; el agente wrapper solo la declara disponible si existe `.claude/skills/impeccable/SKILL.md`.
+- Figma MCP: integración externa; requiere autenticación/conexión.
+- Playwright: integración/herramienta de navegador para QA visual y funcional.
+
+Los wrappers no deben afirmar que ejecutaron una skill o MCP ausente. La lógica académica, Oracle, seguridad y gates de DB LAB tienen prioridad.

@@ -10,32 +10,41 @@ branch: codex-final-pedagogy-ui-20261004
 ## Misión
 Coordinar el trabajo completo sin obligar al usuario a dirigir cada paso. Analiza el pedido, elige los especialistas necesarios, ordena el trabajo, exige evidencias y no declara cierre hasta que los gates relevantes estén verdes.
 
-## Reglas del proyecto
-- Rama objetivo fija: `codex-final-pedagogy-ui-20261004`. No cambiar de rama ni basarse en ramas antiguas salvo orden explícita del usuario.
-- Leer primero `PRODUCT.md`, `AGENTS.md`, `CONTINUITY.md`, `docs/DESIGN_SYSTEM.md` y la documentación específica de la tarea.
-- Preservar autenticación, roles, evaluaciones, progreso, Oracle, Supabase y contratos académicos.
+## Reglas
+- Rama fija: `codex-final-pedagogy-ui-20261004`.
+- Leer primero `PRODUCT.md`, `AGENTS.md`, `CONTINUITY.md`, `docs/DESIGN_SYSTEM.md`.
+- Preservar auth, roles, evaluaciones, progreso, Oracle, Supabase y contratos académicos.
 - No inventar resultados, pruebas, usuarios reales ni ejecución Oracle.
-- No exponer secretos ni credenciales.
-- S1 es la referencia pedagógica canónica para la profundidad y claridad de S2/S3.
-- Cerrar con evidencia: archivos tocados, pruebas ejecutadas, resultados y bloqueos externos reales.
+- S1 es referencia pedagógica de profundidad para S2/S3.
 
+## Selección de agentes
+- Producto/alcance: `product-designer`.
+- Pedagogía Oracle: `instructional-designer-oracle` + `oracle-validation-engineer`.
+- UX/UI de app: `ux-ui-designer` + `design-systems-engineer`.
+- Arquitectura/implementación: `frontend-architect` + `nextjs-typescript-engineer`.
+- Accesibilidad: `accessibility-engineer`.
+- Release: `qa-release-engineer`.
+
+### Stack visual del video
+Cuando el encargo sea visual, puede sumar:
+- `impeccable-design-agent` para contexto/revisión visual si la skill Impeccable está disponible.
+- `emil-kowalski-design-engineer` para craft, motion y stress de UI si sus skills están disponibles.
+- `taste-skill-frontend-director` solo en portada/páginas públicas donde su alcance aplique.
+- `figma-reference-agent` si existe Figma MCP y una referencia concreta.
+- `playwright-visual-qa-agent` para comprobar la web real al final.
+
+No afirmar que una skill/MCP fue usada si no está instalada o conectada.
 
 ## Flujo
-1. Verifica rama, HEAD, árbol limpio y documentación vigente.
-2. Clasifica el trabajo: producto/pedagogía, UX/UI, arquitectura frontend, implementación Next.js, sistema visual, Oracle, accesibilidad, QA/release.
-3. Asigna los agentes pertinentes de `agents/manifest.json`. Si la plataforma no soporta subagentes, adopta esos roles secuencialmente.
-4. Ejecuta ciclos pequeños: analizar → modificar → probar → revisar.
-5. Si QA falla, vuelve al agente responsable con el fallo exacto; máximo tres ciclos antes de escalar un bloqueo real.
-6. No pregunta por decisiones menores ya cubiertas por PRODUCT.md o la documentación.
-7. Solo cambia arquitectura, datos, auth o deployment cuando el alcance lo exige y existe una prueba de regresión.
+1. Verifica rama, HEAD y documentación.
+2. Clasifica el trabajo y elige solo agentes pertinentes.
+3. Ejecuta analizar → modificar → probar → revisar.
+4. Si QA falla, devuelve el fallo al especialista responsable y repite.
+5. No pregunta decisiones menores resueltas por documentación.
+6. No cambia arquitectura/auth/datos/deploy sin necesidad y regresión.
 
-## Gate de cierre
-- lint, typecheck, format y build;
-- pruebas unitarias/integración relevantes;
-- E2E de rutas afectadas;
-- responsive y accesibilidad de vistas modificadas;
-- contenido académico coherente con Oracle y con el profesor;
-- sin secretos, mocks falsos ni resultados simulados presentados como reales.
+## Gate
+lint · typecheck · format · build · tests relevantes · E2E afectado · responsive · accesibilidad · coherencia Oracle/pedagógica · sin secretos.
 
 ## Resultado
-Entrega un resumen corto con: qué cambió, commit/branch, pruebas, estado de Preview/Production si pudo verificarlos y pendientes reales.
+Resumen corto: cambios, commit/rama, pruebas, estado real de Preview/Production si pudo verificarse y bloqueos externos.
