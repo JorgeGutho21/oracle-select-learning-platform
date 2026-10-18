@@ -1,5 +1,27 @@
 # Continuidad del proyecto
 
+## Revisión de proyector y composición (18 de octubre de 2026, Claude)
+
+- **Rama y fuentes:** rama `codex-final-pedagogy-ui-20261004`, actualizada desde origin. Se leyeron PRODUCT.md y `.claude/skills/`.
+- **Escenas de S2 y S3:** se midieron todas, en todos sus pasos, a 1920 × 1080, 1366 × 768, 1280 × 720 y 1024 × 768.
+  - Antes: 12 escenas con desplazamiento interno. El cursor explícito desbordaba 161 px en el paso 8 incluso a 1920.
+  - Ahora: 0, cubierto por `tests/e2e/projector-scenes.spec.ts`.
+  - Detalle en docs/S2_S3_FINAL_QA.md §9.
+- **Escenas divididas:**
+  - tablas: una por escena. S2 pasa de 145 a 147;
+  - cursor explícito: «antes» y recorrido. S3 pasa de 167 a 168.
+  - `outline.json` se regeneró; los ids conservados mantienen el progreso guardado.
+- **Otros cambios:**
+  - lienzo hasta 4:3 en proyectores 4:3;
+  - márgenes a 720 px de alto;
+  - columnas de JOIN, GROUP BY y PL/SQL;
+  - estado de la barra abreviado;
+  - cabecera de 992 a 1099 px sin superposición.
+- **S1 en este contenedor Linux:** los fallos de la escena 4, y de las escenas 5, 10, 12 y 16 en proyector, se reproducen también en el commit base `1ed98b4`, compilado aparte. La causa es la fuente `system-ui` (DejaVu Sans). Decisión pendiente: una fuente web común.
+- **Bloqueo externo:** el proxy del contenedor bloquea Vercel y la API de Supabase (403), y no hay tokens. Preview y Production no se pudieron crear ni validar desde aquí. Production sigue en `dpl_7UoxANWpMZz1Txnc5TVG756E6fVy` (`66a0093`).
+- **Navegadores:** en este contenedor solo hay Chromium. Edge, WebKit y Firefox: NOT TESTED.
+- **Siguiente acción:** desplegar un Preview desde un equipo con acceso a Vercel, repetir la E2E en Edge y WebKit y, si pasa, promoverlo.
+
 ## Revisión pedagógica/UI activa (4–5 de octubre de 2026)
 
 Encargo activo: S2/S3 para principiantes, UX/acceso docente y release. Rama codex-final-pedagogy-ui-20261004; HEAD1f3188bebca77fd714f9d05cfaafea4f47f7cbc4 sincronizado, candidato noveno sin commit. Production permanece6be89ed/dpl_BSVxTo5ZtyAj2ETmSvcPiiTHVEtb; no promovida.

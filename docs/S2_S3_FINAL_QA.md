@@ -8,8 +8,8 @@ Todas las cifras de este documento salen del código, de las pruebas o del regis
 
 | Sección | Bloques | Lecciones (núcleo · apoyo · ampliación) | Escenas | Prácticas | Misiones (pasos) | Fichas | Ejemplos Oracle |
 | ------- | ------- | --------------------------------------- | ------- | --------- | ---------------- | ------ | --------------- |
-| S2      | 15      | 25 (12 · 4 · 9)                         | 145     | 22        | 10 (20)          | 32     | 137             |
-| S3      | 17      | 29 (15 · 6 · 8)                         | 167     | 26        | 10 (21)          | 34     | 133             |
+| S2      | 15      | 25 (12 · 4 · 9)                         | 147     | 22        | 10 (20)          | 32     | 137             |
+| S3      | 17      | 29 (15 · 6 · 8)                         | 168     | 26        | 10 (21)          | 34     | 133             |
 
 ### Reconciliación de Oracle: 313 ejemplos
 
@@ -185,10 +185,39 @@ El commit posterior a `66a0093` solo contiene esta documentación y el helper de
 
 ## 8. Limitaciones reales
 
-- En proyectores de 1280 × 720 o 1024 × 768, seis escenas tienen entre 6 y 31 px de desplazamiento interno. El contenido es alcanzable y no hay texto cortado. Son:
-  - S2: LEFT JOIN de áreas sin personas, FULL JOIN y COUNT con LEFT JOIN;
-  - S3: IF, cursor explícito y excepciones, con su recorrido paso a paso.
-  - Desde 1366 × 768, todas las escenas caben.
+- Resuelto el 18 de octubre (sección 9): ninguna escena de S2 ni de S3 se desplaza en los cuatro tamaños de proyector, en ninguno de sus pasos.
+- En este contenedor Linux, S1 desborda en las escenas 4, 5, 10, 12 y 16 a 1280 × 720 y en las escenas 4, 12 y 16 a 1024 × 768. Además, la tabla completa de la escena 4 no cabe a 1920 ni a 1366. El commit base `1ed98b4`, compilado y probado aparte en el mismo contenedor, da los mismos fallos. La causa es la fuente del sistema: `system-ui` resuelve a DejaVu Sans en Linux, más ancha que Segoe UI en Windows, donde las pruebas pasan. No lo introduce esta revisión. Una fuente web común igualaría las métricas en todos los sistemas, pero cambia la identidad tipográfica y el peso de la página: queda como decisión pendiente.
 - Sin revisión con estudiantes principiantes reales, proyector físico, lector de pantalla manual ni zoom nativo del navegador.
 - Firefox no se ejecuta en este equipo (falla al iniciar); no se declara probado.
 - El correo remoto de Supabase (SMTP propio) sigue fuera de alcance, como en la Fase 5.
+
+## 9. Revisión de proyector (18 de octubre de 2026)
+
+La medición anterior revisaba solo el primer paso de cada escena. Esta revisión recorre todas las escenas de S2 y S3 y todos los pasos de cada recorrido PL/SQL, a 1920 × 1080, 1366 × 768, 1280 × 720 y 1024 × 768. Antes de los cambios encontró 12 escenas con desplazamiento interno a 1280 × 720, no 6. El caso más grave era el cursor explícito: en el paso 8 desbordaba 161 px incluso a 1920 × 1080, porque la salida de DBMS_OUTPUT y las variables crecen con cada paso.
+
+Cambios, todos de composición. Ninguna letra baja de sus mínimos:
+
+- **Divididas:**
+  - la escena de tablas con dos tablas pasa a una tabla por escena: PROYECTOS y ASIGNACIONES, y también DEPARTAMENTOS y EMPLEADOS. S2 pasa de 145 a 147 escenas. La primera escena conserva su id, así que el progreso guardado sigue apuntando a ella;
+  - el cursor explícito se divide en dos:
+    - «antes de ejecutar», con la pregunta, la lectura, el bloque completo y las filas que recorrerá el cursor, verificadas en Oracle;
+    - el recorrido, con la nota, las variables y la salida de cada paso.
+      S3 pasa de 167 a 168 escenas.
+- **Lienzo:**
+  - en un proyector 4:3 (1024 × 768) el lienzo usa la altura que antes quedaba en franjas vacías, hasta 4:3. En pantallas panorámicas sigue en 16:9;
+  - a 720 px de alto, el marco del lienzo y la barra de controles ceden margen. Los botones conservan 44 px.
+- **Columnas:**
+  - JOIN y GROUP BY: el resultado sigue a la consulta sin hueco;
+  - con muchas fichas (más de 12 filas de origen o más de seis grupos), la visualización recibe la columna ancha;
+  - con pocas fichas y una consulta larga, el resultado sube junto a la visualización.
+- **PL/SQL:**
+  - el código sigue a la pregunta sin hueco;
+  - dos tablas de comprobación sin error van lado a lado;
+  - el error para aprender recibe la columna ancha;
+  - en el recorrido, el rótulo «Bloque PL/SQL» queda solo para lectores de pantalla.
+- **Barra de controles:** un nombre de bloque largo se abrevia con puntos suspensivos en lugar de pasar bajo los botones.
+- **Cabecera:**
+  - entre 992 y 1099 px, «Recursos» se superponía al botón «Buscar». Ahora la búsqueda queda como icono, con su nombre accesible;
+  - el atajo «Ctrl K» ya no se parte en dos líneas.
+
+Prueba nueva: `tests/e2e/projector-scenes.spec.ts`, con 315 escenas, todos sus pasos y los cuatro tamaños. Resultado en Chromium: 8/8.

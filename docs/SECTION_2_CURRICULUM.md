@@ -12,7 +12,7 @@ Fecha: 3–4 de octubre de 2026; reestructurada y cerrada el 17 de octubre de 20
 | Ejemplos verificados en Oracle | 137 en la sección (lecciones, microejemplos, práctica y 8 ejemplos correctos de «error para aprender»), todos ejecutados en Oracle Database 23 |
 | Prácticas guiadas              | 22                                                                                                                                             |
 | Misiones del Challenge         | 10 (20 pasos)                                                                                                                                  |
-| Escenas de clase               | 145 (antes 193)                                                                                                                                |
+| Escenas de clase               | 147 (antes 193 y 145)                                                                                                                          |
 | Banco de evaluación            | 50 preguntas (ver `QUESTION_BANK_SPEC.md`)                                                                                                     |
 | Consultas propias del banco    | 20 (S2-B)                                                                                                                                      |
 
