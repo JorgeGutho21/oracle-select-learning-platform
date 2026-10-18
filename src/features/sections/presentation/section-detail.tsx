@@ -154,10 +154,10 @@ export function SectionDetail({
   const modes = (
     <section className="section-block" aria-labelledby="modes-title">
       <div className="section-block__head">
-        <h2 id="modes-title">{available ? 'Modos de trabajo' : 'Modos previstos'}</h2>
+        <h2 id="modes-title">{available ? 'Elige cómo trabajar' : 'Modos previstos'}</h2>
         <p>
           {available
-            ? 'Cada modo abre la herramienta que ya conoces; el contenido es el mismo en todos.'
+            ? 'Para empezar, abre Estudiar. Después ensaya en Practicar y comprueba lo aprendido en Challenge. En clase, sigue las escenas del docente.'
             : 'La sección tendrá los mismos modos que Fundamentos SQL. Se activarán al publicarla.'}
         </p>
       </div>
@@ -214,9 +214,9 @@ export function SectionDetail({
         {available && <LearningJourney section={section} />}
         {available ? (
           <>
-            {goals}
             {modes}
             {content}
+            {goals}
           </>
         ) : (
           <>

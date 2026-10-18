@@ -122,3 +122,20 @@
   color: var(--color-code-comment);
   font-style: italic;
 }
+
+// Código compartido: conserva el color semántico y una selección legible.
+.sql-code__pre {
+  border-left-width: 1px;
+  border-radius: var(--radius-control);
+}
+.sql-code--error .sql-code__pre {
+  border-color: #ff8a95;
+}
+.sql-code--success .sql-code__pre {
+  border-color: #7fe0a8;
+}
+.sql-code__pre::selection,
+.sql-code__pre ::selection {
+  color: var(--color-inverse);
+  background: #27517c;
+}

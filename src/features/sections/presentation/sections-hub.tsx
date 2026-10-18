@@ -31,7 +31,6 @@ export function SectionsHub({ sections, overview, progressFor }: SectionsHubProp
     <div className="sections-hub">
       <PageHeader
         breadcrumb={<Breadcrumb items={[{ label: 'Inicio', href: '/' }, { label: 'Secciones' }]} />}
-        eyebrow="Ruta académica"
         title="Secciones de DB LAB"
         lead="De la primera consulta a la programación en la base de datos. Cada sección reúne los mismos modos de trabajo para que siempre sepas dónde estás y qué sigue."
       />

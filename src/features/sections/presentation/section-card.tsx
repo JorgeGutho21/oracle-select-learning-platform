@@ -32,7 +32,6 @@ export function SectionCard({ section, headingLevel = 3, progress }: SectionCard
           {section.statusLabel}
         </StatusBadge>
       </div>
-      <p className="section-card__kicker">{section.kicker}</p>
       <Heading id={titleId} className="section-card__title">
         {section.title}
       </Heading>

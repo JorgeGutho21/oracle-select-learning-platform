@@ -9,6 +9,7 @@ import type { LabDraftRepository } from '../application/lab-draft';
 import {
   analyzeLabQuery,
   DEFAULT_LAB_SQL,
+  EMPLEADOS,
   LAB_EXAMPLE_GROUPS,
   LAB_EXAMPLES,
   type LabAnalysis,
@@ -137,14 +138,35 @@ export function LaboratoryWorkspace({
 
   return (
     <div className="site-container feature-page lab-page">
-      <header className="feature-heading">
-        <span className="eyebrow">Practicar</span>
-        <h1>Laboratorio SQL</h1>
-        <p className="readable muted">
-          Escribe una consulta SELECT sobre EMPLEADOS y compárala con su resultado. El diagnóstico
-          explica qué ocurrió, dónde y por qué; la ejecución real se hace en Oracle.
-        </p>
+      <header className="feature-heading lab-heading">
+        <div>
+          <h1>Laboratorio SQL</h1>
+          <p className="readable muted">
+            Escribe una consulta SELECT sobre EMPLEADOS y compárala con su resultado. El diagnóstico
+            explica qué ocurrió, dónde y por qué; la ejecución real se hace en Oracle.
+          </p>
+        </div>
+        <aside className="lab-heading__context" aria-label="Contexto del laboratorio">
+          <strong>EMPLEADOS</strong>
+          <span>
+            {EMPLEADOS.rows.length} filas · {EMPLEADOS.columns.length} columnas
+          </span>
+          <a href="#lab-schema">
+            Explorar tabla de origen <span aria-hidden="true">↓</span>
+          </a>
+        </aside>
       </header>
+      <nav className="lab-workflow" aria-label="Flujo de trabajo del laboratorio">
+        <a href="#lab-editor">
+          <span>1</span> Escribe la consulta
+        </a>
+        <a href="#lab-result">
+          <span>2</span> Compara el resultado
+        </a>
+        <a href="#lab-feedback">
+          <span>3</span> Revisa y comprende
+        </a>
+      </nav>
 
       {returnTo && (
         <Link href={returnTo as Route} className="inline-action lab-return">
@@ -162,6 +184,7 @@ export function LaboratoryWorkspace({
           id="lab-editor"
           number={1}
           title="Editor SQL"
+          className="lab-panel--editor"
           aside={stale ? <Chip tone="warning">Sin analizar</Chip> : null}
         >
           <div className="lab-examples">

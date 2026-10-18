@@ -133,6 +133,10 @@ export function SearchPalette() {
         description="Encuentra conceptos, lecciones, prácticas y recursos públicos."
       >
         <div className="search-palette">
+          <div className="search-palette__scope">
+            <span>Todo el curso</span>
+            <span>SQL · Consultas relacionales · PL/SQL</span>
+          </div>
           <SearchField
             id={inputId}
             value={query}
@@ -169,6 +173,21 @@ export function SearchPalette() {
             <div className="search-palette__empty">
               <p>Escribe un tema, una actividad o un recurso.</p>
               <span>También puedes buscar contenidos futuros para ver su disponibilidad.</span>
+              <div className="search-palette__suggestions" aria-label="Búsquedas sugeridas">
+                {['SELECT', 'JOIN', 'cursor', 'recursos'].map((term) => (
+                  <button
+                    type="button"
+                    key={term}
+                    onClick={() => {
+                      setQuery(term);
+                      setActiveIndex(0);
+                      document.getElementById(inputId)?.focus();
+                    }}
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : results.length === 0 ? (
             <div className="search-palette__empty" role="status">
@@ -253,6 +272,14 @@ export function SearchPalette() {
               })}
             </div>
           )}
+          <footer className="search-palette__footer">
+            <span>
+              {query.trim() ? `${results.length} resultados` : 'Busca en las tres secciones'}
+            </span>
+            <span>
+              <kbd>Esc</kbd> para cerrar
+            </span>
+          </footer>
         </div>
       </Dialog>
     </>

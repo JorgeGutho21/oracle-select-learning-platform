@@ -900,3 +900,63 @@ a[aria-current='page'] .study-toc__number {
   font-size: 0.9375rem;
   line-height: 1.5;
 }
+
+// Cuaderno de estudio S1: índice editorial, avance junto al objetivo y lectura estable.
+.study-hero {
+  padding-block: var(--space-7);
+  background: var(--color-surface);
+}
+.study-hero h1 {
+  font-size: 2.5rem;
+  line-height: 1.15;
+  max-width: 22ch;
+}
+.study-eyebrow {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9375rem;
+}
+.study-progress {
+  box-shadow: none;
+  border-radius: var(--radius-control);
+  background: var(--color-page);
+}
+.study-block {
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.study-block__letter {
+  background: var(--color-soft);
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+.study-path {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-5);
+}
+.study-card {
+  padding: var(--space-4);
+  border-radius: var(--radius-control);
+  box-shadow: none;
+}
+.study-card__number {
+  background: var(--color-page);
+  color: var(--color-muted);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+}
+.study-card.is-done .study-card__number {
+  color: var(--color-inverse);
+}
+.study-card:hover {
+  border-color: var(--color-primary);
+  background: var(--color-soft);
+}
+@media (max-width: 767px) {
+  .study-path {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .study-hero h1 {
+    font-size: 2rem;
+  }
+}

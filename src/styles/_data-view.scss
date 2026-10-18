@@ -870,3 +870,27 @@ $dv-buckets:
 .change-summary__note {
   color: var(--color-muted);
 }
+
+// Lenguaje tabular compartido; no altera dimensiones ni reglas de ajuste del proyector.
+.dv__table {
+  border-radius: var(--radius-control);
+  box-shadow: none;
+}
+.dv__label {
+  letter-spacing: 0.04em;
+}
+.dv__table:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+.lab-page .dv__header,
+.resources-page .dv__header {
+  padding-block: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.lab-page .dv--result .dv__label {
+  color: var(--color-success);
+}
+.lab-page .dv--result .dv__table {
+  border-color: var(--color-border-control);
+}

@@ -11,7 +11,8 @@ import type {
   VerificationView,
 } from '../application/curriculum-api';
 import { ExampleBlock } from './example-block';
-import { ResourceExplorer } from './resource-explorer';
+import { ResourceExplorer, ResourceSearchBlock, ResourceSearchItem } from './resource-explorer';
+import { ModeIcon } from '@/features/sections/presentation/mode-icon';
 import { CodeView, CurriculumTable, ExampleOutcome, VerifiedNote } from './example-parts';
 import {
   ChangeColumns,
@@ -81,7 +82,8 @@ export function ModeTabs({
                 className="cu-mode-tabs__link"
                 {...(mode === current ? { 'aria-current': 'page' as const } : {})}
               >
-                {MODE_LABEL[mode]}
+                <ModeIcon mode={mode} />
+                <span>{MODE_LABEL[mode]}</span>
               </Link>
             </li>
           );
@@ -109,10 +111,8 @@ export function ModeHeader({
   return (
     <>
       <PageHeader
-        tone="night"
         breadcrumb={
           <Breadcrumb
-            tone="dark"
             items={[
               { label: 'Inicio', href: '/' },
               { label: 'Secciones', href: '/sections' },
@@ -131,7 +131,8 @@ export function ModeHeader({
         {...(actions ? { actions } : {})}
         {...(aside ? { aside } : {})}
       />
-      <div className="site-container">
+      <div className="site-container cu-mode-rail">
+        <p className="cu-mode-rail__title">En esta sección</p>
         <ModeTabs section={section.id} current={mode} />
       </div>
     </>
@@ -536,60 +537,64 @@ export function LessonArticle({
 
 function ConceptCard({ concept }: { readonly concept: ConceptView }) {
   return (
-    <SpotlightCard className="cu-resource">
-      <article aria-labelledby={`concept-${concept.id}`}>
-        <p className="cu-resource__category">{concept.category}</p>
-        <h3 id={`concept-${concept.id}`} className="cu-resource__term">
-          {concept.term}
-        </h3>
-        <dl className="cu-resource__facts" data-resource-kind="concept">
-          <div>
-            <dt>Qué es</dt>
-            <dd>{concept.definition}</dd>
+    <ResourceSearchItem
+      text={`${concept.term} ${concept.category} ${concept.definition} ${concept.purpose} ${concept.syntax} ${concept.mistake.title} ${concept.mistake.why}`}
+    >
+      <SpotlightCard className="cu-resource">
+        <article aria-labelledby={`concept-${concept.id}`}>
+          <p className="cu-resource__category">{concept.category}</p>
+          <h3 id={`concept-${concept.id}`} className="cu-resource__term">
+            {concept.term}
+          </h3>
+          <dl className="cu-resource__facts" data-resource-kind="concept">
+            <div>
+              <dt>Qué es</dt>
+              <dd>{concept.definition}</dd>
+            </div>
+            <div>
+              <dt>Para qué sirve</dt>
+              <dd>{concept.purpose}</dd>
+            </div>
+          </dl>
+          <div data-resource-kind="syntax">
+            <CodeView code={concept.syntax} label="Sintaxis" />
           </div>
-          <div>
-            <dt>Para qué sirve</dt>
-            <dd>{concept.purpose}</dd>
+          <details className="study-fold cu-resource__example" data-resource-kind="example">
+            <summary>
+              <span className="study-part">Mini ejemplo</span> verificado en Oracle
+            </summary>
+            <CodeView code={concept.example.code} label="Ejemplo" />
+            <ExampleOutcome example={concept.example} size="compact" />
+          </details>
+          <div className="cu-resource__mistake" data-resource-kind="error">
+            <p>
+              <strong>Error frecuente:</strong> {concept.mistake.title}. {concept.mistake.why}
+            </p>
           </div>
-        </dl>
-        <div data-resource-kind="syntax">
-          <CodeView code={concept.syntax} label="Sintaxis" />
-        </div>
-        <details className="study-fold cu-resource__example" data-resource-kind="example">
-          <summary>
-            <span className="study-part">Mini ejemplo</span> verificado en Oracle
-          </summary>
-          <CodeView code={concept.example.code} label="Ejemplo" />
-          <ExampleOutcome example={concept.example} size="compact" />
-        </details>
-        <div className="cu-resource__mistake" data-resource-kind="error">
-          <p>
-            <strong>Error frecuente:</strong> {concept.mistake.title}. {concept.mistake.why}
+          <p className="cu-resource__key" data-resource-kind="guide">
+            <strong>Idea clave:</strong> {concept.keyIdea}
           </p>
-        </div>
-        <p className="cu-resource__key" data-resource-kind="guide">
-          <strong>Idea clave:</strong> {concept.keyIdea}
-        </p>
-        <p className="cu-resource__links">
-          {concept.lesson && (
-            <span data-resource-kind="guide">
-              <Link href={concept.lesson.href as Route} prefetch={false}>
-                Lección: {concept.lesson.title}
-              </Link>
-            </span>
-          )}
-          <a
-            data-resource-kind="reference"
-            href={concept.reference.url}
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            {concept.reference.document} · «{concept.reference.topic}»
-            <span className="visually-hidden"> (abre en otra pestaña)</span>
-          </a>
-        </p>
-      </article>
-    </SpotlightCard>
+          <p className="cu-resource__links">
+            {concept.lesson && (
+              <span data-resource-kind="guide">
+                <Link href={concept.lesson.href as Route} prefetch={false}>
+                  Lección: {concept.lesson.title}
+                </Link>
+              </span>
+            )}
+            <a
+              data-resource-kind="reference"
+              href={concept.reference.url}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {concept.reference.document} · «{concept.reference.topic}»
+              <span className="visually-hidden"> (abre en otra pestaña)</span>
+            </a>
+          </p>
+        </article>
+      </SpotlightCard>
+    </ResourceSearchItem>
   );
 }
 
@@ -618,16 +623,16 @@ export function ResourceBlocks({ blocks }: { readonly blocks: readonly ResourceB
             <h2 id={`recursos-${block.id}-title`}>
               {block.number}. {block.title}
             </h2>
-            <details className="db-resource-block" open={index === 0}>
-              <summary>
-                Consultar {block.concepts.length} fichas · {block.title}
-              </summary>
+            <ResourceSearchBlock
+              defaultOpen={index === 0}
+              label={`Consultar ${block.concepts.length} fichas · ${block.title}`}
+            >
               <div className="cu-resources__grid">
                 {block.concepts.map((concept) => (
                   <ConceptCard key={concept.id} concept={concept} />
                 ))}
               </div>
-            </details>
+            </ResourceSearchBlock>
           </section>
         ))}
       </div>

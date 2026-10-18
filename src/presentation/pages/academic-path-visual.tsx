@@ -4,17 +4,17 @@ import Link from 'next/link';
 export function AcademicPathVisual() {
   return (
     <nav className="db-academic-path" aria-label="De consultar a automatizar">
-      <Link href="/sections/fundamentos-sql/study">
+      <Link href="/sections/fundamentos-sql/study" prefetch={false}>
         <span className="db-academic-path__number">01</span>
         <strong>Consultar</strong>
         <code>SELECT · FROM · WHERE</code>
       </Link>
-      <Link href="/sections/consultas-relacionales/study">
+      <Link href="/sections/consultas-relacionales/study" prefetch={false}>
         <span className="db-academic-path__number">02</span>
         <strong>Relacionar</strong>
         <code>Tabla A → ON ← Tabla B</code>
       </Link>
-      <Link href="/sections/plsql/study">
+      <Link href="/sections/plsql/study" prefetch={false}>
         <span className="db-academic-path__number">03</span>
         <strong>Automatizar</strong>
         <code>BEGIN → acciones → END;</code>

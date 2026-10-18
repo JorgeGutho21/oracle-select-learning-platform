@@ -28,5 +28,6 @@
 @use 'curriculum';
 @use 'record-table';
 @use 'pedagogy-ui';
+@use 'learning-workspace';
 
 @include tokens.emit;

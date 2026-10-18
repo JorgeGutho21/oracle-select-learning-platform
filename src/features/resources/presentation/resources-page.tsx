@@ -20,6 +20,7 @@ import { SqlCode } from '@/presentation/components/data/sql-code';
 import { VideoPlayer } from '@/presentation/components/media/video-player';
 import { CodeBlock } from '@/presentation/components/ui';
 import { PrintButton } from './print-button';
+import { ResourceFinder } from './resource-finder';
 
 /**
  * Recursos: chuleta por categorías, referencia rápida, ejemplos, videos y fuentes. Las
@@ -264,19 +265,42 @@ export function ResourcesPage() {
           </div>
           <PrintButton />
         </div>
-        {GROUPS.map((group) => (
-          <section key={group.id} className="resources-group" aria-labelledby={`grupo-${group.id}`}>
-            <h3 id={`grupo-${group.id}`} className="resources-group__title">
-              {group.title}
-            </h3>
-            <div className="resources-grid">
-              {group.lessons.map((slug) => {
+        <ResourceFinder
+          entries={GROUPS.map((group) => ({
+            id: group.id,
+            title: group.title,
+            terms: [
+              group.title,
+              ...group.lessons.flatMap((slug) => {
                 const lesson = byLesson.get(slug);
-                return lesson ? <ConceptCard key={slug} lesson={lesson} /> : null;
-              })}
-            </div>
-          </section>
-        ))}
+                return lesson
+                  ? conceptsOf(lesson).flatMap((concept) => [
+                      concept.title,
+                      concept.definition,
+                      concept.syntax,
+                    ])
+                  : [];
+              }),
+            ].join(' '),
+            children: (
+              <section
+                key={group.id}
+                className="resources-group"
+                aria-labelledby={`grupo-${group.id}`}
+              >
+                <h3 id={`grupo-${group.id}`} className="resources-group__title">
+                  {group.title}
+                </h3>
+                <div className="resources-grid">
+                  {group.lessons.map((slug) => {
+                    const lesson = byLesson.get(slug);
+                    return lesson ? <ConceptCard key={slug} lesson={lesson} /> : null;
+                  })}
+                </div>
+              </section>
+            ),
+          }))}
+        />
         <section className="resources-group resources-group--future" aria-labelledby="grupo-futuro">
           <h3 id="grupo-futuro" className="resources-group__title">
             Futuro · Próximamente
