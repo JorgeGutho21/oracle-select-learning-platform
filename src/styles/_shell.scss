@@ -41,9 +41,9 @@
   gap: 1px;
 }
 .site-brand__name {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: -0.02em;
 }
 .site-brand__tagline {
   color: var(--color-muted);
@@ -58,13 +58,16 @@
   height: 36px;
   color: var(--color-cyan);
   background: var(--color-night);
-  border-radius: 10px;
-  font: 700 0.9rem var(--font-mono);
+  border-radius: var(--radius-control);
+}
+.site-brand__mark svg {
+  width: 24px;
+  height: 24px;
 }
 .desktop-nav {
   display: flex;
   align-items: stretch;
-  align-self: stretch;
+  align-self: center;
   gap: var(--space-1);
   min-width: 0;
 }
@@ -82,6 +85,8 @@
   position: relative;
   padding-inline: var(--space-3);
   white-space: nowrap;
+  border-radius: var(--radius-control);
+  transition: color var(--duration-feedback) ease;
 }
 .desktop-nav a::after {
   position: absolute;
@@ -100,8 +105,13 @@
 .desktop-nav a[aria-current='page'] {
   color: var(--color-primary);
   font-weight: 700;
+  background: var(--color-soft);
 }
 .desktop-nav a[aria-current='page']::after {
+  right: var(--space-4);
+  bottom: 4px;
+  left: var(--space-4);
+  height: 2px;
   background: var(--color-primary);
 }
 .site-header__actions {
@@ -237,8 +247,12 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   transition:
-    background var(--duration-feedback),
-    border-color var(--duration-feedback);
+    background-color var(--duration-feedback),
+    border-color var(--duration-feedback),
+    transform var(--duration-feedback) var(--ease-out);
+}
+.hero-action:active:not(:focus-visible) {
+  transform: translateY(1px);
 }
 .hero-action:hover {
   background: rgb(247 250 255 / 10%);
@@ -323,14 +337,12 @@
   color: var(--color-cyan);
   font-size: 0.8125rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 .footer-brand__name {
   display: block;
   margin-bottom: var(--space-2);
-  font: 700 1.125rem var(--font-mono);
-  letter-spacing: 0.04em;
+  font-size: 1.75rem;
+  font-weight: 800;
 }
 .footer-brand p {
   margin-bottom: var(--space-4);
@@ -356,8 +368,6 @@
   color: var(--color-cyan);
   font-size: 0.8125rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 .footer-identity dd {
   margin: 2px 0 0;

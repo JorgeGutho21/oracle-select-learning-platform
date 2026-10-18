@@ -73,6 +73,11 @@ button:disabled {
 input,
 textarea {
   max-width: 100%;
+  caret-color: var(--color-primary);
+}
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--color-primary);
 }
 // WebKit suma al desbordamiento de la página el texto interno de un <select> más estrecho
 // que su opción más larga (ignora `overflow` en este control). La contención de pintura

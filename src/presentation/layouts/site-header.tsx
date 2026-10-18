@@ -48,7 +48,16 @@ export function SiteHeader({ account }: { readonly account?: ReactNode }) {
           prefetch={false}
         >
           <span className="site-brand__mark" aria-hidden="true">
-            &gt;_
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              focusable="false"
+            >
+              <ellipse cx="12" cy="5" rx="8" ry="3" />
+              <path d="M4 5v7c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12v7c0 1.7 3.6 3 8 3s8-1.3 8-3v-7" />
+            </svg>
           </span>
           <span className="site-brand__text" aria-hidden="true">
             <span className="site-brand__name">

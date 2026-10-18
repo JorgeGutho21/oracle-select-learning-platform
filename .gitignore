@@ -21,6 +21,9 @@ test-results/
 .playwright-cli/
 output/playwright/
 output/npm-cache/
+.taste-skill/
+.impeccable/review/
+.impeccable/mocks/
 *.log
 
 # Archivos locales del sistema

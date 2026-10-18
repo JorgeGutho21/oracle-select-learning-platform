@@ -36,6 +36,10 @@ export default defineConfig([
     'test-results/**',
     // Capturas y guiones de QA locales (ignorados por Git).
     'output/**',
+    // Las Skills instaladas conservan su código de terceros sin reescribirlo.
+    '.claude/skills/**',
+    '.taste-skill/**',
+    '.impeccable/**',
     'next-env.d.ts',
   ]),
 ]);

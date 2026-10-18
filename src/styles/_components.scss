@@ -33,10 +33,11 @@
     background-color var(--duration-feedback) ease,
     border-color var(--duration-feedback) ease,
     color var(--duration-feedback) ease,
-    box-shadow var(--duration-feedback) ease;
+    box-shadow var(--duration-feedback) ease,
+    transform var(--duration-feedback) var(--ease-out);
 
-  &:active:not(:disabled) {
-    box-shadow: inset 0 0 0 2px currentColor;
+  &:active:not(:disabled):not(:focus-visible) {
+    transform: translateY(1px);
   }
   &:disabled {
     cursor: not-allowed;
@@ -442,7 +443,6 @@
   gap: var(--space-3);
   padding: var(--space-4);
   border: 1px solid currentColor;
-  border-inline-start-width: 4px;
   border-radius: var(--radius-control);
   line-height: 1.6;
 }
@@ -577,6 +577,17 @@
 .ds-dialog::backdrop {
   background: rgb(11 23 51 / 65%);
 }
+.ds-dialog[open]:not(:has(.search-palette)) {
+  animation: ds-dialog-enter var(--duration-feedback) var(--ease-out);
+}
+@keyframes ds-dialog-enter {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
 .ds-dialog__header {
   display: flex;
   flex-wrap: wrap;
@@ -698,6 +709,9 @@
   .ds-spinner {
     animation: none;
   }
+  .ds-dialog[open] {
+    animation: none;
+  }
 }
 
 // Estado con icono y texto (DB LAB). El color refuerza, no informa solo.
@@ -790,8 +804,7 @@
 .ds-page-header--night {
   --color-focus: var(--color-cyan);
   color: var(--color-inverse);
-  background:
-    radial-gradient(90% 120% at 100% 0%, rgb(32 204 229 / 14%), transparent 55%), var(--color-night);
+  background: var(--color-night);
   border-bottom: 0;
 }
 .ds-page-header__grid {
@@ -805,8 +818,7 @@
   color: var(--color-primary);
   font-size: var(--type-label);
   font-weight: 750;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: var(--type-caption);
 }
 .ds-page-header--night .ds-page-header__eyebrow {
   color: var(--color-cyan);

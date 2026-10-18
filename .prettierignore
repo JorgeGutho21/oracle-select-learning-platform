@@ -11,6 +11,11 @@ output/playwright/
 output/npm-cache/
 package-lock.json
 next-env.d.ts
+# Skills instaladas: código y referencias de terceros, no código de DB LAB.
+.claude/
+.taste-skill/
+.impeccable/review/
+.impeccable/mocks/
 # Las especificaciones originales se conservan sin cambios de formato.
 docs/ARCHITECTURE.md
 docs/CONTENT_MAP.md

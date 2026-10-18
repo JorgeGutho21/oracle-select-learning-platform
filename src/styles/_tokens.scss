@@ -2,7 +2,7 @@
 
 // Fuente única de tokens. Los mapas se exportan como custom properties.
 $colors: (
-  page: #f5f8ff,
+  page: #f4f6fa,
   surface: #ffffff,
   soft: #eaf1ff,
   night: #0b1733,
@@ -74,9 +74,9 @@ $spacing: (
   9: 96px,
 );
 $radii: (
-  control: 10px,
-  card: 20px,
-  section: 28px,
+  control: 8px,
+  card: 16px,
+  section: 24px,
   sm: 6px,
   md: 10px,
   lg: 14px,
@@ -142,8 +142,8 @@ $type-scale: (
   code: clamp(0.95rem, 0.4vw + 0.85rem, 1.15rem),
   small: max(0.8125rem, 13px),
   // Roles tipográficos del sistema DB LAB. h1–h3 conservan las medidas que ya usaba la base.
-  h1: clamp(2rem, 4.5vw, 3.5rem),
-  h2: clamp(2rem, 3vw, 2.5rem),
+  h1: clamp(2rem, 3.5vw, 2.75rem),
+  h2: clamp(1.75rem, 2.5vw, 2.25rem),
   h3: 1.5rem,
   lead: clamp(1.125rem, 0.6vw + 1rem, 1.375rem),
   caption: 0.875rem,
