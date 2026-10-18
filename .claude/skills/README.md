@@ -3,6 +3,7 @@
 Estas skills son adaptadores locales del proyecto para que cualquier agente remoto pueda trabajar con el mismo criterio de diseño aunque no tenga acceso a las instalaciones globales del equipo del autor.
 
 Prioridad recomendada:
+
 1. redesign-existing-projects
 2. design-taste-frontend
 3. impeccable
