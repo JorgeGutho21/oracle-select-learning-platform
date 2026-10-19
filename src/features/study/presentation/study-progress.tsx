@@ -237,8 +237,12 @@ export function StudyProgressSummary({ progress }: { readonly progress: StudyPro
   );
 }
 
-/** Temario completo por bloques, con el estado de cada lección. */
-export function StudyLessonList() {
+/**
+ * Temario completo en una cuadrícula continua: cada lección es una tarjeta y el bloque viaja
+ * dentro de ella (la primera lleva el título y el resumen; las demás, el rótulo). `extension`
+ * son los bloques que amplían la unidad; los avisos del temario quedan al final.
+ */
+export function StudyLessonList({ extension }: { readonly extension?: ReactNode } = {}) {
   const { progress, reset } = useProgressContext();
   const [resetOpen, setResetOpen] = useState(false);
   const completed = new Set(progress.completed);
@@ -248,27 +252,33 @@ export function StudyLessonList() {
       <div className="study-blocks">
         {STUDY_BLOCKS.map((block) => (
           <section key={block.id} className="study-block" aria-labelledby={`bloque-${block.id}`}>
-            <header className="study-block__header">
-              <span className="study-block__letter" aria-hidden="true">
-                {block.letter}
-              </span>
-              <div>
-                <h2 id={`bloque-${block.id}`}>
-                  <span className="visually-hidden">Bloque {block.letter}: </span>
-                  {block.title}
-                </h2>
-                <p>{block.summary}</p>
-              </div>
-            </header>
             <ol className="study-path" aria-label={`Lecciones del bloque ${block.title}`}>
-              {LESSON_INDEX.filter((lesson) => lesson.block === block.id).map((lesson) => {
+              {LESSON_INDEX.filter((lesson) => lesson.block === block.id).map((lesson, index) => {
                 const state = updated.has(lesson.id)
                   ? 'Contenido actualizado'
                   : completed.has(lesson.id)
                     ? 'Completada'
                     : 'Pendiente';
                 return (
-                  <li key={lesson.id}>
+                  <li key={lesson.id} className={index === 0 ? 'study-path__first' : undefined}>
+                    {index === 0 ? (
+                      <header className="study-block__header">
+                        <span className="study-block__letter" aria-hidden="true">
+                          {block.letter}
+                        </span>
+                        <div>
+                          <h2 id={`bloque-${block.id}`}>
+                            <span className="visually-hidden">Bloque {block.letter}: </span>
+                            {block.title}
+                          </h2>
+                          <p>{block.summary}</p>
+                        </div>
+                      </header>
+                    ) : (
+                      <p className="study-block__label" aria-hidden="true">
+                        <span className="study-block__letter">{block.letter}</span> {block.title}
+                      </p>
+                    )}
                     <Link
                       className={`study-card ${state === 'Completada' ? 'is-done' : ''}`.trim()}
                       href={`/learn/${lesson.slug}` as Route}
@@ -292,6 +302,7 @@ export function StudyLessonList() {
             </ol>
           </section>
         ))}
+        {extension}
       </div>
       <div className="study-index-footer">
         <Link className="study-teach" href="/presentation">

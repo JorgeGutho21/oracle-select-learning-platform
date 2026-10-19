@@ -102,8 +102,7 @@ export function StudyIndexPage({ extension }: { readonly extension?: ReactNode }
           </div>
           <UnitVideo video={getVideo('intro')} />
         </section>
-        <StudyLessonList />
-        {extension}
+        <StudyLessonList extension={extension} />
         <aside className="study-next-level" aria-labelledby="study-next-title">
           <p className="study-eyebrow">Después de esta unidad</p>
           <h2 id="study-next-title">Varias tablas, resúmenes y PL/SQL</h2>
@@ -287,6 +286,9 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
           <details className="study-fold">
             <summary>
               <span className="study-part">Qué cambió y qué no</span> en el resultado
+              <span className="study-fold__count">
+                {content.changed.length + content.unchanged.length} puntos
+              </span>
             </summary>
             <section className="study-changes" aria-labelledby="changes-title">
               <h2 id="changes-title" className="visually-hidden">
@@ -401,8 +403,10 @@ export function LessonPage({ view }: { readonly view: LessonView }) {
           {content.notes && content.notes.length > 0 && (
             <details className="study-fold">
               <summary>
-                <span className="study-part">Detalles técnicos</span> {content.notes.length}{' '}
-                {content.notes.length === 1 ? 'nota' : 'notas'} sobre Oracle
+                <span className="study-part">Detalles técnicos</span> sobre Oracle
+                <span className="study-fold__count">
+                  {content.notes.length} {content.notes.length === 1 ? 'nota' : 'notas'}
+                </span>
               </summary>
               <section className="study-notes" aria-label="Notas sobre Oracle">
                 {content.notes.map((note) => (

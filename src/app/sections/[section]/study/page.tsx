@@ -51,7 +51,12 @@ export default async function Page({ params }: PageProps<'/sections/[section]/st
           status={(lessonId) => {
             const lesson = lessons.find((entry) => entry.id === lessonId)!;
             return (
-              <LessonStatus section={section.id} lessonId={lessonId} version={lesson.version} />
+              <LessonStatus
+                section={section.id}
+                lessonId={lessonId}
+                version={lesson.version}
+                pendingLabel="Pendiente"
+              />
             );
           }}
         />

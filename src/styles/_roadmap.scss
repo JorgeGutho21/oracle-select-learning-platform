@@ -65,7 +65,7 @@
   color: var(--color-inverse);
   background: var(--color-night);
   border-radius: 16px;
-  font: 800 1.25rem var(--font-mono);
+  font: 700 1.25rem var(--font-mono);
 }
 .level--current .level__number {
   color: var(--color-night);
@@ -134,7 +134,7 @@
   margin: 0;
   color: var(--color-muted);
   font-size: 0.9375rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .topic-grid {
@@ -175,7 +175,7 @@
 .topic-card__keyword {
   color: var(--color-primary);
   font-size: 0.875rem;
-  font-weight: 750;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 .topic-card__title {
@@ -221,7 +221,7 @@
   gap: var(--space-2);
 }
 .topic-card__states dt {
-  font-weight: 750;
+  font-weight: 700;
 }
 .topic-card__states dd {
   min-width: 0;
@@ -247,5 +247,15 @@
 @media (max-width: 767px) {
   .level__header {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+// Reflujo a 200 % (180 px): menos relleno y las palabras largas (SYSDATE, COUNT(columna))
+// se parten en lugar de ensanchar la página.
+@media (max-width: 300px) {
+  .topic-card article {
+    padding: var(--space-3);
+  }
+  .topic-card :is(h3, h4, p, dd, li, summary) {
+    overflow-wrap: anywhere;
   }
 }

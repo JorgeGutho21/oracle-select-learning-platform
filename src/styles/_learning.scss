@@ -51,7 +51,7 @@
   gap: var(--space-2);
   margin: 0;
   font-size: 1.0625rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -63,7 +63,7 @@
   color: var(--color-inverse);
   background: var(--color-primary);
   border-radius: 8px;
-  font: 800 0.875rem var(--font-mono);
+  font: 700 0.875rem var(--font-mono);
 }
 .query-flow__question,
 .query-flow__reading {
@@ -75,8 +75,8 @@
   display: block;
   margin-bottom: 2px;
   color: var(--color-primary);
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: 0.8125rem;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -92,7 +92,7 @@
   color: var(--color-inverse);
   background: var(--color-night);
   border-radius: 999px;
-  font-weight: 750;
+  font-weight: 700;
 }
 .query-flow__steps {
   display: grid;
@@ -135,8 +135,8 @@
   margin: 0;
   color: var(--color-primary);
   font-size: 0.8125rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .mini-check__prompt {
@@ -160,7 +160,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  min-height: 48px;
+  min-height: 52px;
   padding: var(--space-2) var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
@@ -168,10 +168,11 @@
   cursor: pointer;
   overflow-wrap: anywhere;
 }
+// Objetivo de 24 px como mínimo (la opción completa, de 48 px, también es el objetivo).
 .mini-check__option input {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   accent-color: var(--color-primary);
 }
 .mini-check__option.is-selected {
@@ -187,7 +188,7 @@
   margin-left: auto;
   color: var(--color-success);
   font-size: 0.875rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 .mini-check__option code {
   font-size: 0.9375rem;
@@ -219,7 +220,7 @@
   min-height: 48px;
   padding-inline: var(--space-5);
   border-radius: var(--radius-control);
-  font-weight: 750;
+  font-weight: 700;
 }
 .mini-check__submit {
   color: var(--color-inverse);
@@ -276,5 +277,157 @@
   .query-flow__question,
   .query-flow__reading {
     overflow-wrap: anywhere;
+  }
+}
+
+// Resultado posible (S2/S3): la casilla también mide 24 px.
+.cu-result-option .cu-result-option__pick input {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  accent-color: var(--color-primary);
+}
+
+/* ---------- Práctica guiada (S2 y S3) ---------- */
+
+// Progreso fijo e índice por bloque. `_curriculum.scss` se carga después: las reglas se
+// anclan en `.study-shell`.
+.study-shell .cu-practice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+.cu-practice__aside {
+  display: contents;
+}
+.cu-practice__status {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: grid;
+  gap: var(--space-2);
+  margin-inline: calc(-1 * var(--space-2));
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-xs);
+}
+.study-shell .cu-practice__progress {
+  margin: 0;
+  font-size: 1rem;
+}
+.cu-practice__progress strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.cu-practice__bar {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+.cu-practice__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
+.cu-practice__index ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cu-practice__index a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: var(--space-1) var(--space-3);
+  color: var(--color-ink);
+  border-radius: var(--radius-control);
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+.cu-practice__index a:hover {
+  background: var(--color-sunken);
+}
+.cu-practice__index-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.cu-practice__index-count {
+  flex-shrink: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.cu-practice__index a.is-done .cu-practice__index-count {
+  color: var(--color-success);
+}
+.cu-practice__blocks {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-7);
+  min-width: 0;
+}
+.study-shell .cu-practice__block {
+  display: grid;
+  gap: var(--space-4);
+  scroll-margin-top: 96px;
+}
+.study-shell .cu-practice__block h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: clamp(1.375rem, 1vw + 1.1rem, 1.75rem);
+}
+.cu-practice__block-number {
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+@media (min-width: 992px) {
+  .study-shell .cu-practice {
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .cu-practice__aside {
+    position: sticky;
+    top: var(--space-5);
+    display: grid;
+    gap: var(--space-4);
+    max-height: calc(100dvh - 2 * var(--space-5));
+    overflow-y: auto;
+  }
+  .cu-practice__status {
+    position: static;
+    margin-inline: 0;
+    box-shadow: none;
+  }
+  .cu-practice__index ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .study-shell .cu-practice__block {
+    scroll-margin-top: var(--space-5);
+  }
+}
+@media (max-width: 300px) {
+  .cu-practice__status {
+    margin-inline: 0;
+    padding: var(--space-2) var(--space-3);
   }
 }
