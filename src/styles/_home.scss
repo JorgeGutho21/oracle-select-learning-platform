@@ -1,79 +1,80 @@
-// Portada. Bandas a sangre completa con contenido en el contenedor común:
-// claro → azul noche → azul muy claro → azul sólido → oscuro técnico → claro.
+// Portada. Tres cambios de superficie además del pie:
+// noche (hero) → página (ruta + cómo se aprende) → noche (Oracle real) → página (empezar).
+// El banco de pruebas (patrón + demostración) es un panel noche dentro de la banda clara.
 
 .home-band {
-  padding-block: clamp(56px, 7vw, 112px);
+  padding-block: clamp(48px, 4.5vw, 64px);
 }
-.home-band--light {
-  background: var(--color-surface);
-}
-.home-band--soft {
-  background: var(--color-soft);
+.home-band--page {
+  background: var(--color-page);
 }
 .home-band--night {
-  color: var(--color-inverse);
-  background:
-    radial-gradient(90% 120% at 100% 0%, rgb(32 204 229 / 14%), transparent 55%), var(--color-night);
-}
-.home-band--primary {
-  color: var(--color-inverse);
-  background:
-    radial-gradient(80% 140% at 0% 100%, rgb(9 18 33 / 28%), transparent 60%), var(--color-primary);
-}
-.home-band--tech {
-  color: var(--color-inverse);
-  background: var(--color-editor);
-}
-.home-band--night,
-.home-band--primary,
-.home-band--tech {
   --color-focus: var(--color-cyan);
+  color: var(--color-inverse);
+  background:
+    radial-gradient(90% 120% at 100% 0%, rgb(32 204 229 / 12%), transparent 55%), var(--color-night);
 }
+.home-section + .home-section {
+  margin-top: clamp(48px, 4.5vw, 64px);
+}
+
+// Rótulo pequeño: único uso de mayúsculas espaciadas en la portada.
 .home-eyebrow {
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
   color: var(--color-primary);
-  font-size: 0.8125rem;
-  font-weight: 750;
-  letter-spacing: 0.16em;
+  font-size: var(--type-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.home-band--night .home-eyebrow,
-.home-band--primary .home-eyebrow,
-.home-band--tech .home-eyebrow {
+.home-band--night .home-eyebrow {
   color: var(--color-cyan);
-}
-.home-band--primary .home-eyebrow {
-  color: var(--color-inverse);
-  opacity: 0.85;
 }
 .home-heading {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-2);
+  gap: var(--space-3);
   max-width: 760px;
-  margin-bottom: var(--space-7);
+  margin-bottom: var(--space-5);
 }
 .home-heading h2 {
   margin-bottom: 0;
-  font-size: clamp(1.75rem, 4vw + 0.5rem, 3.25rem);
+  font-size: clamp(1.75rem, 1.4vw + 1.25rem, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
   overflow-wrap: break-word;
   hyphens: auto;
 }
-.home-heading p:last-child {
+.home-heading > p:last-child {
+  max-width: 62ch;
   margin-bottom: 0;
   color: var(--color-muted);
   font-size: 1.125rem;
+  line-height: 1.55;
 }
-.home-heading--inverse p:last-child {
-  color: rgb(247 250 255 / 86%);
+.home-heading--inverse > p:last-child {
+  color: var(--color-inverse-muted);
+}
+.home-heading--compact {
+  margin-bottom: var(--space-5);
+}
+// En escritorio el título y su explicación comparten fila: menos altura, misma lectura.
+@media (min-width: 1200px) {
+  .home-heading--split {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: end;
+    max-width: none;
+  }
 }
 
-// Hero.
+// Hero: texto y terminal centrados en la misma banda, unos 640 px en escritorio.
 .home-hero {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding-block: clamp(48px, 7vw, 120px) clamp(56px, 8vw, 128px);
+  padding-block: clamp(32px, 4vw, 56px) clamp(40px, 4vw, 56px);
 }
 // Fondo de celdas (Shape Grid): detrás del contenido, sin recibir clics.
 .home-hero__grid-bg {
@@ -85,83 +86,81 @@
 }
 .home-hero__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: clamp(32px, 5vw, 88px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 80px);
   align-items: center;
 }
+.home-hero__copy {
+  min-width: 0;
+}
 .home-hero__title {
-  margin-bottom: var(--space-3);
-  font-size: clamp(3.5rem, 9vw, 7.5rem);
+  margin-bottom: var(--space-4);
+  font-size: clamp(3.25rem, 4vw + 1.5rem, 4.75rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 0.92;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 .home-hero__title span {
   color: var(--color-cyan);
 }
 .home-hero__subtitle {
-  max-width: 26ch;
-  margin-bottom: var(--space-4);
+  max-width: 28ch;
+  margin-bottom: var(--space-3);
   color: var(--color-inverse);
-  font-size: clamp(1.25rem, 1.4vw + 0.9rem, 1.75rem);
-  font-weight: 650;
-  line-height: 1.25;
+  font-size: clamp(1.25rem, 0.6vw + 1.05rem, 1.375rem);
+  font-weight: 600;
+  line-height: 1.3;
   letter-spacing: -0.01em;
 }
 .home-hero__lead {
-  max-width: 34ch;
-  margin-bottom: var(--space-5);
-  color: rgb(247 250 255 / 88%);
-  font-size: clamp(1.125rem, 1.6vw, 1.375rem);
-  line-height: 1.55;
+  max-width: 44ch;
+  margin-bottom: var(--space-6);
+  color: var(--color-inverse-muted);
+  font-size: 1.125rem;
+  line-height: 1.6;
 }
-.home-hero__byline {
+// Una sola acción primaria; «Continuar aprendiendo» es un enlace secundario sin caja.
+.home-hero__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  margin-bottom: var(--space-6);
-  color: var(--color-inverse);
-  font-size: 0.9375rem;
-  font-weight: 650;
-}
-// Cada dato lleva su marca: al envolver en móvil no queda un separador suelto.
-.home-hero__byline span {
-  display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3) var(--space-5);
 }
-.home-hero__byline span::before {
-  width: 6px;
-  height: 6px;
-  background: var(--color-cyan);
-  border-radius: 50%;
-  content: '';
+.home-hero__actions .hero-action:not(.hero-action--primary) {
+  padding-inline: var(--space-1);
+  border-color: transparent;
 }
-.home-hero__actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, max-content));
-  gap: var(--space-3);
+.home-hero__actions .hero-action:not(.hero-action--primary):hover {
+  background: transparent;
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
-.home-hero__actions .hero-action,
-.home-demo .hero-action {
-  text-transform: uppercase;
+@media (min-width: 576px) {
+  .home-hero__actions .hero-action {
+    white-space: nowrap;
+  }
 }
 
-// Terminal del hero.
+// Terminal del hero: el único panel con sombra grande.
+.home-hero__visual {
+  min-width: 0;
+}
 .home-terminal {
   margin: 0;
   overflow: hidden;
   background: var(--color-editor);
-  border: 1px solid rgb(247 250 255 / 16%);
-  border-radius: var(--radius-card);
-  box-shadow: 0 24px 64px rgb(0 0 0 / 35%);
+  border: 1px solid rgb(247 250 255 / 14%);
+  border-radius: var(--radius-section);
+  box-shadow: 0 24px 48px -16px rgb(0 0 0 / 50%);
 }
 .home-terminal__bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 20px;
-  color: rgb(247 250 255 / 70%);
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  color: var(--color-inverse-muted);
   border-bottom: 1px solid rgb(247 250 255 / 12%);
   font: 0.8125rem var(--font-mono);
 }
@@ -179,10 +178,10 @@
   background: var(--color-cyan);
 }
 .home-terminal__code {
-  padding: 22px 24px;
+  padding: var(--space-3) var(--space-5);
   color: var(--color-inverse);
-  font-size: clamp(0.95rem, 1.35vw, 1.2rem);
-  line-height: 1.7;
+  font-size: 0.9375rem;
+  line-height: 1.6;
   // Ajusta las líneas en pantallas estrechas y con zoom alto, sin desplazamiento.
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -192,16 +191,17 @@
   font-weight: 700;
 }
 .home-terminal__result {
-  margin: 0 16px 16px;
+  margin: 0 var(--space-3) var(--space-3);
   overflow-x: auto;
   color: var(--color-ink);
   background: var(--color-surface);
-  border-radius: 14px;
+  border-radius: var(--radius-card);
 }
 .home-terminal__result table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
 }
 .home-terminal__result caption {
   padding: 8px 14px;
@@ -211,14 +211,14 @@
   text-align: left;
 }
 .home-terminal__result th {
-  padding: 10px 14px;
-  color: var(--color-primary);
-  background: var(--color-soft);
-  font: 700 0.8125rem var(--font-mono);
+  padding: 8px 14px;
+  color: var(--color-ink-2);
+  background: var(--color-sunken);
+  font: 600 0.8125rem var(--font-mono);
   text-align: left;
 }
 .home-terminal__result td {
-  padding: 7px 14px;
+  padding: 5px 14px;
   border-top: 1px solid var(--color-border-subtle);
 }
 .home-terminal__result th:last-child,
@@ -226,39 +226,71 @@
   text-align: right;
 }
 
-// Identidad.
-.home-identity {
-  padding-block: var(--space-6);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-.home-identity__inner {
-  display: flex;
-  align-items: center;
-  gap: clamp(24px, 4vw, 56px);
-}
-.home-identity__logo {
-  flex-shrink: 0;
-  width: 150px;
-  height: auto;
-}
-.home-identity__facts {
+// Cómo se aprende: cinco pasos en una línea numerada con conectores.
+.experience-steps {
   display: grid;
-  flex: 1;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4) var(--space-6);
-  margin: 0;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin: 0 0 var(--space-5);
+  padding: 0;
+  list-style: none;
 }
-.home-identity__facts dt {
+.experience-steps li {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.experience-steps__number {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: var(--space-2);
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  font: 600 0.8125rem/1 var(--font-mono);
+}
+// Conector entre pasos: del borde del número al siguiente número.
+.experience-steps li:not(:last-child)::after {
+  position: absolute;
+  top: 16px;
+  right: calc(var(--space-5) * -1 + 8px);
+  left: 44px;
+  height: 1px;
+  background: var(--color-border-strong);
+  content: '';
+}
+.experience-steps strong {
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+.experience-steps li > span:last-child {
   color: var(--color-muted);
-  font-size: var(--type-label);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 0.9375rem;
+  line-height: 1.5;
 }
-.home-identity__facts dd {
-  margin: 2px 0 0;
-  color: var(--color-ink);
-  font-weight: 650;
+
+// Banco de trabajo: patrón de ejemplo + demostración en un panel noche.
+.home-workbench {
+  --color-focus: var(--color-cyan);
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(20px, 2vw, 28px);
+  color: var(--color-inverse);
+  background: var(--color-night);
+  border-radius: var(--radius-section);
+}
+.home-pattern__title {
+  margin-bottom: var(--space-4);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 // Demostración. Con 1–4 columnas, controles y resultado lado a lado; con 5 o más, el
@@ -278,8 +310,8 @@
   gap: var(--space-5);
   align-items: start;
   padding: var(--space-5);
-  background: rgb(9 18 33 / 30%);
-  border: 1px solid rgb(247 250 255 / 22%);
+  background: var(--color-night-raised);
+  border: 1px solid rgb(247 250 255 / 12%);
   border-radius: var(--radius-card);
 }
 .home-demo--some .home-demo__controls,
@@ -304,7 +336,7 @@
 }
 .home-demo__columns legend {
   margin-bottom: var(--space-3);
-  font-weight: 700;
+  font-weight: 600;
 }
 .home-demo__columns div {
   display: flex;
@@ -316,15 +348,23 @@
   align-items: center;
   gap: var(--space-2);
   min-height: 44px;
-  padding-inline: var(--space-4);
+  padding-inline: var(--space-3);
   color: var(--color-inverse);
   background: transparent;
-  border: 1px solid rgb(247 250 255 / 55%);
-  border-radius: 999px;
-  font: 700 0.9375rem var(--font-mono);
+  border: 1px solid rgb(247 250 255 / 40%);
+  border-radius: var(--radius-control);
+  font: 500 0.9375rem var(--font-mono);
+  transition:
+    background-color var(--duration-feedback) var(--ease-out),
+    border-color var(--duration-feedback) var(--ease-out),
+    transform 100ms var(--ease-out);
 }
 .home-demo__columns button:hover {
-  background: rgb(247 250 255 / 12%);
+  background: rgb(247 250 255 / 8%);
+  border-color: rgb(247 250 255 / 70%);
+}
+.home-demo__columns button:active {
+  transform: scale(0.97);
 }
 .home-demo__columns button[aria-pressed='true'] {
   color: var(--color-night);
@@ -339,20 +379,20 @@
   color: var(--color-cyan);
   background: var(--color-night);
   border-radius: 50%;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 .home-demo__query {
   padding: var(--space-4) var(--space-5);
   background: var(--color-editor);
-  border-radius: 14px;
+  border-radius: var(--radius-control);
 }
 .home-demo__label {
   display: block;
   margin-bottom: var(--space-2);
-  color: rgb(247 250 255 / 70%);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  color: var(--color-inverse-muted);
+  font-size: var(--type-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .home-demo__query pre {
@@ -366,7 +406,7 @@
 }
 .home-demo__query p {
   margin: 0;
-  color: rgb(247 250 255 / 80%);
+  color: var(--color-inverse-muted);
 }
 .home-demo .hero-action {
   justify-self: start;
@@ -377,7 +417,6 @@
   color: var(--color-ink);
   background: var(--color-surface);
   border-radius: var(--radius-card);
-  box-shadow: 0 20px 48px rgb(9 18 33 / 25%);
 }
 .home-demo__empty {
   margin: 0;
@@ -386,126 +425,18 @@
   text-align: center;
 }
 
-// Video y progreso.
-.home-start {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-  gap: var(--space-5);
-  align-items: stretch;
-}
-.home-video {
+// Oracle real: cinco pasos en fila unidos por un filete (sin una tarjeta por paso); debajo,
+// la nota de honestidad y la acción en un panel elevado.
+.home-oracle__body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-4);
-  min-width: 0;
-}
-.home-heading--compact {
-  margin-bottom: 0;
-}
-.home-progress {
-  display: grid;
-  align-content: start;
-  gap: var(--space-4);
-}
-
-@media (max-width: 1199px) {
-  .home-identity__facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 991px) {
-  .home-hero__grid,
-  .home-demo,
-  .home-demo--few,
-  .home-demo--some .home-demo__controls,
-  .home-demo--many .home-demo__controls,
-  .home-start {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (max-width: 767px) {
-  .home-identity__inner {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-@media (max-width: 575px) {
-  .home-hero__actions {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .home-hero__actions .hero-action {
-    width: 100%;
-  }
-  .home-identity__facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 359px) {
-  .home-identity__facts {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (max-width: 300px) {
-  .home-hero__title {
-    font-size: 3rem;
-  }
-  .home-hero__title,
-  .home-heading h2 {
-    overflow-wrap: anywhere;
-  }
-  .home-demo__controls {
-    padding: var(--space-4);
-  }
-}
-// Ruta, experiencia y Oracle real (DB LAB).
-.home-route__link {
-  margin-top: var(--space-5);
-}
-.experience-steps {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0 0 var(--space-7);
-  padding: 0;
-  list-style: none;
-}
-.experience-steps li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  overflow-wrap: break-word;
-  align-content: start;
-  gap: var(--space-2);
-  min-width: 0;
-  padding: var(--space-4);
-  background: rgb(247 250 255 / 8%);
-  border: 1px solid rgb(247 250 255 / 24%);
-  border-radius: var(--radius-lg);
-}
-.experience-steps__number {
-  color: var(--color-inverse);
-  font: 800 1.25rem/1 var(--font-mono);
-}
-.experience-steps strong {
-  font-size: 1.125rem;
-}
-.experience-steps li > span:last-child {
-  color: rgb(247 250 255 / 90%);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-}
-.home-pattern {
-  margin-bottom: var(--space-7);
-}
-.home-pattern__title {
-  margin-bottom: var(--space-4);
-  font-size: clamp(1.25rem, 1vw + 1rem, 1.5rem);
-  letter-spacing: -0.01em;
+  gap: var(--space-6);
 }
 .oracle-flow {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0 0 var(--space-6);
+  gap: var(--space-5);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -513,14 +444,19 @@
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  overflow-wrap: break-word;
   align-content: start;
-  gap: var(--space-2);
+  gap: var(--space-3);
   min-width: 0;
-  padding: var(--space-4);
-  background: rgb(247 250 255 / 4%);
-  border: 1px solid rgb(247 250 255 / 16%);
-  border-radius: var(--radius-lg);
+  overflow-wrap: break-word;
+}
+.oracle-flow li:not(:last-child)::after {
+  position: absolute;
+  top: 16px;
+  right: calc(var(--space-5) * -1 + 8px);
+  left: 44px;
+  height: 1px;
+  background: rgb(247 250 255 / 24%);
+  content: '';
 }
 .oracle-flow__number {
   display: inline-grid;
@@ -528,15 +464,21 @@
   width: 32px;
   height: 32px;
   color: var(--color-cyan);
-  border: 2px solid var(--color-cyan);
+  border: 1px solid var(--color-cyan);
   border-radius: 50%;
-  font: 800 0.9375rem var(--font-mono);
+  font: 600 0.875rem var(--font-mono);
+}
+.oracle-flow__copy {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
 }
 .oracle-flow strong {
   font-size: 1.0625rem;
+  font-weight: 600;
 }
-.oracle-flow li > span:last-child {
-  color: rgb(247 250 255 / 82%);
+.oracle-flow__copy > span {
+  color: var(--color-inverse-muted);
   font-size: 0.9375rem;
   line-height: 1.5;
 }
@@ -545,43 +487,150 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-4) var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-night-raised);
+  border: 1px solid rgb(247 250 255 / 12%);
+  border-radius: var(--radius-card);
 }
 .home-oracle__note {
-  max-width: 62ch;
+  flex: 1 1 32ch;
+  max-width: 70ch;
   margin: 0;
-  color: rgb(247 250 255 / 82%);
+  color: var(--color-inverse);
+  font-size: 1rem;
+  line-height: 1.55;
 }
+
+// Video y progreso: 7/5 columnas.
+.home-start {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+.home-video {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.home-start__side {
+  min-width: 0;
+}
+.home-progress {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
 @media (max-width: 1199px) {
   .experience-steps,
   .oracle-flow {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: var(--space-6);
+  }
+  .experience-steps li:nth-child(3)::after,
+  .oracle-flow li:nth-child(3)::after {
+    display: none;
   }
 }
-@media (max-width: 767px) {
-  .experience-steps {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 991px) {
+  .home-hero__grid,
+  .home-demo,
+  .home-demo--few,
+  .home-demo--some .home-demo__controls,
+  .home-demo--many .home-demo__controls,
+  .home-start,
+  .home-oracle__body {
+    grid-template-columns: minmax(0, 1fr);
   }
+  .home-hero__grid {
+    gap: var(--space-6);
+  }
+  // En una columna, el título de la banda va antes del video.
+  .home-start__side {
+    order: -1;
+  }
+}
+// En móvil los pasos se leen en vertical, con la línea a la izquierda.
+@media (max-width: 767px) {
+  .experience-steps,
   .oracle-flow {
     grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  .experience-steps li,
+  .oracle-flow li {
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: var(--space-4);
+  }
+  .experience-steps li > :not(.experience-steps__number),
+  .oracle-flow li > :not(.oracle-flow__number) {
+    grid-column: 2;
+  }
+  .experience-steps__number,
+  .oracle-flow__number {
+    grid-row: 1 / span 2;
+    margin-bottom: 0;
+  }
+  .experience-steps li:not(:last-child)::after,
+  .experience-steps li:nth-child(3)::after,
+  .oracle-flow li:not(:last-child)::after,
+  .oracle-flow li:nth-child(3)::after {
+    display: block;
+    top: 36px;
+    right: auto;
+    bottom: calc(var(--space-4) * -1 + 4px);
+    left: 15.5px;
+    width: 1px;
+    height: auto;
   }
 }
-@media (max-width: 359px) {
-  .experience-steps {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 575px) {
+  .home-hero__actions .hero-action--primary {
+    width: 100%;
+  }
+  .home-workbench {
+    padding: var(--space-4);
+  }
+  .home-demo__controls {
+    padding: var(--space-4);
   }
 }
 // Reflujo a 200 % sobre 360 px (≈180 px CSS): nada empuja la página hacia los lados.
 @media (max-width: 300px) {
+  .home-hero__title {
+    font-size: 2.75rem;
+  }
+  .home-hero__title,
+  .home-heading h2 {
+    overflow-wrap: anywhere;
+  }
+  .home-workbench {
+    padding: var(--space-3);
+  }
+  .home-demo__controls {
+    padding: var(--space-3);
+  }
   .experience-steps li,
   .oracle-flow li {
-    padding: var(--space-3);
     overflow-wrap: anywhere;
+  }
+  .oracle-flow li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .oracle-flow li::after {
+    display: none;
   }
   .home-demo__columns button {
     padding-inline: var(--space-2);
     font-size: 0.8125rem;
     word-break: break-all;
+  }
+  .home-oracle__footer {
+    padding: var(--space-3);
   }
   .home-oracle__footer .hero-action {
     width: 100%;
