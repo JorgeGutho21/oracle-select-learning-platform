@@ -2812,3 +2812,11 @@
 .scene .flow-change .change-summary__extra {
   color: var(--color-muted);
 }
+
+// WHERE: la columna de estado añade ancho mínimo a la muestra de origen.
+// Mantener letra y altura; ajustar solo el relleno horizontal en el lienzo.
+@media (min-width: 768px) and (orientation: landscape) and (min-height: 561px) {
+  .deck:not([data-flow]) .scene[data-scene='12'] .flow-step--source .dv--large :is(th, td) {
+    padding-inline: 0.7em;
+  }
+}
