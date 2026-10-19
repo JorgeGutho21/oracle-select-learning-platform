@@ -1,5 +1,19 @@
 # Continuidad del proyecto
 
+## Integración y QA visual en curso (19 de octubre de 2026, Codex)
+
+- Rama: `codex-final-pedagogy-ui-20261004`. El merge `ce32568` integra la fuente remota de Claude `a2d6827` con los cambios compatibles de Codex. Sin reescritura de historia.
+- Aplicación revisada: `8baf241`; documentación y contrato: `e15dc6b`. Inter, tokens, composición y geometría curricular de Claude preservados; búsqueda de recursos, progreso inicial, descripciones accesibles de piezas y denominadores explícitos integrados.
+- `DESIGN.md`, `.impeccable/design.json`, `docs/REDESIGN_VISUAL_PLAN_20261018.md` y `docs/REDESIGN_VISUAL_REVIEW_20261018.md` son la documentación vigente. El dictamen visual ship cubre los hallazgos revisados; no sustituye la regresión funcional.
+- Build local de QA `od7R28WXROlC2unoqTYrk`, 132 rutas, TypeScript y lint PASS. Formato PASS. Vitest: 1609 unitarias y 744 de integración PASS; 2 casos unitarios no aplicables y 5 casos remotos opt-in omitidos.
+- Evidencia nueva: `output/playwright/redesign-20261019/`; lo del 18 es histórico. Capturas finales: `final-visual/` con 46 completas, 46 viewport y 2 de búsqueda. El reporte de QA en curso es `docs/REDESIGN_RELEASE_QA_20261018.md`.
+- La suite completa de 1185 casos en Chromium, Edge y WebKit sigue ejecutándose contra el build de `8baf241` en 5190. Chromium: 390 PASS, 5 FAIL, todos por desplazamiento horizontal de la tabla de origen de la escena 12 de S1. Conservar el resultado rojo, no declararlo PASS.
+- Corrección preparada y commiteada en `75c4acf`: ocho líneas SCSS, solo padding horizontal de esa tabla en proyector. Inyección diagnóstica en 1920/1366/1280/1024 elimina los 6–7 px de desborde; fuente y alturas idénticas, control móvil 390 sin cambios. Aún requiere build y regresión real.
+- Al terminar la suite: detener 5190, recompilar con `node scripts/run-local-qa.mjs build`, iniciar con el mismo runner, ejecutar las tres specs completas de presentación/proyector en los tres navegadores, zoom, ancho 414 y métricas sin carga paralela. Configuraciones en `scene12-regression.config.mjs`, `scene12-reflow.config.mjs`, `exact-414.config.mjs`; recapturar escena 12 para el revisor.
+- Vercel: sesión existente renovada y API autenticada comprobada. Producción aún sin modificar: `dpl_7UoxANWpMZz1Txnc5TVG756E6fVy`, commit `66a0093`; conservar como reversión. No hay Preview del candidato todavía. Crear Preview solo con gates verdes; smoke preparado en `preview-smoke.mjs`, sin escrituras remotas y sin guardar secretos. Promover después de QA remoto.
+- El snapshot CLI de `e15dc6b` se preparó y pasó dry-run, pero quedó anterior al fix `75c4acf`: generar uno nuevo del commit aprobado antes de desplegar. No subir entornos locales ni preferencias de herramientas.
+- Cambios personales preexistentes de skills y configuración siguen preservados localmente. No incluirlos en commits de producto ni descartarlos; usar listas explícitas y `git commit --only`.
+
 ## Rediseño visual con el sistema de agentes (19 de octubre de 2026, Claude)
 
 - Plan, agentes ejecutados, resultados y pendientes: docs/VISUAL_REDESIGN_PLAN.md.
