@@ -30,7 +30,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <div className="teacher-page">
       <PageHeader
-        tone="night"
         eyebrow={
           <>
             <Link href={`/teacher/assessments/${id}` as Route}>{data.record.title}</Link> ·{' '}

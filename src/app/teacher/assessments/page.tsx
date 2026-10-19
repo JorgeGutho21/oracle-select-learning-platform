@@ -23,7 +23,6 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   return (
     <div className="teacher-page">
       <PageHeader
-        tone="night"
         eyebrow="Panel docente"
         title="Evaluaciones"
         lead="Crea evaluaciones con el banco de preguntas, publícalas cuando estén listas, supervisa el examen y revisa los resultados en la escala 0.0 a 5.0."

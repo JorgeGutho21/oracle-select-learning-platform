@@ -1,6 +1,5 @@
 import type { Route } from 'next';
 import Link from 'next/link';
-import { PixelCard } from '@/presentation/components/effects/pixel-card';
 import { Chip } from '@/presentation/components/ui';
 import {
   ASSESSMENT_TOPICS,
@@ -59,7 +58,7 @@ export function OfficialBankPanel({
       <ul className="bank-sections">
         {official.map((entry) => (
           <li key={entry.section}>
-            <PixelCard className="bank-section">
+            <div className="bank-section">
               <p className="bank-section__title">{sectionTitles[entry.section] ?? entry.section}</p>
               <p className="bank-section__value">
                 {entry.published}
@@ -70,7 +69,7 @@ export function OfficialBankPanel({
                   ? `${entry.available} preguntas oficiales de DB LAB listas para sincronizar.`
                   : 'Sin banco oficial todavía: llega con el contenido de la sección. Puedes crear preguntas propias.'}
               </p>
-            </PixelCard>
+            </div>
           </li>
         ))}
       </ul>

@@ -1,8 +1,6 @@
 import type { Route } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { SpotlightCard } from '@/presentation/components/effects/spotlight-card';
-import { StarBorder } from '@/presentation/components/effects/star-border';
 import { Chip } from '@/presentation/components/ui';
 import {
   bestReleasedGrade,
@@ -88,9 +86,14 @@ export function AssessmentCard({
       </Link>
     </div>
   );
-  if (state === 'in_progress')
-    return <StarBorder className="assessment-card__frame">{body}</StarBorder>;
-  return <SpotlightCard className="assessment-card__frame">{body}</SpotlightCard>;
+  // Evaluaciones: presupuesto de movimiento 0, sin efectos montados.
+  return (
+    <div
+      className={`assessment-card__frame${state === 'in_progress' ? ' assessment-card__frame--live' : ''}`}
+    >
+      {body}
+    </div>
+  );
 }
 
 export function StudentAssessmentList({

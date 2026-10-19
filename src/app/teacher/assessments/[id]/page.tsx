@@ -51,7 +51,6 @@ export default async function Page({
   return (
     <div className="teacher-page">
       <PageHeader
-        tone="night"
         eyebrow={
           <>
             <Link href={'/teacher/assessments' as Route}>Evaluaciones</Link> · {record.sectionTitle}

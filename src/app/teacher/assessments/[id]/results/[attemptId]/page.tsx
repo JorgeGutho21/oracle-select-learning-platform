@@ -36,7 +36,6 @@ export default async function Page({
   return (
     <div className="teacher-page">
       <PageHeader
-        tone="night"
         eyebrow={
           <>
             <Link href={`/teacher/assessments/${id}/results` as Route}>
