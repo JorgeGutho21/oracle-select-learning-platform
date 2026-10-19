@@ -16,7 +16,7 @@ import {
 import { ChallengeSummary } from './challenge-summary';
 import { emptyAnswer } from './interactions/mission-interaction';
 import { MissionMap } from './mission-map';
-import { MissionView } from './mission-view';
+import { difficultyLabel, MissionView } from './mission-view';
 import { useChallengeState } from './use-challenge';
 
 type Drafts = Partial<Record<MissionId, MissionAnswer>>;
@@ -176,43 +176,70 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
             EMPLEADOS.
           </p>
         </header>
-        <section className="ch-intro" aria-labelledby="intro-title">
-          <h2 id="intro-title">Cómo funciona</h2>
-          <ul className="ch-rules">
-            <li>Cada misión vale {PRACTICE_RULES.maxScorePerMission} puntos; el máximo es 1000.</li>
-            <li>
-              Tienes {PRACTICE_RULES.maxScoredAttempts} intentos puntuados. Acertar en el segundo
-              resta {PRACTICE_RULES.attemptPenalty} puntos.
-            </li>
-            <li>La pista es opcional y resta {PRACTICE_RULES.hintPenalty} puntos.</li>
-            <li>El cronómetro solo informa tu tiempo y se pausa al salir de la pestaña.</li>
-            <li>Puedes arrastrar piezas, tocarlas o usar el teclado.</li>
-            <li>
-              {live
-                ? 'Tus puntos los registra el servidor y aparecen en el ranking de la clase.'
-                : 'Es práctica individual: tu resultado se guarda solo en este navegador.'}
-            </li>
-          </ul>
-          {restore === 'discarded' && (
-            <Alert tone="info" title="Partida anterior descartada">
-              La práctica guardada pertenecía a otra versión del Challenge o estaba dañada.
-            </Alert>
-          )}
-          {restore === 'unavailable' && (
-            <Alert tone="warning" title="Sin almacenamiento local">
-              Este navegador no permite guardar la partida. Podrás jugar, pero el progreso se
-              perderá al recargar.
-            </Alert>
-          )}
-          <div className="ch-actions">
-            <Button onClick={start}>{live ? 'Comenzar el Challenge' : 'Comenzar práctica'}</Button>
-          </div>
-          {error && (
-            <Alert tone="danger" title="No se pudo iniciar" live>
-              {error}
-            </Alert>
-          )}
-        </section>
+        <div className="ch-intro-layout">
+          <section className="ch-intro" aria-labelledby="intro-title">
+            <h2 id="intro-title">Cómo funciona</h2>
+            <ul className="ch-rules">
+              <li>
+                Cada misión vale {PRACTICE_RULES.maxScorePerMission} puntos; el máximo es 1000.
+              </li>
+              <li>
+                Tienes {PRACTICE_RULES.maxScoredAttempts} intentos puntuados. Acertar en el segundo
+                resta {PRACTICE_RULES.attemptPenalty} puntos.
+              </li>
+              <li>La pista es opcional y resta {PRACTICE_RULES.hintPenalty} puntos.</li>
+              <li>El cronómetro solo informa tu tiempo y se pausa al salir de la pestaña.</li>
+              <li>Puedes arrastrar piezas, tocarlas o usar el teclado.</li>
+              <li>
+                {live
+                  ? 'Tus puntos los registra el servidor y aparecen en el ranking de la clase.'
+                  : 'Es práctica individual: tu resultado se guarda solo en este navegador.'}
+              </li>
+            </ul>
+            {restore === 'discarded' && (
+              <Alert tone="info" title="Partida anterior descartada">
+                La práctica guardada pertenecía a otra versión del Challenge o estaba dañada.
+              </Alert>
+            )}
+            {restore === 'unavailable' && (
+              <Alert tone="warning" title="Sin almacenamiento local">
+                Este navegador no permite guardar la partida. Podrás jugar, pero el progreso se
+                perderá al recargar.
+              </Alert>
+            )}
+            <div className="ch-actions">
+              <Button onClick={start}>
+                {live ? 'Comenzar el Challenge' : 'Comenzar práctica'}
+              </Button>
+            </div>
+            {error && (
+              <Alert tone="danger" title="No se pudo iniciar" live>
+                {error}
+              </Alert>
+            )}
+          </section>
+          <section className="ch-preview" aria-labelledby="preview-title">
+            <h2 id="preview-title" className="ch-preview__title">
+              Las {engine.missions.length} misiones
+            </h2>
+            <ol className="ch-preview__list">
+              {engine.missions.map((mission) => (
+                <li key={mission.id} className="ch-preview__item">
+                  <span className="ch-map__number" aria-hidden="true">
+                    {String(mission.order).padStart(2, '0')}
+                  </span>
+                  <span className="ch-preview__text">
+                    <span className="visually-hidden">Misión {mission.order}: </span>
+                    <span className="ch-preview__name">{mission.title}</span>
+                    <span className="ch-preview__difficulty">
+                      {difficultyLabel[mission.difficulty]}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </div>
       </div>
     );
   }

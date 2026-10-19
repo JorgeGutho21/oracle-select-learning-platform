@@ -20,7 +20,7 @@ import { MISSION_CONTEXT } from './mission-context';
 import { ConceptNote, FullDataset, SchemaOverview, WorkingSample } from './mission-data';
 import { useNow } from './use-challenge';
 
-const difficultyLabel: Record<Difficulty, string> = {
+export const difficultyLabel: Record<Difficulty, string> = {
   facil: 'Fácil',
   media: 'Media',
   dificil: 'Difícil',
