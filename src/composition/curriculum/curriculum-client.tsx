@@ -174,36 +174,72 @@ export function PracticeRoot({
   const done = blocks
     .flatMap((block) => block.activities)
     .filter((activity) => solved.has(activity.id)).length;
+  const percent = total === 0 ? 0 : Math.round((done / total) * 100);
+  // Progreso fijo e índice por bloque a la izquierda (desde 992 px); en pantallas menores el
+  // progreso queda fijo arriba y el índice, antes de las prácticas.
   return (
     <div className="cu-practice">
-      <p className="cu-practice__progress" role="status">
-        <strong>{done}</strong> de {total} prácticas resueltas
-      </p>
-      {blocks.map((block) => (
-        <section
-          key={block.id}
-          className="cu-practice__block"
-          aria-labelledby={`practica-${block.id}`}
-        >
-          <h2 id={`practica-${block.id}`}>
-            {block.number}. {block.title}
-          </h2>
-          <ol className="cu-practice__list">
-            {block.activities.map((activity, index) => (
-              <li key={activity.id}>
-                <ActivityPlayer
-                  activity={activity}
-                  eyebrow={`Práctica ${block.number}.${index + 1}`}
-                  solved={solved.has(activity.id)}
-                  onFinished={(outcome) => {
-                    if (outcome.solved) curriculumProgress().practice(section, activity.id);
-                  }}
-                />
-              </li>
-            ))}
+      <aside className="cu-practice__aside" aria-label="Avance de la práctica">
+        <div className="cu-practice__status">
+          <p className="cu-practice__progress" role="status">
+            <strong>{done}</strong> de {total} prácticas resueltas
+          </p>
+          <span className="cu-practice__bar" aria-hidden="true">
+            <span style={{ width: `${percent}%` }} />
+          </span>
+        </div>
+        <nav className="cu-practice__index" aria-label="Bloques de práctica">
+          <ol>
+            {blocks.map((block) => {
+              const blockDone = block.activities.filter((activity) =>
+                solved.has(activity.id),
+              ).length;
+              const complete = blockDone === block.activities.length;
+              return (
+                <li key={block.id}>
+                  <a href={`#practica-${block.id}`} className={complete ? 'is-done' : undefined}>
+                    <span className="cu-practice__index-title">
+                      Bloque {block.number} · {block.title}
+                    </span>
+                    <span className="cu-practice__index-count">
+                      {complete && <span aria-hidden="true">✓ </span>}
+                      {blockDone}/{block.activities.length}
+                      <span className="visually-hidden"> resueltas</span>
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
           </ol>
-        </section>
-      ))}
+        </nav>
+      </aside>
+      <div className="cu-practice__blocks">
+        {blocks.map((block) => (
+          <section
+            key={block.id}
+            className="cu-practice__block"
+            aria-labelledby={`practica-${block.id}`}
+          >
+            <h2 id={`practica-${block.id}`}>
+              <span className="cu-practice__block-number">Bloque {block.number}</span> {block.title}
+            </h2>
+            <ol className="cu-practice__list">
+              {block.activities.map((activity, index) => (
+                <li key={activity.id}>
+                  <ActivityPlayer
+                    activity={activity}
+                    eyebrow={`Práctica ${block.number}.${index + 1}`}
+                    solved={solved.has(activity.id)}
+                    onFinished={(outcome) => {
+                      if (outcome.solved) curriculumProgress().practice(section, activity.id);
+                    }}
+                  />
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

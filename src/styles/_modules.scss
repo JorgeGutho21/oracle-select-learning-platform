@@ -151,3 +151,12 @@
   border-radius: 999px;
   font-size: 0.875rem;
 }
+@media (max-width: 300px) {
+  .modules-hero h1,
+  .modules-body :is(h2, h3, p, li) {
+    overflow-wrap: anywhere;
+  }
+  .module-card article {
+    padding: var(--space-3);
+  }
+}
