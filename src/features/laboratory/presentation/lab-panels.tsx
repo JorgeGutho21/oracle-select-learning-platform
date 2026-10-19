@@ -85,7 +85,7 @@ export function SchemaPanel({ highlighted }: { highlighted: readonly string[] })
     >
       <p className="lab-schema__summary">
         <strong>EMPLEADOS</strong> · {EMPLEADOS.columns.length} columnas · {EMPLEADOS.rows.length}{' '}
-        registros · {EMPLEADOS.id}
+        registros · {EMPLEADOS.table}
       </p>
       <SchemaCards
         label="Columnas de EMPLEADOS"
@@ -100,7 +100,7 @@ export function SchemaPanel({ highlighted }: { highlighted: readonly string[] })
           panel 2.
         </p>
         <DatasetExplorer
-          caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.id}`}
+          caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.table}`}
           label="Datos de origen · EMPLEADOS"
           columns={EMPLEADOS.columns.map(({ name, type }) => ({ name, type }))}
           rows={EMPLEADOS.rows.map((row) =>
@@ -325,7 +325,7 @@ export function ResultPanel({
           <Chip tone="warning">No es una ejecución en Oracle</Chip>
         </div>
         <p className="lab-muted">
-          Calculada en el navegador por el analizador del curso sobre el dataset {EMPLEADOS.id}.
+          Calculada en el navegador por el analizador del curso sobre el dataset {EMPLEADOS.table}.
           Sirve para comprender la consulta; no acredita el laboratorio real.
         </p>
         <StaleNote stale={stale} />

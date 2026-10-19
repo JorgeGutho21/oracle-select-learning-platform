@@ -629,5 +629,12 @@
   margin-block: var(--space-4);
 }
 
-
-@media print { .resource-finder__tools, .resource-finder__filters { display: none; } .resource-finder > [hidden] { display: block !important; } }
+@media print {
+  .resource-finder__tools,
+  .resource-finder__filters {
+    display: none;
+  }
+  .resource-finder > [hidden] {
+    display: block !important;
+  }
+}

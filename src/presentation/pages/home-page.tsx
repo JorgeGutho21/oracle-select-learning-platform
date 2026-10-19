@@ -29,7 +29,7 @@ function HeroTerminal() {
           <i />
           <i />
         </span>
-        <span>{EMPLEADOS.id}</span>
+        <span>{EMPLEADOS.table}</span>
       </div>
       <pre className="home-terminal__code">
         <code>{highlightSql(HERO_SQL)}</code>
@@ -121,7 +121,6 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
         <ShapeGrid className="home-hero__grid-bg" />
         <div className="site-container home-hero__grid">
           <div className="home-hero__copy">
-            <p className="home-eyebrow">Plataforma académica · Oracle Database</p>
             <h1 id="home-title" className="home-hero__title">
               DB <span>LAB</span>
             </h1>
@@ -133,6 +132,7 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
               </Link>
               {continueAction}
             </nav>
+            <div className="home-progress home-hero__progress">{progress}</div>
           </div>
           <div className="home-hero__visual">
             <HeroTerminal />
@@ -144,8 +144,7 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
         <section className="site-container home-section" aria-labelledby="route-title">
           <header className="home-heading home-heading--split">
             <div>
-              <p className="home-eyebrow">01 · La ruta</p>
-              <h2 id="route-title">Tres secciones, una misma forma de aprender.</h2>
+              <h2 id="route-title">Tu ruta de aprendizaje</h2>
             </div>
             <p>
               Empieza por los fundamentos y avanza hacia consultas con varias tablas y la
@@ -169,8 +168,7 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
         <section className="site-container home-section" aria-labelledby="experience-title">
           <header className="home-heading home-heading--split">
             <div>
-              <p className="home-eyebrow">02 · Cómo se aprende</p>
-              <h2 id="experience-title">Del concepto a la ejecución, con retroalimentación.</h2>
+              <h2 id="experience-title">Aprender haciendo</h2>
             </div>
             <p>
               Cada tema sigue el mismo recorrido. La consulta nunca aparece sola: siempre se ve la
@@ -272,11 +270,13 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
           </div>
           <div className="home-start__side">
             <header className="home-heading home-heading--compact">
-              <p className="home-eyebrow">Empieza aquí · Sección 1</p>
               <h2 id="start-title">Antes de empezar</h2>
             </header>
             <div className="home-progress">
-              {progress}
+              <p>
+                Conoce la tabla EMPLEADOS, elige las columnas que necesitas y observa cómo SELECT
+                construye el resultado.
+              </p>
               <Link href="/sections/fundamentos-sql" className="inline-action">
                 Continuar con Fundamentos SQL <span aria-hidden="true">→</span>
               </Link>

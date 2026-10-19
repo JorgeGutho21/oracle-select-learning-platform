@@ -7,15 +7,21 @@ import { StudyProvider } from './study-provider';
 
 /** Modo Estudio: contenido renderizado en el servidor con el progreso del navegador. */
 export function StudyRoot({ lesson }: { lesson?: StudyLesson }) {
+  const extensionBlocks = unitBlocks('fundamentos-sql');
   return (
     <StudyProvider>
       {lesson ? (
         <LessonPage view={lessonView(lesson)} />
       ) : (
         <StudyIndexPage
+          extensionBlockCount={extensionBlocks.length}
+          extensionLessonCount={extensionBlocks.reduce(
+            (total, block) => total + block.lessons.length,
+            0,
+          )}
           extension={
             <ExtensionLessons
-              blocks={unitBlocks('fundamentos-sql')}
+              blocks={extensionBlocks}
               letter="I"
               status={(lessonId, version) => (
                 <LessonStatus

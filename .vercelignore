@@ -37,5 +37,12 @@ test-results/
 .playwright-cli/
 *.log
 
+# Herramientas de diseño/agentes y preferencias personales: no son runtime del producto.
+.claude/
+agents/
+.taste-skill/
+.impeccable/
+skills-lock.json
+
 # Documentos personales de trabajo (no forman parte de la aplicación).
 *.docx

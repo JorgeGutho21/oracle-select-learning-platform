@@ -151,6 +151,20 @@
   width: 100%;
   height: 10px;
   accent-color: var(--color-sem-select-dark);
+  appearance: none;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-border-strong);
+}
+.cu-summary__bar::-webkit-progress-bar {
+  background: var(--color-border-strong);
+}
+.cu-summary__bar::-webkit-progress-value {
+  background: var(--color-primary);
+}
+.cu-summary__bar::-moz-progress-bar {
+  background: var(--color-primary);
 }
 
 // Dataset.

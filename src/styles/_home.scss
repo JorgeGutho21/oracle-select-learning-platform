@@ -93,6 +93,23 @@
 .home-hero__copy {
   min-width: 0;
 }
+.home-hero__progress {
+  --color-focus: var(--color-primary);
+
+  margin-top: var(--space-5);
+}
+.home-hero__progress .study-progress {
+  padding: var(--space-4);
+  color: var(--color-ink);
+  background: var(--color-surface);
+}
+.home-hero__progress .study-eyebrow {
+  letter-spacing: 0;
+  text-transform: none;
+}
+.home-hero__progress .study-progress__head h2 {
+  font-size: 1.375rem;
+}
 .home-hero__title {
   margin-bottom: var(--space-4);
   font-size: clamp(3.25rem, 4vw + 1.5rem, 4.75rem);

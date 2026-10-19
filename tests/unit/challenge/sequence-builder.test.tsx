@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import {
   SequenceBuilder,
@@ -100,5 +101,53 @@ describe('SequenceBuilder: alternativas sin arrastre (D02, G14)', () => {
       />,
     );
     for (const button of screen.getAllByRole('button')) expect(button).toBeDisabled();
+  });
+});
+
+describe('SequenceBuilder: descripciones accesibles persistentes', () => {
+  it('cada pieza tiene instrucciones existentes incluso antes de hidratar y entre constructores', () => {
+    const markup = renderToString(
+      <>
+        <Harness />
+        <SequenceBuilder
+          label="Otra consulta"
+          paletteLabel="Otras piezas"
+          pieces={pieces}
+          value={['select']}
+          onChange={() => {}}
+          emptyText="Vacío"
+        />
+      </>,
+    );
+    const document = new DOMParser().parseFromString(markup, 'text/html');
+    const buttons = [...document.querySelectorAll('button[aria-roledescription]')];
+    expect(buttons.length).toBeGreaterThan(0);
+    const descriptions = new Set<string>();
+    for (const button of buttons) {
+      const describedBy = button.getAttribute('aria-describedby')!;
+      expect(describedBy).toBeTruthy();
+      descriptions.add(describedBy);
+      for (const id of describedBy.split(/\s+/)) {
+        const instruction = document.getElementById(id);
+        expect(instruction, `${button.textContent}: descripción ${id} no montada`).not.toBeNull();
+        expect(instruction!.textContent).toContain('Enter o Espacio');
+        expect(instruction!.textContent).toContain('Mover antes');
+      }
+    }
+    expect(descriptions.size).toBe(2);
+  });
+
+  it('conserva instrucciones al añadir y seleccionar una pieza con teclado', async () => {
+    render(<Harness />);
+    const palette = screen.getByRole('button', { name: 'Añadir SELECT' });
+    const instructionsId = palette.getAttribute('aria-describedby')!;
+    palette.focus();
+    await userEvent.keyboard('{Enter}');
+    const placed = screen.getByRole('button', { name: 'SELECT, posición 1' });
+    expect(placed).toHaveAttribute('aria-describedby', instructionsId);
+    expect(document.getElementById(instructionsId)).toHaveTextContent('Quitar');
+    placed.focus();
+    await userEvent.keyboard(' ');
+    expect(screen.getByRole('toolbar', { name: 'Acciones para SELECT' })).toBeInTheDocument();
   });
 });

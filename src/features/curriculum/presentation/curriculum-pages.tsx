@@ -121,11 +121,6 @@ export function ModeHeader({
             ]}
           />
         }
-        eyebrow={
-          <>
-            Sección {section.number} · {MODE_LABEL[mode]}
-          </>
-        }
         title={title}
         lead={lead}
         {...(actions ? { actions } : {})}

@@ -52,6 +52,9 @@ export interface SequenceBuilderProps {
 const PALETTE = 'palette';
 const TARGET = 'target';
 
+const BUILDER_INSTRUCTIONS =
+  'Arrastra la pieza con el ratón o con el dedo. Con teclado, pulsa Enter o Espacio para añadirla; selecciona una pieza colocada y usa los botones Mover antes, Mover después o Quitar.';
+
 const collision: CollisionDetection = (args) => {
   const within = pointerWithin(args);
   return within.length > 0 ? within : rectIntersection(args);
@@ -70,10 +73,12 @@ function PalettePiece({
   piece,
   disabled,
   onAdd,
+  instructionsId,
 }: {
   piece: BuilderPiece;
   disabled: boolean;
   onAdd: () => void;
+  instructionsId: string;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette:${piece.id}`,
@@ -90,6 +95,7 @@ function PalettePiece({
       data-sql-role={sqlRole(piece.text) ?? undefined}
       disabled={disabled}
       aria-label={`Añadir ${piece.text}`}
+      aria-describedby={instructionsId}
       onClick={onAdd}
     >
       {piece.text}
@@ -104,6 +110,7 @@ function SlotPiece({
   selected,
   disabled,
   onSelect,
+  instructionsId,
 }: {
   sortableId: string;
   piece: BuilderPiece;
@@ -111,6 +118,7 @@ function SlotPiece({
   selected: boolean;
   disabled: boolean;
   onSelect: () => void;
+  instructionsId: string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: sortableId,
@@ -128,6 +136,7 @@ function SlotPiece({
       data-sql-role={sqlRole(piece.text) ?? undefined}
       aria-pressed={selected}
       aria-label={`${piece.text}, posición ${index + 1}`}
+      aria-describedby={instructionsId}
       disabled={disabled}
       onClick={onSelect}
     >
@@ -159,6 +168,8 @@ export function SequenceBuilder({
   emptyText,
 }: SequenceBuilderProps) {
   const labelId = useId();
+  const instructionsId = useId();
+  const dndId = useId();
   const [selected, setSelected] = useState<number | null>(null);
   const [dragging, setDragging] = useState<BuilderPiece | null>(null);
   const [announcement, setAnnouncement] = useState('');
@@ -225,7 +236,12 @@ export function SequenceBuilder({
 
   return (
     <div className="ch-builder">
+      {/* Presente también en SSR: dnd-kit monta su descripción solo después de hidratar. */}
+      <p id={instructionsId} className="ds-sr-only">
+        {BUILDER_INSTRUCTIONS}
+      </p>
       <DndContext
+        id={dndId}
         sensors={sensors}
         collisionDetection={collision}
         onDragStart={onDragStart}
@@ -233,8 +249,7 @@ export function SequenceBuilder({
         onDragCancel={() => setDragging(null)}
         accessibility={{
           screenReaderInstructions: {
-            draggable:
-              'Arrastra la pieza con el ratón o con el dedo. También puedes pulsarla para añadirla o seleccionarla y usar los botones para moverla.',
+            draggable: BUILDER_INSTRUCTIONS,
           },
           announcements: {
             onDragStart: () => 'Pieza tomada.',
@@ -261,6 +276,7 @@ export function SequenceBuilder({
                   )}
                   <SlotPiece
                     sortableId={keys[index]!}
+                    instructionsId={instructionsId}
                     piece={byId.get(pieceId) ?? { id: pieceId, text: pieceId }}
                     index={index}
                     selected={selected === index}
@@ -310,6 +326,7 @@ export function SequenceBuilder({
             {palette.map((piece) => (
               <PalettePiece
                 key={piece.id}
+                instructionsId={instructionsId}
                 piece={piece}
                 disabled={disabled}
                 onAdd={() => add(piece.id)}

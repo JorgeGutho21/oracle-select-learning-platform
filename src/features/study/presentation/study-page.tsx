@@ -66,15 +66,30 @@ function UnitVideo({ video }: { readonly video: VideoResource }) {
 }
 
 /** `extension`: lecciones que amplían la unidad (fuente curricular), tras sus bloques. */
-export function StudyIndexPage({ extension }: { readonly extension?: ReactNode } = {}) {
+export function StudyIndexPage({
+  extension,
+  extensionBlockCount = 0,
+  extensionLessonCount = 0,
+}: {
+  readonly extension?: ReactNode;
+  readonly extensionBlockCount?: number;
+  readonly extensionLessonCount?: number;
+} = {}) {
   return (
     <div className="study-shell">
       <header className="study-hero">
         <div className="site-container study-hero__inner">
           <div>
             <p className="study-eyebrow">
-              Modo Estudio · {STUDY_BLOCKS.length} bloques · {LESSON_COUNT} lecciones
+              Modo Estudio · {STUDY_BLOCKS.length + extensionBlockCount} bloques ·{' '}
+              {LESSON_COUNT + extensionLessonCount} lecciones
             </p>
+            {extensionLessonCount > 0 && (
+              <p className="muted">
+                {LESSON_COUNT} lecciones iniciales + {extensionLessonCount} de ampliación. El
+                progreso inicial y el de ampliación se registran por separado.
+              </p>
+            )}
             <h1>Aprende SELECT en Oracle SQL paso a paso</h1>
             <p className="study-hero__lead">
               Desde qué es una tabla hasta una consulta completa con WHERE y ORDER BY. Cada lección
