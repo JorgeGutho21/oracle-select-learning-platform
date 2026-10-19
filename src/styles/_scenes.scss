@@ -2242,8 +2242,10 @@
 .flow-compare__label {
   color: var(--scene-muted);
   font-size: max(0.66em, 12px);
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  // Espaciado del sistema para rótulos: con 0.08em «Después · AS salario_anual» ocupaba dos
+  // líneas y la tabla pisaba la idea clave a 1280 × 720.
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 .flow-compare__label code {
