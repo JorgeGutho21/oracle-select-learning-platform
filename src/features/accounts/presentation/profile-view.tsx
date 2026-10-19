@@ -39,7 +39,6 @@ export function ProfileView({
             {initials(profile)}
           </span>
           <div>
-            <p className="ds-page-header__eyebrow">Mi perfil</p>
             <h1>{displayName(profile)}</h1>
             <p className="ds-page-header__lead">{profile.email}</p>
           </div>

@@ -144,7 +144,6 @@ export function LearnerDashboard({
       <header className="ds-page-header dashboard__header">
         <div className="site-container dashboard__header-inner">
           <div className="dashboard__intro">
-            <p className="ds-page-header__eyebrow">Mi progreso</p>
             <h1>Hola, {firstName || 'estudiante'}</h1>
             <p className="ds-page-header__lead">Tu progreso en DB LAB.</p>
           </div>

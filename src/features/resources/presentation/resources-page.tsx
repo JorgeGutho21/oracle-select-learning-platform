@@ -209,7 +209,6 @@ export function ResourcesPage() {
   return (
     <div className="site-container feature-page resources-page">
       <header className="feature-heading">
-        <span className="eyebrow">Consultar y repasar</span>
         <h1>Recursos de DB LAB</h1>
         <p className="muted readable">
           La chuleta por categorías, una tabla de referencia, ejemplos listos para el laboratorio,

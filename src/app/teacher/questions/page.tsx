@@ -45,7 +45,6 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   return (
     <div className="teacher-page">
       <PageHeader
-        eyebrow="Panel docente"
         title="Banco de preguntas"
         lead="Preguntas por sección, tema, tipo y dificultad interna. Cada cambio crea una versión nueva; las evaluaciones publicadas conservan la que usaron."
       />

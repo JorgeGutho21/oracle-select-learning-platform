@@ -169,7 +169,6 @@ export function ChallengeExperience({ engine, live }: ChallengeExperienceProps) 
     return (
       <div className="site-container feature-page">
         <header className="feature-heading">
-          <span className="eyebrow">Aplicar</span>
           <h1>SQL Oracle Challenge</h1>
           <p className="readable muted">
             Diez misiones para construir, predecir y reparar consultas SELECT sobre la tabla

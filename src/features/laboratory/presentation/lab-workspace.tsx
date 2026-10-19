@@ -138,7 +138,6 @@ export function LaboratoryWorkspace({
   return (
     <div className="site-container feature-page lab-page">
       <header className="feature-heading">
-        <span className="eyebrow">Practicar</span>
         <h1>Laboratorio SQL</h1>
         <p className="readable muted">
           Escribe una consulta SELECT sobre EMPLEADOS y compárala con su resultado. El diagnóstico

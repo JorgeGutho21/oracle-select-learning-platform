@@ -16,7 +16,6 @@ export default async function Page() {
   return (
     <div className="teacher-page">
       <PageHeader
-        eyebrow="Evaluaciones"
         title="Nueva evaluación"
         lead="Se guarda como borrador. Nadie la ve hasta que la publiques desde su ficha."
       />

@@ -220,7 +220,6 @@ export function HomePage({ progress, continueAction, sectionProgress }: HomePage
         <div className="site-container home-oracle">
           <header className="home-heading home-heading--inverse home-heading--split">
             <div>
-              <p className="home-eyebrow">03 · Oracle real</p>
               <h2 id="oracle-title">Tus consultas, en Oracle Database.</h2>
             </div>
             <p>

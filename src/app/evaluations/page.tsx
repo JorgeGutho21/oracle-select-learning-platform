@@ -24,7 +24,6 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
     <div className="assessment-page">
       <header className="ds-page-header ds-page-header--light">
         <div className="site-container ds-page-header__inner">
-          <p className="ds-page-header__eyebrow">Evaluación</p>
           <h1>Mis evaluaciones</h1>
           <p className="ds-page-header__lead">
             Evaluaciones calificadas de 0.0 a 5.0 que publica el profesor. Son distintas del

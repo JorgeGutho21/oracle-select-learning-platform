@@ -105,12 +105,6 @@ export function SectionDetail({
           ]}
         />
       }
-      eyebrow={
-        <>
-          <span aria-hidden="true">{section.code} · </span>
-          {section.kicker} · {section.statusLabel}
-        </>
-      }
       title={section.title}
       lead={section.summary}
       actions={
@@ -141,6 +135,7 @@ export function SectionDetail({
       aside={
         available ? (
           <div className="section-aside">
+            <StatusBadge tone="available">{section.statusLabel}</StatusBadge>
             <SectionFacts section={section} />
             {progress}
           </div>

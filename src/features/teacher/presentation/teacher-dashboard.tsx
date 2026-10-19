@@ -77,7 +77,6 @@ export function TeacherDashboard({
       <header className="ds-page-header teacher-page__header">
         <div className="site-container teacher-page__header-inner">
           <div className="teacher-page__intro">
-            <p className="ds-page-header__eyebrow">Panel docente</p>
             <h1>Seguimiento del grupo</h1>
             <p className="ds-page-header__lead">
               {teacherName}: avance de cada estudiante registrado en DB LAB, con la misma medida que
