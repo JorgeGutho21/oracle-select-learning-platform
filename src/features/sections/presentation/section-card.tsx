@@ -12,13 +12,23 @@ export interface SectionCardProps {
   readonly headingLevel?: 2 | 3;
   /** Avance del estudiante (componente cliente) o un estado neutro. */
   readonly progress?: ReactNode;
+  /**
+   * Borde con destellos al pasar el ratón. Se desactiva donde otro efecto es el protagonista
+   * de la pantalla (la cuadrícula de la portada).
+   */
+  readonly decorated?: boolean;
 }
 
 /**
  * Tarjeta de una sección en la ruta: qué se aprende, qué práctica tiene, su estado y su
  * avance. La sección disponible lleva el borde con destellos; las próximas, los píxeles.
  */
-export function SectionCard({ section, headingLevel = 3, progress }: SectionCardProps) {
+export function SectionCard({
+  section,
+  headingLevel = 3,
+  progress,
+  decorated = true,
+}: SectionCardProps) {
   const Heading = `h${headingLevel}` as 'h2' | 'h3';
   const available = section.status === 'available';
   const titleId = `section-card-${section.id}`;
@@ -56,6 +66,9 @@ export function SectionCard({ section, headingLevel = 3, progress }: SectionCard
     </article>
   );
 
+  if (available && !decorated) {
+    return <div className="section-card section-card--available">{content}</div>;
+  }
   if (available) {
     return (
       <StarBorder className="section-card-frame">
