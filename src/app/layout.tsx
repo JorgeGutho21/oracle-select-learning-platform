@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import localFont from 'next/font/local';
 import type { ReactNode } from 'react';
 import {
   ACADEMIC_IDENTITY as identity,
@@ -8,6 +9,16 @@ import { publicUrlFromEnvironment } from '@/application/public-url';
 import { AccountRoot } from '@/composition/accounts/account-root';
 import { AppShell } from '@/presentation/layouts/app-shell';
 import '@/styles/globals.scss';
+
+// Inter (OFL), autoalojada: mismas medidas en Windows, Linux, macOS y en el proyector. Con
+// la fuente del sistema, una misma escena cabía en Segoe UI y no en DejaVu Sans.
+const inter = localFont({
+  src: '../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+  variable: '--font-inter',
+  weight: '100 900',
+  display: 'swap',
+  adjustFontFallback: 'Arial',
+});
 
 const description = `${product.subtitle}. ${product.pitch} ${identity.course}, ${identity.program}, ${identity.institution}.`;
 const defaultTitle = `${product.name} · ${product.subtitle}`;
@@ -32,7 +43,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="es">
+    <html lang="es" className={inter.variable}>
       <body>
         <AppShell account={<AccountRoot />}>{children}</AppShell>
       </body>
