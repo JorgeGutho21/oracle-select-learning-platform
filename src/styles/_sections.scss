@@ -1,4 +1,6 @@
 // Secciones de DB LAB: tarjetas de la ruta, modos, página de sección, panel de avance.
+// Tarjetas en reposo con borde y sin sombra; lo interior va sin caja (superficie hundida o
+// separadores). Rótulos pequeños: 13 px/600/0.06em, único uso de mayúsculas.
 
 .section-grid {
   display: grid;
@@ -10,8 +12,28 @@
   list-style: none;
 }
 .section-grid > li {
+  position: relative;
   display: grid;
   min-width: 0;
+}
+// Alturas iguales: cada envoltorio (entrada, destellos) ocupa toda la celda.
+.section-grid > li > *,
+.section-grid .db-in-view > .section-card-frame,
+.section-grid .db-in-view > .section-card {
+  height: 100%;
+}
+// Ruta 01—02—03 conectada: un filete une los números de tarjetas vecinas.
+@media (min-width: 1200px) {
+  .section-grid > li:not(:last-child)::after {
+    position: absolute;
+    z-index: 2;
+    top: 42px;
+    left: 100%;
+    width: var(--space-5);
+    height: 2px;
+    background: var(--color-border-strong);
+    content: '';
+  }
 }
 
 // Tarjeta de sección.
@@ -22,15 +44,14 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);
-  box-shadow: var(--shadow-sm);
   transition:
-    box-shadow var(--duration-transition) var(--ease-standard),
-    border-color var(--duration-transition) var(--ease-standard);
+    box-shadow var(--duration-feedback) var(--ease-out),
+    border-color var(--duration-feedback) var(--ease-out);
 }
 .section-card:hover,
 .section-card:focus-within {
-  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border-subtle));
-  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
 }
 .section-card--coming-soon {
   border-style: dashed;
@@ -40,7 +61,7 @@
 .section-card__body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 10px;
   width: 100%;
   min-width: 0;
   padding: var(--space-5);
@@ -53,24 +74,42 @@
   gap: var(--space-2);
 }
 .section-card__code {
+  display: inline-grid;
+  place-items: center;
+  min-width: 36px;
+  height: 36px;
+  padding-inline: var(--space-2);
   color: var(--color-primary);
-  font: 800 2.25rem/1 var(--font-mono);
-  letter-spacing: -0.04em;
+  background: var(--color-soft);
+  border-radius: var(--radius-control);
+  font: 600 0.875rem/1 var(--font-mono);
 }
 .section-card--coming-soon .section-card__code {
   color: var(--color-muted);
+  background: var(--color-sunken);
 }
-.section-card__kicker {
+.section-card__kicker,
+.section-card__meta dt,
+.section-goals dt,
+.section-facts dt,
+.progress-meter__label,
+.learning-overview__head .learning-overview__eyebrow {
   margin: 0;
   color: var(--color-muted);
   font-size: var(--type-label);
-  font-weight: 750;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+.section-card__kicker {
+  margin-top: var(--space-1);
 }
 .section-card__title {
   margin: 0;
-  font-size: clamp(1.375rem, 1vw + 1rem, 1.625rem);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
 }
 .section-card__summary {
   margin: 0;
@@ -81,66 +120,68 @@
 .section-card__topics {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .section-card__topics li {
-  padding: 2px 10px;
-  color: var(--color-ink);
-  background: var(--color-soft);
-  border-radius: var(--radius-pill);
-  font: 600 0.8125rem/1.6 var(--font-mono);
+  padding: 2px 8px;
+  color: var(--color-ink-2);
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font: 500 0.8125rem/1.6 var(--font-mono);
 }
+// El bloque «Práctica» absorbe el espacio libre: avance y acción quedan anclados abajo.
 .section-card__meta {
-  margin: 0;
-}
-.section-card__meta dt,
-.section-goals dt,
-.section-facts dt,
-.progress-meter__label {
-  color: var(--color-muted);
-  font-size: var(--type-label);
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  margin: 0 0 auto;
 }
 .section-card__meta dd {
   margin: 2px 0 0;
+  color: var(--color-ink-2);
   font-size: 0.9375rem;
   line-height: 1.5;
 }
 .section-card__progress {
-  margin-top: auto;
-  padding-top: var(--space-3);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--color-border-subtle);
 }
 .section-card__link {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: var(--space-2);
-  align-self: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
   min-height: var(--tap-target);
-  padding: 10px 18px;
-  color: var(--color-inverse);
-  background: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  padding: 10px 16px;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-control);
   border-radius: var(--radius-control);
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
+  line-height: 1.3;
   text-decoration: none;
-  transition: background var(--duration-feedback);
+  transition:
+    background-color var(--duration-feedback) var(--ease-out),
+    border-color var(--duration-feedback) var(--ease-out),
+    color var(--duration-feedback) var(--ease-out);
+}
+.section-card__link > [aria-hidden='true'] {
+  flex-shrink: 0;
+  transition: transform var(--duration-feedback) var(--ease-out);
 }
 .section-card__link:hover {
-  background: var(--color-primary-hover);
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-color: var(--color-primary);
+}
+.section-card__link:hover > [aria-hidden='true'] {
+  transform: translateX(2px);
 }
 .section-card--coming-soon .section-card__link {
   color: var(--color-primary);
-  background: var(--color-surface);
-}
-.section-card--coming-soon .section-card__link:hover {
-  background: var(--color-soft);
 }
 .section-card__link:focus-visible,
 .mode-card__link:focus-visible,
@@ -155,14 +196,16 @@
   min-width: 0;
 }
 .progress-meter .ds-progress__label {
+  margin-block-end: var(--space-2);
   font-size: 0.9375rem;
+  font-weight: 500;
 }
 .progress-meter--empty {
   display: grid;
   gap: var(--space-2);
 }
 
-// Modos de trabajo.
+// Modos de trabajo: misma estructura en las tres secciones; la acción queda abajo.
 .mode-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -180,16 +223,18 @@
   color: var(--color-ink);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
+  transition: border-color var(--duration-feedback) var(--ease-out);
 }
 .mode-card--available:hover,
 .mode-card--available:focus-within {
-  border-color: var(--color-primary);
+  border-color: var(--color-border-strong);
 }
 .mode-card__link,
 .mode-card--pending {
-  display: grid;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-2);
   height: 100%;
   padding: var(--space-5);
@@ -200,7 +245,7 @@
   text-decoration: none;
 }
 .mode-card--pending {
-  background: var(--color-surface-alt);
+  background: var(--color-sunken);
   border-style: dashed;
   border-color: var(--color-border-control);
 }
@@ -208,8 +253,9 @@
   display: inline-grid;
   flex-shrink: 0;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--space-1);
   color: var(--color-primary);
   background: var(--color-soft);
   border-radius: var(--radius-control);
@@ -219,12 +265,13 @@
   background: var(--color-surface);
 }
 .mode-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 .mode-card__label {
   font-size: 1.125rem;
-  font-weight: 750;
+  font-weight: 600;
+  line-height: 1.3;
 }
 .mode-card__description {
   color: var(--color-muted);
@@ -232,25 +279,47 @@
   line-height: 1.5;
 }
 .mode-card__action {
-  margin-top: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: auto;
+  padding-top: var(--space-2);
   color: var(--color-primary);
   font-size: 0.9375rem;
-  font-weight: 700;
+  font-weight: 600;
+}
+.mode-card__action > [aria-hidden='true'] {
+  transition: transform var(--duration-feedback) var(--ease-out);
+}
+.mode-card__link:hover .mode-card__action > [aria-hidden='true'] {
+  transform: translateX(2px);
 }
 
-// Ruta 01 → 02 → 03.
+// Ruta 01 → 02 → 03 (página de sección): pasos unidos por un filete.
 .section-route {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
+  gap: var(--space-5);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 .section-route__step {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   min-width: 0;
+}
+@media (min-width: 768px) {
+  .section-route__step:not(:last-child)::after {
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    width: var(--space-5);
+    height: 2px;
+    background: var(--color-border-strong);
+    content: '';
+  }
 }
 .section-route__item {
   display: flex;
@@ -261,31 +330,37 @@
   color: var(--color-ink);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   text-decoration: none;
+  transition: border-color var(--duration-feedback) var(--ease-out);
 }
 a.section-route__item:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-border-strong);
 }
 .section-route__step.is-current .section-route__item {
   background: var(--color-soft);
-  border: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
 }
 .section-route__code {
   display: inline-grid;
   flex-shrink: 0;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-radius: var(--radius-control);
+  font: 600 0.875rem var(--font-mono);
+}
+.section-route__step.is-current .section-route__code {
   color: var(--color-inverse);
   background: var(--color-primary);
-  border-radius: 50%;
-  font: 800 0.9375rem var(--font-mono);
 }
 .section-route__step--coming-soon .section-route__code {
   color: var(--color-primary);
   background: var(--color-surface);
-  border: 2px dashed var(--color-primary);
+  border: 1px dashed var(--color-primary);
 }
 .section-route__copy {
   display: grid;
@@ -293,7 +368,7 @@ a.section-route__item:hover {
 }
 .section-route__title {
   font-size: 0.9375rem;
-  font-weight: 700;
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 .section-route__status {
@@ -315,9 +390,12 @@ a.section-route__item:hover {
   max-width: 72ch;
   margin-bottom: var(--space-5);
 }
-.section-block__head h2 {
+.section-block__head h2,
+.learning-overview__head h2 {
   margin: 0;
-  font-size: clamp(1.625rem, 1.4vw + 1rem, 2.125rem);
+  font-size: clamp(1.5rem, 1vw + 1.125rem, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.018em;
 }
 .section-block__head p {
   margin: 0;
@@ -325,16 +403,16 @@ a.section-route__item:hover {
 }
 .section-aside {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
   padding: var(--space-5);
-  background: rgb(247 250 255 / 6%);
-  border: 1px solid rgb(247 250 255 / 16%);
+  background: var(--color-night-raised);
+  border: 1px solid rgb(247 250 255 / 12%);
   border-radius: var(--radius-card);
 }
 .section-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: var(--space-4) var(--space-5);
   margin: 0;
 }
 .section-facts div {
@@ -344,33 +422,117 @@ a.section-route__item:hover {
 }
 .section-facts dd {
   margin: 0;
-  font: 800 2rem/1 var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
 .ds-page-header--night .section-facts dt,
 .ds-page-header--night .ds-progress__label {
-  color: rgb(247 250 255 / 86%);
+  color: var(--color-inverse-muted);
 }
-.ds-page-header--night .ds-progress__track {
-  background: rgb(247 250 255 / 14%);
-  border-color: rgb(247 250 255 / 50%);
+// Pista oscura y relleno cian: al 0 % la barra se lee vacía, no llena.
+.ds-page-header--night .ds-progress .ds-progress__track {
+  background: rgb(247 250 255 / 10%);
+  border: 1px solid rgb(247 250 255 / 22%);
 }
-.ds-page-header--night .ds-progress__fill {
+.ds-page-header--night .ds-progress .ds-progress__fill {
   background: var(--color-cyan);
 }
+
+// Camino Aprender → Evaluar: navegación segmentada, sin subrayados.
+.section-page .db-learning-journey {
+  margin-block: var(--space-6) 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+.section-page .db-learning-journey ol {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+}
+.section-page .db-learning-journey li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  column-gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-4);
+}
+.section-page .db-learning-journey li + li {
+  border-left: 1px solid var(--color-border-subtle);
+}
+.section-page .db-learning-journey__number {
+  display: inline-grid;
+  grid-row: 1 / span 2;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-radius: 50%;
+  font: 600 0.8125rem/1 var(--font-mono);
+}
+.section-page .db-learning-journey a,
+.section-page .db-learning-journey strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+.section-page .db-learning-journey a::before {
+  display: none;
+}
+// Toda la celda responde al enlace (objetivo grande), sin cambiar el DOM.
+.section-page .db-learning-journey a::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+.section-page .db-learning-journey li:has(a) {
+  transition: background-color var(--duration-feedback) var(--ease-out);
+}
+.section-page .db-learning-journey li:has(a:hover) {
+  background: var(--color-sunken);
+}
+.section-page .db-learning-journey li:has(a:hover) a {
+  color: var(--color-primary);
+}
+.section-page .db-learning-journey a:focus-visible {
+  outline: none;
+}
+.section-page .db-learning-journey li:has(a:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
+}
+.section-page .db-learning-journey li p {
+  grid-column: 2;
+  margin: 2px 0 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+// Contenido: rejilla de alturas iguales por fila.
 .topic-groups {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
   gap: var(--space-4);
-  align-items: start;
+  align-items: stretch;
 }
 .topic-group {
+  min-width: 0;
   padding: var(--space-4) var(--space-5);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
 }
 .topic-group--planned {
-  background: var(--color-surface-alt);
+  background: var(--color-sunken);
   border-style: dashed;
   border-color: var(--color-border-control);
 }
@@ -384,12 +546,13 @@ a.section-route__item:hover {
 }
 .topic-group h3 {
   margin: 0;
-  font-size: 1.0625rem;
+  font-size: 1rem;
+  font-weight: 600;
   letter-spacing: 0;
 }
 .topic-group ul {
   display: grid;
-  gap: 2px;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -398,26 +561,33 @@ a.section-route__item:hover {
 .topic-group li span {
   display: inline-flex;
   align-items: center;
+  min-width: 24px;
   min-height: 32px;
   font-size: 0.9375rem;
 }
 .topic-group li span {
   color: var(--color-muted);
 }
+
+// Objetivo, práctica y requisitos: tres columnas sin caja, con separadores.
 .section-goals {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: 0;
   margin: 0;
+  border-block: 1px solid var(--color-border-subtle);
 }
 .section-goals > div {
-  padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
+  min-width: 0;
+  padding: var(--space-5) var(--space-5) var(--space-5) 0;
+}
+.section-goals > div + div {
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--color-border-subtle);
 }
 .section-goals dd {
   margin: var(--space-2) 0 0;
+  color: var(--color-ink-2);
   font-size: 1rem;
   line-height: 1.55;
 }
@@ -442,17 +612,18 @@ a.section-route__item:hover {
   color: var(--color-ink);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  font-weight: 700;
+  border-radius: var(--radius-card);
+  font-weight: 600;
   text-decoration: none;
+  transition: border-color var(--duration-feedback) var(--ease-out);
 }
 .section-pager__link span {
   color: var(--color-muted);
   font-size: var(--type-caption);
-  font-weight: 600;
+  font-weight: 500;
 }
 .section-pager__link:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-border-strong);
 }
 .section-pager__link--next {
   margin-left: auto;
@@ -476,14 +647,15 @@ a.section-route__item:hover {
 .coming-soon-panel__body .coming-soon-panel__title {
   color: var(--color-ink);
   font-size: 1.25rem;
-  font-weight: 750;
+  font-weight: 700;
 }
 .coming-soon-panel__position strong {
   color: var(--color-ink);
   font-family: var(--font-mono);
 }
 
-// Panel «Mi aprendizaje».
+// Panel «Tu avance»: una sola tarjeta. Arriba, las tres barras; abajo, tres columnas
+// (continuar, evaluaciones, actividad) separadas por filetes, sin cajas anidadas.
 .learning-overview {
   padding-top: var(--space-7);
 }
@@ -493,25 +665,21 @@ a.section-route__item:hover {
   max-width: 72ch;
   margin-bottom: var(--space-5);
 }
-.learning-overview__head h2 {
-  margin: 0;
-  font-size: clamp(1.625rem, 1.4vw + 1rem, 2.125rem);
-}
 .learning-overview__head p {
   margin: 0;
   color: var(--color-muted);
 }
 .learning-overview__head .learning-overview__eyebrow {
   color: var(--color-primary);
-  font-size: var(--type-label);
-  font-weight: 750;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
 }
 .learning-overview__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: 0;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
 }
 .overview-panel {
   display: grid;
@@ -519,21 +687,21 @@ a.section-route__item:hover {
   gap: var(--space-3);
   min-width: 0;
   padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
 }
 .overview-panel--wide {
   grid-column: 1 / -1;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.overview-panel:not(.overview-panel--wide) + .overview-panel {
+  border-left: 1px solid var(--color-border-subtle);
 }
 .overview-panel--empty {
-  background: var(--color-surface-alt);
-  border-style: dashed;
-  border-color: var(--color-border-control);
+  background: var(--color-page);
 }
 .overview-panel h3 {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
   letter-spacing: 0;
 }
 .overview-panel p {
@@ -547,7 +715,7 @@ a.section-route__item:hover {
 .overview-progress {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-5);
+  gap: var(--space-6);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -559,18 +727,18 @@ a.section-route__item:hover {
   min-width: 0;
 }
 .overview-progress__name {
-  font-weight: 700;
+  font-weight: 600;
 }
 .overview-progress__name span {
   color: var(--color-primary);
   font-family: var(--font-mono);
 }
 
-// Guía de modos (portada de secciones).
+// Guía de modos (portada de secciones): leyenda 2 × 3 con icono.
 .mode-guide {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: var(--space-5);
   margin: 0 0 var(--space-5);
   padding: 0;
   list-style: none;
@@ -581,12 +749,15 @@ a.section-route__item:hover {
   gap: var(--space-3);
   min-width: 0;
   overflow-wrap: break-word;
+  color: var(--color-muted);
   font-size: 0.9375rem;
   line-height: 1.5;
 }
 .mode-guide strong {
   display: block;
+  color: var(--color-ink);
   font-size: 1rem;
+  font-weight: 600;
 }
 
 @media (max-width: 1199px) {
@@ -597,6 +768,7 @@ a.section-route__item:hover {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     column-gap: var(--space-6);
+    align-content: start;
   }
   .section-card__body > * {
     grid-column: 1;
@@ -611,8 +783,8 @@ a.section-route__item:hover {
     grid-row: 1 / span 2;
     align-self: start;
   }
-  .section-card__progress {
-    margin-top: 0;
+  .section-card__meta {
+    margin-bottom: 0;
   }
 }
 @media (max-width: 991px) {
@@ -625,13 +797,42 @@ a.section-route__item:hover {
   .overview-progress {
     grid-template-columns: minmax(0, 1fr);
   }
+  .section-goals > div,
+  .section-goals > div + div {
+    padding: var(--space-4) 0;
+    border-left: 0;
+  }
+  .section-goals > div + div {
+    border-top: 1px solid var(--color-border-subtle);
+  }
+  .overview-panel:not(.overview-panel--wide) + .overview-panel {
+    border-top: 1px solid var(--color-border-subtle);
+    border-left: 0;
+  }
+  .overview-progress {
+    gap: var(--space-4);
+  }
+  .section-page .db-learning-journey ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .section-page .db-learning-journey li {
+    padding-block: var(--space-3);
+  }
+  .section-page .db-learning-journey li + li {
+    border-top: 1px solid var(--color-border-subtle);
+    border-left: 0;
+  }
 }
 @media (max-width: 767px) {
   .section-card__body {
     display: flex;
   }
+  .section-card__meta {
+    margin-bottom: auto;
+  }
   .section-route {
     grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
   }
 }
 @media (max-width: 575px) {
@@ -642,8 +843,11 @@ a.section-route__item:hover {
   // En teléfonos, icono a la izquierda: la tarjeta no crece en altura sin necesidad.
   .mode-card__link,
   .mode-card--pending {
-    grid-template-columns: 44px minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-content: start;
     column-gap: var(--space-3);
+    row-gap: var(--space-1);
   }
   .mode-card__link > :not(.mode-card__icon),
   .mode-card--pending > :not(.mode-card__icon) {
@@ -651,13 +855,17 @@ a.section-route__item:hover {
   }
   .mode-card__icon {
     grid-row: 1 / span 4;
+    margin-bottom: 0;
+  }
+  .mode-card__action {
+    margin-top: 0;
+    padding-top: var(--space-1);
   }
   .section-card__body,
   .mode-card__link,
   .mode-card--pending,
   .section-aside,
-  .overview-panel,
-  .section-goals > div {
+  .overview-panel {
     padding: var(--space-4);
   }
   .section-pager__link,
@@ -680,8 +888,7 @@ a.section-route__item:hover {
   .overview-panel,
   .section-aside,
   .coming-soon-panel__body,
-  .topic-group,
-  .section-goals > div {
+  .topic-group {
     padding: var(--space-3);
   }
   .mode-card__link,
@@ -696,8 +903,6 @@ a.section-route__item:hover {
     grid-row: auto;
   }
   .section-card__link {
-    display: block;
-    width: 100%;
     padding-inline: var(--space-3);
   }
   .ds-status {
@@ -715,9 +920,15 @@ a.section-route__item:hover {
     padding: var(--space-2);
     overflow-wrap: anywhere;
   }
-  .section-route__code {
-    width: 36px;
-    height: 36px;
+  .section-page .db-learning-journey li {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-3);
+  }
+  .section-page .db-learning-journey__number {
+    grid-row: auto;
+  }
+  .section-page .db-learning-journey li p {
+    grid-column: 1;
   }
   .section-card,
   .overview-panel,

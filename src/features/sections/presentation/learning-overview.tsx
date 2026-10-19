@@ -48,7 +48,7 @@ export function LearningProgressCard({
       </div>
       <Progress label="Progreso de las tres secciones" value={done} max={total} />
       <div className="study-progress__actions">
-        <Link className="ds-button ds-button--primary" href="/dashboard">
+        <Link className="ds-button ds-button--secondary" href="/dashboard">
           Ver mi progreso
         </Link>
         <Link className="ds-button ds-button--secondary" href="/sections">
