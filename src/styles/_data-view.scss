@@ -554,6 +554,12 @@ $dv-buckets:
   .dv--compact td.is-date {
     white-space: normal;
   }
+  // Tres nombres largos (ID_PROYECTO, NOMBRE_PROYECTO, ID_DEPARTAMENTO) no caben enteros: la
+  // cabecera, nunca los datos, pierde el espaciado y parte la palabra antes que abrir barra.
+  .dv--compact thead th {
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
 }
 // La tabla que cabe no necesita región con barra: así el encabezado fijo acompaña a la
 // página. La representación de último recurso conserva la barra como red de seguridad.

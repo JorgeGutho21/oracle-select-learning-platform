@@ -437,6 +437,16 @@ a[aria-current='page'] .study-toc__number {
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);
 }
+// Teléfono: los rellenos anidados (bloque de datos y ficha de la tabla) se ceden a la tabla para
+// que DEPARTAMENTOS quepa entera a 320 px sin barra ni letra menor.
+@media (max-width: 575px) {
+  .study-card-block {
+    padding: var(--space-3);
+  }
+  .study-card-block .cu-topic-table {
+    padding: var(--space-2);
+  }
+}
 .study-card-block p:last-child {
   margin-bottom: 0;
 }
