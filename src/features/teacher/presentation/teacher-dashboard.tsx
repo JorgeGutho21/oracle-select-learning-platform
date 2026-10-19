@@ -6,8 +6,8 @@ import { Progress, StatusBadge } from '@/presentation/components/ui';
 import type { RosterSummary, StudentRow } from '../application/roster';
 
 /**
- * Panel docente (fundación). Cifras del grupo y lista de estudiantes con su avance, última
- * actividad y estado de conexión. Las evaluaciones y la supervisión llegan en otras fases.
+ * Panel docente. Accesos directos a evaluaciones, banco, sala en vivo y resultados; cifras del
+ * grupo y lista de estudiantes con su avance, última actividad y estado de conexión.
  */
 
 const dateFormat = new Intl.DateTimeFormat('es-CO', {
@@ -19,6 +19,36 @@ const dateFormat = new Intl.DateTimeFormat('es-CO', {
 function lastActivity(student: StudentRow): string {
   return student.lastActivityAt > 0 ? dateFormat.format(student.lastActivityAt) : 'Sin actividad';
 }
+
+/**
+ * Accesos directos del docente. Rutas existentes; la autorización la hace cada página (y RLS).
+ */
+const SHORTCUTS: readonly {
+  readonly href: Route;
+  readonly title: string;
+  readonly detail: string;
+}[] = [
+  {
+    href: '/teacher/assessments' as Route,
+    title: 'Evaluaciones',
+    detail: 'Crear, publicar y supervisar',
+  },
+  {
+    href: '/teacher/questions' as Route,
+    title: 'Banco de preguntas',
+    detail: 'Preguntas por sección y tema',
+  },
+  {
+    href: '/presenter' as Route,
+    title: 'Crear sala en vivo',
+    detail: 'Código y QR para la clase',
+  },
+  {
+    href: '/teacher/assessments#group-finalizadas' as Route,
+    title: 'Resultados',
+    detail: 'Notas de evaluaciones finalizadas',
+  },
+];
 
 function Stat({ value, label }: { readonly value: string; readonly label: string }) {
   return (
@@ -44,14 +74,31 @@ export function TeacherDashboard({
 }) {
   return (
     <div className="teacher-page">
-      <header className="ds-page-header ds-page-header--night">
-        <div className="site-container ds-page-header__inner">
-          <p className="ds-page-header__eyebrow">Panel docente</p>
-          <h1>Seguimiento del grupo</h1>
-          <p className="ds-page-header__lead">
-            {teacherName}: avance de cada estudiante registrado en DB LAB, con la misma medida que
-            ve cada uno en su panel.
-          </p>
+      <header className="ds-page-header teacher-page__header">
+        <div className="site-container teacher-page__header-inner">
+          <div className="teacher-page__intro">
+            <p className="ds-page-header__eyebrow">Panel docente</p>
+            <h1>Seguimiento del grupo</h1>
+            <p className="ds-page-header__lead">
+              {teacherName}: avance de cada estudiante registrado en DB LAB, con la misma medida que
+              ve cada uno en su panel.
+            </p>
+          </div>
+          <nav className="teacher-shortcuts" aria-label="Accesos directos del panel docente">
+            <ul>
+              {SHORTCUTS.map((shortcut) => (
+                <li key={shortcut.title}>
+                  <Link href={shortcut.href} className="teacher-shortcut">
+                    <span className="teacher-shortcut__title">
+                      {shortcut.title}
+                      <span aria-hidden="true"> →</span>
+                    </span>
+                    <span className="teacher-shortcut__detail">{shortcut.detail}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </header>
       <div className="site-container teacher-page__content">
@@ -163,14 +210,6 @@ export function TeacherDashboard({
               </p>
             </div>
           )}
-        </section>
-
-        <section aria-labelledby="teacher-next-title" className="teacher-block teacher-next">
-          <h2 id="teacher-next-title">Evaluaciones y banco de preguntas</h2>
-          <p>
-            Crea y publica evaluaciones, supervisa los intentos y consulta resultados desde la
-            navegación del panel docente.
-          </p>
         </section>
       </div>
     </div>
