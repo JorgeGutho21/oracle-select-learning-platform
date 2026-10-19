@@ -22,7 +22,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
   const past = all.filter((item) => !isPending(item));
   return (
     <div className="assessment-page">
-      <header className="ds-page-header ds-page-header--night">
+      <header className="ds-page-header ds-page-header--light">
         <div className="site-container ds-page-header__inner">
           <p className="ds-page-header__eyebrow">Evaluación</p>
           <h1>Mis evaluaciones</h1>

@@ -5,7 +5,6 @@ import type { SectionDto } from '@/features/sections/application/sections-api';
 import { ModeGrid } from '@/features/sections/presentation/mode-grid';
 import { PixelCard } from '@/presentation/components/effects/pixel-card';
 import { SpotlightCard } from '@/presentation/components/effects/spotlight-card';
-import { StarBorder } from '@/presentation/components/effects/star-border';
 import { Progress, StatusBadge } from '@/presentation/components/ui';
 import type { SyncStatus } from '../application/progress-sync';
 import type { LearnerProgress, ModeProgress, SectionProgress } from '../application/summary';
@@ -142,45 +141,41 @@ export function LearnerDashboard({
   const primary = sections.find((section) => section.status === 'available');
   return (
     <div className="dashboard">
-      <header className="ds-page-header ds-page-header--night dashboard__header">
-        <div className="site-container ds-page-header__inner">
-          <div className="ds-page-header__grid ds-page-header__grid--aside">
-            <div className="ds-page-header__copy">
-              <p className="ds-page-header__eyebrow">Mi progreso</p>
-              <h1>Hola, {firstName || 'estudiante'}</h1>
-              <p className="ds-page-header__lead">Tu progreso en DB LAB.</p>
-              {progress.resume && (
-                <div className="ds-page-header__actions">
-                  <StarBorder className="dashboard__continue-frame">
-                    <Link
-                      href={progress.resume.href as Route}
-                      className="hero-action hero-action--primary"
-                    >
-                      {progress.resume.label} <span aria-hidden="true">→</span>
-                    </Link>
-                  </StarBorder>
-                  <Link href="/sections" className="hero-action">
-                    Ver las secciones
-                  </Link>
-                </div>
-              )}
+      <header className="ds-page-header dashboard__header">
+        <div className="site-container dashboard__header-inner">
+          <div className="dashboard__intro">
+            <p className="ds-page-header__eyebrow">Mi progreso</p>
+            <h1>Hola, {firstName || 'estudiante'}</h1>
+            <p className="ds-page-header__lead">Tu progreso en DB LAB.</p>
+          </div>
+          {progress.resume && (
+            <div className="dashboard__actions">
+              <Link
+                href={progress.resume.href as Route}
+                className="ds-button ds-button--primary dashboard__continue"
+              >
+                {progress.resume.label} <span aria-hidden="true">→</span>
+              </Link>
+              <Link href="/sections" className="ds-button ds-button--secondary">
+                Ver las secciones
+              </Link>
             </div>
-            <div className="ds-page-header__aside dashboard__overall">
-              <p className="dashboard__percent">
-                <strong>{`${progress.overall.percent}\u202f%`}</strong>
-                <span>
-                  {progress.overall.done} de {progress.overall.total} lecciones publicadas
-                </span>
-              </p>
-              <Progress
-                label="Progreso general"
-                value={progress.overall.done}
-                max={Math.max(progress.overall.total, 1)}
-              />
-              <p className="dashboard__sync" role="status">
-                {SYNC_TEXT[syncStatus]}
-              </p>
-            </div>
+          )}
+          <div className="dashboard__overall">
+            <p className="dashboard__percent">
+              <strong>{`${progress.overall.percent}\u202f%`}</strong>
+              <span>
+                {progress.overall.done} de {progress.overall.total} lecciones publicadas
+              </span>
+            </p>
+            <Progress
+              label="Progreso general"
+              value={progress.overall.done}
+              max={Math.max(progress.overall.total, 1)}
+            />
+            <p className="dashboard__sync" role="status">
+              {SYNC_TEXT[syncStatus]}
+            </p>
           </div>
         </div>
       </header>

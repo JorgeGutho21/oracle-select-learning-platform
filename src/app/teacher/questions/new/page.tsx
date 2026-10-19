@@ -15,7 +15,7 @@ export default async function Page() {
   await loadQuestionEditor();
   return (
     <div className="teacher-page">
-      <PageHeader tone="night" eyebrow="Banco de preguntas" title="Nueva pregunta" />
+      <PageHeader eyebrow="Banco de preguntas" title="Nueva pregunta" />
       <div className="site-container teacher-page__content">
         <QuestionForm
           action={saveQuestionAction}

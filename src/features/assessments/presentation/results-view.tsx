@@ -77,11 +77,12 @@ export function ResultsSummaryView({
               <tr key={bucket.label}>
                 <th scope="row">{bucket.label}</th>
                 <td>
-                  <span
-                    className="grade-distribution__bar"
-                    style={{ '--bar': `${(bucket.count / max) * 100}%` } as CSSProperties}
-                    aria-hidden="true"
-                  />
+                  <span className="grade-distribution__track" aria-hidden="true">
+                    <span
+                      className="grade-distribution__bar"
+                      style={{ '--bar': String(max > 0 ? bucket.count / max : 0) } as CSSProperties}
+                    />
+                  </span>
                   <span className="grade-distribution__value">{bucket.count}</span>
                 </td>
               </tr>
