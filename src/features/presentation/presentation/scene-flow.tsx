@@ -41,10 +41,13 @@ function tableWidth(table: FlowTable): number {
   );
 }
 
-/** Ancho (em) del código: la línea más larga en monoespaciada al 92 %. */
+/** Relleno (em) de las cláusulas pulsables: sin él, la línea más larga se partía. */
+const CLAUSE_PADDING = 0.7;
+
+/** Ancho (em) del código: la línea más larga en monoespaciada al 92 %, más los rellenos. */
 export function codeWidth(sql: string): number {
   const longest = Math.max(...sql.split('\n').map((line) => line.length));
-  return longest * 0.6 * 0.92 + 1.9;
+  return longest * 0.6 * 0.92 + 1.9 + CLAUSE_PADDING;
 }
 
 export function FlowStep({
@@ -194,10 +197,14 @@ export function ConceptFlow({
   const style =
     layout === 'row'
       ? {
-          '--flow-columns': `minmax(0, ${sourceWidth.toFixed(1)}fr) auto minmax(0, ${queryWidth.toFixed(1)}fr) auto minmax(0, ${outputWidth.toFixed(1)}fr)`,
+          // La consulta conserva su ancho: partida en más líneas, empujaría «Qué hace cada
+          // parte» fuera del lienzo. Las tablas se reparten el resto en proporción.
+          '--flow-columns': `minmax(0, ${sourceWidth.toFixed(1)}fr) auto minmax(${queryWidth.toFixed(1)}em, ${queryWidth.toFixed(1)}fr) auto minmax(0, ${outputWidth.toFixed(1)}fr)`,
         }
       : {
-          '--flow-columns': `minmax(0, ${Math.max(sourceWidth, queryWidth).toFixed(1)}fr) auto minmax(0, ${Math.max(outputWidth, 16).toFixed(1)}fr)`,
+          // En dos columnas la consulta ocupa todo el ancho de la izquierda: el reparto usa
+          // solo el texto del código, para que «Qué hace cada parte» no se estreche.
+          '--flow-columns': `minmax(0, ${Math.max(sourceWidth, queryWidth - CLAUSE_PADDING).toFixed(1)}fr) auto minmax(0, ${Math.max(outputWidth, 16).toFixed(1)}fr)`,
         };
   return (
     <div
