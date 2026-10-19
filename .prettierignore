@@ -32,3 +32,7 @@ AGENTS.md
 CODEX_PROMPT.md
 # Generado por tests/integration/curriculum-oracle.test.ts (CURRICULUM_UPDATE=1).
 src/features/curriculum/application/oracle-results.json
+
+# Estado local de decisiones y preferencias del tooling de diseño.
+.impeccable/questions/
+.impeccable/config.local.json

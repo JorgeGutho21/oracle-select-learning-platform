@@ -1,0 +1,852 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T15:20:13.144Z",
+  "title": "Design System: DB LAB",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "primary",
+        "canonical": "#1746b8",
+        "tonalRamp": [
+          "oklch(15% 0.1870 263.53)",
+          "oklch(25% 0.1870 263.53)",
+          "oklch(36% 0.1870 263.53)",
+          "oklch(48% 0.1870 263.53)",
+          "oklch(61% 0.1870 263.53)",
+          "oklch(74% 0.1870 263.53)",
+          "oklch(86% 0.1870 263.53)",
+          "oklch(95% 0.1870 263.53)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "primary hover",
+        "canonical": "#10368f",
+        "tonalRamp": [
+          "oklch(15% 0.1534 263.31)",
+          "oklch(25% 0.1534 263.31)",
+          "oklch(36% 0.1534 263.31)",
+          "oklch(48% 0.1534 263.31)",
+          "oklch(61% 0.1534 263.31)",
+          "oklch(74% 0.1534 263.31)",
+          "oklch(86% 0.1534 263.31)",
+          "oklch(95% 0.1534 263.31)"
+        ]
+      },
+      "cyan": {
+        "role": "primary",
+        "displayName": "cyan",
+        "canonical": "#20cce5",
+        "tonalRamp": [
+          "oklch(15% 0.1302 210.81)",
+          "oklch(25% 0.1302 210.81)",
+          "oklch(36% 0.1302 210.81)",
+          "oklch(48% 0.1302 210.81)",
+          "oklch(61% 0.1302 210.81)",
+          "oklch(74% 0.1302 210.81)",
+          "oklch(86% 0.1302 210.81)",
+          "oklch(95% 0.1302 210.81)"
+        ]
+      },
+      "page": {
+        "role": "neutral",
+        "displayName": "page",
+        "canonical": "#f7f9fc",
+        "tonalRamp": [
+          "oklch(15% 0.0045 258.32)",
+          "oklch(25% 0.0045 258.32)",
+          "oklch(36% 0.0045 258.32)",
+          "oklch(48% 0.0045 258.32)",
+          "oklch(61% 0.0045 258.32)",
+          "oklch(74% 0.0045 258.32)",
+          "oklch(86% 0.0045 258.32)",
+          "oklch(95% 0.0045 258.32)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "surface",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.0000 89.88)",
+          "oklch(25% 0.0000 89.88)",
+          "oklch(36% 0.0000 89.88)",
+          "oklch(48% 0.0000 89.88)",
+          "oklch(61% 0.0000 89.88)",
+          "oklch(74% 0.0000 89.88)",
+          "oklch(86% 0.0000 89.88)",
+          "oklch(95% 0.0000 89.88)"
+        ]
+      },
+      "soft": {
+        "role": "neutral",
+        "displayName": "soft",
+        "canonical": "#eaf1ff",
+        "tonalRamp": [
+          "oklch(15% 0.0203 264.47)",
+          "oklch(25% 0.0203 264.47)",
+          "oklch(36% 0.0203 264.47)",
+          "oklch(48% 0.0203 264.47)",
+          "oklch(61% 0.0203 264.47)",
+          "oklch(74% 0.0203 264.47)",
+          "oklch(86% 0.0203 264.47)",
+          "oklch(95% 0.0203 264.47)"
+        ]
+      },
+      "surface-alt": {
+        "role": "neutral",
+        "displayName": "surface alt",
+        "canonical": "#f0f4fb",
+        "tonalRamp": [
+          "oklch(15% 0.0103 261.79)",
+          "oklch(25% 0.0103 261.79)",
+          "oklch(36% 0.0103 261.79)",
+          "oklch(48% 0.0103 261.79)",
+          "oklch(61% 0.0103 261.79)",
+          "oklch(74% 0.0103 261.79)",
+          "oklch(86% 0.0103 261.79)",
+          "oklch(95% 0.0103 261.79)"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "night",
+        "canonical": "#0b1733",
+        "tonalRamp": [
+          "oklch(15% 0.0578 264.54)",
+          "oklch(25% 0.0578 264.54)",
+          "oklch(36% 0.0578 264.54)",
+          "oklch(48% 0.0578 264.54)",
+          "oklch(61% 0.0578 264.54)",
+          "oklch(74% 0.0578 264.54)",
+          "oklch(86% 0.0578 264.54)",
+          "oklch(95% 0.0578 264.54)"
+        ]
+      },
+      "editor": {
+        "role": "neutral",
+        "displayName": "editor",
+        "canonical": "#091221",
+        "tonalRamp": [
+          "oklch(15% 0.0339 260.12)",
+          "oklch(25% 0.0339 260.12)",
+          "oklch(36% 0.0339 260.12)",
+          "oklch(48% 0.0339 260.12)",
+          "oklch(61% 0.0339 260.12)",
+          "oklch(74% 0.0339 260.12)",
+          "oklch(86% 0.0339 260.12)",
+          "oklch(95% 0.0339 260.12)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "canonical": "#132445",
+        "tonalRamp": [
+          "oklch(15% 0.0659 262.30)",
+          "oklch(25% 0.0659 262.30)",
+          "oklch(36% 0.0659 262.30)",
+          "oklch(48% 0.0659 262.30)",
+          "oklch(61% 0.0659 262.30)",
+          "oklch(74% 0.0659 262.30)",
+          "oklch(86% 0.0659 262.30)",
+          "oklch(95% 0.0659 262.30)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "muted",
+        "canonical": "#4c5d78",
+        "tonalRamp": [
+          "oklch(15% 0.0487 259.53)",
+          "oklch(25% 0.0487 259.53)",
+          "oklch(36% 0.0487 259.53)",
+          "oklch(48% 0.0487 259.53)",
+          "oklch(61% 0.0487 259.53)",
+          "oklch(74% 0.0487 259.53)",
+          "oklch(86% 0.0487 259.53)",
+          "oklch(95% 0.0487 259.53)"
+        ]
+      },
+      "inverse": {
+        "role": "neutral",
+        "displayName": "inverse",
+        "canonical": "#f7faff",
+        "tonalRamp": [
+          "oklch(15% 0.0074 260.73)",
+          "oklch(25% 0.0074 260.73)",
+          "oklch(36% 0.0074 260.73)",
+          "oklch(48% 0.0074 260.73)",
+          "oklch(61% 0.0074 260.73)",
+          "oklch(74% 0.0074 260.73)",
+          "oklch(86% 0.0074 260.73)",
+          "oklch(95% 0.0074 260.73)"
+        ]
+      },
+      "border-subtle": {
+        "role": "neutral",
+        "displayName": "border subtle",
+        "canonical": "#dce3ef",
+        "tonalRamp": [
+          "oklch(15% 0.0180 261.34)",
+          "oklch(25% 0.0180 261.34)",
+          "oklch(36% 0.0180 261.34)",
+          "oklch(48% 0.0180 261.34)",
+          "oklch(61% 0.0180 261.34)",
+          "oklch(74% 0.0180 261.34)",
+          "oklch(86% 0.0180 261.34)",
+          "oklch(95% 0.0180 261.34)"
+        ]
+      },
+      "border-strong": {
+        "role": "neutral",
+        "displayName": "border strong",
+        "canonical": "#c3cee0",
+        "tonalRamp": [
+          "oklch(15% 0.0278 260.31)",
+          "oklch(25% 0.0278 260.31)",
+          "oklch(36% 0.0278 260.31)",
+          "oklch(48% 0.0278 260.31)",
+          "oklch(61% 0.0278 260.31)",
+          "oklch(74% 0.0278 260.31)",
+          "oklch(86% 0.0278 260.31)",
+          "oklch(95% 0.0278 260.31)"
+        ]
+      },
+      "sunken": {
+        "role": "neutral",
+        "displayName": "sunken",
+        "canonical": "#eff3fa",
+        "tonalRamp": [
+          "oklch(15% 0.0103 261.79)",
+          "oklch(25% 0.0103 261.79)",
+          "oklch(36% 0.0103 261.79)",
+          "oklch(48% 0.0103 261.79)",
+          "oklch(61% 0.0103 261.79)",
+          "oklch(74% 0.0103 261.79)",
+          "oklch(86% 0.0103 261.79)",
+          "oklch(95% 0.0103 261.79)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "ink 2",
+        "canonical": "#2b3a57",
+        "tonalRamp": [
+          "oklch(15% 0.0547 262.92)",
+          "oklch(25% 0.0547 262.92)",
+          "oklch(36% 0.0547 262.92)",
+          "oklch(48% 0.0547 262.92)",
+          "oklch(61% 0.0547 262.92)",
+          "oklch(74% 0.0547 262.92)",
+          "oklch(86% 0.0547 262.92)",
+          "oklch(95% 0.0547 262.92)"
+        ]
+      },
+      "night-raised": {
+        "role": "neutral",
+        "displayName": "night raised",
+        "canonical": "#12234a",
+        "tonalRamp": [
+          "oklch(15% 0.0760 264.19)",
+          "oklch(25% 0.0760 264.19)",
+          "oklch(36% 0.0760 264.19)",
+          "oklch(48% 0.0760 264.19)",
+          "oklch(61% 0.0760 264.19)",
+          "oklch(74% 0.0760 264.19)",
+          "oklch(86% 0.0760 264.19)",
+          "oklch(95% 0.0760 264.19)"
+        ]
+      },
+      "inverse-muted": {
+        "role": "neutral",
+        "displayName": "inverse muted",
+        "canonical": "#b8c4d9",
+        "tonalRamp": [
+          "oklch(15% 0.0324 261.73)",
+          "oklch(25% 0.0324 261.73)",
+          "oklch(36% 0.0324 261.73)",
+          "oklch(48% 0.0324 261.73)",
+          "oklch(61% 0.0324 261.73)",
+          "oklch(74% 0.0324 261.73)",
+          "oklch(86% 0.0324 261.73)",
+          "oklch(95% 0.0324 261.73)"
+        ]
+      },
+      "border-control": {
+        "role": "neutral",
+        "displayName": "border control",
+        "canonical": "#63738d",
+        "tonalRamp": [
+          "oklch(15% 0.0450 260.06)",
+          "oklch(25% 0.0450 260.06)",
+          "oklch(36% 0.0450 260.06)",
+          "oklch(48% 0.0450 260.06)",
+          "oklch(61% 0.0450 260.06)",
+          "oklch(74% 0.0450 260.06)",
+          "oklch(86% 0.0450 260.06)",
+          "oklch(95% 0.0450 260.06)"
+        ]
+      },
+      "success": {
+        "role": "neutral",
+        "displayName": "success",
+        "canonical": "#176b45",
+        "tonalRamp": [
+          "oklch(15% 0.0994 158.43)",
+          "oklch(25% 0.0994 158.43)",
+          "oklch(36% 0.0994 158.43)",
+          "oklch(48% 0.0994 158.43)",
+          "oklch(61% 0.0994 158.43)",
+          "oklch(74% 0.0994 158.43)",
+          "oklch(86% 0.0994 158.43)",
+          "oklch(95% 0.0994 158.43)"
+        ]
+      },
+      "warning": {
+        "role": "neutral",
+        "displayName": "warning",
+        "canonical": "#855500",
+        "tonalRamp": [
+          "oklch(15% 0.1053 71.80)",
+          "oklch(25% 0.1053 71.80)",
+          "oklch(36% 0.1053 71.80)",
+          "oklch(48% 0.1053 71.80)",
+          "oklch(61% 0.1053 71.80)",
+          "oklch(74% 0.1053 71.80)",
+          "oklch(86% 0.1053 71.80)",
+          "oklch(95% 0.1053 71.80)"
+        ]
+      },
+      "danger": {
+        "role": "neutral",
+        "displayName": "danger",
+        "canonical": "#b42332",
+        "tonalRamp": [
+          "oklch(15% 0.1793 21.80)",
+          "oklch(25% 0.1793 21.80)",
+          "oklch(36% 0.1793 21.80)",
+          "oklch(48% 0.1793 21.80)",
+          "oklch(61% 0.1793 21.80)",
+          "oklch(74% 0.1793 21.80)",
+          "oklch(86% 0.1793 21.80)",
+          "oklch(95% 0.1793 21.80)"
+        ]
+      },
+      "sem-select": {
+        "role": "semantic",
+        "displayName": "sem select",
+        "canonical": "#0e7490",
+        "tonalRamp": [
+          "oklch(15% 0.0936 223.13)",
+          "oklch(25% 0.0936 223.13)",
+          "oklch(36% 0.0936 223.13)",
+          "oklch(48% 0.0936 223.13)",
+          "oklch(61% 0.0936 223.13)",
+          "oklch(74% 0.0936 223.13)",
+          "oklch(86% 0.0936 223.13)",
+          "oklch(95% 0.0936 223.13)"
+        ]
+      },
+      "sem-from": {
+        "role": "semantic",
+        "displayName": "sem from",
+        "canonical": "#1d4ed8",
+        "tonalRamp": [
+          "oklch(15% 0.2172 264.38)",
+          "oklch(25% 0.2172 264.38)",
+          "oklch(36% 0.2172 264.38)",
+          "oklch(48% 0.2172 264.38)",
+          "oklch(61% 0.2172 264.38)",
+          "oklch(74% 0.2172 264.38)",
+          "oklch(86% 0.2172 264.38)",
+          "oklch(95% 0.2172 264.38)"
+        ]
+      },
+      "sem-filter": {
+        "role": "semantic",
+        "displayName": "sem filter",
+        "canonical": "#6d28d9",
+        "tonalRamp": [
+          "oklch(15% 0.2412 292.58)",
+          "oklch(25% 0.2412 292.58)",
+          "oklch(36% 0.2412 292.58)",
+          "oklch(48% 0.2412 292.58)",
+          "oklch(61% 0.2412 292.58)",
+          "oklch(74% 0.2412 292.58)",
+          "oklch(86% 0.2412 292.58)",
+          "oklch(95% 0.2412 292.58)"
+        ]
+      },
+      "sem-operator": {
+        "role": "semantic",
+        "displayName": "sem operator",
+        "canonical": "#92400e",
+        "tonalRamp": [
+          "oklch(15% 0.1247 46.20)",
+          "oklch(25% 0.1247 46.20)",
+          "oklch(36% 0.1247 46.20)",
+          "oklch(48% 0.1247 46.20)",
+          "oklch(61% 0.1247 46.20)",
+          "oklch(74% 0.1247 46.20)",
+          "oklch(86% 0.1247 46.20)",
+          "oklch(95% 0.1247 46.20)"
+        ]
+      },
+      "sem-order": {
+        "role": "semantic",
+        "displayName": "sem order",
+        "canonical": "#be185d",
+        "tonalRamp": [
+          "oklch(15% 0.1990 3.96)",
+          "oklch(25% 0.1990 3.96)",
+          "oklch(36% 0.1990 3.96)",
+          "oklch(48% 0.1990 3.96)",
+          "oklch(61% 0.1990 3.96)",
+          "oklch(74% 0.1990 3.96)",
+          "oklch(86% 0.1990 3.96)",
+          "oklch(95% 0.1990 3.96)"
+        ]
+      },
+      "sem-join": {
+        "role": "semantic",
+        "displayName": "sem join",
+        "canonical": "#047857",
+        "tonalRamp": [
+          "oklch(15% 0.1049 165.61)",
+          "oklch(25% 0.1049 165.61)",
+          "oklch(36% 0.1049 165.61)",
+          "oklch(48% 0.1049 165.61)",
+          "oklch(61% 0.1049 165.61)",
+          "oklch(74% 0.1049 165.61)",
+          "oklch(86% 0.1049 165.61)",
+          "oklch(95% 0.1049 165.61)"
+        ]
+      },
+      "sem-group": {
+        "role": "semantic",
+        "displayName": "sem group",
+        "canonical": "#c2410c",
+        "tonalRamp": [
+          "oklch(15% 0.1739 38.40)",
+          "oklch(25% 0.1739 38.40)",
+          "oklch(36% 0.1739 38.40)",
+          "oklch(48% 0.1739 38.40)",
+          "oklch(61% 0.1739 38.40)",
+          "oklch(74% 0.1739 38.40)",
+          "oklch(86% 0.1739 38.40)",
+          "oklch(95% 0.1739 38.40)"
+        ]
+      },
+      "sem-select-dark": {
+        "role": "semantic",
+        "displayName": "sem select dark",
+        "canonical": "#22d3ee",
+        "tonalRamp": [
+          "oklch(15% 0.1339 211.53)",
+          "oklch(25% 0.1339 211.53)",
+          "oklch(36% 0.1339 211.53)",
+          "oklch(48% 0.1339 211.53)",
+          "oklch(61% 0.1339 211.53)",
+          "oklch(74% 0.1339 211.53)",
+          "oklch(86% 0.1339 211.53)",
+          "oklch(95% 0.1339 211.53)"
+        ]
+      },
+      "sem-from-dark": {
+        "role": "semantic",
+        "displayName": "sem from dark",
+        "canonical": "#93b8ff",
+        "tonalRamp": [
+          "oklch(15% 0.1097 262.92)",
+          "oklch(25% 0.1097 262.92)",
+          "oklch(36% 0.1097 262.92)",
+          "oklch(48% 0.1097 262.92)",
+          "oklch(61% 0.1097 262.92)",
+          "oklch(74% 0.1097 262.92)",
+          "oklch(86% 0.1097 262.92)",
+          "oklch(95% 0.1097 262.92)"
+        ]
+      },
+      "sem-filter-dark": {
+        "role": "semantic",
+        "displayName": "sem filter dark",
+        "canonical": "#c4b5fd",
+        "tonalRamp": [
+          "oklch(15% 0.1013 293.57)",
+          "oklch(25% 0.1013 293.57)",
+          "oklch(36% 0.1013 293.57)",
+          "oklch(48% 0.1013 293.57)",
+          "oklch(61% 0.1013 293.57)",
+          "oklch(74% 0.1013 293.57)",
+          "oklch(86% 0.1013 293.57)",
+          "oklch(95% 0.1013 293.57)"
+        ]
+      },
+      "sem-operator-dark": {
+        "role": "semantic",
+        "displayName": "sem operator dark",
+        "canonical": "#fcd34d",
+        "tonalRamp": [
+          "oklch(15% 0.1534 91.61)",
+          "oklch(25% 0.1534 91.61)",
+          "oklch(36% 0.1534 91.61)",
+          "oklch(48% 0.1534 91.61)",
+          "oklch(61% 0.1534 91.61)",
+          "oklch(74% 0.1534 91.61)",
+          "oklch(86% 0.1534 91.61)",
+          "oklch(95% 0.1534 91.61)"
+        ]
+      },
+      "sem-order-dark": {
+        "role": "semantic",
+        "displayName": "sem order dark",
+        "canonical": "#f9a8d4",
+        "tonalRamp": [
+          "oklch(15% 0.1095 346.02)",
+          "oklch(25% 0.1095 346.02)",
+          "oklch(36% 0.1095 346.02)",
+          "oklch(48% 0.1095 346.02)",
+          "oklch(61% 0.1095 346.02)",
+          "oklch(74% 0.1095 346.02)",
+          "oklch(86% 0.1095 346.02)",
+          "oklch(95% 0.1095 346.02)"
+        ]
+      },
+      "sem-join-dark": {
+        "role": "semantic",
+        "displayName": "sem join dark",
+        "canonical": "#6ee7b7",
+        "tonalRamp": [
+          "oklch(15% 0.1299 164.98)",
+          "oklch(25% 0.1299 164.98)",
+          "oklch(36% 0.1299 164.98)",
+          "oklch(48% 0.1299 164.98)",
+          "oklch(61% 0.1299 164.98)",
+          "oklch(74% 0.1299 164.98)",
+          "oklch(86% 0.1299 164.98)",
+          "oklch(95% 0.1299 164.98)"
+        ]
+      },
+      "sem-group-dark": {
+        "role": "semantic",
+        "displayName": "sem group dark",
+        "canonical": "#fdba74",
+        "tonalRamp": [
+          "oklch(15% 0.1165 66.29)",
+          "oklch(25% 0.1165 66.29)",
+          "oklch(36% 0.1165 66.29)",
+          "oklch(48% 0.1165 66.29)",
+          "oklch(61% 0.1165 66.29)",
+          "oklch(74% 0.1165 66.29)",
+          "oklch(86% 0.1165 66.29)",
+          "oklch(95% 0.1165 66.29)"
+        ]
+      },
+      "sem-block": {
+        "role": "semantic",
+        "displayName": "sem block",
+        "canonical": "#0f172a",
+        "tonalRamp": [
+          "oklch(15% 0.0398 265.75)",
+          "oklch(25% 0.0398 265.75)",
+          "oklch(36% 0.0398 265.75)",
+          "oklch(48% 0.0398 265.75)",
+          "oklch(61% 0.0398 265.75)",
+          "oklch(74% 0.0398 265.75)",
+          "oklch(86% 0.0398 265.75)",
+          "oklch(95% 0.0398 265.75)"
+        ]
+      },
+      "sem-block-dark": {
+        "role": "semantic",
+        "displayName": "sem block dark",
+        "canonical": "#f8fafc",
+        "tonalRamp": [
+          "oklch(15% 0.0034 247.86)",
+          "oklch(25% 0.0034 247.86)",
+          "oklch(36% 0.0034 247.86)",
+          "oklch(48% 0.0034 247.86)",
+          "oklch(61% 0.0034 247.86)",
+          "oklch(74% 0.0034 247.86)",
+          "oklch(86% 0.0034 247.86)",
+          "oklch(95% 0.0034 247.86)"
+        ]
+      },
+      "sem-control": {
+        "role": "semantic",
+        "displayName": "sem control",
+        "canonical": "#be123c",
+        "tonalRamp": [
+          "oklch(15% 0.1978 16.93)",
+          "oklch(25% 0.1978 16.93)",
+          "oklch(36% 0.1978 16.93)",
+          "oklch(48% 0.1978 16.93)",
+          "oklch(61% 0.1978 16.93)",
+          "oklch(74% 0.1978 16.93)",
+          "oklch(86% 0.1978 16.93)",
+          "oklch(95% 0.1978 16.93)"
+        ]
+      },
+      "sem-control-dark": {
+        "role": "semantic",
+        "displayName": "sem control dark",
+        "canonical": "#fda4af",
+        "tonalRamp": [
+          "oklch(15% 0.1061 11.64)",
+          "oklch(25% 0.1061 11.64)",
+          "oklch(36% 0.1061 11.64)",
+          "oklch(48% 0.1061 11.64)",
+          "oklch(61% 0.1061 11.64)",
+          "oklch(74% 0.1061 11.64)",
+          "oklch(86% 0.1061 11.64)",
+          "oklch(95% 0.1061 11.64)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Portada",
+        "purpose": "Titulares de portada; no sustituye tipografía de proyección."
+      },
+      "headline": {
+        "displayName": "Título de página",
+        "purpose": "h1 de pantallas de aplicación."
+      },
+      "body": {
+        "displayName": "Lectura",
+        "purpose": "Texto educativo y descripción de tareas."
+      },
+      "code": {
+        "displayName": "SQL",
+        "purpose": "Código e identificadores."
+      }
+    },
+    "shadows": [
+      {
+        "name": "elevated",
+        "value": "0 8px 24px rgb(11 23 51 / 10%)",
+        "purpose": "Escala implementada en _tokens.scss; aplicar según la capa."
+      },
+      {
+        "name": "xs",
+        "value": "0 1px 2px rgb(11 23 51 / 6%)",
+        "purpose": "Escala implementada en _tokens.scss; aplicar según la capa."
+      },
+      {
+        "name": "sm",
+        "value": "0 2px 8px rgb(11 23 51 / 8%)",
+        "purpose": "Escala implementada en _tokens.scss; aplicar según la capa."
+      },
+      {
+        "name": "md",
+        "value": "0 12px 32px rgb(11 23 51 / 12%)",
+        "purpose": "Escala implementada en _tokens.scss; aplicar según la capa."
+      },
+      {
+        "name": "lg",
+        "value": "0 24px 56px rgb(11 23 51 / 16%)",
+        "purpose": "Escala implementada en _tokens.scss; aplicar según la capa."
+      }
+    ],
+    "motion": [
+      {
+        "name": "feedback",
+        "value": "150ms",
+        "purpose": "Token implementado; respetar prefers-reduced-motion."
+      },
+      {
+        "name": "transition",
+        "value": "250ms",
+        "purpose": "Token implementado; respetar prefers-reduced-motion."
+      },
+      {
+        "name": "slow",
+        "value": "350ms",
+        "purpose": "Token implementado; respetar prefers-reduced-motion."
+      },
+      {
+        "name": "entrance",
+        "value": "500ms",
+        "purpose": "Entrada de portada, no tareas frecuentes."
+      },
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "Token implementado; respetar prefers-reduced-motion."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Token implementado; respetar prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "576px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "992px"
+      },
+      {
+        "name": "xl",
+        "value": "1200px"
+      },
+      {
+        "name": "xxl",
+        "value": "1400px"
+      }
+    ],
+    "focus": {
+      "outline": "3px solid var(--color-focus)",
+      "outlineOffset": "2px",
+      "buttonRing": "0 0 0 3px var(--color-surface), 0 0 0 6px var(--color-focus)"
+    },
+    "layers": {
+      "base": 0,
+      "sticky": 100,
+      "menu": 150,
+      "overlay": 200,
+      "dialog": 300,
+      "toast": 400
+    },
+    "provenance": {
+      "source": "ce32568",
+      "date": "2026-10-19",
+      "files": [
+        "src/styles/_tokens.scss",
+        "src/styles/_components.scss",
+        "src/styles/_base.scss",
+        "src/styles/_shell.scss",
+        "src/styles/_resources.scss",
+        "src/styles/_study.scss",
+        "src/app/layout.tsx"
+      ],
+      "tonalRamps": "Rampas OKLCH sintetizadas solo para el panel de previsualización; no son tokens CSS implementados ni certifican contraste.",
+      "review": "Pendiente de evidencia del orquestador; este documento no emite dictamen QA.",
+      "remoteDesignSource": "a2d6827",
+      "seedReference": "seed:247d45123755e633",
+      "seedScope": "Generated after implementation; did not direct this composition.",
+      "font": {
+        "family": "Inter Variable",
+        "implementation": "next/font/local",
+        "asset": "node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
+        "weight": "100 900",
+        "license": "OFL",
+        "display": "swap",
+        "adjustFontFallback": "Arial"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Botón primary",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Control reutilizable de acción; estados de puntero, foco y reduced motion.",
+      "html": "<button type=\"button\" class=\"ds-button ds-primary\">Continuar aprendizaje</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2,8px);min-height:44px;min-width:44px;padding:var(--space-3,12px) var(--space-5,24px);border:1px solid transparent;border-radius:var(--radius-control,8px);font:650 16px/1.35 var(--font-sans,system-ui);cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,color 150ms ease,transform 150ms cubic-bezier(.16,1,.3,1)}.ds-button:focus-visible{outline:3px solid var(--color-focus,#1746b8);outline-offset:2px}.ds-button:active:not(:disabled):not(:focus-visible){transform:translateY(1px)}.ds-button:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-primary{background:var(--color-primary,#1746b8);color:var(--color-inverse,#f7faff)}.ds-primary:hover:not(:disabled){background:var(--color-primary-hover,#10368f);color:var(--color-inverse,#f7faff)}"
+    },
+    {
+      "name": "Botón secondary",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Control reutilizable de acción; estados de puntero, foco y reduced motion.",
+      "html": "<button type=\"button\" class=\"ds-button ds-secondary\">Ver lección</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2,8px);min-height:44px;min-width:44px;padding:var(--space-3,12px) var(--space-5,24px);border:1px solid transparent;border-radius:var(--radius-control,8px);font:650 16px/1.35 var(--font-sans,system-ui);cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,color 150ms ease,transform 150ms cubic-bezier(.16,1,.3,1)}.ds-button:focus-visible{outline:3px solid var(--color-focus,#1746b8);outline-offset:2px}.ds-button:active:not(:disabled):not(:focus-visible){transform:translateY(1px)}.ds-button:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-secondary{background:var(--color-surface,#fff);color:var(--color-primary,#1746b8);border-color:var(--color-border-control,#63738d)}.ds-secondary:hover:not(:disabled){background:var(--color-soft,#eaf1ff);color:var(--color-primary-hover,#10368f);border-color:var(--color-primary,#1746b8)}"
+    },
+    {
+      "name": "Botón text",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Control reutilizable de acción; estados de puntero, foco y reduced motion.",
+      "html": "<button type=\"button\" class=\"ds-button ds-text\">Volver al temario</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2,8px);min-height:44px;min-width:44px;padding:var(--space-3,12px) var(--space-5,24px);border:1px solid transparent;border-radius:var(--radius-control,8px);font:650 16px/1.35 var(--font-sans,system-ui);cursor:pointer;transition:background-color 150ms ease,border-color 150ms ease,color 150ms ease,transform 150ms cubic-bezier(.16,1,.3,1)}.ds-button:focus-visible{outline:3px solid var(--color-focus,#1746b8);outline-offset:2px}.ds-button:active:not(:disabled):not(:focus-visible){transform:translateY(1px)}.ds-button:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-text{background:transparent;color:var(--color-primary,#1746b8)}.ds-text:hover:not(:disabled){background:var(--color-soft,#eaf1ff);color:var(--color-primary-hover,#10368f);text-decoration:underline;text-underline-offset:.2em}"
+    },
+    {
+      "name": "Búsqueda de recursos",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Campo de búsqueda con etiqueta visible; filtrado lo resuelve el componente React real.",
+      "html": "<label class=\"ds-label\" for=\"ds-resource-search\">¿Qué necesitas recordar?</label><input id=\"ds-resource-search\" class=\"ds-search\" type=\"search\" placeholder=\"Buscar concepto, sintaxis o error…\">",
+      "css": ".ds-label{display:block;margin-bottom:12px;color:var(--color-ink,#132445);font:750 22px/1.5 var(--font-sans,system-ui)}.ds-search{width:100%;min-width:0;box-sizing:border-box;min-height:52px;padding:12px 16px;border:1px solid var(--color-border-control,#63738d);border-radius:var(--radius-control,8px);background:var(--color-surface,#fff);color:var(--color-ink,#132445);font:18px/1.65 var(--font-sans,system-ui);caret-color:var(--color-primary,#1746b8)}.ds-search::placeholder{color:var(--color-muted,#4c5d78);opacity:1}.ds-search:focus-visible{outline:3px solid var(--color-focus,#1746b8);outline-offset:2px}"
+    },
+    {
+      "name": "Ficha de trabajo",
+      "kind": "card",
+      "refersTo": "card-white",
+      "description": "Agrupación plana de contenido con borde sutil.",
+      "html": "<article class=\"ds-card\"><h3 class=\"ds-title\">Consulta y resultado</h3><p>Comprende el ejemplo y practica con los mismos datos.</p></article>",
+      "css": ".ds-card{min-width:0;padding:clamp(24px,3vw,32px);border:1px solid var(--color-border-subtle,#dce3ef);border-radius:var(--radius-card,12px);background:var(--color-surface,#fff);color:var(--color-ink,#132445);font:18px/1.65 var(--font-sans,system-ui)}.ds-title{margin:0 0 16px;font-size:24px;line-height:1.12;letter-spacing:-.035em}.ds-card p{margin-bottom:0}"
+    },
+    {
+      "name": "Etiqueta de contexto",
+      "kind": "chip",
+      "refersTo": "chip-primary",
+      "description": "Chip informativo; los filtros interactivos usan aria-pressed.",
+      "html": "<span class=\"ds-chip\">Fundamentos SQL</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:8px;max-width:100%;padding:4px 12px;border:1px solid var(--color-border-subtle,#dce3ef);border-radius:999px;color:var(--color-primary,#1746b8);background:var(--color-soft,#eaf1ff);font:600 16px/1.5 var(--font-sans,system-ui)}"
+    },
+    {
+      "name": "Navegación de modos",
+      "kind": "nav",
+      "description": "Navegación horizontal adaptable de modos; página actual explícita.",
+      "html": "<nav class=\"ds-modes\" aria-label=\"Modos de la sección\"><a href=\"#estudio\" aria-current=\"page\">Estudiar</a><a href=\"#practica\">Practicar</a></nav>",
+      "css": ".ds-modes{display:flex;flex-wrap:wrap;gap:8px;font:700 16px/1.5 var(--font-sans,system-ui)}.ds-modes a{display:inline-flex;align-items:center;min-height:44px;padding:8px 16px;box-sizing:border-box;border:1px solid var(--color-border-subtle,#dce3ef);border-radius:var(--radius-pill,999px);color:var(--color-ink,#132445);background:var(--color-surface,#fff);text-decoration:none}.ds-modes a:hover{border-color:var(--color-primary,#1746b8);color:var(--color-primary,#1746b8)}.ds-modes a[aria-current]{color:var(--color-inverse,#f7faff);background:var(--color-primary,#1746b8);border-color:var(--color-primary,#1746b8)}.ds-modes a:focus-visible{outline:3px solid var(--color-focus,#1746b8);outline-offset:2px}"
+    },
+    {
+      "name": "Código SQL",
+      "kind": "custom",
+      "description": "Código oscuro y color de cláusulas conservado; muestra ilustrativa, sin ejecución.",
+      "html": "<pre class=\"ds-code\"><code><span class=\"ds-select\">SELECT</span> NOMBRE\n<span class=\"ds-from\">FROM</span> EMPLEADOS;</code></pre>",
+      "css": ".ds-code{margin:0;padding:16px;border-radius:var(--radius-control,8px);background:var(--color-editor,#091221);color:var(--color-inverse,#f7faff);font:17px/1.65 var(--font-mono,Consolas,monospace);white-space:pre-wrap;overflow-wrap:anywhere}.ds-select{color:var(--color-sem-select-dark,#22d3ee)}.ds-from{color:var(--color-sem-from-dark,#93b8ff)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El cuaderno de trabajo de bases de datos",
+    "overview": "Superficies claras, tinta azul noche y código oscuro reúnen una plataforma académica de uso diario. La identidad nace de la relación entre datos de origen, consulta y resultado. La lectura y la práctica tienen prioridad sobre la decoración.\n\nLa interfaz usa herramientas familiares, secuencias visibles y acciones explícitas. El color distingue cláusulas SQL, estados y acciones; las superficies separan el trabajo del contexto. El nombre DB LAB y los créditos académicos se conservan en texto. Inter Variable está autoalojada para mantener medidas consistentes entre sistemas y proyectores, con respaldo del sistema y sin proveedor remoto de fuentes.",
+    "keyCharacteristics": [
+      "Superficies de trabajo claras y código oscuro.",
+      "Información secuencial con navegación persistente cuando hay espacio.",
+      "Color semántico SQL acompañado de texto o forma.",
+      "Controles legibles y feedback breve."
+    ],
+    "rules": [
+      {
+        "name": "The SQL Meaning Rule",
+        "body": "SELECT usa cian; FROM azul; WHERE violeta; operadores ámbar; ORDER BY magenta; JOIN verde; GROUP BY naranja. Las variantes `-dark` sirven sobre código oscuro. PL/SQL usa estructura neutra y control rosado. El color siempre acompaña texto o forma.",
+        "section": "colors"
+      },
+      {
+        "name": "The Explicit State Rule",
+        "body": "Correcto, advertencia y error incluyen texto o símbolo además del color semántico.",
+        "section": "colors"
+      },
+      {
+        "name": "The Recompose Before Shrinking Rule",
+        "body": "Resolver densidad cambiando columnas, agrupación o representación; conservar tamaños legibles de texto, tablas y código.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "**Do** usar las superficies claras y reservar código oscuro a su función.",
+      "**Do** conservar texto, forma y semántica junto al color SQL y los estados.",
+      "**Do** resolver densidad mediante composición y mantener el objetivo táctil de 44 px.",
+      "**Do** reutilizar tokens y componentes antes de añadir excepciones locales.",
+      "**Do** conservar geometría de proyección, contenido académico y contratos de datos."
+    ],
+    "donts": [
+      "**Don't** presentar resultados verificados como una ejecución Oracle en vivo.",
+      "**Don't** convertir todo el producto en modo oscuro ni anidar paneles sin propósito.",
+      "**Don't** depender de proveedores remotos de fuentes ni de efectos para contenido esencial.",
+      "**Don't** ocultar errores, controles o información esencial para sostener una composición."
+    ]
+  }
+}

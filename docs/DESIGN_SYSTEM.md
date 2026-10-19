@@ -1,5 +1,27 @@
 # DESIGN_SYSTEM — Identidad y componentes
 
+## Rediseño integrado — 19 de octubre de 2026
+
+Esta sección prevalece sobre los valores visuales incompatibles de las versiones anteriores. Conserva sus contratos académicos, semánticos, de accesibilidad, tablas, código y proyección. Fuentes actuales: integración `ce32568`, rediseño remoto `a2d6827`, [DESIGN.md](../DESIGN.md), [sidecar de componentes](../.impeccable/design.json) y [plan visual remoto](VISUAL_REDESIGN_PLAN.md). Los tokens de `src/styles/_tokens.scss` son la fuente de implementación; una propuesta previa no prevalece sobre ellos.
+
+| Área | Sistema construido |
+| --- | --- |
+| Fuente | Inter Variable autoalojada con `next/font/local`, pesos 100–900, OFL y fallback ajustado Arial; pila del sistema como respaldo. Se sustituye la decisión anterior de usar únicamente fuentes de sistema. |
+| Superficies | Página `#F7F9FC`, blanco, contexto azul claro y superficie hundida `#EFF3FA`; noche elevada `#12234A` con texto secundario `#B8C4D9`. |
+| Bordes y texto | Borde sutil `#DCE3EF`, fuerte `#C3CEE0`, control `#63738D`; tinta secundaria fuerte `#2B3A57`. |
+| Radios | Controles 8 px, tarjetas 12 px y secciones 16 px; escala secundaria 4/8/12/16 y pill 999 px. Sustituye los radios 10/20/28 anteriores. |
+| Tipografía | Cuerpo 18 px/1.65, control 16 px y código 17 px; h1 `clamp(2rem, 4.5vw, 3.5rem)`, h2 `clamp(2rem, 3vw, 2.5rem)`, h3 24 px. Proyección conserva su escala específica. |
+| Espacio | Escala 4/8/12/16/24/32/48/64/96 px; contenedor 1320 px y lectura 72ch; breakpoints 576/768/992/1200/1400. |
+| Navegación | Cabecera de al menos 64 px; estado activo con indicador inferior; navegación móvil bajo 992 px. Lecciones S2/S3 tienen índice adaptable y modos horizontales. |
+| Aprendizaje | Temario continuo de lecciones, recursos en dos columnas cuando caben, práctica con progreso visible, Challenge en retícula. Se conserva búsqueda sin tildes, categorías, apertura de resultados y estado vacío de recursos. |
+| Efectos | React Bits con presupuesto por pantalla; ninguno en Lab, Estudio, Exposición ni Challenge. Foco de 3 px, targets de producto 44 px y reduced motion se conservan. |
+
+El código experimental `_learning-workspace.scss`, sus cabeceras claras y su rail de modos de la instantánea `9600b85` fueron retirados al integrar el rediseño remoto. No se utilizan como normativa. El patrón vigente está extraído de los componentes realmente integrados, sin modificar contenido, Oracle, Supabase, auth ni geometría académica de escenas.
+
+`DESIGN.md` contiene los tokens portables y las ocho secciones del formato. `.impeccable/design.json` usa esquema 2: metadatos, sombras, motion, breakpoints, foco y ejemplos HTML/CSS. Sus rampas OKLCH sintetizadas sirven únicamente a la previsualización; no son colores adicionales del producto ni verificaciones de contraste. Referencia del seed no corroborada: `none (unavailable)`.
+
+**Estado de verificación:** esta extracción documental no certifica QA ni un dictamen visual independiente. El informe de cierre del orquestador debe especificar la revisión y las pruebas de la integración final; los resultados anteriores se conservan con su alcance y fecha.
+
 Versión 3.0 · 3 de octubre de 2026 · Relacionado con [UX_FLOWS.md](UX_FLOWS.md), [CONTENT_MAP.md](CONTENT_MAP.md) y [FINAL_UX_PEDAGOGICAL_AUDIT.md](FINAL_UX_PEDAGOGICAL_AUDIT.md). La sección [DB LAB 3.0](#db-lab-30) prevalece sobre lo anterior cuando difieren; [Sistema final (2.0)](#sistema-final-20) sigue vigente en lo que 3.0 no cambia.
 
 ## Dirección visual fundada en las referencias
