@@ -10,7 +10,10 @@ $dv-buckets:
   12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58,
   60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100, 104, 108, 112, 116, 120;
 
+// Suelo de la letra secundaria (rótulos, insignias): 13 px en la interfaz; el lienzo del
+// proyector (.dv--large) conserva el suyo, calculado para que la escena quepa.
 .dv {
+  --dv-floor: 13px;
   container: dv / inline-size;
   display: grid;
   gap: 0.5em;
@@ -26,9 +29,9 @@ $dv-buckets:
 .dv__label {
   margin: 0;
   color: var(--color-primary);
-  font-size: max(0.72em, 12px);
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-size: max(0.72em, var(--dv-floor));
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .dv__summary {
@@ -65,14 +68,15 @@ $dv-buckets:
     color var(--duration-transition),
     box-shadow var(--duration-transition);
 }
+// Encabezado discreto: superficie hundida, tinta secundaria y 600; el dato manda.
 .dv th {
-  color: var(--color-primary);
-  background: var(--color-soft);
-  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-ink-2);
+  background: var(--color-sunken);
+  border-bottom: 1px solid var(--color-border-strong);
   font-family: var(--font-mono);
-  font-size: max(0.78em, 12px);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: max(0.78em, var(--dv-floor));
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 .dv td {
   color: var(--color-ink);
@@ -92,19 +96,25 @@ $dv-buckets:
 .dv .is-number {
   text-align: right;
 }
+.dv--large {
+  --dv-floor: 12px;
+}
 .dv--large th,
 .dv--large td {
   padding: 0.42em 0.8em;
 }
 
-// Columnas pedidas y atenuadas (contraste AA: color y peso, nunca opacidad).
+// Columnas pedidas y atenuadas (contraste AA: color y peso, nunca opacidad). El cian va
+// tenue (texto de tinta: 13:1) y el filete superior en azul para el contraste de 3:1.
 .dv th.is-on {
   color: var(--color-night);
-  background: var(--color-cyan);
+  background: color-mix(in srgb, var(--color-cyan) 18%, var(--color-surface));
+  box-shadow: inset 0 3px 0 var(--color-primary);
+  font-weight: 700;
 }
 .dv td.is-on {
-  background: color-mix(in srgb, var(--color-cyan) 14%, var(--color-surface));
-  font-weight: 650;
+  background: color-mix(in srgb, var(--color-cyan) 10%, var(--color-surface));
+  font-weight: 600;
 }
 .dv .is-dim {
   color: var(--color-muted);
@@ -121,7 +131,7 @@ $dv-buckets:
   box-shadow:
     inset 0 2px 0 var(--color-primary),
     inset 0 -2px 0 var(--color-primary);
-  font-weight: 650;
+  font-weight: 600;
 }
 .dv tr.is-duplicate td {
   color: var(--color-muted);
@@ -137,8 +147,8 @@ $dv-buckets:
   background: var(--color-surface);
   border: 1px solid currentColor;
   border-radius: var(--radius-pill);
-  font-size: max(0.75em, 12px);
-  font-weight: 750;
+  font-size: max(0.75em, var(--dv-floor));
+  font-weight: 700;
   text-decoration: none;
   vertical-align: middle;
 }
@@ -174,7 +184,7 @@ $dv-buckets:
   background: color-mix(in srgb, var(--color-warning) 6%, var(--color-surface));
 }
 .dv__state-label {
-  font-size: max(0.85em, 12px);
+  font-size: max(0.85em, var(--dv-floor));
 }
 .dv__state-short {
   display: none;
@@ -207,31 +217,28 @@ $dv-buckets:
       display: inline;
     }
   }
-  // Contenedores muy estrechos (una actividad dentro de una tarjeta a 320 px): un encabezado
-  // largo como DEPARTAMENTO puede partirse dentro de la palabra antes que desbordar. El em es
-  // el de la tabla: en las compactas, 21em son unos 270 px.
-  @container dv (width < 21em) {
-    .dv thead th {
+  // Contenedores estrechos: antes que desbordar, un texto largo sin espacios (un correo,
+  // DEPARTAMENTO) se parte dentro de la palabra. Números, fechas e insignias nunca.
+  @container dv (width < 26em) {
+    .dv thead th,
+    .dv td:not(.is-number):not(.is-date):not(.dv__state) {
       overflow-wrap: anywhere;
     }
   }
-  // Letra grande del Estudio (18 px): en un teléfono la tabla baja a 14 px.
+  // Letra grande del Estudio (18 px): en un teléfono la tabla baja a 14 px, nunca menos.
   @container dv (width < 24em) {
     .dv--regular table {
-      font-size: max(0.78em, 13px);
+      font-size: max(0.78em, 14px);
     }
   }
-  // Teléfonos de 320 px: letra de 12–13 px y relleno mínimo; nunca más pequeña.
+  // Teléfonos de 320 px: la letra se queda en 14 px; se recorta el relleno, no el texto.
   @container dv (width < 20em) {
     .dv table {
-      font-size: max(0.75em, 12px);
-    }
-    .dv--regular table {
-      font-size: 12px;
+      font-size: max(0.75em, 14px);
     }
     .dv th,
     .dv td {
-      padding-inline: 0.2em;
+      padding-inline: 0.3em;
     }
   }
 }
@@ -241,7 +248,8 @@ $dv-buckets:
 }
 .dv th.is-sorted {
   color: var(--color-night);
-  background: color-mix(in srgb, var(--color-cyan) 55%, var(--color-soft));
+  background: color-mix(in srgb, var(--color-cyan) 18%, var(--color-surface));
+  box-shadow: inset 0 3px 0 var(--color-primary);
 }
 .dv__sort {
   font-size: 1.1em;
@@ -256,7 +264,7 @@ $dv-buckets:
   border: 1px dashed var(--color-null-border);
   border-radius: var(--radius-pill);
   font-family: var(--font-mono);
-  font-size: max(0.78em, 12px);
+  font-size: max(0.78em, var(--dv-floor));
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.4;
@@ -273,8 +281,8 @@ $dv-buckets:
   gap: 0.35em;
   padding: 0.05em 0.6em;
   border-radius: var(--radius-pill);
-  font-size: max(0.82em, 12px);
-  font-weight: 750;
+  font-size: max(0.82em, var(--dv-floor));
+  font-weight: 700;
   letter-spacing: 0.03em;
   line-height: 1.5;
 }
@@ -292,7 +300,7 @@ $dv-buckets:
   color: var(--color-night);
   background: var(--color-cyan);
   border-radius: 3px;
-  font-weight: 800;
+  font-weight: 700;
 }
 .dv-like__one {
   text-decoration: underline dotted var(--color-primary) 2px;
@@ -347,14 +355,14 @@ $dv-buckets:
   min-width: 0;
   overflow-wrap: anywhere;
   font-size: 1.05em;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.25;
 }
 .dv-record__id {
   margin-left: 0.5em;
   color: var(--color-muted);
   font-family: var(--font-mono);
-  font-size: max(0.75em, 12px);
+  font-size: max(0.75em, var(--dv-floor));
   font-weight: 600;
 }
 .dv-record__subtitle {
@@ -365,8 +373,8 @@ $dv-buckets:
 }
 .dv-record__state {
   flex-basis: 100%;
-  font-size: max(0.82em, 12px);
-  font-weight: 750;
+  font-size: max(0.82em, var(--dv-floor));
+  font-weight: 700;
 }
 .dv-record__state--kept {
   color: var(--color-success);
@@ -393,7 +401,7 @@ $dv-buckets:
 .dv-field dt {
   color: var(--color-muted);
   font-family: var(--font-mono);
-  font-size: max(0.74em, 12px);
+  font-size: max(0.74em, var(--dv-floor));
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -454,9 +462,9 @@ $dv-buckets:
 .dv-record__group-title {
   margin: 0;
   color: var(--color-primary);
-  font-size: max(0.7em, 12px);
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-size: max(0.7em, var(--dv-floor));
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .dv-record__more > summary {
@@ -472,7 +480,7 @@ $dv-buckets:
 // encabezado fijo al desplazar la página y filas alternas muy suaves. Números a la derecha,
 // fechas enteras, NULL y ESTADO como insignias discretas.
 .dv--compact {
-  font-size: clamp(0.8125rem, 0.45vw + 0.45rem, 0.875rem);
+  font-size: 0.875rem;
 }
 .dv--compact th,
 .dv--compact td {
@@ -495,12 +503,18 @@ $dv-buckets:
   vertical-align: bottom;
   line-height: 1.25;
 }
+// Cabecera de 13 px / 600 sobre superficie hundida (los datos van a 14 px).
 .dv--compact thead th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--color-soft);
-  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--color-primary) 22%, transparent);
+  font-size: 0.9286em;
+  background: var(--color-sunken);
+  box-shadow: inset 0 -1px 0 var(--color-border-strong);
+}
+.dv--compact .dv-status,
+.dv--compact .dv-null {
+  font-size: 0.9286em;
 }
 .dv--compact tbody tr:nth-child(even) > * {
   background: color-mix(in srgb, var(--color-page) 55%, var(--color-surface));
@@ -511,20 +525,17 @@ $dv-buckets:
 .dv--compact td.is-date {
   font-variant-numeric: tabular-nums;
 }
+// Contenedor estrecho (grupos de cuatro columnas en un teléfono): la letra se queda en
+// 14 px; se ajusta el relleno y un texto largo sin espacios (un correo, «Barranquilla») se
+// parte antes que abrir una barra horizontal. Números, fechas e insignias no se parten.
 @container dv (width < 26em) {
   .dv--compact th,
   .dv--compact td {
-    padding-inline: 0.42em;
+    padding-inline: 0.4em;
   }
-}
-// 320 px: la tabla de resultados conserva 12 px y reduce el relleno.
-@container dv (width < 23em) {
-  .dv--compact table {
-    font-size: 12px;
-  }
-  .dv--compact th,
-  .dv--compact td {
-    padding-inline: 0.25em;
+  .dv--compact thead th,
+  .dv--compact td:not(.is-number):not(.is-date) {
+    overflow-wrap: anywhere;
   }
 }
 // La tabla que cabe no necesita región con barra: así el encabezado fijo acompaña a la
@@ -568,14 +579,14 @@ $dv-buckets:
   margin: 0;
   color: var(--color-muted);
   font-family: var(--font-mono);
-  font-size: max(0.75em, 12px);
+  font-size: max(0.75em, var(--dv-floor));
   font-weight: 600;
 }
 .dv__band-title span {
   color: var(--color-primary);
   font-family: var(--font-sans);
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 // El ancla une las bandas: fondo propio y separación, además del encabezado repetido.
@@ -608,9 +619,9 @@ $dv-buckets:
 }
 .dv-tabs__legend {
   color: var(--color-muted);
-  font-size: max(0.75em, 12px);
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-size: max(0.75em, var(--dv-floor));
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .dv-tabs__list {
@@ -619,9 +630,9 @@ $dv-buckets:
   gap: 0.3em;
   min-width: 0;
   padding: 3px;
-  background: var(--color-surface-alt);
+  background: var(--color-sunken);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 0.9em;
+  border-radius: var(--radius-control);
 }
 .dv-tabs__tab {
   min-height: 36px;
@@ -629,26 +640,34 @@ $dv-buckets:
   color: var(--color-ink);
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 0.7em;
+  border-radius: 6px;
   font-size: max(0.85em, 13px);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
+  transition:
+    background-color var(--duration-feedback) ease-out,
+    border-color var(--duration-feedback) ease-out;
 }
 .dv-tabs__tab:hover {
   background: var(--color-surface);
   border-color: var(--color-border-subtle);
 }
 .dv-tabs__tab[aria-selected='true'] {
-  color: var(--color-inverse);
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-xs);
+}
+.dv-tabs__tab:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
 }
 .dv-tabs__panel {
   min-width: 0;
 }
 .dv__groups .dv__bands-note {
-  font-size: max(0.75em, 12px);
+  font-size: max(0.75em, var(--dv-floor));
 }
 
 // Cambio de representación por contenedor: todas se ocultan solas si no caben
@@ -690,6 +709,7 @@ $dv-buckets:
 }
 .schema-group {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 0.35em;
   min-width: 0;
@@ -701,10 +721,11 @@ $dv-buckets:
 }
 .schema-group__title {
   margin: 0;
+  overflow-wrap: anywhere;
   color: var(--group-color, var(--color-primary));
-  font-size: max(0.72em, 12px);
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-size: max(0.72em, var(--dv-floor));
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .schema-group__list {
@@ -736,7 +757,7 @@ $dv-buckets:
 .schema-group__type {
   color: var(--color-muted);
   font-family: var(--font-mono);
-  font-size: max(0.8em, 12px);
+  font-size: max(0.8em, var(--dv-floor));
 }
 .schema-group__null {
   padding: 0 0.45em;
@@ -744,7 +765,7 @@ $dv-buckets:
   background: var(--color-null-bg);
   border: 1px dashed var(--color-null-border);
   border-radius: var(--radius-pill);
-  font-size: max(0.72em, 12px);
+  font-size: max(0.72em, var(--dv-floor));
   font-weight: 700;
 }
 .schema-group__description {
@@ -783,7 +804,7 @@ $dv-buckets:
   border-bottom: 0;
   font-family: var(--font-sans);
   font-size: 1em;
-  font-weight: 750;
+  font-weight: 700;
   letter-spacing: 0;
 }
 .dv tbody tr:first-child th[scope='row'] {
@@ -834,9 +855,9 @@ $dv-buckets:
 .change-summary__label {
   margin: 0;
   color: var(--color-muted);
-  font-size: max(0.75em, 12px);
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-size: max(0.75em, var(--dv-floor));
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .change-summary__list {
@@ -865,7 +886,7 @@ $dv-buckets:
 }
 .change-summary__item.is-changed .change-summary__value {
   color: var(--color-primary);
-  font-weight: 800;
+  font-weight: 700;
 }
 .change-summary__note {
   color: var(--color-muted);
