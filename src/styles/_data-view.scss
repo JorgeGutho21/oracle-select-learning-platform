@@ -220,8 +220,8 @@ $dv-buckets:
   // Contenedores estrechos: antes que desbordar, un texto largo sin espacios (un correo,
   // DEPARTAMENTO) se parte dentro de la palabra. Números, fechas e insignias nunca.
   @container dv (width < 26em) {
-    .dv thead th,
-    .dv td:not(.is-number):not(.is-date):not(.dv__state) {
+    .dv thead th:not(:has(wbr)),
+    .dv td:not(.is-number):not(.is-date):not(.dv__state):not(.is-anchor) {
       overflow-wrap: anywhere;
     }
   }
@@ -533,9 +533,26 @@ $dv-buckets:
   .dv--compact td {
     padding-inline: 0.4em;
   }
-  .dv--compact thead th,
-  .dv--compact td:not(.is-number):not(.is-date) {
+  // Las columnas ancla (ID_EMPLEADO, NOMBRE) y los encabezados con «_» no se parten por
+  // dentro: solo los demás textos, y solo cuando una palabra no cabe en su columna.
+  .dv--compact thead th:not(:has(wbr)),
+  .dv--compact td:not(.is-number):not(.is-date):not(.is-anchor) {
     overflow-wrap: anywhere;
+  }
+  // La insignia de ESTADO puede apilar su símbolo sobre la palabra.
+  .dv--compact .dv-status {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+}
+// Teléfonos de 320 px: relleno mínimo y la fecha se parte tras su guion (2019- / 03-15).
+@container dv (width < 22em) {
+  .dv--compact th,
+  .dv--compact td {
+    padding-inline: 0.25em;
+  }
+  .dv--compact td.is-date {
+    white-space: normal;
   }
 }
 // La tabla que cabe no necesita región con barra: así el encabezado fijo acompaña a la
