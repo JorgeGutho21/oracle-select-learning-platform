@@ -395,7 +395,7 @@ export function PresentationDeck({ requestedScene, memory, deck }: PresentationD
             const done = members.filter((member) => member.number <= scene).length;
             return (
               <li key={entry.id} style={{ flexGrow: members.length }}>
-                <span style={{ width: `${(done / members.length) * 100}%` }} />
+                <span style={{ transform: `scaleX(${done / members.length})` }} />
               </li>
             );
           })}

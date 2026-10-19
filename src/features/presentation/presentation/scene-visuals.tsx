@@ -225,52 +225,65 @@ export function RangeLine({
   const stack = new Map<number, number>();
   return (
     <figure className={compact ? 'range-line range-line--compact' : 'range-line'}>
-      <svg
-        viewBox="0 0 100 34"
-        role="img"
-        aria-label={`Salarios de los ${points.length} empleados en una recta: ${inside} están entre ${formatNumber(low)} y ${formatNumber(high)}, límites incluidos.`}
-      >
-        <rect
-          className="range-line__band"
-          x={x(low)}
-          y="6"
-          width={x(high) - x(low)}
-          height="16"
-          rx="1.5"
-        />
-        <line className="range-line__axis" x1="4" x2="96" y1="22" y2="22" />
-        {ticks.map((tick) => (
-          <g key={tick}>
-            <line className="range-line__tick" x1={x(tick)} x2={x(tick)} y1="21" y2="23.5" />
-            <text className="range-line__tick-label" x={x(tick)} y="28" textAnchor="middle">
-              {tick / 1_000_000}M
-            </text>
-          </g>
-        ))}
-        {[low, high].map((limit) => (
-          <line
-            key={limit}
-            className="range-line__limit"
-            x1={x(limit)}
-            x2={x(limit)}
-            y1="4"
-            y2="24"
+      {/* Las cifras del eje van en HTML, no dentro del SVG: así conservan su tamaño mínimo
+          de lectura (12 px) aunque la recta se dibuje pequeña. */}
+      <div className="range-line__plot">
+        <svg
+          viewBox="0 0 100 25"
+          role="img"
+          aria-label={`Salarios de los ${points.length} empleados en una recta: ${inside} están entre ${formatNumber(low)} y ${formatNumber(high)}, límites incluidos.`}
+        >
+          <rect
+            className="range-line__band"
+            x={x(low)}
+            y="6"
+            width={x(high) - x(low)}
+            height="16"
+            rx="1.5"
           />
-        ))}
-        {points.map((point) => {
-          const level = stack.get(point.value) ?? 0;
-          stack.set(point.value, level + 1);
-          return (
-            <circle
-              key={point.name}
-              className={point.inside ? 'range-line__dot is-in' : 'range-line__dot'}
-              cx={x(point.value)}
-              cy={18 - level * 3.2}
-              r="1.35"
+          <line className="range-line__axis" x1="4" x2="96" y1="22" y2="22" />
+          {ticks.map((tick) => (
+            <line
+              key={tick}
+              className="range-line__tick"
+              x1={x(tick)}
+              x2={x(tick)}
+              y1="21"
+              y2="23.5"
             />
-          );
-        })}
-      </svg>
+          ))}
+          {[low, high].map((limit) => (
+            <line
+              key={limit}
+              className="range-line__limit"
+              x1={x(limit)}
+              x2={x(limit)}
+              y1="4"
+              y2="24"
+            />
+          ))}
+          {points.map((point) => {
+            const level = stack.get(point.value) ?? 0;
+            stack.set(point.value, level + 1);
+            return (
+              <circle
+                key={point.name}
+                className={point.inside ? 'range-line__dot is-in' : 'range-line__dot'}
+                cx={x(point.value)}
+                cy={18 - level * 3.2}
+                r="1.35"
+              />
+            );
+          })}
+        </svg>
+        <div className="range-line__ticks" aria-hidden="true">
+          {ticks.map((tick) => (
+            <span key={tick} className="range-line__tick-label" style={{ left: `${x(tick)}%` }}>
+              {tick / 1_000_000}M
+            </span>
+          ))}
+        </div>
+      </div>
       <figcaption className="range-line__legend">
         <span className="range-line__key range-line__key--in">
           <span aria-hidden="true">●</span> dentro del rango ({inside})

@@ -324,9 +324,14 @@ export function ClauseCode({
   const parts = clauseLines(sql);
   const { pinned, setPinned, setHovered } = link;
   return (
-    <figure className={`sql-code sql-code--large ${className}`.trim()}>
+    // El nombre accesible va en la figura (con su pie, si lo hay): `aria-label` no está
+    // permitido en un <pre> sin rol.
+    <figure
+      className={`sql-code sql-code--large ${className}`.trim()}
+      aria-label={label ? undefined : 'Consulta SQL'}
+    >
       {label && <figcaption className="sql-code__label">{label}</figcaption>}
-      <pre className="sql-code__pre" aria-label={label ?? 'Consulta SQL'}>
+      <pre className="sql-code__pre">
         <code>
           {parts.map((part, index) => (
             <button
