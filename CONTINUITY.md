@@ -1,5 +1,12 @@
 # Continuidad del proyecto
 
+## Rediseño visual con el sistema de agentes (19 de octubre de 2026, Claude)
+
+- Plan, agentes ejecutados, resultados y pendientes: docs/VISUAL_REDESIGN_PLAN.md.
+- Fases: análisis (4 auditorías), propuesta, ola 0 (Inter autoalojada + tokens), 5 olas en worktrees integradas por merge, QA final.
+- Gates: lint, typecheck, formato y build PASS; Vitest 2349/7 omitidas; E2E Chromium 390/391 (único fallo previo: subtítulos del vídeo); axe 0/38; contenido académico y Oracle sin cambios.
+- Pendientes: /challenge S1 con la plantilla de S2/S3, «22 lecciones» en /learn, pestañas de modo a 390 px, aria-describedby de dnd-kit en Práctica, subtítulos del vídeo. Edge/WebKit/Firefox NOT TESTED; Preview/Production no desplegados desde este contenedor (proxy 403, sin tokens).
+
 ## Revisión de proyector y composición (18 de octubre de 2026, Claude)
 
 - **Rama y fuentes:** rama `codex-final-pedagogy-ui-20261004`, actualizada desde origin. Se leyeron PRODUCT.md y `.claude/skills/`.

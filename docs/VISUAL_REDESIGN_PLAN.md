@@ -60,6 +60,7 @@ Decisión: el Lab mantiene el resultado bajo el editor (prueba `lab-result-table
 ## Fase 4 — Validación
 
 - Contenido: sin cambios en dominio curricular, resultados Oracle, banco de evaluaciones, dataset, Supabase ni Oracle (diff vacío en esas rutas).
+- E2E Chromium completa: 390/391 (antes del rediseño, 368/391). El único fallo, subtítulos del vídeo resumen (`media.spec`), es anterior. Incluye `projector-scenes` 8/8.
 - Vitest: 2349 pasan, 7 omitidas, con Oracle 23 local y Supabase local reales (igual que antes del rediseño).
 - Accesibilidad (playwright-visual-qa-agent + accessibility-engineer, 19 rutas × 2 anchos): axe 0/38, desbordamiento 0/38, foco 30/30, 0 animaciones con movimiento reducido; texto < 12 px de 12 nodos a 0; objetivos < 24 px de 66 a 0.
 - QA visual: defectos corregidos tras la revisión (escena 10 de S1 a 1280 × 720, estado de Práctica en móvil, pie a 1024 px, tablas de Estudio a 320 px).
