@@ -12,7 +12,6 @@ import type {
 } from '../application/curriculum-api';
 import { ExampleBlock } from './example-block';
 import { ResourceExplorer, ResourceSearchBlock, ResourceSearchItem } from './resource-explorer';
-import { ModeIcon } from '@/features/sections/presentation/mode-icon';
 import { CodeView, CurriculumTable, ExampleOutcome, VerifiedNote } from './example-parts';
 import {
   ChangeColumns,
@@ -82,8 +81,7 @@ export function ModeTabs({
                 className="cu-mode-tabs__link"
                 {...(mode === current ? { 'aria-current': 'page' as const } : {})}
               >
-                <ModeIcon mode={mode} />
-                <span>{MODE_LABEL[mode]}</span>
+                {MODE_LABEL[mode]}
               </Link>
             </li>
           );
@@ -111,8 +109,10 @@ export function ModeHeader({
   return (
     <>
       <PageHeader
+        tone="night"
         breadcrumb={
           <Breadcrumb
+            tone="dark"
             items={[
               { label: 'Inicio', href: '/' },
               { label: 'Secciones', href: '/sections' },
@@ -131,8 +131,7 @@ export function ModeHeader({
         {...(actions ? { actions } : {})}
         {...(aside ? { aside } : {})}
       />
-      <div className="site-container cu-mode-rail">
-        <p className="cu-mode-rail__title">En esta sección</p>
+      <div className="site-container">
         <ModeTabs section={section.id} current={mode} />
       </div>
     </>
@@ -149,43 +148,61 @@ export function LessonBlocks({
   /** Marca de avance por lección (cliente). */
   readonly status?: (lessonId: string) => ReactNode;
 }) {
+  // Cuadrícula continua: cada lección es una tarjeta y el bloque viaja dentro de ella. La
+  // primera tarjeta del bloque lleva su título (h2) y su resumen; las demás, solo el rótulo.
+  // La explicación de «Ampliación» se lee una vez, en el primer bloque que la lleva.
+  const firstExtension = blocks.find((block) => block.tier === 'extension')?.id;
   return (
     <ol className="cu-blocks">
-      {blocks.map((block) => (
-        <li key={block.id} className="cu-block" id={`bloque-${block.number}`}>
-          <h2 className="cu-block__title">
-            <span className="cu-block__number">{String(block.number).padStart(2, '0')}</span>{' '}
-            {block.title}
-          </h2>
-          {block.tier === 'extension' && (
-            <p className="cu-block__tier">
-              <TierBadge tier="extension" label="Ampliación" /> Después del núcleo; no hace falta
-              para entender los temas centrales.
-            </p>
-          )}
-          <p className="cu-block__summary">{block.summary}</p>
-          <ol className="cu-block__lessons">
-            {block.lessons.map((lesson) => (
-              <li key={lesson.id} className="cu-lesson-link">
-                <Link href={lesson.href as Route}>
-                  <span className="cu-lesson-link__number">
-                    Lección {lesson.number}
-                    {lesson.tier === 'extension' && (
-                      <>
-                        {' '}
-                        <TierBadge tier="extension" label="Ampliación" />
-                      </>
-                    )}
-                  </span>
-                  <span className="cu-lesson-link__title">{lesson.title}</span>
-                  <span className="cu-lesson-link__summary">{lesson.summary}</span>
-                </Link>
-                {status?.(lesson.id)}
-              </li>
-            ))}
-          </ol>
-        </li>
-      ))}
+      {blocks.map((block) => {
+        const number = String(block.number).padStart(2, '0');
+        return (
+          <li key={block.id} className="cu-block">
+            <ol className="cu-block__lessons" aria-label={`Lecciones del bloque ${block.title}`}>
+              {block.lessons.map((lesson, index) => (
+                <li
+                  key={lesson.id}
+                  className={`cu-lesson-link${index === 0 ? ' cu-lesson-link--first' : ''}`}
+                >
+                  {index === 0 ? (
+                    <div className="cu-block__head">
+                      <h2 className="cu-block__title" id={`bloque-${block.number}`}>
+                        <span className="cu-block__number">{number}</span> {block.title}
+                      </h2>
+                      {block.tier === 'extension' && (
+                        <p className="cu-block__tier">
+                          <TierBadge tier="extension" label="Ampliación" />
+                          {block.id === firstExtension &&
+                            ' Después del núcleo; no hace falta para entender los temas centrales.'}
+                        </p>
+                      )}
+                      <p className="cu-block__summary">{block.summary}</p>
+                    </div>
+                  ) : (
+                    <p className="cu-block__label" aria-hidden="true">
+                      <span className="cu-block__number">{number}</span> {block.title}
+                    </p>
+                  )}
+                  <Link href={lesson.href as Route}>
+                    <span className="cu-lesson-link__number">
+                      Lección {lesson.number}
+                      {lesson.tier === 'extension' && (
+                        <>
+                          {' '}
+                          <TierBadge tier="extension" label="Ampliación" />
+                        </>
+                      )}
+                    </span>
+                    <span className="cu-lesson-link__title">{lesson.title}</span>
+                    <span className="cu-lesson-link__summary">{lesson.summary}</span>
+                  </Link>
+                  {status?.(lesson.id)}
+                </li>
+              ))}
+            </ol>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -293,6 +310,66 @@ export function CurriculumIndex({
 }
 
 /* ---------- Lección ---------- */
+
+/**
+ * Temario lateral de una lección de las Secciones 2 y 3: la misma pieza que en la Sección 1
+ * (`study-toc` desde 992 px y desplegable «Temario» en pantallas menores).
+ */
+export function SectionLessonToc({
+  blocks,
+  current,
+  indexHref,
+}: {
+  readonly blocks: readonly BlockView[];
+  /** Id de la lección abierta. */
+  readonly current: string;
+  readonly indexHref: string;
+}) {
+  const lessons = blocks.flatMap((block) => block.lessons);
+  const position = lessons.findIndex((lesson) => lesson.id === current);
+  const list = (
+    <ol>
+      {blocks.map((block) => (
+        <li key={block.id} className="study-toc__block">
+          <span className="study-toc__block-title">
+            {String(block.number).padStart(2, '0')} · {block.title}
+          </span>
+          <ol>
+            {block.lessons.map((lesson) => (
+              <li key={lesson.id}>
+                <Link
+                  aria-current={lesson.id === current ? 'page' : undefined}
+                  href={lesson.href as Route}
+                >
+                  <span className="study-toc__number" aria-hidden="true">
+                    {String(lesson.number).padStart(2, '0')}
+                  </span>
+                  <span>{lesson.shortTitle}</span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </li>
+      ))}
+    </ol>
+  );
+  return (
+    <>
+      <aside className="study-toc" aria-label="Temario">
+        <Link href={indexHref as Route} className="study-toc__back">
+          ← Temario completo
+        </Link>
+        {list}
+      </aside>
+      <details className="study-mobile-toc">
+        <summary>
+          Temario · Lección {position + 1} de {lessons.length}
+        </summary>
+        {list}
+      </details>
+    </>
+  );
+}
 
 function ConceptDefinition({ concept }: { readonly concept: ConceptView }) {
   return (
@@ -659,21 +736,29 @@ export function ExtensionLessons({
     <div className="study-blocks cu-extension">
       {blocks.map((block) => (
         <section key={block.id} className="study-block" aria-labelledby={`bloque-${block.id}`}>
-          <header className="study-block__header">
-            <span className="study-block__letter" aria-hidden="true">
-              {letter}
-            </span>
-            <div>
-              <h2 id={`bloque-${block.id}`}>
-                <span className="visually-hidden">Bloque {letter}: </span>
-                {block.title}
-              </h2>
-              <p>{block.summary} Resultados obtenidos al ejecutar cada consulta en Oracle.</p>
-            </div>
-          </header>
           <ol className="study-path" aria-label={`Lecciones del bloque ${block.title}`}>
-            {block.lessons.map((lesson) => (
-              <li key={lesson.id}>
+            {block.lessons.map((lesson, index) => (
+              <li key={lesson.id} className={index === 0 ? 'study-path__first' : undefined}>
+                {index === 0 ? (
+                  <header className="study-block__header">
+                    <span className="study-block__letter" aria-hidden="true">
+                      {letter}
+                    </span>
+                    <div>
+                      <h2 id={`bloque-${block.id}`}>
+                        <span className="visually-hidden">Bloque {letter}: </span>
+                        {block.title}
+                      </h2>
+                      <p>
+                        {block.summary} Resultados obtenidos al ejecutar cada consulta en Oracle.
+                      </p>
+                    </div>
+                  </header>
+                ) : (
+                  <p className="study-block__label" aria-hidden="true">
+                    <span className="study-block__letter">{letter}</span> {block.title}
+                  </p>
+                )}
                 <Link className="study-card" href={lesson.href as Route}>
                   <span className="study-card__number">
                     {String(lesson.number).padStart(2, '0')}

@@ -14,7 +14,14 @@ export function ExamplePrimer({
   if (parts.length === 0) return null;
   return (
     <details className="study-fold cu-example-primer" open={!compact}>
-      <summary>Antes de leer este ejemplo: vocabulario necesario</summary>
+      <summary>
+        Antes de leer este ejemplo: vocabulario necesario
+        {!compact && (
+          <span className="study-fold__count">
+            {parts.length} {parts.length === 1 ? 'término' : 'términos'}
+          </span>
+        )}
+      </summary>
       <dl>
         {parts.map((part) => (
           <div key={part.term}>

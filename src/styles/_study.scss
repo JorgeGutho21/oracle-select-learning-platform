@@ -5,8 +5,8 @@
   margin-bottom: var(--space-2);
   color: var(--color-primary);
   font-size: 0.8125rem;
-  font-weight: 750;
-  letter-spacing: 0.14em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 // Rótulo de cada parte de la plantilla («En una frase», «¿Qué hace?»…).
@@ -15,8 +15,8 @@
   margin: 0 0 var(--space-2);
   color: var(--color-primary);
   font-size: 0.8125rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
@@ -58,74 +58,126 @@
   color: var(--color-ink);
   font-size: 0.9375rem;
 }
+// Temario: cuadrícula continua de lecciones. El bloque no ocupa una fila propia: su título y su
+// resumen van en la primera tarjeta, y las demás llevan el rótulo. Así ningún bloque corto deja
+// columnas vacías. Las secciones y listas por bloque se conservan para lectores de pantalla.
 .study-blocks {
   display: grid;
-  gap: var(--space-6);
-}
-.study-block {
-  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 272px), 1fr));
   gap: var(--space-4);
+}
+.study-blocks > .study-block,
+.study-blocks > .cu-extension,
+.cu-extension > .study-block,
+.study-block > .study-path {
+  display: contents;
+}
+.study-path {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.study-path > li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  transition: border-color var(--duration-feedback) ease-out;
+}
+.study-path > li:hover {
+  border-color: var(--color-border-strong);
+}
+.study-path > li:has(.study-card.is-done) {
+  border-color: color-mix(in srgb, var(--color-success) 45%, var(--color-border-subtle));
 }
 .study-block__header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-1) var(--space-3);
+  align-items: start;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 .study-block__header h2 {
   margin: 0;
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.35;
 }
 .study-block__header p {
-  margin: 0;
+  margin: var(--space-1) 0 0;
   color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
 }
 .study-block__letter {
   display: inline-grid;
   flex-shrink: 0;
   place-items: center;
-  width: 52px;
-  height: 52px;
-  color: var(--color-night);
-  background: var(--color-cyan);
-  border-radius: 14px;
-  font: 800 1.375rem var(--font-mono);
+  min-width: 32px;
+  height: 32px;
+  padding-inline: var(--space-1);
+  color: var(--color-primary);
+  background: var(--color-soft);
+  border-radius: var(--radius-control);
+  font: 600 0.875rem var(--font-mono);
 }
-.study-path {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-  padding: 0;
+.study-block__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
-  list-style: none;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.study-block__label .study-block__letter {
+  min-width: 24px;
+  height: 24px;
+  font-size: 0.8125rem;
 }
 .study-card {
   display: grid;
+  flex: 1;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-3) var(--space-4);
-  height: 100%;
-  padding: var(--space-5);
+  grid-template-rows: auto auto 1fr;
+  gap: var(--space-2) var(--space-3);
   color: var(--color-ink);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-card);
   text-decoration: none;
-  transition: border-color var(--duration-feedback);
 }
-.study-card:hover {
-  border-color: var(--color-primary);
+// Toda la tarjeta es el enlace; el foco se dibuja alrededor de la tarjeta completa.
+.study-card::after {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  content: '';
 }
-.study-card.is-done {
-  border-color: color-mix(in srgb, var(--color-success) 45%, var(--color-border-subtle));
+.study-card:focus-visible {
+  outline: none;
+}
+.study-card:focus-visible::after {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.study-card:hover .study-card__body strong {
+  color: var(--color-primary);
 }
 .study-card__number {
   display: inline-grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   color: var(--color-inverse);
   background: var(--color-night);
-  border-radius: 12px;
-  font: 700 0.9375rem var(--font-mono);
+  border-radius: var(--radius-control);
+  font: 600 0.875rem var(--font-mono);
 }
 .study-card.is-done .study-card__number {
   background: var(--color-success);
@@ -135,7 +187,9 @@
   gap: var(--space-1);
 }
 .study-card__body strong {
-  font-size: 1.1875rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 .study-card__body span {
   color: var(--color-muted);
@@ -145,40 +199,50 @@
 .study-card__badge {
   grid-column: 2;
   justify-self: start;
-  padding: 4px 10px;
-  color: var(--color-primary);
-  background: var(--color-soft);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 700;
+  padding: 2px 8px;
+  color: var(--color-ink-2);
+  background: var(--color-sunken);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 .study-card__state {
+  grid-row: 3;
   grid-column: 2;
+  align-self: end;
   color: var(--color-muted);
   font-size: 0.875rem;
-  font-weight: 650;
+  font-weight: 600;
 }
 .study-card.is-done .study-card__state {
   color: var(--color-success);
 }
+// Avisos del temario, al final: la clase proyectada y reiniciar el progreso.
 .study-index-footer {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
 }
 .study-teach {
   display: grid;
   gap: var(--space-1);
+  min-width: 0;
   padding: var(--space-4) var(--space-5);
-  color: var(--color-inverse);
-  background: var(--color-night);
+  color: var(--color-ink);
+  background: var(--color-sunken);
   border-radius: var(--radius-card);
   text-decoration: none;
 }
+.study-teach strong {
+  color: var(--color-primary);
+}
 .study-teach span {
-  color: rgb(247 250 255 / 80%);
+  color: var(--color-muted);
   font-size: 0.9375rem;
 }
 .study-teach:hover strong {
@@ -226,7 +290,7 @@
 }
 .study-updated {
   color: var(--color-warning);
-  font-weight: 650;
+  font-weight: 600;
 }
 .study-progress--compact {
   height: 100%;
@@ -257,7 +321,7 @@
   min-height: 44px;
   padding-inline: var(--space-2);
   font-size: 0.9375rem;
-  font-weight: 650;
+  font-weight: 600;
 }
 .study-toc ol,
 .study-mobile-toc ol {
@@ -273,9 +337,9 @@
   margin-top: var(--space-3);
   padding-inline: var(--space-2);
   color: var(--color-muted);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .study-toc a,
@@ -315,7 +379,7 @@
   color: var(--color-muted);
   background: var(--color-page);
   border-radius: 8px;
-  font: 700 0.75rem var(--font-mono);
+  font: 600 0.8125rem var(--font-mono);
 }
 a[aria-current='page'] .study-toc__number {
   color: var(--color-inverse);
@@ -358,19 +422,30 @@ a[aria-current='page'] .study-toc__number {
   border-left: 4px solid var(--color-primary);
   border-radius: var(--radius-control);
   font-size: clamp(1.1875rem, 2vw, 1.4375rem);
-  font-weight: 650;
+  font-weight: 600;
   line-height: 1.4;
 }
 .study-intro {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
+  align-items: start;
 }
 .study-card-block {
   padding: var(--space-5);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-card);
+}
+// Teléfono: los rellenos anidados (bloque de datos y ficha de la tabla) se ceden a la tabla para
+// que DEPARTAMENTOS quepa entera a 320 px sin barra ni letra menor.
+@media (max-width: 575px) {
+  .study-card-block {
+    padding: var(--space-3);
+  }
+  .study-card-block .cu-topic-table {
+    padding: var(--space-2);
+  }
 }
 .study-card-block p:last-child {
   margin-bottom: 0;
@@ -480,7 +555,7 @@ a[aria-current='page'] .study-toc__number {
   background: var(--color-night);
   border-radius: 999px;
   font-size: 0.875rem;
-  font-weight: 750;
+  font-weight: 700;
 }
 .study-comparisons__grid {
   display: grid;
@@ -561,7 +636,7 @@ a[aria-current='page'] .study-toc__number {
   color: var(--color-surface);
   background: var(--color-warning);
   border-radius: 50%;
-  font-weight: 800;
+  font-weight: 700;
 }
 .study-error__body {
   display: grid;
@@ -638,11 +713,6 @@ a[aria-current='page'] .study-toc__number {
   margin: 0;
 }
 
-@media (max-width: 1199px) {
-  .study-path {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 @media (max-width: 991px) {
   .study-hero__inner,
   .study-intro,
@@ -670,11 +740,6 @@ a[aria-current='page'] .study-toc__number {
     grid-template-columns: minmax(0, 1fr);
   }
 }
-@media (max-width: 575px) {
-  .study-path {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 .study-intro > *,
 .study-comparisons__grid > *,
 .study-hero__inner > *,
@@ -684,7 +749,7 @@ a[aria-current='page'] .study-toc__number {
 }
 // Reflujo a 200 %: las tarjetas apilan número y texto.
 @media (max-width: 300px) {
-  .study-card,
+  .study-path > li,
   .study-card-block,
   .study-progress,
   .study-start,
@@ -711,6 +776,7 @@ a[aria-current='page'] .study-toc__number {
   }
   .study-card__badge,
   .study-card__state {
+    grid-row: auto;
     grid-column: auto;
   }
   .study-card__body,
@@ -719,7 +785,7 @@ a[aria-current='page'] .study-toc__number {
     overflow-wrap: anywhere;
   }
   .study-block__header {
-    flex-wrap: wrap;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -749,7 +815,7 @@ a[aria-current='page'] .study-toc__number {
   margin-left: auto;
   color: var(--color-muted);
   font-size: 0.875rem;
-  font-weight: 650;
+  font-weight: 600;
 }
 .study-crumbs__bar {
   display: inline-block;
@@ -815,15 +881,37 @@ a[aria-current='page'] .study-toc__number {
 }
 .study-predict {
   margin-bottom: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  background: color-mix(in srgb, var(--color-cyan) 10%, var(--color-surface));
-  border: 1px solid color-mix(in srgb, var(--color-cyan) 45%, var(--color-border-subtle));
-  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-soft);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 25%, var(--color-border-subtle));
+  border-radius: var(--radius-card);
 }
 .study-predict summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
   min-height: 44px;
-  font-weight: 650;
+  font-weight: 600;
+  list-style: none;
   cursor: pointer;
+}
+.study-predict summary::-webkit-details-marker {
+  display: none;
+}
+.study-predict summary::before {
+  flex-shrink: 0;
+  width: 0.55em;
+  height: 0.55em;
+  margin-right: var(--space-1);
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(-45deg);
+  transition: transform var(--duration-feedback) ease-out;
+  content: '';
+}
+.study-predict[open] summary::before {
+  transform: rotate(45deg);
 }
 .study-predict summary .study-part {
   display: inline;
@@ -846,7 +934,7 @@ a[aria-current='page'] .study-toc__number {
   gap: var(--space-2);
   min-height: 44px;
   color: var(--color-muted);
-  font-weight: 650;
+  font-weight: 600;
   cursor: pointer;
 }
 .study-fold > summary .study-part {
@@ -893,7 +981,7 @@ a[aria-current='page'] .study-toc__number {
 }
 .study-terms dt code {
   color: var(--color-primary);
-  font-weight: 800;
+  font-weight: 700;
 }
 .study-terms dd {
   margin: 0;
@@ -901,62 +989,270 @@ a[aria-current='page'] .study-toc__number {
   line-height: 1.5;
 }
 
-// Cuaderno de estudio S1: índice editorial, avance junto al objetivo y lectura estable.
-.study-hero {
-  padding-block: var(--space-7);
+/* ---------- Temario de las Secciones 2 y 3: la misma cuadrícula continua ---------- */
+
+// `_curriculum.scss` se carga después: estas reglas se anclan en `.study-shell` para
+// prevalecer sin tocar ese archivo.
+.study-shell .cu-blocks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 272px), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.study-shell .cu-block,
+.study-shell .cu-block__lessons {
+  display: contents;
+}
+.study-shell .cu-lesson-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5);
   background: var(--color-surface);
-}
-.study-hero h1 {
-  font-size: 2.5rem;
-  line-height: 1.15;
-  max-width: 22ch;
-}
-.study-eyebrow {
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 0.9375rem;
-}
-.study-progress {
-  box-shadow: none;
-  border-radius: var(--radius-control);
-  background: var(--color-page);
-}
-.study-block {
-  padding-block: var(--space-4);
-  border-top: 1px solid var(--color-border-subtle);
-}
-.study-block__letter {
-  background: var(--color-soft);
-  color: var(--color-primary);
-  border-radius: var(--radius-sm);
-}
-.study-path {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2) var(--space-5);
-}
-.study-card {
-  padding: var(--space-4);
-  border-radius: var(--radius-control);
-  box-shadow: none;
-}
-.study-card__number {
-  background: var(--color-page);
-  color: var(--color-muted);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card);
+  transition: border-color var(--duration-feedback) ease-out;
 }
-.study-card.is-done .study-card__number {
-  color: var(--color-inverse);
+.study-shell .cu-lesson-link:hover {
+  border-color: var(--color-border-strong);
 }
-.study-card:hover {
-  border-color: var(--color-primary);
+.study-shell .cu-lesson-link:has(.cu-lesson-status--done) {
+  border-color: color-mix(in srgb, var(--color-success) 45%, var(--color-border-subtle));
+}
+.study-shell .cu-block__head {
+  display: grid;
+  gap: var(--space-1);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.study-shell .cu-block__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.35;
+  scroll-margin-top: calc(var(--site-header-height) + var(--space-4));
+}
+.study-shell .cu-block__number {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  min-width: 32px;
+  height: 28px;
+  padding-inline: var(--space-1);
+  color: var(--color-primary);
   background: var(--color-soft);
+  border-radius: var(--radius-control);
+  font: 600 0.875rem var(--font-mono);
 }
-@media (max-width: 767px) {
-  .study-path {
-    grid-template-columns: minmax(0, 1fr);
+.study-shell .cu-block__summary,
+.study-shell .cu-block__tier {
+  max-width: none;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.study-shell .cu-block__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.study-shell .cu-block__label .cu-block__number {
+  min-width: 28px;
+  height: 24px;
+  font-size: 0.8125rem;
+}
+.study-shell .cu-lesson-link > a {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: auto;
+  padding: 0;
+  color: var(--color-ink);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  text-decoration: none;
+}
+.study-shell .cu-lesson-link > a::after {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-card);
+  content: '';
+}
+.study-shell .cu-lesson-link > a:focus-visible {
+  outline: none;
+}
+.study-shell .cu-lesson-link > a:focus-visible::after {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.study-shell .cu-lesson-link > a:hover .cu-lesson-link__title {
+  color: var(--color-primary);
+}
+// El número de la lección cierra la tarjeta, en la misma línea que su estado.
+.study-shell .cu-lesson-link__number {
+  order: 1;
+  margin-top: auto;
+  padding-top: var(--space-2);
+  padding-right: 7.5rem;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.study-shell .cu-lesson-link__title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.study-shell .cu-lesson-link__summary {
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.study-shell .cu-lesson-link > .cu-lesson-status {
+  position: absolute;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  pointer-events: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.study-shell .cu-lesson-status:not(.cu-lesson-status--done, .cu-lesson-status--open) {
+  color: var(--color-muted);
+}
+
+// Datos de la sección: texto y relaciones a la izquierda, tablas plegables a la derecha.
+@media (min-width: 992px) {
+  .study-shell .cu-dataset {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: var(--space-6);
+    align-items: start;
   }
-  .study-hero h1 {
-    font-size: 2rem;
+  .study-shell .cu-dataset > :not(.cu-dataset__tables) {
+    grid-column: 1;
   }
+  .study-shell .cu-dataset__tables {
+    grid-column: 2;
+    grid-row: 1 / span 5;
+  }
+}
+.study-shell .cu-dataset__tables .study-fold {
+  margin: 0;
+}
+@media (max-width: 300px) {
+  .study-shell .cu-lesson-link {
+    padding: var(--space-3);
+  }
+  .study-shell .cu-lesson-link__number {
+    padding-right: 0;
+  }
+  .study-shell .cu-lesson-link > .cu-lesson-status {
+    position: static;
+  }
+}
+
+/* ---------- Lección: la misma anatomía en S1, S2 y S3 ---------- */
+
+// La lección de S2/S3 usa la plantilla de S1: temario lateral y columna de lectura.
+.study-shell .cu-page--lesson {
+  max-width: var(--container-max);
+}
+.cu-lesson-layout {
+  padding-block: 0;
+}
+// Medida de lectura: el texto corrido no pasa de unos 75 caracteres por línea aunque la
+// columna sea más ancha (tablas, código y comparaciones sí usan todo el ancho).
+.study-lesson :is(p, li, dd):not([class]),
+.study-lesson :is(.cu-lesson__summary, .cu-lesson__problem, .study-reading, .cu-example__reading),
+.study-lesson .study-card-block > p,
+.study-lesson .study-error__body > p {
+  max-width: 54ch;
+}
+.study-lesson .study-one-liner {
+  max-width: 60ch;
+}
+.study-lesson .cu-verified {
+  max-width: 58ch;
+}
+// Tarjetas sin anidar: lo que va dentro de un bloque de la lección pasa a superficie hundida.
+.study-shell .cu-topic-table {
+  background: var(--color-sunken);
+  border-color: transparent;
+}
+.study-shell .cu-orientation {
+  border-left: 1px solid var(--color-border-subtle);
+}
+.study-shell pre.cu-orientation__model {
+  background: var(--color-sunken);
+}
+
+// Desplegables: flecha y recuento a la vista; cerrados no parecen tarjetas vacías.
+.study-shell .study-fold {
+  padding: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+}
+.study-shell .study-fold > summary {
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-ink);
+  font-weight: 600;
+  list-style: none;
+  border-radius: inherit;
+}
+.study-shell .study-fold > summary::-webkit-details-marker {
+  display: none;
+}
+.study-shell .study-fold > summary::before {
+  flex-shrink: 0;
+  width: 0.55em;
+  height: 0.55em;
+  margin-right: var(--space-1);
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(-45deg);
+  transition: transform var(--duration-feedback) ease-out;
+  content: '';
+}
+.study-shell .study-fold[open] > summary::before {
+  transform: rotate(45deg);
+}
+.study-shell .study-fold > summary:hover {
+  background: var(--color-sunken);
+}
+.study-shell .study-fold[open] > summary {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+.study-shell .study-fold > :not(summary) {
+  margin: var(--space-4);
+}
+.study-shell .study-fold__count {
+  margin-left: auto;
+  padding: 2px 10px;
+  color: var(--color-ink-2);
+  background: var(--color-sunken);
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.study-shell .study-fold--inline > summary {
+  padding: var(--space-1) var(--space-3);
 }

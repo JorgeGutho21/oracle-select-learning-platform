@@ -29,7 +29,6 @@ export default async function Page({
   return (
     <div className="teacher-page">
       <PageHeader
-        tone="night"
         eyebrow={<Link href={'/teacher/questions' as Route}>Banco de preguntas</Link>}
         title={question.externalKey ?? 'Pregunta propia'}
       />

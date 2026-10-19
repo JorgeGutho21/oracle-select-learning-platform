@@ -26,26 +26,93 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+// El mapa de misiones va arriba, en cuadrícula (dos filas de cinco desde 992 px), y la
+// misión ocupa todo el ancho debajo: pedido, datos e interacción caben lado a lado.
 .ch-layout {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-5);
   min-inline-size: 0;
 }
 .ch-layout__map,
 .ch-layout__main {
   display: grid;
   align-content: start;
-  gap: var(--space-4);
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+.ch-layout__map > .ds-button {
+  justify-self: end;
+}
+@media (max-width: 575px) {
+  .ch-layout__map > .ds-button {
+    justify-self: stretch;
+  }
+}
+
+// Antes de empezar: las reglas en una columna lateral y, al lado, las diez misiones.
+.ch-intro-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
   min-inline-size: 0;
 }
 @media (min-width: 992px) {
-  .ch-layout {
-    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+  .ch-intro-layout {
+    grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
   }
-  .ch-layout__map {
-    position: sticky;
-    top: var(--space-4);
+}
+.ch-intro h2,
+.ch-preview__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ch-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+.ch-preview__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 100%), 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 1200px) {
+  .ch-preview__list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
+}
+.ch-preview__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2) var(--space-3);
+  min-inline-size: 0;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+.ch-preview__text {
+  display: grid;
+  gap: 2px;
+  min-inline-size: 0;
+}
+.ch-preview__name {
+  overflow-wrap: anywhere;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.ch-preview__difficulty {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
 }
 
 .ch-stack,
@@ -65,19 +132,17 @@
   border-radius: var(--radius-card);
 }
 @media (min-width: 768px) {
-  .ch-intro,
   .ch-mission {
     padding: var(--space-6);
   }
 }
+// Teléfonos: la misión deja de ser tarjeta y gana todo el ancho útil para sus tablas.
 @media (max-width: 479px) {
   .ch-mission {
-    padding: var(--space-4);
-  }
-}
-@media (max-width: 359px) {
-  .ch-mission {
-    padding-inline: var(--space-3);
+    padding: var(--space-4) 0 0;
+    background: transparent;
+    border-width: 1px 0 0;
+    border-radius: 0;
   }
 }
 .ch-rules {
@@ -94,7 +159,7 @@
 /* ---------- Mapa ---------- */
 .ch-map {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
   padding: var(--space-4);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
@@ -102,11 +167,17 @@
 }
 .ch-map__score {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  align-content: start;
+}
+.ch-map__points {
+  font-size: 0.9375rem;
 }
 .ch-map__points strong {
   color: var(--color-primary);
   font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 .ch-map__list {
   display: grid;
@@ -116,9 +187,17 @@
   padding: 0;
   list-style: none;
 }
+// Dos filas de cinco: el recorrido completo a la vista sin empujar la misión.
 @media (min-width: 992px) {
   .ch-map__list {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1200px) {
+  .ch-map {
+    grid-template-columns: minmax(11rem, 13rem) minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--space-5);
   }
 }
 // En el móvil el mapa es una fila de números (el título de la misión abierta ya está en su
@@ -161,10 +240,11 @@
 .ch-map__item {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   inline-size: 100%;
+  block-size: 100%;
   min-block-size: 52px;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   color: var(--color-ink);
   text-align: start;
   background: var(--color-page);
@@ -191,13 +271,14 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-  inline-size: 36px;
-  block-size: 36px;
+  inline-size: 32px;
+  block-size: 32px;
   font-family: var(--font-mono);
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-inverse);
   background: var(--color-night);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
 }
 .ch-map__item--solved .ch-map__number {
   background: var(--color-success);
@@ -211,14 +292,14 @@
   min-inline-size: 0;
 }
 .ch-map__title {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   font-size: 0.9375rem;
   font-weight: 600;
   line-height: 1.3;
 }
 .ch-map__status {
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 }
 
 /* ---------- Misión ---------- */
@@ -280,7 +361,7 @@
 }
 .ch-request__label {
   color: var(--color-muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -618,5 +699,144 @@
   .ch-instructions,
   .ch-claim__text {
     overflow-wrap: anywhere;
+  }
+}
+
+/* ---------- Challenge de S2 y S3: mapa de misiones en cuadrícula ---------- */
+// Cada bloque de retos es una celda de la cuadrícula (dos filas de cinco a 1200 px o más),
+// con su misión dentro sin tarjeta anidada. Estas reglas pesan más que las de base
+// (`_curriculum`, `_pedagogy-ui`) porque van dentro de `.cu-challenge`.
+.cu-challenge .cu-challenge__score {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+}
+.cu-challenge .cu-challenge__score strong {
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+.cu-challenge .cu-challenge__rules {
+  margin-top: 0 !important;
+  max-inline-size: 90ch;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+.cu-challenge .db-challenge-blocks {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  grid-auto-flow: row dense;
+  gap: var(--space-3);
+}
+@media (min-width: 1200px) {
+  .cu-challenge .db-challenge-blocks {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+.cu-challenge .db-challenge-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
+  transition: border-color var(--duration-feedback) ease-out;
+}
+.cu-challenge .db-challenge-block:hover {
+  border-color: var(--color-border-strong);
+}
+.cu-challenge .db-challenge-block:has(.cu-mission-card.is-closed) {
+  border-color: color-mix(in srgb, var(--color-success) 55%, var(--color-border-subtle));
+}
+// Un bloque con dos misiones ocupa dos celdas cuando la cuadrícula tiene al menos dos.
+@media (min-width: 576px) {
+  .cu-challenge .db-challenge-block:has(.cu-mission-card + .cu-mission-card) {
+    grid-column: span 2;
+  }
+  .cu-challenge .db-challenge-block:has(.cu-mission-card + .cu-mission-card) .cu-mission-map {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.cu-challenge .db-challenge-block__header {
+  display: grid;
+  gap: var(--space-1);
+  align-items: start;
+  justify-content: stretch;
+}
+.cu-challenge .db-challenge-block__header > div {
+  display: grid;
+  gap: 2px;
+}
+.cu-challenge .db-challenge-block__header .study-eyebrow {
+  margin: 0;
+  font-size: 0.8125rem;
+}
+.cu-challenge .db-challenge-block__header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.cu-challenge .db-challenge-block__header > p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+.cu-challenge .db-challenge-block .cu-mission-map {
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  margin: 0;
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--color-border-subtle);
+}
+.cu-challenge .cu-mission-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-inline-size: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.cu-challenge .cu-mission-card__number {
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.cu-challenge .cu-mission-card__title {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+.cu-challenge .cu-mission-card__skill {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+.cu-challenge .db-challenge-topics,
+.cu-challenge .db-challenge-state,
+.cu-challenge .cu-mission-card__steps {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.cu-challenge .db-challenge-state {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+.cu-challenge .cu-mission-card > .ds-button {
+  inline-size: 100%;
+  margin-block-start: auto;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cu-challenge .db-challenge-block {
+    transition: none;
   }
 }

@@ -78,7 +78,7 @@ export function HomeDemonstration() {
               <p>Elige al menos una columna para escribir la consulta.</p>
             )}
           </div>
-          <Link className="hero-action hero-action--primary" href={labHref as Route}>
+          <Link className="hero-action" href={labHref as Route}>
             Abrir en Lab <span aria-hidden="true">→</span>
           </Link>
         </div>

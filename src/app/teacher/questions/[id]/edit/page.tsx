@@ -29,7 +29,6 @@ export default async function Page({
   return (
     <div className="teacher-page">
       <PageHeader
-        tone="night"
         eyebrow={<Link href={`/teacher/questions/${id}` as Route}>Volver a la pregunta</Link>}
         title="Editar pregunta"
         lead="Si la pregunta ya se usó en una evaluación publicada, guardar crea una versión nueva; la evaluación conserva la anterior."

@@ -21,14 +21,17 @@
     overflow-wrap: anywhere;
   }
   thead th {
-    color: var(--color-muted);
-    background: var(--color-surface-alt);
+    color: var(--color-ink-2);
+    background: var(--color-sunken);
+    border-block-end: 1px solid var(--color-border-strong);
+    font-size: 0.8125rem;
+    font-weight: 600;
   }
   tbody tr + tr {
     border-block-start: 1px solid var(--color-border-subtle);
   }
   tbody th {
-    font-weight: 650;
+    font-weight: 600;
   }
   a {
     display: inline-flex;

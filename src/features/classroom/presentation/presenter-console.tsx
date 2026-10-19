@@ -121,7 +121,7 @@ export function PresenterConsole({ code, loadView, runCommand, subscribe }: Pres
             {participants.length} {participants.length === 1 ? 'participante' : 'participantes'}
           </span>
           {room.status === 'running' && (
-            <span>
+            <span className="classroom-timer">
               Tiempo <strong>{formatDuration(elapsed)}</strong>
             </span>
           )}
@@ -341,7 +341,9 @@ export function MissionProgressList({
           </span>
           <span className="classroom-bar" aria-hidden="true">
             <span
-              style={{ width: `${participants ? (mission.solved / participants) * 100 : 0}%` }}
+              style={{
+                transform: `scaleX(${participants ? Math.min(mission.solved / participants, 1) : 0})`,
+              }}
             />
           </span>
           <span className="classroom-missions__count">

@@ -77,10 +77,15 @@ function StaleNote({ stale }: { stale: boolean }) {
  */
 export function SchemaPanel({ highlighted }: { highlighted: readonly string[] }) {
   return (
-    <Panel id="lab-schema" number={6} title="Esquema disponible" className="lab-panel--wide">
+    <Panel
+      id="lab-schema"
+      number={6}
+      title="Esquema disponible"
+      className="lab-panel--wide lab-panel--schema"
+    >
       <p className="lab-schema__summary">
         <strong>EMPLEADOS</strong> · {EMPLEADOS.columns.length} columnas · {EMPLEADOS.rows.length}{' '}
-        registros · {EMPLEADOS.table}
+        registros · {EMPLEADOS.id}
       </p>
       <SchemaCards
         label="Columnas de EMPLEADOS"
@@ -95,7 +100,7 @@ export function SchemaPanel({ highlighted }: { highlighted: readonly string[] })
           panel 2.
         </p>
         <DatasetExplorer
-          caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.table}`}
+          caption={`Tabla EMPLEADOS · ${EMPLEADOS.rows.length} filas · ${EMPLEADOS.id}`}
           label="Datos de origen · EMPLEADOS"
           columns={EMPLEADOS.columns.map(({ name, type }) => ({ name, type }))}
           rows={EMPLEADOS.rows.map((row) =>
@@ -226,7 +231,9 @@ export function FeedbackPanel({
     <Panel id="lab-feedback" number={3} title="Diagnóstico" className="lab-panel--feedback">
       <div aria-live="polite" className="lab-stack">
         {!analysis ? (
-          <p className="lab-empty">Escribe una consulta y pulsa «Analizar».</p>
+          <p className="lab-empty">
+            Escribe una consulta y pulsa «Analizar». Aquí verás qué ocurrió, dónde y por qué.
+          </p>
         ) : (
           <>
             <StaleNote stale={stale} />
@@ -312,13 +319,13 @@ export function ResultPanel({
 }) {
   return (
     <Panel id="lab-result" number={2} title="Resultado" className="lab-panel--result">
-      <div className="lab-result__block">
+      <div className="lab-result__block lab-result__block--preview">
         <div className="lab-result__heading">
           <h3>Vista previa educativa</h3>
           <Chip tone="warning">No es una ejecución en Oracle</Chip>
         </div>
         <p className="lab-muted">
-          Calculada en el navegador por el analizador del curso sobre el dataset {EMPLEADOS.table}.
+          Calculada en el navegador por el analizador del curso sobre el dataset {EMPLEADOS.id}.
           Sirve para comprender la consulta; no acredita el laboratorio real.
         </p>
         <StaleNote stale={stale} />
@@ -436,7 +443,12 @@ export function TranslationPanel({
   stale: boolean;
 }) {
   return (
-    <Panel id="lab-translation" number={4} title="En lenguaje cotidiano">
+    <Panel
+      id="lab-translation"
+      number={4}
+      title="En lenguaje cotidiano"
+      className="lab-panel--translation"
+    >
       <StaleNote stale={stale} />
       {analysis?.translation ? (
         <div className="lab-stack">
@@ -448,7 +460,7 @@ export function TranslationPanel({
           </ol>
         </div>
       ) : (
-        <p className="lab-empty">La traducción aparece cuando la consulta es válida.</p>
+        <p className="lab-pending">La traducción aparece cuando la consulta es válida.</p>
       )}
     </Panel>
   );
@@ -504,10 +516,15 @@ export function AnatomyPanel({
   if (cursor < source.length) segments.push(source.slice(cursor));
 
   return (
-    <Panel id="lab-anatomy" number={5} title="Anatomía de la consulta">
+    <Panel
+      id="lab-anatomy"
+      number={5}
+      title="Anatomía de la consulta"
+      className="lab-panel--anatomy"
+    >
       <StaleNote stale={stale} />
       {parts.length === 0 ? (
-        <p className="lab-empty">La anatomía aparece cuando la consulta es válida.</p>
+        <p className="lab-pending">La anatomía aparece cuando la consulta es válida.</p>
       ) : (
         <div className="lab-anatomy">
           <pre className="lab-anatomy__code" aria-label="Consulta con sus partes marcadas">

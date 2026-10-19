@@ -11,8 +11,8 @@
 .sql-code__label {
   color: var(--color-muted);
   font-size: 0.8125rem;
-  font-weight: 750;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .sql-code__pre {
@@ -20,9 +20,10 @@
   padding: var(--space-4) var(--space-5);
   color: var(--color-inverse);
   background: var(--color-editor);
+  // Sin filete lateral: el editor oscuro ya distingue el código; el tono (error, correcto)
+  // lo dicen el rótulo y un borde completo.
   border: 1px solid rgb(247 250 255 / 8%);
-  border-left: 4px solid var(--color-cyan);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-card);
   font-family: var(--font-mono);
   font-size: 1rem;
   line-height: 1.6;
@@ -52,10 +53,10 @@
   font-size: 1.125rem;
 }
 .sql-code--error .sql-code__pre {
-  border-left-color: #ff8a95;
+  border-color: #ff8a95;
 }
 .sql-code--success .sql-code__pre {
-  border-left-color: #7fe0a8;
+  border-color: #7fe0a8;
 }
 .sql-code--error .sql-code__label {
   color: var(--color-danger);
@@ -66,7 +67,7 @@
 
 .sql-token--keyword {
   color: var(--color-cyan);
-  font-weight: 750;
+  font-weight: 700;
 }
 // Cada palabra clave toma el color de su papel (proyección, fuente, filtro u orden).
 .sql-token--select {
@@ -99,15 +100,15 @@
 // Las funciones no son cláusulas: claras y seminegritas, distintas de las palabras clave.
 .sql-token--function {
   color: var(--color-sem-function-dark);
-  font-weight: 650;
+  font-weight: 600;
 }
 .sql-token--operator {
   color: var(--color-sem-operator-dark);
-  font-weight: 750;
+  font-weight: 700;
 }
 .sql-token--star {
   color: var(--color-sem-select-dark);
-  font-weight: 750;
+  font-weight: 700;
 }
 .sql-token--string {
   color: var(--color-code-string);
@@ -121,21 +122,4 @@
 .sql-token--comment {
   color: var(--color-code-comment);
   font-style: italic;
-}
-
-// Código compartido: conserva el color semántico y una selección legible.
-.sql-code__pre {
-  border-left-width: 1px;
-  border-radius: var(--radius-control);
-}
-.sql-code--error .sql-code__pre {
-  border-color: #ff8a95;
-}
-.sql-code--success .sql-code__pre {
-  border-color: #7fe0a8;
-}
-.sql-code__pre::selection,
-.sql-code__pre ::selection {
-  color: var(--color-inverse);
-  background: #27517c;
 }

@@ -1,7 +1,5 @@
 import type { Route } from 'next';
 import Link from 'next/link';
-import { SpotlightCard } from '@/presentation/components/effects/spotlight-card';
-import { StarBorder } from '@/presentation/components/effects/star-border';
 import { Chip } from '@/presentation/components/ui';
 import { PHASE_LABEL, type AssessmentPhase } from '../application/assessment-api';
 import { minutesLabel, questionsLabel, windowLabel } from './format';
@@ -138,10 +136,11 @@ function Card({
       </div>
     </div>
   );
-  return live ? (
-    <StarBorder className="teacher-assessment__frame">{body}</StarBorder>
-  ) : (
-    <SpotlightCard className="teacher-assessment__frame">{body}</SpotlightCard>
+  // Presupuesto de movimiento 0 en el panel docente: sin efectos montados.
+  return (
+    <div className={`teacher-assessment__frame${live ? ' teacher-assessment__frame--live' : ''}`}>
+      {body}
+    </div>
   );
 }
 

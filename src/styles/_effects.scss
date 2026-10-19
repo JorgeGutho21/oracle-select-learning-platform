@@ -1,6 +1,7 @@
 // Efectos adaptados de React Bits (THIRD_PARTY_NOTICES.md). Regla de densidad: un solo
-// efecto protagonista por pantalla (la cuadrícula de la portada); el resto son
-// microinteracciones. Con movimiento reducido todo queda quieto (ver también _base.scss).
+// efecto protagonista por pantalla: Shape Grid en la portada, Star Border en /sections (solo
+// al pasar el ratón o con foco, 300 ms). Spotlight es una microinteracción de 150 ms. Con
+// movimiento reducido todo queda quieto (ver también _base.scss).
 
 // Spotlight Card: luz que sigue al ratón, detrás del contenido.
 .fx-spotlight {
@@ -25,7 +26,7 @@
   );
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--duration-slow) var(--ease-standard);
+  transition: opacity var(--duration-feedback) var(--ease-out);
   content: '';
 }
 .fx-spotlight:hover::before,

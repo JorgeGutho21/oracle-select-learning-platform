@@ -2,12 +2,17 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { LessonCheck, LessonVisit } from '@/composition/curriculum/curriculum-client';
 import {
+  curriculumIndex,
   lessonPage,
   lessonSlugs,
   verification,
 } from '@/features/curriculum/application/curriculum-api';
 import { CURRICULUM_OUTLINE, EXTENSION_OUTLINE } from '@/features/curriculum/application/outline';
-import { LessonArticle, ModeTabs } from '@/features/curriculum/presentation/curriculum-pages';
+import {
+  LessonArticle,
+  ModeTabs,
+  SectionLessonToc,
+} from '@/features/curriculum/presentation/curriculum-pages';
 import { getSection } from '@/features/sections/application/sections-api';
 
 export const dynamicParams = false;
@@ -35,29 +40,40 @@ export default async function Page({ params }: Props) {
   const section = getSection(sectionId);
   const view = section ? lessonPage(section.id, lesson) : null;
   if (!section || !view) notFound();
+  const index = curriculumIndex(section.id);
+  const article = (
+    <LessonArticle
+      view={view}
+      verification={verification()}
+      tracker={
+        <LessonVisit section={section.id} lessonId={view.lesson.id} version={view.lesson.version} />
+      }
+      check={
+        <LessonCheck
+          section={section.id}
+          lessonId={view.lesson.id}
+          version={view.lesson.version}
+          activity={view.check}
+        />
+      }
+    />
+  );
   return (
     <div className="study-shell cu-shell">
       <div className="site-container cu-page cu-page--lesson">
         <ModeTabs section={section.id} current="study" />
-        <LessonArticle
-          view={view}
-          verification={verification()}
-          tracker={
-            <LessonVisit
-              section={section.id}
-              lessonId={view.lesson.id}
-              version={view.lesson.version}
+        {index ? (
+          <div className="study-layout cu-lesson-layout">
+            <SectionLessonToc
+              blocks={index.blocks}
+              current={view.lesson.id}
+              indexHref={`/sections/${section.id}/study`}
             />
-          }
-          check={
-            <LessonCheck
-              section={section.id}
-              lessonId={view.lesson.id}
-              version={view.lesson.version}
-              activity={view.check}
-            />
-          }
-        />
+            {article}
+          </div>
+        ) : (
+          article
+        )}
       </div>
     </div>
   );
