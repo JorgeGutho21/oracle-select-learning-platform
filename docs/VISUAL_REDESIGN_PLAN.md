@@ -42,3 +42,34 @@ Las skills locales de `.claude/skills/` son adaptadores breves; los agentes apli
 ### Gates
 
 lint · typecheck · format · build · Vitest · E2E Chromium completa comparada con el commit base · `projector-scenes` · axe · capturas 390 / 768 / 1024 / 1280 / 1366 / 1440 / 1920 (playwright-visual-qa-agent) · contenido Oracle sin cambios (oracle-validation-engineer) · sin secretos (qa-release-engineer).
+
+## Fase 3 — Ejecución (resultado)
+
+Cinco olas en paralelo, cada una en su worktree y con su rama, integradas con merge en la rama principal:
+
+| Ola                  | Agentes aplicados                                                                                        | Resultado principal                                                                                                                                 |
+| -------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 Público            | product-designer, taste, ux-ui, frontend-architect + nextjs, emil, accessibility                         | Cabecera de 64 px, Home de 6221 a 4475 px con una acción primaria, tarjetas de sección iguales, pie en rejilla sin créditos duplicados              |
+| 2 Aprendizaje        | instructional-designer-oracle, ux-ui, impeccable, design-systems, frontend + nextjs, accessibility       | Temario en cuadrícula continua (S3 de 8316 a 5120 px), lección S2/S3 con índice lateral como S1, práctica con progreso fijo, recursos en 2 columnas |
+| 3 Herramientas       | ux-ui, design-systems, oracle-validation, emil, frontend + nextjs, accessibility                         | Lab con acciones junto al editor, Challenge en cuadrícula, tablas a 14 px sin barras, búsqueda densa                                                |
+| 4 Cuentas y docencia | product-designer, ux-ui, design-systems, frontend + nextjs, accessibility, qa-release                    | Login limpio, panel docente con accesos directos, evaluaciones sin efectos con presupuesto 0, sala En vivo legible                                  |
+| 5 Exposición         | instructional-designer-oracle, emil, design-systems, frontend + nextjs, oracle-validation, accessibility | Los 7 fallos de S1 en proyector resueltos, eje de la escena 16 a ≥ 13 px, progreso con `scaleX`, controles a 250 ms                                 |
+
+Decisión: el Lab mantiene el resultado bajo el editor (prueba `lab-result-table`: tabla entera de 12 columnas a 1280 px); a la derecha van ejemplos y acciones.
+
+## Fase 4 — Validación
+
+- Contenido: sin cambios en dominio curricular, resultados Oracle, banco de evaluaciones, dataset, Supabase ni Oracle (diff vacío en esas rutas).
+- Vitest: 2349 pasan, 7 omitidas, con Oracle 23 local y Supabase local reales (igual que antes del rediseño).
+- Accesibilidad (playwright-visual-qa-agent + accessibility-engineer, 19 rutas × 2 anchos): axe 0/38, desbordamiento 0/38, foco 30/30, 0 animaciones con movimiento reducido; texto < 12 px de 12 nodos a 0; objetivos < 24 px de 66 a 0.
+- QA visual: defectos corregidos tras la revisión (escena 10 de S1 a 1280 × 720, estado de Práctica en móvil, pie a 1024 px, tablas de Estudio a 320 px).
+
+### Pendientes reales
+
+- `/challenge` de S1 no usa todavía la cabecera, la miga de pan y las pestañas de modo de S2/S3; sus reglas de puntuación difieren (−20 frente a −15/−10) y no se cambian sin decisión del docente.
+- `/learn` indica «22 lecciones» del Modo Estudio y la sección cuenta 25 (incluye las 3 de funciones de una fila).
+- En Estudio a 390 px, las pestañas de modo ocupan tres filas.
+- `aria-describedby` de las piezas arrastrables (dnd-kit) apunta a una descripción no montada en Práctica: lector de pantalla sin instrucciones de arrastre.
+- Subtítulos del vídeo resumen ausentes (`media.spec`), anterior al rediseño.
+- Escena 7 de S1 a 1280 × 720: 2 px entre contenido e idea clave (no se solapan).
+- Edge, WebKit y Firefox: NOT TESTED en este entorno (solo Chromium). Preview y Production: no desplegados desde aquí.
