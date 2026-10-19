@@ -521,11 +521,15 @@ function CellContent({
     column?.name === 'ESTADO' && typeof value === 'string' && STATUS_VALUES.has(value) ? (
       <StatusChip value={value} />
     ) : typeof value === 'string' && value.includes('@') ? (
-      // Un correo puede partirse tras la arroba sin ensanchar toda la tabla.
+      // Un correo puede partirse tras la arroba y tras cada punto (carlos. / gomez@ /
+      // empresa.example) sin ensanchar toda la tabla ni cortar a mitad de palabra.
       <>
-        {value.slice(0, value.indexOf('@') + 1)}
-        <wbr />
-        {value.slice(value.indexOf('@') + 1)}
+        {value.split(/(?<=[.@])/).map((part, index) => (
+          <Fragment key={index}>
+            {index > 0 && <wbr />}
+            {part}
+          </Fragment>
+        ))}
       </>
     ) : (
       formatCell(value)

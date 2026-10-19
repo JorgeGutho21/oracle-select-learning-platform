@@ -162,6 +162,7 @@ export function LaboratoryWorkspace({
           id="lab-editor"
           number={1}
           title="Editor SQL"
+          className="lab-panel--editor"
           aside={stale ? <Chip tone="warning">Sin analizar</Chip> : null}
         >
           <div className="lab-examples">
@@ -200,7 +201,7 @@ export function LaboratoryWorkspace({
             diagnostics={editorDiagnostics}
             readOnly={!draftReady}
           />
-          <p id={helpId} className="lab-muted">
+          <p id={helpId} className="lab-muted lab-editor__help">
             Ctrl+Enter (Cmd+Enter en Mac) analiza la consulta. Tab sale del editor.
           </p>
           <div className="lab-actions">

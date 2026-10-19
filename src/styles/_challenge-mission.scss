@@ -18,8 +18,10 @@
   container: ch-work / inline-size;
 }
 // En escritorio el pedido, el concepto y los datos acompañan a la interacción: la pregunta
-// y su respuesta caben en una pantalla, sin una tabla de 800 px antes de la pregunta.
-@container ch-mission (width >= 52rem) {
+// y su respuesta caben en una pantalla, sin una tabla de 800 px antes de la pregunta. El
+// umbral garantiza a la columna de contexto unos 24 rem: la muestra de trabajo (hasta cuatro
+// columnas, con correos) cabe entera a 14 px sin barra horizontal.
+@container ch-mission (width >= 60rem) {
   .ch-mission__grid {
     grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
     gap: var(--space-5);
@@ -147,9 +149,9 @@
 .ch-schema__group-title {
   margin: 0;
   color: var(--color-primary);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 .ch-schema__item {
@@ -179,7 +181,7 @@
 .ch-schema__null {
   grid-column: 2;
   color: var(--color-muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 @container ch-mission (width < 40rem) {
   .ch-schema--grid {
@@ -224,7 +226,7 @@
   inline-size: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: clamp(0.8125rem, 0.45vw + 0.45rem, 0.9375rem);
+  font-size: clamp(0.875rem, 0.3vw + 0.6rem, 0.9375rem);
   font-variant-numeric: tabular-nums;
 }
 .ch-pick__table th,
@@ -235,13 +237,14 @@
   border-block-start: 1px solid var(--color-border-subtle);
 }
 .ch-pick__table thead th {
-  color: var(--color-ink);
-  background: var(--color-surface-alt);
+  color: var(--color-ink-2);
+  background: var(--color-sunken);
   border-block-start: 0;
+  border-block-end: 1px solid var(--color-border-strong);
   font-family: var(--font-mono);
-  font-size: max(0.8em, 12px);
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-size: max(0.9em, 13px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
   vertical-align: bottom;
 }
 .ch-pick__table tbody th {
@@ -281,7 +284,7 @@
 }
 .ch-pick__row.is-kept > * {
   background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface));
-  font-weight: 650;
+  font-weight: 600;
 }
 .ch-pick__row.is-kept > :first-child {
   box-shadow: inset 3px 0 0 var(--color-success);
@@ -294,7 +297,7 @@
 .ch-pick__state {
   display: inline-block;
   margin-inline-start: var(--space-2);
-  font-weight: 800;
+  font-weight: 700;
   vertical-align: middle;
 }
 .ch-pick__state--kept {
@@ -313,6 +316,10 @@
   .ch-pick__table th,
   .ch-pick__table td {
     padding-inline: 0.38em;
+  }
+  .ch-pick__table thead th,
+  .ch-pick__table td:not(.is-number) {
+    overflow-wrap: anywhere;
   }
 }
 
@@ -581,7 +588,7 @@
   outline-offset: 2px;
 }
 .ch-kind__label {
-  font-weight: 800;
+  font-weight: 700;
 }
 .ch-kind:has(input:checked) .ch-kind__label {
   color: var(--color-primary);
