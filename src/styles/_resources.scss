@@ -104,8 +104,7 @@
   padding: var(--space-5);
   background: var(--color-surface);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xs);
+  border-radius: var(--radius-card);
   scroll-margin-top: var(--space-5);
 }
 .resource-card__header {
@@ -155,6 +154,7 @@
   display: grid;
   // Columna explícita: sin ella, el patrón más largo ensanchaba la ficha a 180 px.
   grid-template-columns: minmax(0, 1fr);
+  align-content: start;
   gap: var(--space-2);
   margin: 0;
 }
@@ -185,16 +185,35 @@
 .resource-card__mistake {
   display: block;
   padding: var(--space-2) var(--space-3);
-  background: var(--color-page);
+  background: var(--color-sunken);
   border-radius: var(--radius-md);
 }
 .resource-card__mistake > summary {
   display: flex;
   align-items: center;
+  gap: var(--space-2);
   min-block-size: 44px;
   color: var(--color-danger);
   font-weight: 700;
+  list-style: none;
   cursor: pointer;
+}
+.resource-card__mistake > summary::-webkit-details-marker {
+  display: none;
+}
+// Flecha del desplegable: indica que hay contenido que abrir.
+.resource-card__mistake > summary::before {
+  flex-shrink: 0;
+  width: 0.55em;
+  height: 0.55em;
+  border-right: 2px solid currentcolor;
+  border-bottom: 2px solid currentcolor;
+  transform: rotate(-45deg);
+  transition: transform var(--duration-feedback) ease-out;
+  content: '';
+}
+.resource-card__mistake[open] > summary::before {
+  transform: rotate(45deg);
 }
 .resource-card__mistake > * + * {
   margin-block-start: var(--space-2);
@@ -335,6 +354,7 @@
   margin-bottom: var(--space-5);
 }
 @media (max-width: 300px) {
+  .study-shell .cu-resource,
   .resource-card,
   .resources-warnings,
   .resources-sources li {
@@ -455,6 +475,13 @@
 .study-shell .cu-resources__grid {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
   align-items: stretch;
+}
+.study-shell .cu-resource {
+  min-width: 0;
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-card);
 }
 .study-shell .cu-resources__grid > .cu-resource:only-child {
   grid-column: 1 / -1;

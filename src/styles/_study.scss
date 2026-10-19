@@ -871,15 +871,37 @@ a[aria-current='page'] .study-toc__number {
 }
 .study-predict {
   margin-bottom: var(--space-4);
-  padding: var(--space-3) var(--space-4);
-  background: color-mix(in srgb, var(--color-cyan) 10%, var(--color-surface));
-  border: 1px solid color-mix(in srgb, var(--color-cyan) 45%, var(--color-border-subtle));
-  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-soft);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 25%, var(--color-border-subtle));
+  border-radius: var(--radius-card);
 }
 .study-predict summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
   min-height: 44px;
   font-weight: 600;
+  list-style: none;
   cursor: pointer;
+}
+.study-predict summary::-webkit-details-marker {
+  display: none;
+}
+.study-predict summary::before {
+  flex-shrink: 0;
+  width: 0.55em;
+  height: 0.55em;
+  margin-right: var(--space-1);
+  border-right: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  transform: rotate(-45deg);
+  transition: transform var(--duration-feedback) ease-out;
+  content: '';
+}
+.study-predict[open] summary::before {
+  transform: rotate(45deg);
 }
 .study-predict summary .study-part {
   display: inline;
@@ -1044,9 +1066,9 @@ a[aria-current='page'] .study-toc__number {
   font-size: 0.8125rem;
 }
 .study-shell .cu-lesson-link > a {
-  display: grid;
+  display: flex;
   flex: 1;
-  align-content: start;
+  flex-direction: column;
   gap: var(--space-1);
   height: auto;
   padding: 0;
@@ -1072,7 +1094,12 @@ a[aria-current='page'] .study-toc__number {
 .study-shell .cu-lesson-link > a:hover .cu-lesson-link__title {
   color: var(--color-primary);
 }
+// El número de la lección cierra la tarjeta, en la misma línea que su estado.
 .study-shell .cu-lesson-link__number {
+  order: 1;
+  margin-top: auto;
+  padding-top: var(--space-2);
+  padding-right: 7.5rem;
   color: var(--color-muted);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -1090,7 +1117,10 @@ a[aria-current='page'] .study-toc__number {
   line-height: 1.5;
 }
 .study-shell .cu-lesson-link > .cu-lesson-status {
-  position: static;
+  position: absolute;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  pointer-events: none;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -1120,6 +1150,12 @@ a[aria-current='page'] .study-toc__number {
   .study-shell .cu-lesson-link {
     padding: var(--space-3);
   }
+  .study-shell .cu-lesson-link__number {
+    padding-right: 0;
+  }
+  .study-shell .cu-lesson-link > .cu-lesson-status {
+    position: static;
+  }
 }
 
 /* ---------- Lección: la misma anatomía en S1, S2 y S3 ---------- */
@@ -1137,10 +1173,13 @@ a[aria-current='page'] .study-toc__number {
 .study-lesson :is(.cu-lesson__summary, .cu-lesson__problem, .study-reading, .cu-example__reading),
 .study-lesson .study-card-block > p,
 .study-lesson .study-error__body > p {
-  max-width: 64ch;
+  max-width: 54ch;
 }
 .study-lesson .study-one-liner {
   max-width: 60ch;
+}
+.study-lesson .cu-verified {
+  max-width: 58ch;
 }
 // Tarjetas sin anidar: lo que va dentro de un bloque de la lección pasa a superficie hundida.
 .study-shell .cu-topic-table {
