@@ -1456,3 +1456,10 @@
 .cu-lesson .study-syntax-block {
   grid-template-columns: minmax(0, 1fr);
 }
+
+// El diagrama LEFT JOIN conserva su letra en el lienzo de 1280 px con Safari DPR 2.
+@media (min-width: 768px) and (orientation: landscape) and (min-height: 561px) {
+  .deck:not([data-flow]) .cu-scene[data-scene-id='left-faltantes'] .join-visual {
+    padding-block: 0.4em;
+  }
+}
