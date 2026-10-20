@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useId, useState, type ReactNode } from 'react';
+import { useHydrated } from '@/presentation/hooks/use-hydrated';
 
 const ResourceQuery = createContext('');
 const normalize = (value: string) =>
@@ -62,6 +63,7 @@ const CATEGORIES = [
 
 /** Filters server-rendered reference fragments without duplicating curriculum in client JS. */
 export function ResourceExplorer({ children }: { readonly children: ReactNode }) {
+  const hydrated = useHydrated();
   const [category, setCategory] = useState<string>('all');
   const [query, setQuery] = useState('');
   const searchId = useId();
@@ -74,6 +76,7 @@ export function ResourceExplorer({ children }: { readonly children: ReactNode })
             <input
               id={searchId}
               type="search"
+              disabled={!hydrated}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar concepto, sintaxis o error…"
@@ -81,6 +84,7 @@ export function ResourceExplorer({ children }: { readonly children: ReactNode })
             {query && (
               <button
                 type="button"
+                disabled={!hydrated}
                 className="ds-button ds-button--secondary"
                 onClick={() => setQuery('')}
               >
@@ -94,6 +98,7 @@ export function ResourceExplorer({ children }: { readonly children: ReactNode })
             <button
               key={id}
               type="button"
+              disabled={!hydrated}
               className="ds-chip db-resource-filter__button"
               aria-pressed={category === id}
               onClick={() => setCategory(id)}

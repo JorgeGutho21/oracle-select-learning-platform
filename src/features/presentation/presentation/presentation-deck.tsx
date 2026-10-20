@@ -18,6 +18,7 @@ import {
   type SceneMemory,
   type SceneNotes,
 } from '../application/presentation-api';
+import { createSceneUrlSync } from '../application/scene-url-sync';
 import { SceneStepContext } from './scene-step';
 import { Dialog } from '@/presentation/components/ui/dialog';
 import { useHydrated } from '@/presentation/hooks/use-hydrated';
@@ -128,6 +129,24 @@ export function PresentationDeck({ requestedScene, memory, deck }: PresentationD
   const outline = outlineOf(scene);
   const steps = outline.steps;
   const visibleStep = stepMode ? Math.min(step, steps) : Number.POSITIVE_INFINITY;
+  const sceneUrl = useMemo(
+    () =>
+      createSceneUrlSync((url) => {
+        // A pending write must never return the visitor to the deck after a route change.
+        if (window.location.pathname !== deck.path) return;
+        window.history.replaceState(null, '', url);
+      }),
+    [deck.path],
+  );
+
+  useEffect(() => {
+    const flush = () => sceneUrl.flush();
+    window.addEventListener('pagehide', flush);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      sceneUrl.cancel();
+    };
+  }, [sceneUrl]);
 
   useEffect(() => {
     if (requestedScene !== null) memory.save(clampScene(requestedScene));
@@ -140,11 +159,11 @@ export function PresentationDeck({ requestedScene, memory, deck }: PresentationD
       setStep(targetStep === 'first' ? 1 : Number.POSITIVE_INFINITY);
       if (next === scene) return;
       // Sin entradas nuevas en el historial: «Atrás» sale de la exposición.
-      window.history.replaceState(null, '', `${deck.path}?scene=${next}`);
+      sceneUrl.schedule(`${deck.path}?scene=${next}`);
       memory.save(next);
       setScene(next);
     },
-    [clampScene, deck.path, memory, scene],
+    [clampScene, deck.path, memory, scene, sceneUrl],
   );
 
   useEffect(() => {

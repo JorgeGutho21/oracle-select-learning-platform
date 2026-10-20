@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useMemo, useState, type ReactNode } from 'react';
+import { useHydrated } from '@/presentation/hooks/use-hydrated';
 
 interface ResourceEntry {
   readonly id: string;
@@ -11,6 +12,7 @@ interface ResourceEntry {
 
 /** Filtros de presentación: conserva las fichas y las fuentes académicas del servidor. */
 export function ResourceFinder({ entries }: { readonly entries: readonly ResourceEntry[] }) {
+  const hydrated = useHydrated();
   const inputId = useId();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -31,6 +33,7 @@ export function ResourceFinder({ entries }: { readonly entries: readonly Resourc
           <input
             id={inputId}
             type="search"
+            disabled={!hydrated}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Concepto, cláusula o palabra clave…"
@@ -41,12 +44,18 @@ export function ResourceFinder({ entries }: { readonly entries: readonly Resourc
         </p>
       </div>
       <div className="resource-finder__filters" aria-label="Filtrar por categoría">
-        <button type="button" aria-pressed={category === 'all'} onClick={() => setCategory('all')}>
+        <button
+          type="button"
+          disabled={!hydrated}
+          aria-pressed={category === 'all'}
+          onClick={() => setCategory('all')}
+        >
           Todas
         </button>
         {entries.map((entry) => (
           <button
             type="button"
+            disabled={!hydrated}
             key={entry.id}
             aria-pressed={category === entry.id}
             onClick={() => setCategory(entry.id)}
@@ -60,6 +69,7 @@ export function ResourceFinder({ entries }: { readonly entries: readonly Resourc
           <p>No hay categorías que coincidan.</p>
           <button
             type="button"
+            disabled={!hydrated}
             onClick={() => {
               setQuery('');
               setCategory('all');
