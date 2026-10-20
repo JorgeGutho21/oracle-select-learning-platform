@@ -57,7 +57,7 @@ describe('Búsqueda del grupo: transición entre resultados', () => {
       'second@example.com',
     );
     expect(screen.getByRole('status')).toHaveTextContent('1 de 2 estudiantes coinciden');
-    expect(screen.getByRole('button', { name: 'Buscar', exact: true })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Buscar' })).toBeEnabled();
   });
 
   it('SSR conserva el formulario GET y las filas; espera eventos antes de habilitar Buscar', () => {
