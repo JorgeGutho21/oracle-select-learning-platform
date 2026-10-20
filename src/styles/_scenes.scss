@@ -2819,4 +2819,18 @@
   .deck:not([data-flow]) .scene[data-scene='12'] .flow-step--source .dv--large :is(th, td) {
     padding-inline: 0.7em;
   }
+  // Las notas de precedencia conservan su texto y letra dentro del área de contenido.
+  .deck:not([data-flow]) .scene[data-scene='15'] .scene-grid--paren > .scene-stack {
+    gap: 0.3em;
+  }
+  .deck:not([data-flow])
+    .scene[data-scene='15']
+    .scene-grid--paren
+    :is(.scene-warning, .scene-good) {
+    padding-block: 0.2em;
+  }
+  // La vista de SELECT * ya aporta separación interna entre consulta y resultado.
+  .deck:not([data-flow]) .scene[data-scene='7'] .star-flow {
+    row-gap: 0;
+  }
 }
