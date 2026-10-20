@@ -66,13 +66,27 @@ export function TeacherDashboard({
   students,
   query,
   refresher,
+  page = 1,
 }: {
   readonly teacherName: string;
   readonly roster: RosterSummary;
   readonly students: readonly StudentRow[];
   readonly query: string;
   readonly refresher?: ReactNode;
+  readonly page?: number;
 }) {
+  // La búsqueda y el resumen usan todo el grupo; solo se presenta una página de filas.
+  const pageSize = 25;
+  const totalPages = Math.max(1, Math.ceil(students.length / pageSize));
+  const currentPage = Math.min(Number.isSafeInteger(page) && page > 0 ? page : 1, totalPages);
+  const start = (currentPage - 1) * pageSize;
+  const visibleStudents = students.slice(start, start + pageSize);
+  const pageHref = (number: number): Route => {
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    params.set('page', String(number));
+    return `/teacher?${params.toString()}#teacher-students-title` as Route;
+  };
   return (
     <div className="teacher-page">
       <header className="ds-page-header teacher-page__header">
@@ -147,11 +161,17 @@ export function TeacherDashboard({
                 ? `${students.length} de ${roster.registered} estudiantes coinciden con «${query}».`
                 : `${roster.registered} estudiantes registrados.`}
             </p>
+            {totalPages > 1 && (
+              <p className="teacher-results teacher-page-range">
+                Mostrando {start + 1}–{Math.min(start + pageSize, students.length)} de{' '}
+                {students.length} estudiantes.
+              </p>
+            )}
             {students.length > 0 ? (
               <RecordTable
                 caption="Estudiantes registrados"
                 columns={['Nombre', 'Correo', 'Progreso general', 'Última actividad', 'Estado']}
-                rows={students.map((student) => ({
+                rows={visibleStudents.map((student) => ({
                   key: student.id,
                   cells: [
                     <span key="name">
@@ -188,6 +208,42 @@ export function TeacherDashboard({
                     : 'Todavía no hay estudiantes registrados. Cuando creen su cuenta aparecerán aquí.'}
                 </p>
               </div>
+            )}
+            {totalPages > 1 && (
+              <nav
+                className="teacher-pagination teacher-search__row"
+                aria-label="Páginas de estudiantes"
+              >
+                {currentPage > 1 ? (
+                  <Link
+                    className="ds-button ds-button--secondary"
+                    href={pageHref(currentPage - 1)}
+                    prefetch={false}
+                  >
+                    Página anterior
+                  </Link>
+                ) : (
+                  <button type="button" className="ds-button ds-button--secondary" disabled>
+                    Página anterior
+                  </button>
+                )}
+                <span aria-current="page">
+                  Página {currentPage} de {totalPages}
+                </span>
+                {currentPage < totalPages ? (
+                  <Link
+                    className="ds-button ds-button--secondary"
+                    href={pageHref(currentPage + 1)}
+                    prefetch={false}
+                  >
+                    Página siguiente
+                  </Link>
+                ) : (
+                  <button type="button" className="ds-button ds-button--secondary" disabled>
+                    Página siguiente
+                  </button>
+                )}
+              </nav>
             )}
           </TeacherStudentSearch>
         </section>

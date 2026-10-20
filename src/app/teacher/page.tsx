@@ -29,6 +29,7 @@ export default async function Page({ searchParams }: { searchParams: SearchParam
       roster={data.roster}
       students={data.students}
       query={data.query}
+      page={Number(firstParam(params.page) ?? 1)}
       refresher={<AutoRefresh />}
     />
   );
