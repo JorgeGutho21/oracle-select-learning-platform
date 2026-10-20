@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Progress, StatusBadge } from '@/presentation/components/ui';
 import type { RosterSummary, StudentRow } from '../application/roster';
+import { TeacherStudentSearch } from './teacher-student-search';
 
 /**
  * Panel docente. Accesos directos a evaluaciones, banco, sala en vivo y resultados; cifras del
@@ -140,75 +141,55 @@ export function TeacherDashboard({
             <h2 id="teacher-students-title">Estudiantes</h2>
             {refresher}
           </div>
-          <form className="teacher-search" role="search" action={'/teacher' as Route}>
-            <label htmlFor="teacher-search-input">Buscar por nombre, apellido o correo</label>
-            <div className="teacher-search__row">
-              <input
-                id="teacher-search-input"
-                className="ds-input"
-                type="search"
-                name="q"
-                defaultValue={query}
-                maxLength={80}
-                autoComplete="off"
+          <TeacherStudentSearch key={query} query={query}>
+            <p className="teacher-results" role="status">
+              {query
+                ? `${students.length} de ${roster.registered} estudiantes coinciden con «${query}».`
+                : `${roster.registered} estudiantes registrados.`}
+            </p>
+            {students.length > 0 ? (
+              <RecordTable
+                caption="Estudiantes registrados"
+                columns={['Nombre', 'Correo', 'Progreso general', 'Última actividad', 'Estado']}
+                rows={students.map((student) => ({
+                  key: student.id,
+                  cells: [
+                    <span key="name">
+                      {student.name}
+                      {student.institutional && (
+                        <span className="teacher-table__tag">Institucional</span>
+                      )}
+                    </span>,
+                    <span key="email" className="teacher-table__email">
+                      {student.email}
+                    </span>,
+                    <span key="progress">
+                      <span className="teacher-meter" aria-hidden="true">
+                        <span style={{ width: student.overall.percent + '%' }} />
+                      </span>
+                      {student.overall.percent} %
+                      <span className="teacher-table__detail">
+                        {' '}
+                        ({student.overall.done}/{student.overall.total} lecciones)
+                      </span>
+                    </span>,
+                    lastActivity(student),
+                    <StatusBadge key="status" tone={student.online ? 'available' : 'planned'}>
+                      {student.online ? 'Conectado' : 'Desconectado'}
+                    </StatusBadge>,
+                  ],
+                }))}
               />
-              <button type="submit" className="ds-button ds-button--primary">
-                Buscar
-              </button>
-              {query && (
-                <Link href={'/teacher' as Route} className="ds-button ds-button--text">
-                  Ver todos
-                </Link>
-              )}
-            </div>
-          </form>
-          <p className="teacher-results" role="status">
-            {query
-              ? `${students.length} de ${roster.registered} estudiantes coinciden con «${query}».`
-              : `${roster.registered} estudiantes registrados.`}
-          </p>
-          {students.length > 0 ? (
-            <RecordTable
-              caption="Estudiantes registrados"
-              columns={['Nombre', 'Correo', 'Progreso general', 'Última actividad', 'Estado']}
-              rows={students.map((student) => ({
-                key: student.id,
-                cells: [
-                  <span key="name">
-                    {student.name}
-                    {student.institutional && (
-                      <span className="teacher-table__tag">Institucional</span>
-                    )}
-                  </span>,
-                  <span key="email" className="teacher-table__email">
-                    {student.email}
-                  </span>,
-                  <span key="progress">
-                    <span className="teacher-meter" aria-hidden="true">
-                      <span style={{ width: student.overall.percent + '%' }} />
-                    </span>
-                    {student.overall.percent} %
-                    <span className="teacher-table__detail">
-                      {' '}
-                      ({student.overall.done}/{student.overall.total} lecciones)
-                    </span>
-                  </span>,
-                  lastActivity(student),
-                  <StatusBadge key="status" tone={student.online ? 'available' : 'planned'}>
-                    {student.online ? 'Conectado' : 'Desconectado'}
-                  </StatusBadge>,
-                ],
-              }))}
-            />
-          ) : (
-            <div className="teacher-empty">
-              <p>
-                {query
-                  ? 'Ningún estudiante coincide con la búsqueda.'
-                  : 'Todavía no hay estudiantes registrados. Cuando creen su cuenta aparecerán aquí.'}
-              </p>
-            </div>
-          )}
+            ) : (
+              <div className="teacher-empty">
+                <p>
+                  {query
+                    ? 'Ningún estudiante coincide con la búsqueda.'
+                    : 'Todavía no hay estudiantes registrados. Cuando creen su cuenta aparecerán aquí.'}
+                </p>
+              </div>
+            )}
+          </TeacherStudentSearch>
         </section>
       </div>
     </div>
