@@ -29,11 +29,8 @@ describe('Chuleta: disponibilidad tras hidratación', () => {
     expect(screen.getByText('Ficha SELECT').parentElement).toHaveAttribute('hidden');
     expect(screen.getByText('Ficha WHERE').parentElement).not.toHaveAttribute('hidden');
     await user.clear(search);
-    await user.click(screen.getByRole('button', { name: 'Filtrar', exact: true }));
-    expect(screen.getByRole('button', { name: 'Filtrar', exact: true })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await user.click(screen.getByRole('button', { name: 'Filtrar' }));
+    expect(screen.getByRole('button', { name: 'Filtrar' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText('Ficha SELECT').parentElement).toHaveAttribute('hidden');
     expect(screen.getByText('Ficha WHERE').parentElement).not.toHaveAttribute('hidden');
   });
