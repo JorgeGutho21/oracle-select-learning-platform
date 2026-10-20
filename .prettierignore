@@ -36,3 +36,7 @@ src/features/curriculum/application/oracle-results.json
 # Estado local de decisiones y preferencias del tooling de diseño.
 .impeccable/questions/
 .impeccable/config.local.json
+
+# Estado privado CLI y snapshots generados para despliegue; no son fuentes del producto.
+.vercel/
+output/redesign19/

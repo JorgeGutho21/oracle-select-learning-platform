@@ -34,6 +34,8 @@ export default defineConfig([
     'coverage/**',
     'playwright-report/**',
     'test-results/**',
+    // Estado privado CLI e instantáneas generadas para despliegue.
+    '.vercel/**',
     // Capturas y guiones de QA locales (ignorados por Git).
     'output/**',
     // Las Skills instaladas conservan su código de terceros sin reescribirlo.
